@@ -59,7 +59,7 @@ export const AdminDashboard: React.FC = () => {
   const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const admin = user as Administrator;
+  const admin = user as unknown as Administrator;
 
   useEffect(() => {
     const fetchData = async () => {

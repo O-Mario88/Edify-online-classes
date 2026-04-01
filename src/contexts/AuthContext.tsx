@@ -1,14 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, UniversalStudent, IndependentTeacher, Institution } from '../types';
+import { User, UniversalStudent, IndependentTeacher, Institution, ParentUser } from '../types';
 
 interface AuthContextType {
   user: User | null;
-  userProfile: UniversalStudent | IndependentTeacher | Institution | null;
+  userProfile: UniversalStudent | IndependentTeacher | Institution | ParentUser | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
   switchStudentContext: (institutionId?: string) => void;
   currentContext: 'independent' | 'institutional' | 'mixed';
+  countryCode: string;
+  setCountryCode: (code: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,16 +29,27 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UniversalStudent | IndependentTeacher | Institution | null>(null);
+  const [userProfile, setUserProfile] = useState<UniversalStudent | IndependentTeacher | Institution | ParentUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentContext, setCurrentContext] = useState<'independent' | 'institutional' | 'mixed'>('mixed');
+  const [countryCode, setCountryCodeState] = useState<string>('uganda');
+
+  const setCountryCode = (code: string) => {
+    setCountryCodeState(code);
+    localStorage.setItem('maple-auth-country', code);
+  };
 
   useEffect(() => {
     // Check for stored auth state
     const storedUser = localStorage.getItem('maple-auth-user');
     const storedProfile = localStorage.getItem('maple-auth-profile');
     const storedContext = localStorage.getItem('maple-auth-context');
+    const storedCountry = localStorage.getItem('maple-auth-country');
     
+    if (storedCountry) {
+      setCountryCodeState(storedCountry);
+    }
+
     if (storedUser && storedProfile) {
       try {
         setUser(JSON.parse(storedUser));
@@ -59,25 +72,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await fetch('/data/hybrid-users.json');
       const userData = await response.json();
       
+      // Load parent user data
+      const parentResponse = await fetch('/data/parent-users.json');
+      const parentData = await parentResponse.json();
+      
       // Check all user types
       const allUsers = [
         ...userData.platform_administrators,
         ...userData.institution_administrators,
         ...userData.independent_teachers,
-        ...userData.universal_students
+        ...userData.universal_students,
+        ...parentData.parents
       ];
       
       const foundUser = allUsers.find((u: User) => u.email === email);
       
       if (foundUser) {
         // For demo purposes, accept any password or check demo accounts
-        const demoAccount = Object.values(userData.demo_accounts).find(
+        let demoAccount = Object.values(userData.demo_accounts).find(
           (account: any) => account.email === email
         );
+        if (!demoAccount && parentData.demo_accounts) {
+          demoAccount = Object.values(parentData.demo_accounts).find(
+             (account: any) => account.email === email
+          );
+        }
         
         if (demoAccount || password) {
           setUser(foundUser);
           setUserProfile(foundUser as any);
+          
+          if (foundUser.countryCode) {
+            setCountryCode(foundUser.countryCode);
+          } else {
+            setCountryCode('uganda');
+          }
           
           // Set default context based on user type
           if (foundUser.role === 'universal_student') {
@@ -148,7 +177,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     isLoading,
     switchStudentContext,
-    currentContext
+    currentContext,
+    countryCode,
+    setCountryCode
   };
 
   return (

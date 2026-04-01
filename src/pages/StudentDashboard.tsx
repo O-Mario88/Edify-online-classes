@@ -20,20 +20,13 @@ import {
   MapPin,
   GraduationCap,
   Brain,
-  Lightbulb
+  Lightbulb,
+  User
 } from 'lucide-react';
-import { Student, UgandaLevel, Teacher } from '../types';
+import { Student, UgandaLevel, Teacher, UniversalStudent, WebinarSession } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-
-interface LiveSession {
-  id: string;
-  title: string;
-  date: string;
-  time: string;
-  teacherName: string;
-  subjectName: string;
-  status: 'upcoming' | 'live' | 'completed';
-}
+import { UNEBReadinessGauge } from '../components/dashboard/UNEBReadinessGauge';
+import { TopicConfidenceRadar } from '../components/dashboard/TopicConfidenceRadar';
 
 interface ForumActivity {
   id: string;
@@ -48,11 +41,11 @@ export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
   const [levels, setLevels] = useState<UgandaLevel[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
+  const [liveSessions, setLiveSessions] = useState<WebinarSession[]>([]);
   const [forumActivity, setForumActivity] = useState<ForumActivity[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const student = user as Student;
+  const student = user as any;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,9 +67,9 @@ export const StudentDashboard: React.FC = () => {
         
         // Process live sessions data
         const allSessions = [
-          ...sessionsData.upcomingSessions.map((s: any) => ({ ...s, status: 'upcoming' })),
-          ...sessionsData.liveNow.map((s: any) => ({ ...s, status: 'live' })),
-          ...sessionsData.pastSessions.map((s: any) => ({ ...s, status: 'completed' }))
+          ...sessionsData.upcomingSessions,
+          ...sessionsData.liveNow,
+          ...sessionsData.pastSessions
         ];
         setLiveSessions(allSessions.slice(0, 5));
 
@@ -182,6 +175,20 @@ export const StudentDashboard: React.FC = () => {
 
   const enrolledSubjects = getEnrolledSubjects();
   const upcomingExam = getUpcomingExam();
+
+  // Mock readiness for demo purposes if not present
+  const readinessData = student.uneb_readiness || {
+    overall_score: 68,
+    exam_target: student.preferences?.level === 'A-level' ? 'UACE' : 'UCE',
+    predicted_division: 2,
+    topics_confidence: [
+      { subject: 'Math', confidence: 80 },
+      { subject: 'Physics', confidence: 45 },
+      { subject: 'Chemistry', confidence: 60 },
+      { subject: 'Biology', confidence: 70 },
+      { subject: 'English', confidence: 85 }
+    ]
+  };
 
   if (loading) {
     return (
@@ -346,6 +353,18 @@ export const StudentDashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
+            {/* UNEB Readiness Engine */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+               <UNEBReadinessGauge 
+                  score={readinessData.overall_score} 
+                  examTarget={readinessData.exam_target} 
+                  predictedDivision={readinessData.predicted_division} 
+               />
+               <TopicConfidenceRadar 
+                  topicsConfidence={readinessData.topics_confidence}
+               />
+            </div>
+
             {/* Exam Countdown */}
             {upcomingExam && (
               <Card className="border-l-4 border-l-red-500">
@@ -370,7 +389,7 @@ export const StudentDashboard: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <Link to="/courses" className="flex-1">
+                    <Link to="/classes" className="flex-1">
                       <Button className="w-full">
                         <BookOpen className="mr-2 h-4 w-4" />
                         Study Now
@@ -392,7 +411,7 @@ export const StudentDashboard: React.FC = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>My Subjects</CardTitle>
-                  <Link to="/courses">
+                  <Link to="/classes">
                     <Button variant="outline" size="sm">Browse More</Button>
                   </Link>
                 </div>
@@ -428,7 +447,7 @@ export const StudentDashboard: React.FC = () => {
                     <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No enrolled subjects</h3>
                     <p className="text-gray-600 mb-4">Start your learning journey by enrolling in subjects</p>
-                    <Link to="/courses">
+                    <Link to="/classes">
                       <Button>Browse Subjects</Button>
                     </Link>
                   </div>
@@ -492,13 +511,13 @@ export const StudentDashboard: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {liveSessions.filter(s => s.status === 'upcoming').slice(0, 3).map((session) => (
+                {liveSessions.filter(s => s.status === 'scheduled').slice(0, 3).map((session) => (
                   <div key={session.id} className="border-b last:border-0 py-3 last:pb-0">
                     <h4 className="font-medium text-gray-900 mb-1">{session.title}</h4>
                     <div className="text-sm text-gray-600 space-y-1">
-                      <p>by {session.teacherName}</p>
-                      <p>{session.date} at {session.time}</p>
-                      <p className="text-blue-600">{session.subjectName}</p>
+                      <p>by {session.hostName}</p>
+                      <p>{new Date(session.scheduledStart).toLocaleDateString()} at {new Date(session.scheduledStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      <p className="text-blue-600">{session.subject}</p>
                     </div>
                   </div>
                 ))}

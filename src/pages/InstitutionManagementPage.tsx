@@ -22,10 +22,12 @@ import {
   GraduationCap
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { getCurriculumConfig } from '@/lib/curriculum';
 
 interface Institution {
   id: string;
   name: string;
+  admin_id: string;
   type: string;
   location: {
     district: string;
@@ -70,10 +72,11 @@ interface Institution {
 }
 
 const InstitutionManagementPage: React.FC = () => {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, countryCode } = useAuth();
   const [institution, setInstitution] = useState<Institution | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const curriculumConfig = getCurriculumConfig(countryCode);
 
   useEffect(() => {
     if (user?.role === 'institution_admin') {
@@ -155,7 +158,7 @@ const InstitutionManagementPage: React.FC = () => {
           {institution.exam_center.is_registered && (
             <Badge variant="outline" className="text-sm">
               <Award className="h-3 w-3 mr-1" />
-              UNEB Exam Center
+              {curriculumConfig.examBody} Exam Center
             </Badge>
           )}
         </div>
@@ -260,7 +263,7 @@ const InstitutionManagementPage: React.FC = () => {
                 
                 {institution.exam_center.is_registered && (
                   <div>
-                    <label className="text-sm font-medium text-gray-700">UNEB Center Code</label>
+                    <label className="text-sm font-medium text-gray-700">{curriculumConfig.examBody} Center Code</label>
                     <p className="text-sm text-gray-600 font-mono">
                       {institution.exam_center.uneb_center_code}
                     </p>
@@ -288,7 +291,7 @@ const InstitutionManagementPage: React.FC = () => {
                 
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Course Completion Rate
+                    Class Completion Rate
                   </label>
                   <Progress value={institution.analytics.academic.completion_rate} className="mb-1" />
                   <p className="text-sm text-gray-600">{institution.analytics.academic.completion_rate}%</p>
@@ -390,7 +393,7 @@ const InstitutionManagementPage: React.FC = () => {
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-700 mb-2 block">
-                        Course Completion Rate
+                        Class Completion Rate
                       </label>
                       <Progress value={institution.analytics.academic.completion_rate} className="mb-1" />
                       <p className="text-sm text-gray-600">{institution.analytics.academic.completion_rate}%</p>

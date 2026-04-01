@@ -376,7 +376,7 @@ const PlatformAnalyticsPage: React.FC = () => {
                 
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Course Completion Rate
+                    Class Completion Rate
                   </label>
                   <Progress value={platformData.performance_metrics.student_success.average_course_completion} className="mb-1" />
                   <p className="text-sm text-gray-600">{platformData.performance_metrics.student_success.average_course_completion}%</p>
@@ -588,7 +588,7 @@ const PlatformAnalyticsPage: React.FC = () => {
                       </span>
                     </div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm text-gray-600">Course Completion Rate</span>
+                      <span className="text-sm text-gray-600">Class Completion Rate</span>
                       <span className="font-semibold">
                         {platformData.performance_metrics.teacher_success.course_completion_rates}%
                       </span>

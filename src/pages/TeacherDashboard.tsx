@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { Teacher, UgandaLevel, Student } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { MarketplaceUploadModal } from '../components/marketplace/MarketplaceUploadModal';
 
 interface TeacherStats {
   totalStudents: number;
@@ -58,8 +59,9 @@ export const TeacherDashboard: React.FC = () => {
   const [stats, setStats] = useState<TeacherStats | null>(null);
   const [classes, setClasses] = useState<ClassOverview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
-  const teacher = user as Teacher;
+  const teacher = user as unknown as Teacher;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -446,7 +448,7 @@ export const TeacherDashboard: React.FC = () => {
                     <CardTitle>Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button variant="outline" className="w-full justify-start" onClick={() => setIsUploadModalOpen(true)}>
                       <Upload className="mr-2 h-4 w-4" />
                       Upload Content
                     </Button>
@@ -554,19 +556,19 @@ export const TeacherDashboard: React.FC = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Upload New Content</CardTitle>
-                  <p className="text-gray-600">Add videos, notes, or exercises for your students</p>
+                  <p className="text-gray-600">Add videos, notes, or exercises to the academic marketplace</p>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Button variant="outline" className="h-24 flex-col">
+                    <Button variant="outline" className="h-24 flex-col" onClick={() => setIsUploadModalOpen(true)}>
                       <Video className="h-8 w-8 mb-2 text-red-500" />
                       Upload Video
                     </Button>
-                    <Button variant="outline" className="h-24 flex-col">
+                    <Button variant="outline" className="h-24 flex-col" onClick={() => setIsUploadModalOpen(true)}>
                       <FileText className="h-8 w-8 mb-2 text-blue-500" />
                       Add Notes
                     </Button>
-                    <Button variant="outline" className="h-24 flex-col">
+                    <Button variant="outline" className="h-24 flex-col" onClick={() => setIsUploadModalOpen(true)}>
                       <BookOpen className="h-8 w-8 mb-2 text-green-500" />
                       Create Exercise
                     </Button>
@@ -804,6 +806,11 @@ export const TeacherDashboard: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+      <MarketplaceUploadModal 
+         isOpen={isUploadModalOpen} 
+         onClose={() => setIsUploadModalOpen(false)} 
+         defaultCountry={user?.countryCode || 'uganda'} 
+      />
     </div>
   );
 };

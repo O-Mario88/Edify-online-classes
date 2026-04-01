@@ -3,10 +3,11 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'platform_admin' | 'institution_admin' | 'independent_teacher' | 'universal_student';
+  role: 'platform_admin' | 'institution_admin' | 'independent_teacher' | 'universal_student' | 'parent';
   avatar: string;
   phone?: string;
   location?: string;
+  countryCode?: 'uganda' | 'kenya' | 'rwanda';
   verification_status?: 'pending' | 'verified' | 'rejected';
   created_at: string;
 }
@@ -23,7 +24,14 @@ export interface UniversalStudent extends User {
     level: 'O-level' | 'A-level';
     learning_style: string;
   };
-  payment_methods: PaymentMethod[];
+  payment_methods?: PaymentMethod[];
+  uneb_readiness?: {
+    overall_score: number; // 0-100
+    exam_target: 'UCE' | 'UACE';
+    topics_confidence: Array<{ subject: string; confidence: number }>;
+    rescue_plan_active?: boolean;
+    predicted_division?: number;
+  };
 }
 
 export interface IndependentStudentStatus {
@@ -50,6 +58,7 @@ export interface Institution {
   id: string;
   name: string;
   admin_id: string;
+  countryCode?: 'uganda' | 'kenya' | 'rwanda';
   type: 'primary' | 'secondary' | 'technical' | 'university';
   registration_number: string;
   location: {
@@ -124,7 +133,7 @@ export interface IndependentTeacher extends User {
     total_earnings: number;
     featured: boolean;
   };
-  courses: MarketplaceCourse[];
+  courses: MarketplaceItem[];
   analytics: TeacherAnalytics;
   bank_details: {
     account_name: string;
@@ -176,6 +185,12 @@ export interface Teacher {
   totalStudents: number;
   joinDate: string;
   verified: boolean;
+  reputation?: {
+    responseRate: number; // percentage
+    avgResponseTimeMins: number;
+    badges: string[];
+    reviewCount: number;
+  };
   specializations: string[];
   earnings: {
     totalEarned: number;
@@ -320,41 +335,73 @@ export interface ForumCategory {
 }
 
 // Live Session Types
-export interface LiveSession {
+// WEBINAR LIVE SESSION TYPES
+export interface WebinarSession {
   id: string;
+  courseId?: string;
+  institutionId?: string;
+  hostId: string;
+  hostName: string;
   title: string;
   description: string;
-  teacherId: string;
-  teacherName: string;
-  gradeId: string;
-  gradeName: string;
-  subjectId: string;
-  subjectName: string;
-  topicId?: string;
-  topicName?: string;
-  date: string;
-  time: string;
-  duration: number;
+  subject: string;
+  scheduledStart: string; // ISO String
+  scheduledEnd: string; // ISO String
   timezone: string;
-  maxParticipants: number;
-  currentParticipants: number;
-  registeredStudents: string[];
-  meetingLink?: string;
+  durationMinutes: number;
+  meetingProvider: 'google_meet' | 'custom';
+  meetingUrl?: string; // Auto-generated
+  calendarProvider: 'google_calendar';
+  calendarEventId?: string; // Auto-generated
+  attendanceMode: 'strict' | 'open';
+  capacity: number;
+  enrolledCount: number;
   status: 'scheduled' | 'live' | 'completed' | 'cancelled';
-  recordingEnabled: boolean;
-  chatEnabled: boolean;
-  qnaEnabled: boolean;
-  materials?: Array<{
-    title: string;
-    url: string;
-  }>;
   recordingUrl?: string;
-  participantCount?: number;
-  feedback?: Array<{
-    studentId: string;
-    rating: number;
-    comment: string;
-  }>;
+  resources?: Array<{ title: string; url: string }>;
+  notes?: string;
+  reminderSettings: {
+    send24h: boolean;
+    send1h: boolean;
+  };
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// UNEB SUBJECT CATALOGUE TYPES
+export interface UgandaSubject {
+  id: string;
+  name: string;
+  code: string;
+  level: 'O-Level' | 'A-Level';
+  classRange: string[]; // e.g. ["S1", "S2", "S3", "S4"]
+  category: 'Compulsory' | 'Core' | 'Elective' | 'Principal' | 'Subsidiary' | 'General Paper';
+  isCompulsory: boolean;
+  unebEligible: boolean;
+  active: boolean;
+}
+
+export interface UNEBSubjectCombination {
+  id: string;
+  name: string;      // e.g. "PCM"
+  level: 'A-Level';
+  principalSubjects: string[]; // array of subject codes/ids
+  subsidiaryOptions: string[]; // e.g. Math or ICT
+  compulsorySubjects: string[]; // GP
+}
+
+export interface UNEBRegistration {
+  id: string;
+  studentId: string;
+  level: 'O-Level' | 'A-Level';
+  classLevel: string;
+  selectedSubjects: string[]; // Subject IDs
+  combination?: string; // Only for A-Level
+  registrationStatus: 'pending' | 'validated' | 'submitted';
+  paymentStatus: 'unpaid' | 'paid';
+  centerId?: string;
+  validationErrors?: string[];
 }
 
 // Legacy Payment Types (for backward compatibility)
@@ -687,18 +734,21 @@ export interface TutoringBooking {
   zoomLink?: string;
 }
 
-// Marketplace Course System
-export interface MarketplaceCourse {
+// Marketplace Item System (Subject -> Class -> Topic)
+export interface MarketplaceItem {
   id: string;
   teacher_id: string;
   teacher_name: string;
   title: string;
   description: string;
-  subject: string;
-  level: 'O-level' | 'A-level';
+  country: string;
+  subjectId: string;
+  classLevelId: string;
+  topicId: string;
+  resourceType: 'video' | 'notes' | 'assessment' | 'bundle';
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   price: number;
-  currency: 'UGX';
+  currency: 'UGX' | 'KES' | 'RWF';
   duration_hours: number;
   lessons: CourseLesson[];
   prerequisites: string[];
@@ -896,5 +946,44 @@ export interface PlatformAnalytics {
     average_course_price: number;
     popular_subjects: string[];
     growth_trends: { month: string; growth_rate: number }[];
+  };
+}
+
+// ==== Phase 1: AI Study Copilot ====
+export interface AICopilotMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+  contextRelated?: {
+    courseId?: string;
+    lessonId?: string;
+    topicId?: string;
+  };
+}
+
+export interface AIStudyPlan {
+  id: string;
+  studentId: string;
+  createdAt: string;
+  milestones: Array<{
+    week: number;
+    focus: string;
+    completed: boolean;
+  }>;
+  recommendedResources: string[];
+}
+
+// ==== Phase 1: Parent Portal ====
+export interface ParentUser extends User {
+  role: 'parent';
+  children: Array<{
+    studentId: string;
+    relationship: 'mother' | 'father' | 'guardian';
+  }>;
+  preferences: {
+    receiveWeeklySummaries: boolean;
+    receiveAlerts: boolean;
+    notificationChannels: Array<'email' | 'whatsapp' | 'sms'>;
   };
 }

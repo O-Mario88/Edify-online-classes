@@ -16,26 +16,39 @@ import ProjectsPage from './pages/ProjectsPage';
 import AITeachingAssistant from './pages/AITeachingAssistant';
 import PeerTutoringPage from './pages/PeerTutoringPage';
 import MarketplacePage from './pages/MarketplacePage';
+import MarketplaceSubjectPage from './pages/MarketplaceSubjectPage';
+import MarketplaceTopicPage from './pages/MarketplaceTopicPage';
 import InstitutionManagementPage from './pages/InstitutionManagementPage';
 import ExamRegistrationPage from './pages/ExamRegistrationPage';
 import PlatformAnalyticsPage from './pages/PlatformAnalyticsPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ParentDashboard } from './pages/ParentDashboard';
+import { PublicProfile } from './pages/PublicProfile';
+import { NetworkStatusWidget } from './components/NetworkStatusWidget';
+
+import { AICopilotProvider } from './contexts/AICopilotContext';
 
 function App() {
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
+      <AICopilotProvider>
+        <NetworkStatusWidget />
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
-          <Route path="courses" element={<CourseCatalog />} />
-          <Route path="courses/:gradeId/:termId/:subjectId" element={<CourseDetail />} />
+          <Route path="classes" element={<CourseCatalog />} />
+          <Route path="classes/:gradeId/:termId/:subjectId" element={<CourseDetail />} />
           <Route path="forum/*" element={<ForumPage />} />
           <Route path="live-sessions" element={<LiveSessionsPage />} />
           <Route path="payment" element={<PaymentPage />} />
+          <Route path="p/:username" element={<PublicProfile />} />
           
           {/* Hybrid Business Model Features */}
           <Route path="marketplace" element={<MarketplacePage />} />
+          <Route path="marketplace/:country/:subjectId" element={<MarketplaceSubjectPage />} />
+          <Route path="marketplace/:country/:subjectId/:classId/:topicId" element={<MarketplaceTopicPage />} />
+
           <Route path="exam-registration" element={
             <ProtectedRoute allowedRoles={['universal_student']}>
               <ExamRegistrationPage />
@@ -82,6 +95,11 @@ function App() {
               <AdminDashboard />
             </ProtectedRoute>
           } />
+          <Route path="dashboard/parent" element={
+            <ProtectedRoute allowedRoles={['parent']}>
+              <ParentDashboard />
+            </ProtectedRoute>
+          } />
           <Route path="dashboard/institution" element={
             <ProtectedRoute allowedRoles={['institution_admin']}>
               <InstitutionManagementPage />
@@ -89,6 +107,7 @@ function App() {
           } />
         </Route>
       </Routes>
+      </AICopilotProvider>
     </AuthProvider>
   );
 }

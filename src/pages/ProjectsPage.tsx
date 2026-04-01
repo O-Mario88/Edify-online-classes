@@ -220,7 +220,7 @@ export const ProjectsPage: React.FC = () => {
                     <option value="A'level">A'level</option>
                   </select>
                   
-                  {user?.role === 'teacher' && (
+                  {user?.role === 'independent_teacher' && (
                     <Button>
                       <Plus className="mr-2 h-4 w-4" />
                       Create Project

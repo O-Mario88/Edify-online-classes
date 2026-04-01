@@ -14,11 +14,11 @@ import {
   ChevronRight,
   Grid,
   List,
-  GraduationCap,
-  Target,
-  MapPin
+  GraduationCap, Target, MapPin
 } from 'lucide-react';
 import { UgandaLevel, UgandaClass, Teacher } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import { getCurriculumConfig } from '../lib/curriculum';
 
 export const CourseCatalog: React.FC = () => {
   const [levels, setLevels] = useState<UgandaLevel[]>([]);
@@ -28,6 +28,8 @@ export const CourseCatalog: React.FC = () => {
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
   const [selectedClass, setSelectedClass] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const { countryCode } = useAuth();
+  const curriculumConfig = getCurriculumConfig(countryCode);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,7 +86,7 @@ export const CourseCatalog: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading courses...</p>
+          <p className="text-gray-600">Loading classes...</p>
         </div>
       </div>
     );
@@ -97,11 +99,11 @@ export const CourseCatalog: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center gap-2 mb-4">
             <MapPin className="h-5 w-5 text-blue-600" />
-            <span className="text-blue-600 font-medium">Uganda Secondary Education</span>
+            <span className="text-blue-600 font-medium">{curriculumConfig.countryName} Secondary Education</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Course Catalog</h1>
-          <p className="text-lg text-gray-600">
-            Comprehensive O'level and A'level courses aligned with Uganda's UNEB curriculum
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Class Catalog</h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Comprehensive classes aligned with the {curriculumConfig.countryName} ({curriculumConfig.examBody}) curriculum
           </p>
         </div>
       </div>
@@ -178,7 +180,7 @@ export const CourseCatalog: React.FC = () => {
           </p>
         </div>
 
-        {/* Course Grid/List */}
+        {/* Class Grid/List */}
         {viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {getFilteredClasses().map((ugandaClass) => (
@@ -314,7 +316,7 @@ const ClassCard: React.FC<{ ugandaClass: UgandaClass; teachers: Teacher[] }> = (
           </div>
         )}
 
-        <Link to={`/courses/${ugandaClass.id}/${ugandaClass.terms[0]?.id}/${ugandaClass.terms[0]?.subjects[0]?.id}`}>
+        <Link to={`/classes/${ugandaClass.id}/${ugandaClass.terms[0]?.id}/${ugandaClass.terms[0]?.subjects[0]?.id}`}>
           <Button className="w-full">
             Explore {ugandaClass.name}
             <ChevronRight className="ml-2 h-4 w-4" />
@@ -414,7 +416,7 @@ const ClassListItem: React.FC<{ ugandaClass: UgandaClass; teachers: Teacher[] }>
               <div className="text-2xl font-bold text-blue-600">UGX {ugandaClass.priceUGX.toLocaleString()}</div>
               <div className="text-sm text-gray-500">per month</div>
             </div>
-            <Link to={`/courses/${ugandaClass.id}/${ugandaClass.terms[0]?.id}/${ugandaClass.terms[0]?.subjects[0]?.id}`}>
+            <Link to={`/classes/${ugandaClass.id}/${ugandaClass.terms[0]?.id}/${ugandaClass.terms[0]?.subjects[0]?.id}`}>
               <Button>
                 View Details
                 <ChevronRight className="ml-2 h-4 w-4" />

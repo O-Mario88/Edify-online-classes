@@ -57,7 +57,7 @@ export const HomePage: React.FC = () => {
     {
       icon: GraduationCap,
       title: 'Uganda Curriculum Focused',
-      description: 'Complete O\'level and A\'level courses aligned with UNEB curriculum and exam requirements'
+      description: 'Complete O\'level and A\'level classes aligned with UNEB curriculum and exam requirements'
     },
     {
       icon: Users,
@@ -79,7 +79,7 @@ export const HomePage: React.FC = () => {
   const stats = [
     { label: 'Uganda Students', value: '2,500+', icon: Users },
     { label: 'Qualified Teachers', value: '50+', icon: Award },
-    { label: 'Course Hours', value: '5,000+', icon: Clock },
+    { label: 'Lesson Periods', value: '5,000+', icon: Clock },
     { label: 'UCE Success Rate', value: '96%', icon: TrendingUp }
   ];
 
@@ -113,9 +113,9 @@ export const HomePage: React.FC = () => {
                 Join thousands of students preparing for UCE and UACE success.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/courses">
+                <Link to="/classes">
                   <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
-                    Explore O'level & A'level Courses
+                    Explore O'level & A'level Classes
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
@@ -297,7 +297,7 @@ export const HomePage: React.FC = () => {
           </div>
 
           <div className="text-center mt-12">
-            <Link to="/courses">
+            <Link to="/classes">
               <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
                 Explore AI Features
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -315,7 +315,7 @@ export const HomePage: React.FC = () => {
               Complete Secondary Education Coverage
             </h2>
             <p className="text-xl text-gray-600">
-              From Senior 1 to Senior 6 - comprehensive courses for every level
+              From Senior 1 to Senior 6 - comprehensive classes for every level
             </p>
           </div>
           
@@ -351,7 +351,7 @@ export const HomePage: React.FC = () => {
                     </div>
                     
                     <div className="flex gap-2 pt-4">
-                      <Link to="/courses" className="flex-1">
+                      <Link to="/classes" className="flex-1">
                         <Button variant="outline" size="sm" className="w-full">
                           <BookOpen className="mr-2 h-4 w-4" />
                           View All Classes
@@ -477,9 +477,9 @@ export const HomePage: React.FC = () => {
                 Start Learning Free
               </Button>
             </Link>
-            <Link to="/courses">
+            <Link to="/classes">
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-                Explore All Courses
+                Explore All Classes
               </Button>
             </Link>
           </div>

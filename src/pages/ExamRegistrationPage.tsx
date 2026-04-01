@@ -23,11 +23,20 @@ import {
   Users,
   Clock,
   Award,
-  Info
+  Info,
+  Globe
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { 
+  SubjectValidation, 
+  UNEB_OLEVEL_CORE, 
+  UNEB_OLEVEL_ELECTIVES,
+  UNEB_ALEVEL_COMPULSORY,
+  UNEB_ALEVEL_PRINCIPAL,
+  UNEB_ALEVEL_SUBSIDIARY
+} from '@/lib/subjectConfig';
 
 interface ExamCenter {
   id: string;
@@ -71,6 +80,19 @@ interface ExamRegistration {
   };
 }
 
+const ALL_SUBJECTS = [
+  ...UNEB_OLEVEL_CORE,
+  ...UNEB_OLEVEL_ELECTIVES,
+  ...UNEB_ALEVEL_COMPULSORY,
+  ...UNEB_ALEVEL_PRINCIPAL,
+  ...UNEB_ALEVEL_SUBSIDIARY
+];
+
+const getSubjectName = (id: string) => {
+  const subj = ALL_SUBJECTS.find(s => s.id === id);
+  return subj ? `${subj.name} (${subj.code})` : id;
+};
+
 const ExamRegistrationPage: React.FC = () => {
   const { user } = useAuth();
   const [examCenters, setExamCenters] = useState<ExamCenter[]>([]);
@@ -85,18 +107,17 @@ const ExamRegistrationPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationResult, setValidationResult] = useState<{isValid: boolean; errors: string[]}>({ isValid: false, errors: []});
+  const { countryCode } = useAuth();
 
-  const uceSubjects = [
-    'Mathematics', 'English Language', 'Physics', 'Chemistry', 'Biology',
-    'History', 'Geography', 'Fine Art', 'Music', 'Physical Education',
-    'Computer Studies', 'Technical Drawing', 'Agriculture', 'Food and Nutrition'
-  ];
-
-  const uaceSubjects = [
-    'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Geography',
-    'History', 'Economics', 'Literature in English', 'Fine Art',
-    'Computer Science', 'Agriculture', 'General Paper'
-  ];
+  useEffect(() => {
+    // Run validation whenever subjects change
+    if (registration.exam_type === 'UCE') {
+      setValidationResult(SubjectValidation.validateOLevelSelection(registration.subjects));
+    } else {
+      setValidationResult(SubjectValidation.validateALevelSelection(registration.subjects));
+    }
+  }, [registration.subjects, registration.exam_type]);
 
   useEffect(() => {
     fetchExamCenters();
@@ -215,6 +236,26 @@ const ExamRegistrationPage: React.FC = () => {
     );
   }
 
+  if (countryCode !== 'uganda') {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <Card className="max-w-2xl mx-auto shadow-sm">
+          <CardContent className="text-center py-12">
+            <Globe className="h-16 w-16 text-blue-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">National Exam Registration</h2>
+            <p className="text-gray-600 mb-6">
+              Digital examination registration for {countryCode.charAt(0).toUpperCase() + countryCode.slice(1)} is currently under development. 
+              Our integration with the national examination board will be available soon.
+            </p>
+            <Button variant="outline" onClick={() => window.history.back()}>
+              Return to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8 px-4">
       {/* Header */}
@@ -277,7 +318,7 @@ const ExamRegistrationPage: React.FC = () => {
                     <Label htmlFor="exam-type">Examination Type</Label>
                     <RadioGroup
                       value={registration.exam_type}
-                      onValueChange={(value) => setRegistration(prev => ({ ...prev, exam_type: value as 'UCE' | 'UACE' }))}
+                      onValueChange={(value) => setRegistration(prev => ({ ...prev, exam_type: value as 'UCE' | 'UACE', subjects: [] }))}
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="UCE" id="uce" />
@@ -389,51 +430,120 @@ const ExamRegistrationPage: React.FC = () => {
                 </div>
               )}
 
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <Info className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm text-gray-600">
-                    Select at least {registration.exam_type === 'UCE' ? '8' : '3'} subjects for {registration.exam_type}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {(registration.exam_type === 'UCE' ? uceSubjects : uaceSubjects).map((subject) => (
-                    <div key={subject} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={subject}
-                        checked={registration.subjects.includes(subject)}
-                        onCheckedChange={() => handleSubjectToggle(subject)}
-                      />
-                      <label
-                        htmlFor={subject}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {subject}
-                      </label>
+              <div className="space-y-6">
+                
+                {registration.exam_type === 'UCE' ? (
+                  <>
+                    <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+                       <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4" /> Compulsory Core Subjects (7)
+                       </h4>
+                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                         {UNEB_OLEVEL_CORE.map((subject) => (
+                           <div key={subject.id} className="flex items-center space-x-2 bg-white p-2 rounded-md border text-sm opacity-80">
+                             <Checkbox id={subject.id} checked={true} disabled />
+                             <label htmlFor={subject.id} className="font-medium">{subject.name} ({subject.code})</label>
+                           </div>
+                         ))}
+                       </div>
                     </div>
-                  ))}
-                </div>
 
-                <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                  <h4 className="font-semibold mb-2">Selected Subjects ({registration.subjects.length}):</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {registration.subjects.map((subject) => (
-                      <Badge key={subject} variant="default">
-                        {subject}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+                    <div className="bg-white p-4 rounded-lg border">
+                       <h4 className="font-semibold text-gray-900 mb-3">Elective Subjects (Choose 1 or 2)</h4>
+                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                         {UNEB_OLEVEL_ELECTIVES.map((subject) => (
+                           <div key={subject.id} className="flex items-center space-x-2">
+                             <Checkbox
+                               id={subject.id}
+                               checked={registration.subjects.includes(subject.id)}
+                               onCheckedChange={() => handleSubjectToggle(subject.id)}
+                             />
+                             <label htmlFor={subject.id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                               {subject.name}
+                             </label>
+                           </div>
+                         ))}
+                       </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+                       <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4" /> Compulsory
+                       </h4>
+                       <div className="grid grid-cols-1 gap-3">
+                         {UNEB_ALEVEL_COMPULSORY.map((subject) => (
+                           <div key={subject.id} className="flex items-center space-x-2 bg-white p-2 rounded-md border text-sm">
+                             <Checkbox id={subject.id} checked={registration.subjects.includes(subject.id)} onCheckedChange={() => handleSubjectToggle(subject.id)} />
+                             <label htmlFor={subject.id} className="font-medium">{subject.name} ({subject.code})</label>
+                           </div>
+                         ))}
+                       </div>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-lg border mt-4">
+                       <h4 className="font-semibold text-gray-900 mb-3">Principal Subjects (Choose 3)</h4>
+                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                         {UNEB_ALEVEL_PRINCIPAL.map((subject) => (
+                           <div key={subject.id} className="flex items-center space-x-2">
+                             <Checkbox
+                               id={subject.id}
+                               checked={registration.subjects.includes(subject.id)}
+                               onCheckedChange={() => handleSubjectToggle(subject.id)}
+                             />
+                             <label htmlFor={subject.id} className="text-sm font-medium leading-none">
+                               {subject.name}
+                             </label>
+                           </div>
+                         ))}
+                       </div>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-lg border mt-4">
+                       <h4 className="font-semibold text-gray-900 mb-3">Subsidiary Subject (Choose 1)</h4>
+                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                         {UNEB_ALEVEL_SUBSIDIARY.map((subject) => (
+                           <div key={subject.id} className="flex items-center space-x-2">
+                             <Checkbox
+                               id={subject.id}
+                               checked={registration.subjects.includes(subject.id)}
+                               onCheckedChange={() => handleSubjectToggle(subject.id)}
+                             />
+                             <label htmlFor={subject.id} className="text-sm font-medium leading-none">
+                               {subject.name}
+                             </label>
+                           </div>
+                         ))}
+                       </div>
+                    </div>
+                  </>
+                )}
+
+                {!validationResult.isValid && validationResult.errors.length > 0 && (
+                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-start gap-2 text-red-700">
+                         <AlertCircle className="h-5 w-5 mt-0.5" />
+                         <div>
+                            <h4 className="font-semibold">Validation Errors</h4>
+                            <ul className="text-sm list-disc pl-5 mt-1 space-y-1">
+                               {validationResult.errors.map((err, i) => (
+                                 <li key={i}>{err}</li>
+                               ))}
+                            </ul>
+                         </div>
+                      </div>
+                   </div>
+                )}
               </div>
 
-              <div className="mt-6 flex justify-between">
+              <div className="mt-6 flex justify-between pt-4 border-t">
                 <Button variant="outline" onClick={() => setCurrentStep(1)}>
                   Back: Select Center
                 </Button>
                 <Button 
                   onClick={() => setCurrentStep(3)}
-                  disabled={registration.subjects.length === 0}
+                  disabled={!validationResult.isValid}
                 >
                   Next: Upload Documents
                 </Button>
@@ -606,9 +716,9 @@ const ExamRegistrationPage: React.FC = () => {
                   <div className="mt-4">
                     <h4 className="font-medium mb-2">Selected Subjects</h4>
                     <div className="flex flex-wrap gap-2">
-                      {registration.subjects.map((subject) => (
-                        <Badge key={subject} variant="outline">
-                          {subject}
+                      {registration.subjects.map((subjectId) => (
+                        <Badge key={subjectId} variant="outline">
+                          {getSubjectName(subjectId)}
                         </Badge>
                       ))}
                     </div>

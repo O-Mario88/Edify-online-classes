@@ -20,10 +20,12 @@ import {
   Calendar,
   TrendingUp,
   ChevronRight,
-  Download
+  Download,
+  WifiOff
 } from 'lucide-react';
 import { UgandaLevel, UgandaClass, Subject, Teacher, Topic, Student } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { OfflineSyncEngine } from '../lib/offlineSync';
 
 export const CourseDetail: React.FC = () => {
   const { classId, termId, subjectId } = useParams();
@@ -126,8 +128,8 @@ export const CourseDetail: React.FC = () => {
   };
 
   const isEnrolled = () => {
-    if (!user || user.role !== 'student' || !currentSubject) return false;
-    const student = user as Student;
+    if (!user || user.role !== 'universal_student' || !currentSubject) return false;
+    const student = user as any;
     return student.enrolledSubjects?.includes(currentSubject.id) || false;
   };
 
@@ -136,7 +138,7 @@ export const CourseDetail: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading course details...</p>
+          <p className="text-gray-600">Loading class details...</p>
         </div>
       </div>
     );
@@ -147,10 +149,10 @@ export const CourseDetail: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Course not found</h3>
-          <p className="text-gray-600 mb-4">The requested course could not be found.</p>
-          <Link to="/courses">
-            <Button>Back to Courses</Button>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Class not found</h3>
+          <p className="text-gray-600 mb-4">The requested class could not be found.</p>
+          <Link to="/classes">
+            <Button>Back to Classes</Button>
           </Link>
         </div>
       </div>
@@ -163,7 +165,7 @@ export const CourseDetail: React.FC = () => {
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <nav className="flex items-center gap-2 text-sm text-gray-600">
-            <Link to="/courses" className="hover:text-blue-600">Courses</Link>
+            <Link to="/classes" className="hover:text-blue-600">Classes</Link>
             <ChevronRight className="h-4 w-4" />
             <span>{currentClass.level}</span>
             <ChevronRight className="h-4 w-4" />
@@ -178,7 +180,7 @@ export const CourseDetail: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Course Header */}
+            {/* Class Header */}
             <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -265,7 +267,7 @@ export const CourseDetail: React.FC = () => {
               )}
             </div>
 
-            {/* Course Content Tabs */}
+            {/* Class Content Tabs */}
             <Tabs defaultValue="curriculum" className="space-y-6">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
@@ -277,7 +279,7 @@ export const CourseDetail: React.FC = () => {
               <TabsContent value="curriculum">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Course Curriculum</CardTitle>
+                    <CardTitle>Class Curriculum</CardTitle>
                     <p className="text-gray-600">
                       Comprehensive coverage aligned with UNEB curriculum for {currentClass.level}
                     </p>
@@ -311,13 +313,23 @@ export const CourseDetail: React.FC = () => {
                                   <h5 className="font-medium text-gray-800 mb-2">{subtopic.name}</h5>
                                   <div className="space-y-2">
                                     {subtopic.lessons.map((lesson) => (
-                                      <div key={lesson.id} className="flex items-center gap-3 text-sm">
+                                      <div key={lesson.id} className="flex items-center gap-3 text-sm group">
                                         {lesson.type === 'video' && <Play className="h-4 w-4 text-red-500" />}
                                         {lesson.type === 'exercise' && <BookOpen className="h-4 w-4 text-blue-500" />}
                                         {lesson.type === 'notes' && <FileText className="h-4 w-4 text-green-500" />}
-                                        <span className="flex-1">{lesson.title}</span>
+                                        <span className="flex-1 cursor-pointer hover:underline">{lesson.title}</span>
                                         {lesson.duration && <span className="text-gray-500">{lesson.duration}</span>}
                                         {lesson.completed && <CheckCircle className="h-4 w-4 text-green-500" />}
+                                        <button 
+                                           onClick={(e) => {
+                                              e.stopPropagation();
+                                              OfflineSyncEngine.queueJob('download_course', lesson.id);
+                                           }}
+                                           className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-blue-500 transition-opacity ml-2 tooltip"
+                                           title="Save for offline"
+                                        >
+                                          <Download className="h-4 w-4" />
+                                        </button>
                                       </div>
                                     ))}
                                   </div>
@@ -432,7 +444,7 @@ export const CourseDetail: React.FC = () => {
                         {
                           name: "David Musoke", 
                           rating: 5,
-                          comment: "This course helped me improve from D to A in Mathematics. The practice exercises are exactly like what we see in UCE exams.",
+                          comment: "This class helped me improve from D to A in Mathematics. The practice exercises are exactly like what we see in UCE exams.",
                           date: "2025-06-15"
                         }
                       ].map((review, index) => (
@@ -504,10 +516,10 @@ export const CourseDetail: React.FC = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Course Info */}
+            {/* Class Info */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Course Information</CardTitle>
+                <CardTitle className="text-lg">Class Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
@@ -554,7 +566,7 @@ export const CourseDetail: React.FC = () => {
                     .map((subject) => (
                       <Link
                         key={subject.id}
-                        to={`/courses/${classId}/${currentClass.terms[0].id}/${subject.id}`}
+                        to={`/classes/${classId}/${currentClass.terms[0].id}/${subject.id}`}
                         className="block p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                       >
                         <h4 className="font-medium text-gray-900">{subject.name}</h4>
@@ -583,6 +595,14 @@ export const CourseDetail: React.FC = () => {
                     View Live Sessions
                   </Button>
                 </Link>
+                <Button 
+                   variant="outline" 
+                   className="w-full justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-50 border-orange-200"
+                   onClick={() => OfflineSyncEngine.queueJob('download_course', currentSubject.id)}
+                >
+                  <WifiOff className="h-4 w-4 mr-2" />
+                  Save Class for Offline
+                </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <TrendingUp className="h-4 w-4 mr-2" />
                   Track Progress

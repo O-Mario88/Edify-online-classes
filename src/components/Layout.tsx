@@ -18,6 +18,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { useState } from 'react';
+import { AICopilotWidget } from './copilot/AICopilotWidget';
 
 export const Layout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -39,6 +40,8 @@ export const Layout: React.FC = () => {
         return '/dashboard/institution';
       case 'platform_admin':
         return '/dashboard/admin';
+      case 'parent':
+        return '/dashboard/parent';
       default:
         return '/';
     }
@@ -47,7 +50,7 @@ export const Layout: React.FC = () => {
   const getNavigationItems = () => {
     const baseItems = [
       { label: 'Home', href: '/', icon: GraduationCap },
-      { label: 'Courses', href: '/courses', icon: BookOpen },
+      { label: 'Classes', href: '/classes', icon: BookOpen },
       { label: 'Forum', href: '/forum', icon: Users },
       { label: 'Live Sessions', href: '/live-sessions', icon: Video },
       { label: 'Marketplace', href: '/marketplace', icon: BookOpen },
@@ -77,6 +80,11 @@ export const Layout: React.FC = () => {
         baseItems.push(
           { label: 'Platform Analytics', href: '/platform-analytics', icon: Brain },
           { label: 'Institution Management', href: '/institution-management', icon: Users }
+        );
+      } else if (user.role === 'parent') {
+        baseItems.push(
+          { label: 'Parent Portal', href: '/dashboard/parent', icon: Users },
+          { label: 'AI Assistant', href: '/ai-assistant', icon: Brain }
         );
       } else {
         // For general users
@@ -211,11 +219,11 @@ export const Layout: React.FC = () => {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Courses</h4>
+              <h4 className="font-semibold mb-4">Classes</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link to="/courses" className="hover:text-white">All Courses</Link></li>
-                <li><Link to="/courses" className="hover:text-white">Primary Level</Link></li>
-                <li><Link to="/courses" className="hover:text-white">Secondary Level</Link></li>
+                <li><Link to="/classes" className="hover:text-white">All Classes</Link></li>
+                <li><Link to="/classes" className="hover:text-white">Primary Level</Link></li>
+                <li><Link to="/classes" className="hover:text-white">Secondary Level</Link></li>
               </ul>
             </div>
             
@@ -253,6 +261,9 @@ export const Layout: React.FC = () => {
           </div>
         </div>
       </footer>
+      
+      {/* AI Copilot Widget */}
+      {user?.role === 'universal_student' && <AICopilotWidget />}
     </div>
   );
 };

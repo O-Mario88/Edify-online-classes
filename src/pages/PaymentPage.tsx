@@ -181,17 +181,17 @@ export const PaymentPage: React.FC = () => {
             </p>
             <div className="space-y-3">
               <Button 
-                onClick={() => navigate(user?.role === 'teacher' ? '/teacher-dashboard' : '/student-dashboard')}
+                onClick={() => navigate(user?.role === 'independent_teacher' ? '/teacher-dashboard' : '/student-dashboard')}
                 className="w-full"
               >
                 Go to Dashboard
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => navigate('/courses')}
+                onClick={() => navigate('/classes')}
                 className="w-full"
               >
-                Browse Courses
+                Browse Classes
               </Button>
             </div>
           </CardContent>
@@ -210,7 +210,7 @@ export const PaymentPage: React.FC = () => {
             <p className="text-gray-600 mb-6">
               The selected plan could not be found. Please select a plan first.
             </p>
-            <Button onClick={() => navigate('/courses')} className="w-full">
+            <Button onClick={() => navigate('/classes')} className="w-full">
               Browse Plans
             </Button>
           </CardContent>
