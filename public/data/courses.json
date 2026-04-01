@@ -1,0 +1,846 @@
+{
+  "levels": [
+    {
+      "id": "olevel",
+      "name": "O'level (Ordinary Level)",
+      "description": "Senior 1-4: Foundation secondary education leading to UCE (Uganda Certificate of Education)",
+      "classes": [
+        {
+          "id": "senior-1",
+          "name": "Senior 1",
+          "level": "O'level", 
+          "description": "First year of Ordinary Level education",
+          "price": 450,
+          "priceUGX": 1650000,
+          "terms": [
+            {
+              "id": "senior-1-term-1",
+              "name": "Term 1",
+              "startDate": "2025-02-03",
+              "endDate": "2025-05-16",
+              "subjects": [
+                {
+                  "id": "senior-1-mathematics",
+                  "name": "Mathematics",
+                  "description": "Foundation mathematics including algebra, geometry, and arithmetic",
+                  "category": "compulsory",
+                  "subject_type": "sciences",
+                  "teacherId": "teacher-math-1",
+                  "isCore": true,
+                  "topics": [
+                    {
+                      "id": "topic-algebra-basics",
+                      "name": "Basic Algebra",
+                      "description": "Introduction to algebraic expressions and equations",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-variables",
+                          "name": "Variables and Constants",
+                          "lessons": [
+                            {
+                              "id": "lesson-variables-intro",
+                              "title": "Introduction to Variables",
+                              "type": "video",
+                              "duration": "25 minutes",
+                              "videoUrl": "/videos/senior1-variables.mp4",
+                              "completed": false
+                            },
+                            {
+                              "id": "lesson-variables-practice",
+                              "title": "Variables Practice Exercises",
+                              "type": "exercise",
+                              "questions": 15,
+                              "completed": false
+                            }
+                          ]
+                        },
+                        {
+                          "id": "subtopic-linear-equations",
+                          "name": "Linear Equations",
+                          "lessons": [
+                            {
+                              "id": "lesson-linear-intro",
+                              "title": "Solving Linear Equations",
+                              "type": "video",
+                              "duration": "30 minutes",
+                              "videoUrl": "/videos/senior1-linear.mp4",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "topic-geometry",
+                      "name": "Basic Geometry",
+                      "description": "Shapes, angles, and measurements",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-angles",
+                          "name": "Angles and Lines",
+                          "lessons": [
+                            {
+                              "id": "lesson-angles-intro",
+                              "title": "Types of Angles",
+                              "type": "video",
+                              "duration": "20 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-1-english",
+                  "name": "English Language",
+                  "description": "Language skills, literature, and communication",
+                  "category": "compulsory",
+                  "subject_type": "languages",
+                  "teacherId": "teacher-eng-1",
+                  "isCore": true,
+                  "topics": [
+                    {
+                      "id": "topic-grammar",
+                      "name": "Grammar Fundamentals",
+                      "description": "Parts of speech, sentence structure",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-nouns",
+                          "name": "Nouns and Pronouns",
+                          "lessons": [
+                            {
+                              "id": "lesson-nouns-intro",
+                              "title": "Understanding Nouns",
+                              "type": "video",
+                              "duration": "25 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-1-physics",
+                  "name": "Physics",
+                  "description": "Introduction to physical concepts and scientific methods",
+                  "category": "compulsory",
+                  "subject_type": "sciences",
+                  "teacherId": "teacher-phy-1",
+                  "isCore": true,
+                  "topics": [
+                    {
+                      "id": "topic-mechanics",
+                      "name": "Basic Mechanics",
+                      "description": "Motion, forces, and energy",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-motion",
+                          "name": "Types of Motion",
+                          "lessons": [
+                            {
+                              "id": "lesson-motion-intro",
+                              "title": "Understanding Motion",
+                              "type": "video",
+                              "duration": "30 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-1-chemistry",
+                  "name": "Chemistry",
+                  "description": "Basic chemical concepts and laboratory techniques",
+                  "category": "compulsory",
+                  "subject_type": "sciences",
+                  "teacherId": "teacher-chem-1",
+                  "isCore": true,
+                  "topics": [
+                    {
+                      "id": "topic-atoms",
+                      "name": "Atomic Structure",
+                      "description": "Understanding atoms and elements",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-elements",
+                          "name": "Elements and Compounds",
+                          "lessons": [
+                            {
+                              "id": "lesson-atoms-intro",
+                              "title": "Introduction to Atoms",
+                              "type": "video",
+                              "duration": "35 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-1-biology",
+                  "name": "Biology",
+                  "description": "Introduction to living organisms and life processes",
+                  "category": "compulsory",
+                  "subject_type": "sciences",
+                  "teacherId": "teacher-bio-1",
+                  "isCore": true,
+                  "topics": [
+                    {
+                      "id": "topic-cells",
+                      "name": "Cell Structure",
+                      "description": "Basic unit of life",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-cell-types",
+                          "name": "Plant and Animal Cells",
+                          "lessons": [
+                            {
+                              "id": "lesson-cells-intro",
+                              "title": "Introduction to Cells",
+                              "type": "video",
+                              "duration": "30 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-1-history",
+                  "name": "History",
+                  "description": "World and African history, focusing on Uganda",
+                  "category": "compulsory",
+                  "subject_type": "humanities",
+                  "teacherId": "teacher-hist-1",
+                  "isCore": true,
+                  "topics": [
+                    {
+                      "id": "topic-african-history",
+                      "name": "African Civilizations",
+                      "description": "Ancient African kingdoms and societies",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-buganda",
+                          "name": "Kingdom of Buganda",
+                          "lessons": [
+                            {
+                              "id": "lesson-buganda-intro",
+                              "title": "History of Buganda Kingdom",
+                              "type": "video",
+                              "duration": "40 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-1-geography",
+                  "name": "Geography",
+                  "description": "Physical and human geography with focus on East Africa",
+                  "category": "compulsory",
+                  "subject_type": "humanities",
+                  "teacherId": "teacher-geo-1",
+                  "isCore": true,
+                  "topics": [
+                    {
+                      "id": "topic-physical-geography",
+                      "name": "Physical Features of Uganda",
+                      "description": "Mountains, rivers, lakes of Uganda",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-lakes",
+                          "name": "Lakes of Uganda",
+                          "lessons": [
+                            {
+                              "id": "lesson-lakes-intro",
+                              "title": "Lake Victoria and Other Lakes",
+                              "type": "video",
+                              "duration": "35 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "senior-1-term-2",
+              "name": "Term 2", 
+              "startDate": "2025-06-02",
+              "endDate": "2025-08-29",
+              "subjects": []
+            },
+            {
+              "id": "senior-1-term-3",
+              "name": "Term 3",
+              "startDate": "2025-09-15",
+              "endDate": "2025-12-05",
+              "subjects": []
+            }
+          ]
+        },
+        {
+          "id": "senior-2",
+          "name": "Senior 2",
+          "level": "O'level",
+          "description": "Second year of Ordinary Level education",
+          "price": 450,
+          "priceUGX": 1650000,
+          "terms": [
+            {
+              "id": "senior-2-term-1",
+              "name": "Term 1",
+              "startDate": "2025-02-03",
+              "endDate": "2025-05-16",
+              "subjects": [
+                {
+                  "id": "senior-2-mathematics",
+                  "name": "Mathematics",
+                  "description": "Intermediate mathematics building on S1 foundation",
+                  "category": "compulsory",
+                  "subject_type": "sciences",
+                  "teacherId": "teacher-math-1",
+                  "isCore": true,
+                  "topics": [
+                    {
+                      "id": "topic-quadratics",
+                      "name": "Quadratic Equations",
+                      "description": "Solving and graphing quadratic functions",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-factoring",
+                          "name": "Factoring Quadratics",
+                          "lessons": [
+                            {
+                              "id": "lesson-factoring-intro",
+                              "title": "Introduction to Factoring",
+                              "type": "video",
+                              "duration": "30 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "senior-3",
+          "name": "Senior 3",
+          "level": "O'level",
+          "description": "Third year of Ordinary Level education",
+          "price": 500,
+          "priceUGX": 1850000,
+          "terms": [
+            {
+              "id": "senior-3-term-1",
+              "name": "Term 1",
+              "startDate": "2025-02-03",
+              "endDate": "2025-05-16",
+              "subjects": [
+                {
+                  "id": "senior-3-mathematics",
+                  "name": "Mathematics",
+                  "description": "Advanced O'level mathematics preparation",
+                  "category": "compulsory",
+                  "subject_type": "sciences",
+                  "teacherId": "teacher-math-1",
+                  "isCore": true,
+                  "topics": [
+                    {
+                      "id": "topic-trigonometry",
+                      "name": "Basic Trigonometry",
+                      "description": "Sine, cosine, and tangent ratios",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-ratios",
+                          "name": "Trigonometric Ratios",
+                          "lessons": [
+                            {
+                              "id": "lesson-trig-intro",
+                              "title": "Introduction to Trigonometry",
+                              "type": "video",
+                              "duration": "40 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "senior-4",
+          "name": "Senior 4",
+          "level": "O'level",
+          "description": "Final year of Ordinary Level - UCE preparation",
+          "price": 550,
+          "priceUGX": 2000000,
+          "isExamYear": true,
+          "examType": "UCE",
+          "terms": [
+            {
+              "id": "senior-4-term-1",
+              "name": "Term 1",
+              "startDate": "2025-02-03",
+              "endDate": "2025-05-16",
+              "subjects": [
+                {
+                  "id": "senior-4-mathematics",
+                  "name": "Mathematics",
+                  "description": "UCE Mathematics exam preparation",
+                  "category": "compulsory",
+                  "subject_type": "sciences",
+                  "teacherId": "teacher-math-1",
+                  "isCore": true,
+                  "topics": [
+                    {
+                      "id": "topic-calculus-intro",
+                      "name": "Introduction to Calculus",
+                      "description": "Basic differentiation and integration",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-derivatives",
+                          "name": "Basic Derivatives",
+                          "lessons": [
+                            {
+                              "id": "lesson-derivatives-intro",
+                              "title": "Understanding Derivatives",
+                              "type": "video",
+                              "duration": "45 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "alevel",
+      "name": "A'level (Advanced Level)",
+      "description": "Senior 5-6: Advanced secondary education leading to UACE (Uganda Advanced Certificate of Education)",
+      "classes": [
+        {
+          "id": "senior-5",
+          "name": "Senior 5",
+          "level": "A'level",
+          "description": "First year of Advanced Level education",
+          "price": 650,
+          "priceUGX": 2400000,
+          "subjectCombinations": ["PCM", "PCB", "HEG", "HEL", "ICT"],
+          "terms": [
+            {
+              "id": "senior-5-term-1",
+              "name": "Term 1",
+              "startDate": "2025-02-03",
+              "endDate": "2025-05-16",
+              "subjects": [
+                {
+                  "id": "senior-5-mathematics",
+                  "name": "Mathematics",
+                  "description": "Advanced mathematics for A'level",
+                  "category": "principal",
+                  "subject_type": "sciences",
+                  "teacherId": "teacher-math-adv",
+                  "combinations": ["PCM", "ICT"],
+                  "topics": [
+                    {
+                      "id": "topic-advanced-calculus",
+                      "name": "Advanced Calculus",
+                      "description": "Differential and integral calculus",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-limits",
+                          "name": "Limits and Continuity",
+                          "lessons": [
+                            {
+                              "id": "lesson-limits-intro",
+                              "title": "Introduction to Limits",
+                              "type": "video",
+                              "duration": "50 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-physics",
+                  "name": "Physics",
+                  "description": "Advanced physics concepts and applications",
+                  "category": "principal",
+                  "subject_type": "sciences",
+                  "teacherId": "teacher-phy-adv",
+                  "combinations": ["PCM", "PCB"],
+                  "topics": [
+                    {
+                      "id": "topic-mechanics-advanced",
+                      "name": "Advanced Mechanics",
+                      "description": "Complex motion and forces",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-circular-motion",
+                          "name": "Circular Motion",
+                          "lessons": [
+                            {
+                              "id": "lesson-circular-intro",
+                              "title": "Understanding Circular Motion",
+                              "type": "video",
+                              "duration": "45 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-chemistry",
+                  "name": "Chemistry",
+                  "description": "Advanced chemical principles and organic chemistry",
+                  "category": "principal",
+                  "subject_type": "sciences",
+                  "teacherId": "teacher-chem-adv",
+                  "combinations": ["PCM", "PCB"],
+                  "topics": [
+                    {
+                      "id": "topic-organic-chemistry",
+                      "name": "Organic Chemistry",
+                      "description": "Carbon compounds and reactions",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-hydrocarbons",
+                          "name": "Hydrocarbons",
+                          "lessons": [
+                            {
+                              "id": "lesson-hydrocarbons-intro",
+                              "title": "Introduction to Hydrocarbons",
+                              "type": "video",
+                              "duration": "40 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-biology",
+                  "name": "Biology",
+                  "description": "Advanced biological concepts and systems",
+                  "category": "principal",
+                  "subject_type": "sciences",
+                  "teacherId": "teacher-bio-adv",
+                  "combinations": ["PCB"],
+                  "topics": [
+                    {
+                      "id": "topic-genetics",
+                      "name": "Genetics and Heredity",
+                      "description": "DNA, genes, and inheritance",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-dna",
+                          "name": "DNA Structure and Function",
+                          "lessons": [
+                            {
+                              "id": "lesson-dna-intro",
+                              "title": "Understanding DNA",
+                              "type": "video",
+                              "duration": "45 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-history",
+                  "name": "History",
+                  "description": "Advanced historical analysis and research",
+                  "category": "principal",
+                  "subject_type": "humanities",
+                  "teacherId": "teacher-hist-adv",
+                  "combinations": ["HEG", "HEL"],
+                  "topics": [
+                    {
+                      "id": "topic-world-wars",
+                      "name": "World Wars and Their Impact",
+                      "description": "Global conflicts and their consequences",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-wwi",
+                          "name": "World War I",
+                          "lessons": [
+                            {
+                              "id": "lesson-wwi-intro",
+                              "title": "Causes of World War I",
+                              "type": "video",
+                              "duration": "50 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-economics",
+                  "name": "Economics",
+                  "description": "Economic principles and Uganda's economy",
+                  "category": "principal",
+                  "subject_type": "humanities",
+                  "teacherId": "teacher-econ",
+                  "combinations": ["HEG"],
+                  "topics": [
+                    {
+                      "id": "topic-microeconomics",
+                      "name": "Microeconomics",
+                      "description": "Individual economic behavior",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-demand-supply",
+                          "name": "Demand and Supply",
+                          "lessons": [
+                            {
+                              "id": "lesson-demand-intro",
+                              "title": "Understanding Demand",
+                              "type": "video",
+                              "duration": "40 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-literature",
+                  "name": "Literature in English",
+                  "description": "Advanced literary analysis and criticism",
+                  "category": "principal",
+                  "subject_type": "languages",
+                  "teacherId": "teacher-lit",
+                  "combinations": ["HEL"],
+                  "topics": [
+                    {
+                      "id": "topic-african-literature",
+                      "name": "African Literature",
+                      "description": "Works by African authors",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-achebe",
+                          "name": "Chinua Achebe's Works",
+                          "lessons": [
+                            {
+                              "id": "lesson-achebe-intro",
+                              "title": "Things Fall Apart Analysis",
+                              "type": "video",
+                              "duration": "55 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-general-paper",
+                  "name": "General Paper",
+                  "description": "Critical thinking and current affairs",
+                  "category": "subsidiary",
+                  "subject_type": "humanities",
+                  "teacherId": "teacher-gp",
+                  "combinations": ["PCM", "PCB", "HEG", "HEL", "ICT"],
+                  "isRequired": true,
+                  "topics": [
+                    {
+                      "id": "topic-current-affairs",
+                      "name": "Current Affairs",
+                      "description": "Contemporary issues and analysis",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-uganda-politics",
+                          "name": "Uganda Politics and Governance",
+                          "lessons": [
+                            {
+                              "id": "lesson-politics-intro",
+                              "title": "Uganda's Political System",
+                              "type": "video",
+                              "duration": "45 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "senior-6",
+          "name": "Senior 6",
+          "level": "A'level",
+          "description": "Final year of Advanced Level - UACE preparation",
+          "price": 700,
+          "priceUGX": 2600000,
+          "isExamYear": true,
+          "examType": "UACE",
+          "terms": [
+            {
+              "id": "senior-6-term-1",
+              "name": "Term 1",
+              "startDate": "2025-02-03",
+              "endDate": "2025-05-16",
+              "subjects": [
+                {
+                  "id": "senior-6-mathematics",
+                  "name": "Mathematics",
+                  "description": "UACE Mathematics exam preparation",
+                  "category": "principal",
+                  "subject_type": "sciences",
+                  "teacherId": "teacher-math-adv",
+                  "topics": [
+                    {
+                      "id": "topic-complex-analysis",
+                      "name": "Complex Numbers and Analysis",
+                      "description": "Advanced mathematical concepts for UACE",
+                      "subtopics": [
+                        {
+                          "id": "subtopic-complex-numbers",
+                          "name": "Complex Number Operations",
+                          "lessons": [
+                            {
+                              "id": "lesson-complex-intro",
+                              "title": "Introduction to Complex Numbers",
+                              "type": "video",
+                              "duration": "60 minutes",
+                              "completed": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "subjectTypes": {
+    "sciences": {
+      "name": "Sciences",
+      "description": "Mathematics, Physics, Chemistry, Biology",
+      "color": "#3B82F6"
+    },
+    "humanities": {
+      "name": "Humanities",
+      "description": "History, Geography, Economics, Religion",
+      "color": "#10B981"
+    },
+    "languages": {
+      "name": "Languages",
+      "description": "English, Literature, Foreign Languages",
+      "color": "#8B5CF6"
+    },
+    "technical": {
+      "name": "Technical/Vocational",
+      "description": "ICT, Technical Drawing, Agriculture",
+      "color": "#F59E0B"
+    },
+    "arts": {
+      "name": "Arts",
+      "description": "Fine Art, Music, Drama",
+      "color": "#EF4444"
+    }
+  },
+  "subjectCombinations": {
+    "PCM": {
+      "name": "Physics, Chemistry, Mathematics",
+      "description": "For engineering, medicine prep, and physical sciences",
+      "subjects": ["physics", "chemistry", "mathematics", "general-paper"]
+    },
+    "PCB": {
+      "name": "Physics, Chemistry, Biology",
+      "description": "For medicine, veterinary, and life sciences",
+      "subjects": ["physics", "chemistry", "biology", "general-paper"]
+    },
+    "HEG": {
+      "name": "History, Economics, Geography",
+      "description": "For social sciences, law, and humanities",
+      "subjects": ["history", "economics", "geography", "general-paper"]
+    },
+    "HEL": {
+      "name": "History, Economics, Literature",
+      "description": "For literature, journalism, and social studies",
+      "subjects": ["history", "economics", "literature", "general-paper"]
+    },
+    "ICT": {
+      "name": "ICT Combination",
+      "description": "For computer science and technology careers",
+      "subjects": ["mathematics", "physics", "ict", "general-paper"]
+    }
+  },
+  "examCalendar": {
+    "UCE": {
+      "name": "Uganda Certificate of Education",
+      "level": "O'level",
+      "examPeriod": "October-November",
+      "registrationDeadline": "August 31",
+      "subjects": ["mathematics", "english", "physics", "chemistry", "biology", "history", "geography"]
+    },
+    "UACE": {
+      "name": "Uganda Advanced Certificate of Education", 
+      "level": "A'level",
+      "examPeriod": "November-December",
+      "registrationDeadline": "September 30",
+      "subjects": ["principal_subjects", "general_paper"]
+    }
+  }
+}

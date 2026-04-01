@@ -1,0 +1,426 @@
+{
+  "upcomingSessions": [
+    {
+      "id": "session-uganda-1",
+      "title": "Senior 2 Mathematics - Quadratic Equations Mastery",
+      "description": "Complete review of quadratic equations with practical examples and UCE exam tips",
+      "teacherId": "teacher-math-1",
+      "teacherName": "Dr. Sarah Nakamya",
+      "classId": "senior-2",
+      "className": "Senior 2",
+      "level": "O'level",
+      "subjectId": "senior-2-mathematics",
+      "subjectName": "Mathematics",
+      "topicId": "topic-quadratics",
+      "topicName": "Quadratic Equations",
+      "date": "2025-07-03",
+      "time": "15:00",
+      "duration": 90,
+      "timezone": "EAT",
+      "maxParticipants": 50,
+      "currentParticipants": 28,
+      "registeredStudents": [
+        "student-1"
+      ],
+      "meetingLink": "https://zoom.us/j/uganda123456",
+      "status": "scheduled",
+      "recordingEnabled": true,
+      "chatEnabled": true,
+      "qnaEnabled": true,
+      "language": "English",
+      "examRelevance": "UCE",
+      "materials": [
+        {
+          "title": "Quadratic Equations Practice Sheet",
+          "url": "/materials/quadratics-practice-uganda.pdf"
+        },
+        {
+          "title": "UCE Past Papers - Quadratics",
+          "url": "/materials/uce-quadratics-past-papers.pdf"
+        }
+      ]
+    },
+    {
+      "id": "session-uganda-2",
+      "title": "Senior 5 Physics - Circular Motion Lab Session",
+      "description": "Interactive physics session with virtual lab demonstrations for A'level students",
+      "teacherId": "teacher-phy-adv",
+      "teacherName": "Dr. Mary Nakirya",
+      "classId": "senior-5",
+      "className": "Senior 5",
+      "level": "A'level",
+      "combination": "PCM",
+      "subjectId": "senior-5-physics",
+      "subjectName": "Physics",
+      "topicId": "topic-mechanics-advanced",
+      "topicName": "Advanced Mechanics",
+      "date": "2025-07-04",
+      "time": "14:00",
+      "duration": 120,
+      "timezone": "EAT",
+      "maxParticipants": 30,
+      "currentParticipants": 18,
+      "registeredStudents": [
+        "student-3"
+      ],
+      "meetingLink": "https://zoom.us/j/uganda987654",
+      "status": "scheduled",
+      "recordingEnabled": true,
+      "chatEnabled": true,
+      "qnaEnabled": true,
+      "language": "English",
+      "examRelevance": "UACE",
+      "materials": [
+        {
+          "title": "Circular Motion Lab Manual",
+          "url": "/materials/circular-motion-lab.pdf"
+        },
+        {
+          "title": "Virtual Physics Lab Access",
+          "url": "/labs/physics-virtual-lab"
+        }
+      ]
+    },
+    {
+      "id": "session-uganda-3",
+      "title": "Senior 6 General Paper - Current Affairs Discussion",
+      "description": "Analysis of contemporary Uganda and global issues for UACE preparation",
+      "teacherId": "teacher-gp",
+      "teacherName": "Dr. Michael Ssebunya",
+      "classId": "senior-6",
+      "className": "Senior 6",
+      "level": "A'level",
+      "subjectId": "senior-6-general-paper",
+      "subjectName": "General Paper",
+      "topicId": "topic-current-affairs",
+      "topicName": "Current Affairs",
+      "date": "2025-07-05",
+      "time": "16:00",
+      "duration": 90,
+      "timezone": "EAT",
+      "maxParticipants": 40,
+      "currentParticipants": 35,
+      "registeredStudents": [
+        "student-3",
+        "student-4"
+      ],
+      "meetingLink": "https://zoom.us/j/uganda456789",
+      "status": "scheduled",
+      "recordingEnabled": true,
+      "chatEnabled": true,
+      "qnaEnabled": true,
+      "language": "English",
+      "examRelevance": "UACE",
+      "materials": [
+        {
+          "title": "Uganda Current Affairs Summary 2025",
+          "url": "/materials/uganda-current-affairs-2025.pdf"
+        },
+        {
+          "title": "Essay Writing Guide for General Paper",
+          "url": "/materials/gp-essay-writing-guide.pdf"
+        }
+      ]
+    },
+    {
+      "id": "session-uganda-4",
+      "title": "Senior 4 UCE Exam Strategy Workshop",
+      "description": "Comprehensive exam preparation strategy for UCE 2025 candidates",
+      "teacherId": "admin-1",
+      "teacherName": "Dr. Christine Namaganda",
+      "classId": "senior-4",
+      "className": "Senior 4",
+      "level": "O'level",
+      "subjectId": "general",
+      "subjectName": "Exam Preparation",
+      "date": "2025-07-06",
+      "time": "10:00",
+      "duration": 120,
+      "timezone": "EAT",
+      "maxParticipants": 100,
+      "currentParticipants": 67,
+      "registeredStudents": [
+        "student-5"
+      ],
+      "meetingLink": "https://zoom.us/j/uganda789123",
+      "status": "scheduled",
+      "recordingEnabled": true,
+      "chatEnabled": true,
+      "qnaEnabled": true,
+      "language": "English",
+      "examRelevance": "UCE",
+      "isSpecialSession": true,
+      "materials": [
+        {
+          "title": "UCE 2025 Exam Timetable",
+          "url": "/materials/uce-2025-timetable.pdf"
+        },
+        {
+          "title": "Study Plan Template",
+          "url": "/materials/uce-study-plan-template.pdf"
+        },
+        {
+          "title": "Stress Management for Students",
+          "url": "/materials/student-stress-management.pdf"
+        }
+      ]
+    },
+    {
+      "id": "session-uganda-5",
+      "title": "Senior 1 Biology - Introduction to Cells",
+      "description": "Understanding plant and animal cells with interactive diagrams",
+      "teacherId": "teacher-bio-1",
+      "teacherName": "Ms. Joan Nabwire",
+      "classId": "senior-1",
+      "className": "Senior 1",
+      "level": "O'level",
+      "subjectId": "senior-1-biology",
+      "subjectName": "Biology",
+      "topicId": "topic-cells",
+      "topicName": "Cell Structure",
+      "date": "2025-07-07",
+      "time": "14:30",
+      "duration": 75,
+      "timezone": "EAT",
+      "maxParticipants": 45,
+      "currentParticipants": 22,
+      "registeredStudents": [
+        "student-2"
+      ],
+      "meetingLink": "https://zoom.us/j/uganda321654",
+      "status": "scheduled",
+      "recordingEnabled": true,
+      "chatEnabled": true,
+      "qnaEnabled": true,
+      "language": "English",
+      "examRelevance": "UCE",
+      "materials": [
+        {
+          "title": "Cell Structure Diagram",
+          "url": "/materials/cell-structure-diagram.pdf"
+        },
+        {
+          "title": "Interactive Cell Model",
+          "url": "/labs/cell-interactive-model"
+        }
+      ]
+    }
+  ],
+  "pastSessions": [
+    {
+      "id": "session-past-uganda-1",
+      "title": "Senior 3 Chemistry - Organic Chemistry Basics",
+      "description": "Introduction to carbon compounds and their properties",
+      "teacherId": "teacher-chem-1",
+      "teacherName": "Mr. Robert Kiggundu",
+      "classId": "senior-3",
+      "className": "Senior 3",
+      "level": "O'level",
+      "subjectId": "senior-3-chemistry",
+      "subjectName": "Chemistry",
+      "topicId": "topic-organic",
+      "topicName": "Organic Chemistry",
+      "date": "2025-06-25",
+      "time": "15:00",
+      "duration": 90,
+      "timezone": "EAT",
+      "participantCount": 34,
+      "status": "completed",
+      "recordingUrl": "/recordings/senior3-organic-chemistry-20250625.mp4",
+      "examRelevance": "UCE",
+      "materials": [
+        {
+          "title": "Organic Chemistry Notes",
+          "url": "/materials/organic-chemistry-notes.pdf"
+        }
+      ],
+      "feedback": [
+        {
+          "studentId": "student-1",
+          "rating": 5,
+          "comment": "Excellent explanation of hydrocarbons! Now I understand the difference between alkanes and alkenes."
+        },
+        {
+          "studentId": "student-2",
+          "rating": 4,
+          "comment": "Good session but could use more examples from everyday life."
+        }
+      ]
+    },
+    {
+      "id": "session-past-uganda-2",
+      "title": "Senior 5 History - African Independence Movements",
+      "description": "Study of independence movements across Africa with focus on Uganda",
+      "teacherId": "teacher-hist-adv",
+      "teacherName": "Prof. Margaret Kyomuhendo",
+      "classId": "senior-5",
+      "className": "Senior 5",
+      "level": "A'level",
+      "combination": "HEG",
+      "subjectId": "senior-5-history",
+      "subjectName": "History",
+      "topicId": "topic-african-independence",
+      "topicName": "African Independence",
+      "date": "2025-06-22",
+      "time": "16:00",
+      "duration": 120,
+      "timezone": "EAT",
+      "participantCount": 25,
+      "status": "completed",
+      "recordingUrl": "/recordings/senior5-african-independence-20250622.mp4",
+      "examRelevance": "UACE",
+      "materials": [
+        {
+          "title": "Uganda Independence Timeline",
+          "url": "/materials/uganda-independence-timeline.pdf"
+        }
+      ],
+      "feedback": [
+        {
+          "studentId": "student-4",
+          "rating": 5,
+          "comment": "Very informative! The connections between different African independence movements were eye-opening."
+        }
+      ]
+    },
+    {
+      "id": "session-past-uganda-3",
+      "title": "Senior 6 Economics - Uganda's Economic Development",
+      "description": "Analysis of Uganda's economic policies and development strategies",
+      "teacherId": "teacher-econ",
+      "teacherName": "Mr. Simon Mulindwa",
+      "classId": "senior-6",
+      "className": "Senior 6",
+      "level": "A'level",
+      "combination": "HEG",
+      "subjectId": "senior-6-economics",
+      "subjectName": "Economics",
+      "topicId": "topic-development-economics",
+      "topicName": "Development Economics",
+      "date": "2025-06-20",
+      "time": "14:00",
+      "duration": 105,
+      "timezone": "EAT",
+      "participantCount": 28,
+      "status": "completed",
+      "recordingUrl": "/recordings/senior6-uganda-economics-20250620.mp4",
+      "examRelevance": "UACE",
+      "materials": [
+        {
+          "title": "Uganda Economic Survey 2024",
+          "url": "/materials/uganda-economic-survey-2024.pdf"
+        }
+      ],
+      "feedback": [
+        {
+          "studentId": "student-4",
+          "rating": 5,
+          "comment": "Perfect preparation for UACE! The real-world examples from Uganda made economics come alive."
+        }
+      ]
+    }
+  ],
+  "liveNow": [],
+  "sessionTypes": [
+    {
+      "id": "review",
+      "name": "Review Session",
+      "description": "Review of completed topics with Q&A",
+      "color": "#3B82F6"
+    },
+    {
+      "id": "introduction",
+      "name": "Introduction Session", 
+      "description": "First introduction to new topics",
+      "color": "#10B981"
+    },
+    {
+      "id": "practice",
+      "name": "Practice Session",
+      "description": "Hands-on practice and problem solving",
+      "color": "#F59E0B"
+    },
+    {
+      "id": "exam_prep",
+      "name": "Exam Preparation",
+      "description": "UCE/UACE exam strategies and practice",
+      "color": "#EF4444"
+    },
+    {
+      "id": "lab_session",
+      "name": "Virtual Lab",
+      "description": "Interactive laboratory experiments",
+      "color": "#8B5CF6"
+    },
+    {
+      "id": "career_guidance",
+      "name": "Career Guidance",
+      "description": "University and career path discussions",
+      "color": "#06B6D4"
+    }
+  ],
+  "ugandaSchedule": {
+    "termDates": {
+      "term1": {
+        "name": "Term 1",
+        "startDate": "2025-02-03",
+        "endDate": "2025-05-16",
+        "weeks": 14
+      },
+      "term2": {
+        "name": "Term 2",
+        "startDate": "2025-06-02", 
+        "endDate": "2025-08-29",
+        "weeks": 13
+      },
+      "term3": {
+        "name": "Term 3",
+        "startDate": "2025-09-15",
+        "endDate": "2025-12-05",
+        "weeks": 12
+      }
+    },
+    "examPeriods": {
+      "UCE_2025": {
+        "name": "UCE 2025",
+        "startDate": "2025-11-03",
+        "endDate": "2025-11-28",
+        "registrationDeadline": "2025-08-31"
+      },
+      "UACE_2025": {
+        "name": "UACE 2025", 
+        "startDate": "2025-11-24",
+        "endDate": "2025-12-19",
+        "registrationDeadline": "2025-09-30"
+      }
+    },
+    "holidays": [
+      {
+        "name": "Easter Break",
+        "startDate": "2025-04-18",
+        "endDate": "2025-04-21"
+      },
+      {
+        "name": "Labour Day",
+        "date": "2025-05-01"
+      },
+      {
+        "name": "Independence Day",
+        "date": "2025-10-09"
+      }
+    ]
+  },
+  "sessionStatistics": {
+    "totalSessions": 156,
+    "completedSessions": 89,
+    "averageAttendance": 85,
+    "studentSatisfaction": 4.7,
+    "mostPopularSubjects": [
+      {"subject": "Mathematics", "sessions": 45},
+      {"subject": "Physics", "sessions": 32},
+      {"subject": "Chemistry", "sessions": 28},
+      {"subject": "General Paper", "sessions": 25},
+      {"subject": "Biology", "sessions": 26}
+    ]
+  }
+}
