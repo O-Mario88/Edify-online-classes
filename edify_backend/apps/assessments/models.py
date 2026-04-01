@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 
 class AssessmentWindow(models.Model):
-    class_context = models.ForeignKey('classes.ClassContext', on_delete=models.CASCADE, related_name='assessment_windows')
+    class_reference = models.ForeignKey('classes.Class', on_delete=models.CASCADE, related_name='assessment_windows')
     title = models.CharField(max_length=255)
     open_time = models.DateTimeField()
     close_time = models.DateTimeField()

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AICopilotMessage } from '../types';
 import { useAuth } from './AuthContext';
+import { apiClient } from '@/lib/api';
 
 interface AICopilotContextType {
   isOpen: boolean;
@@ -65,26 +66,27 @@ export const AICopilotProvider: React.FC<{ children: ReactNode }> = ({ children 
     setMessages(prev => [...prev, newMessage]);
     setIsLoading(true);
 
-    // Mock API delay for AI response
-    setTimeout(() => {
-      let aiResponseContent = "I'm currently in offline mock mode, but generally I would explain this concept deeply using UNEB curriculum guidelines. Want to try a short quiz on it?";
-      
-      if (content.toLowerCase().includes('quiz')) {
-         aiResponseContent = "Sure! Here is a Quick Quiz:\n\n1. What is the standard form of a quadratic equation?\nA) y = mx + c\nB) ax² + bx + c = 0\nC) A + B = C\n\nReply with your answer!";
-      } else if (content.toLowerCase().includes('summary') || content.toLowerCase().includes('summarize')) {
-         aiResponseContent = "Here is a brief summary of Kinematics: Kinematics describes motion without considering its causes. Key concepts include displacement, velocity, and acceleration. Master the 4 kinematic equations to easily solve UACE problems!";
-      }
-
-      const aiResponse: AICopilotMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: aiResponseContent,
-        timestamp: new Date().toISOString()
-      };
-      
-      setMessages(prev => [...prev, aiResponse]);
-      setIsLoading(false);
-    }, 1500);
+    try {
+       const res = await apiClient.post('/ai/copilot/ask/', { content });
+       const aiResponse: AICopilotMessage = {
+          id: res.data.job_id.toString(),
+          role: 'assistant',
+          content: res.data.reply,
+          timestamp: new Date().toISOString()
+       };
+       setMessages(prev => [...prev, aiResponse]);
+    } catch (err) {
+       console.error("Failed to query AI copilot", err);
+       const errorMsg: AICopilotMessage = {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: "I'm having trouble connecting to the backend right now. Ensure your internet connection is stable.",
+          timestamp: new Date().toISOString()
+       };
+       setMessages(prev => [...prev, errorMsg]);
+    } finally {
+       setIsLoading(false);
+    }
   };
 
   const clearHistory = () => {

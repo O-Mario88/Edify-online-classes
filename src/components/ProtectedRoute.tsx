@@ -1,14 +1,26 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { usePermissions } from '../hooks/usePermissions';
+import { Permission } from '../lib/permissions.matrix';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles: string[];
+  allowedRoles?: string[];
+  requiredPermission?: Permission;
+  requireAnyPermission?: Permission[];
+  requireAllPermissions?: Permission[];
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  allowedRoles,
+  requiredPermission,
+  requireAnyPermission,
+  requireAllPermissions
+}) => {
   const { user, isLoading } = useAuth();
+  const { hasPermission, hasAnyPermission, hasAllPermissions } = usePermissions();
 
   if (isLoading) {
     return (
@@ -25,7 +37,21 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
     return <Navigate to="/login" replace />;
   }
 
-  if (!allowedRoles.includes(user.role)) {
+  // Legacy role check
+  if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Granular RBAC Checks
+  if (requiredPermission && !hasPermission(requiredPermission)) {
+    return <Navigate to="/" replace />; // Alternatively: /unauthorized
+  }
+
+  if (requireAnyPermission && !hasAnyPermission(requireAnyPermission)) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (requireAllPermissions && !hasAllPermissions(requireAllPermissions)) {
     return <Navigate to="/" replace />;
   }
 

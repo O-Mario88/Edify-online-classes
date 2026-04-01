@@ -2,14 +2,21 @@ from django.db import models
 from django.conf import settings
 
 class Lesson(models.Model):
-    class_context = models.ForeignKey('classes.ClassContext', on_delete=models.CASCADE, related_name='lessons')
+    ACCESS_MODE_CHOICES = [
+        ('draft', 'Draft / Hidden'),
+        ('published', 'Published'),
+        ('premium', 'Premium Only')
+    ]
+    parent_class = models.ForeignKey('classes.Class', on_delete=models.CASCADE, related_name='lessons')
     topic = models.ForeignKey('curriculum.Topic', on_delete=models.SET_NULL, null=True, blank=True, related_name='lessons')
     title = models.CharField(max_length=255)
+    access_mode = models.CharField(max_length=20, choices=ACCESS_MODE_CHOICES, default='draft')
     scheduled_at = models.DateTimeField()
+    published_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.title} - {self.class_context.name}"
+        return f"{self.title} - {self.parent_class.title}"
 
 class LessonNote(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='notes')

@@ -7,52 +7,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChevronRight, ArrowLeft, PlayCircle, FileText, HelpCircle, Star, Users, Clock, Download, Video } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Import curriculum data
-import ugandaMath from '../../public/data/uganda-math-curriculum.json';
-import ugandaBiology from '../../public/data/uganda-biology-curriculum.json';
-import ugandaPhysics from '../../public/data/uganda-physics-curriculum.json';
-import ugandaChemistry from '../../public/data/uganda-chemistry-curriculum.json';
-import ugandaGeography from '../../public/data/uganda-geography-curriculum.json';
-import ugandaHistory from '../../public/data/uganda-history-curriculum.json';
-import ugandaEnglish from '../../public/data/uganda-english-curriculum.json';
-import ugandaGeneralPaper from '../../public/data/uganda-general-paper-curriculum.json';
-import ugandaSubMath from '../../public/data/uganda-submath-curriculum.json';
-import ugandaLiterature from '../../public/data/uganda-literature-curriculum.json';
-import ugandaICT from '../../public/data/uganda-ict-curriculum.json';
-import ugandaEconomics from '../../public/data/uganda-economics-curriculum.json';
-import ugandaArtDesign from '../../public/data/uganda-art-design-curriculum.json';
-import ugandaPerformingArts from '../../public/data/uganda-performing-arts-curriculum.json';
-import ugandaTechDesign from '../../public/data/uganda-technology-design-curriculum.json';
-import ugandaNutrition from '../../public/data/uganda-nutrition-curriculum.json';
-import ugandaFrench from '../../public/data/uganda-french-curriculum.json';
-import ugandaGerman from '../../public/data/uganda-german-curriculum.json';
-import ugandaArabic from '../../public/data/uganda-arabic-curriculum.json';
-import ugandaChinese from '../../public/data/uganda-chinese-curriculum.json';
-import ugandaLatin from '../../public/data/uganda-latin-curriculum.json';
+import { apiClient } from '@/lib/api';
 
-const ALL_SUBJECTS = [
-  ...ugandaMath.subjects,
-  ...ugandaBiology.subjects,
-  ...ugandaPhysics.subjects,
-  ...ugandaChemistry.subjects,
-  ...ugandaGeography.subjects,
-  ...ugandaHistory.subjects,
-  ...ugandaEnglish.subjects,
-  ...ugandaGeneralPaper.subjects,
-  ...ugandaSubMath.subjects,
-  ...ugandaLiterature.subjects,
-  ...ugandaICT.subjects,
-  ...ugandaEconomics.subjects,
-  ...ugandaArtDesign.subjects,
-  ...ugandaPerformingArts.subjects,
-  ...ugandaTechDesign.subjects,
-  ...ugandaNutrition.subjects,
-  ...ugandaFrench.subjects,
-  ...ugandaGerman.subjects,
-  ...ugandaArabic.subjects,
-  ...ugandaChinese.subjects,
-  ...ugandaLatin.subjects
-];
+interface DjangoTopic {
+  id: number;
+  name: string;
+  order: number;
+  class_level: {
+    id: number;
+    name: string;
+  };
+}
+
+interface DjangoSubject {
+  id: number;
+  name: string;
+  code: string;
+}
 
 // Helper to generate fake MarketplaceItems strictly tied to a Topic
 const mockMarketplaceItems = (topicId: string, count: number, type: 'video' | 'notes' | 'assessment') => {
@@ -74,23 +45,26 @@ const MarketplaceTopicPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const { rootSubject, topic } = useMemo(() => {
-    const sList = ALL_SUBJECTS.filter(s => s.country.toLowerCase() === country?.toLowerCase() && s.name === ALL_SUBJECTS.find(sub => sub.id === subjectId)?.name);
-    
-    let resolvedTopic = null;
-    let resolvedSubject = null;
-    
-    for (const s of sList) {
-       const found = s.topics.find((t: any) => t.id === topicId && t.classLevel === classId);
-       if (found) {
-          resolvedTopic = found;
-          resolvedSubject = s;
-          break;
-       }
-    }
-    
-    return { rootSubject: resolvedSubject, topic: resolvedTopic };
-  }, [country, subjectId, classId, topicId]);
+  const [rootSubject, setRootSubject] = React.useState<DjangoSubject | null>(null);
+  const [topic, setTopic] = React.useState<DjangoTopic | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      apiClient.get(`/curriculum/subjects/${subjectId}/`),
+      apiClient.get(`/curriculum/topics/${topicId}/`)
+    ])
+    .then(([subRes, topRes]) => {
+      setRootSubject(subRes.data);
+      setTopic(topRes.data);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error("Failed fetching context for Topic Page", err);
+      setLoading(false);
+    });
+  }, [subjectId, topicId]);
 
   const resources = useMemo(() => {
      if (!topic) return { videos: [], notes: [], tests: [] };
@@ -100,6 +74,15 @@ const MarketplaceTopicPage: React.FC = () => {
         tests: mockMarketplaceItems(topic.id, 3, 'assessment')
      };
   }, [topic]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto py-12 px-4 text-center">
+         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+         <p className="text-gray-500">Loading Topic Learning Profile...</p>
+      </div>
+    );
+  }
 
   if (!rootSubject || !topic) {
     return (
@@ -176,7 +159,7 @@ const MarketplaceTopicPage: React.FC = () => {
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">{topic.name}</h1>
           <p className="text-gray-600 mb-4 max-w-3xl">
-            Complete resource tree mapping directly to the {topic.levelGroup} syllabus for {topic.name}. Learn from vetted institutional educators through rigorous video guides, printable notes, and diagnostic assessments.
+            Complete resource tree mapping directly to the syllabus for {topic.name}. Learn from vetted institutional educators through rigorous video guides, printable notes, and diagnostic assessments.
           </p>
           <div className="flex flex-wrap items-center gap-3">
              <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 py-1 px-3">Topic {topic.order}</Badge>

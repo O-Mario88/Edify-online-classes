@@ -3,7 +3,7 @@ from django.conf import settings
 
 class Thread(models.Model):
     topic_context = models.ForeignKey('curriculum.Topic', on_delete=models.SET_NULL, null=True, blank=True, related_name='threads')
-    class_context = models.ForeignKey('classes.ClassContext', on_delete=models.SET_NULL, null=True, blank=True, related_name='threads')
+    class_context = models.ForeignKey('classes.Class', on_delete=models.SET_NULL, null=True, blank=True, related_name='threads')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='authored_threads')
     title = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)

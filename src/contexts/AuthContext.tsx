@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UniversalStudent, IndependentTeacher, Institution, ParentUser } from '../types';
+import { apiClient } from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
   userProfile: UniversalStudent | IndependentTeacher | Institution | ParentUser | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string, overrideRole?: string) => Promise<boolean>;
+  register: (email: string, fullName: string, countryCode: string, password: string, role: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
   switchStudentContext: (institutionId?: string) => void;
@@ -64,77 +66,74 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string, overrideRole?: string): Promise<boolean> => {
     setIsLoading(true);
     
     try {
-      // Load hybrid user data
-      const response = await fetch('/data/hybrid-users.json');
-      const userData = await response.json();
+      // 1. Authenticate against Django DRF
+      const response = await apiClient.post('/auth/token/', { email, password });
       
-      // Load parent user data
-      const parentResponse = await fetch('/data/parent-users.json');
-      const parentData = await parentResponse.json();
+      const { access, refresh } = response.data;
       
-      // Check all user types
-      const allUsers = [
-        ...userData.platform_administrators,
-        ...userData.institution_administrators,
-        ...userData.independent_teachers,
-        ...userData.universal_students,
-        ...parentData.parents
-      ];
+      // Store tokens
+      localStorage.setItem('maple-access-token', access);
+      localStorage.setItem('maple-refresh-token', refresh);
       
-      const foundUser = allUsers.find((u: User) => u.email === email);
+      // We set a dummy hybrid profile based on the successful login until Phase 5 when we decouple profiles completely. 
+      // This preserves legacy UI dependencies while enforcing real database credentials!
       
-      if (foundUser) {
-        // For demo purposes, accept any password or check demo accounts
-        let demoAccount = Object.values(userData.demo_accounts).find(
-          (account: any) => account.email === email
-        );
-        if (!demoAccount && parentData.demo_accounts) {
-          demoAccount = Object.values(parentData.demo_accounts).find(
-             (account: any) => account.email === email
-          );
-        }
-        
-        if (demoAccount || password) {
-          setUser(foundUser);
-          setUserProfile(foundUser as any);
-          
-          if (foundUser.countryCode) {
-            setCountryCode(foundUser.countryCode);
-          } else {
-            setCountryCode('uganda');
-          }
-          
-          // Set default context based on user type
-          if (foundUser.role === 'universal_student') {
-            const student = foundUser as UniversalStudent;
-            if (student.student_statuses.institutional.length > 0 && student.student_statuses.independent.active) {
-              setCurrentContext('mixed');
-            } else if (student.student_statuses.institutional.length > 0) {
-              setCurrentContext('institutional');
-            } else {
-              setCurrentContext('independent');
-            }
-          } else {
-            setCurrentContext('mixed');
-          }
-          
-          localStorage.setItem('maple-auth-user', JSON.stringify(foundUser));
-          localStorage.setItem('maple-auth-profile', JSON.stringify(foundUser));
-          localStorage.setItem('maple-auth-context', currentContext);
-          
-          setIsLoading(false);
-          return true;
-        }
-      }
+      // Map new streamlined roles to legacy frontend structures dynamically before Phase 5 UI rebuilds
+      const legacyRoleMap: Record<string, string> = {
+         'student': 'universal_student',
+         'teacher': 'independent_teacher',
+         'admin': 'platform_admin',
+         'institution': 'institution_admin'
+      };
+
+      const finalRole = overrideRole ? (legacyRoleMap[overrideRole] || overrideRole) : 'universal_student';
+
+      const sessionUser = {
+         id: email,
+         email: email,
+         name: email.split('@')[0],
+         role: finalRole,
+         countryCode: 'uganda'
+      };
+      
+      setUser(sessionUser as any);
+      setUserProfile(sessionUser as any);
+      setCountryCode('uganda');
+      setCurrentContext('mixed');
+      
+      localStorage.setItem('maple-auth-user', JSON.stringify(sessionUser));
+      localStorage.setItem('maple-auth-profile', JSON.stringify(sessionUser));
+      localStorage.setItem('maple-auth-context', 'mixed');
       
       setIsLoading(false);
-      return false;
+      return true;
+      
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login authentication error:', error);
+      setIsLoading(false);
+      return false;
+    }
+  };
+
+  const registerUser = async (email: string, full_name: string, country_code: string, password: string, role: string): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      // 1. Send registration payload
+      await apiClient.post('/auth/register/', {
+         email,
+         full_name,
+         country_code,
+         password,
+         role
+      });
+      // 2. Immediately login the user upon successful 201 Created and pass role to session
+      return await login(email, password, role);
+    } catch (error) {
+      console.error('Registration error:', error);
       setIsLoading(false);
       return false;
     }
@@ -147,6 +146,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('maple-auth-user');
     localStorage.removeItem('maple-auth-profile');
     localStorage.removeItem('maple-auth-context');
+    localStorage.removeItem('maple-access-token');
+    localStorage.removeItem('maple-refresh-token');
   };
 
   const switchStudentContext = (institutionId?: string) => {
@@ -174,6 +175,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     userProfile,
     login,
+    register: registerUser,
     logout,
     isLoading,
     switchStudentContext,

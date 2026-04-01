@@ -1,37 +1,42 @@
 from django.db import models
 from django.conf import settings
+from institutions.models import Institution
+from curriculum.models import Subject, ClassLevel, Topic
 
-class ClassContext(models.Model):
-    institution = models.ForeignKey('institutions.Institution', on_delete=models.CASCADE, related_name='classes', null=True, blank=True)
-    class_level = models.ForeignKey('curriculum.ClassLevel', on_delete=models.CASCADE, related_name='classes')
-    name = models.CharField(max_length=200) # e.g. "Senior 3 East"
-    academic_year = models.CharField(max_length=20)
+class Class(models.Model):
+    VISIBILITY_CHOICES = [
+        ('private', 'Private Internal'),
+        ('public', 'Public (Marketplace)'),
+    ]
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='classes')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='classes')
+    class_level = models.ForeignKey(ClassLevel, on_delete=models.CASCADE, related_name='classes')
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='taught_classes')
+    
+    title = models.CharField(max_length=200) # e.g. "Senior 3 East Biology"
+    visibility = models.CharField(max_length=20, choices=VISIBILITY_CHOICES, default='private')
+    is_published = models.BooleanField(default=False)
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.name} ({self.academic_year})"
-
-class ClassTeacher(models.Model):
-    class_context = models.ForeignKey(ClassContext, on_delete=models.CASCADE, related_name='teachers')
-    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='teaching_classes')
-    assigned_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.teacher.full_name} -> {self.class_context.name}"
+        return f"{self.title} ({self.institution.name})"
 
 class ClassEnrollment(models.Model):
-    class_context = models.ForeignKey(ClassContext, on_delete=models.CASCADE, related_name='enrollments')
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('suspended', 'Suspended'),
+        ('completed', 'Completed')
+    ]
+    enrolled_class = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='enrollments')
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='class_enrollments')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     enrolled_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.student.full_name} enrolled in {self.class_context.name}"
-
-class ClassSchedule(models.Model):
-    class_context = models.ForeignKey(ClassContext, on_delete=models.CASCADE, related_name='schedules')
-    day_of_week = models.IntegerField() # 0 = Monday, 6 = Sunday
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    class Meta:
+        unique_together = ('enrolled_class', 'student')
 
     def __str__(self):
-        return f"{self.class_context.name} Schedule: Day {self.day_of_week}"
+        return f"{self.student.email} enrolled in {self.enrolled_class.title}"
+
+

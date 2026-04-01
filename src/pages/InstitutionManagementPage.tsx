@@ -22,58 +22,45 @@ import {
   GraduationCap
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { apiClient } from '@/lib/api';
 import { getCurriculumConfig } from '@/lib/curriculum';
 
 interface Institution {
   id: string;
   name: string;
-  admin_id: string;
-  type: string;
-  location: {
-    district: string;
-    region: string;
-    address: string;
-  };
-  subscription: {
-    plan: string;
-    status: string;
-    cost_per_student: number;
-    total_students: number;
-    billing_cycle: string;
-  };
-  public_profile: {
-    visible: boolean;
-    description: string;
-    enrollment_fee: number;
-    achievements: string[];
-  };
-  exam_center: {
-    is_registered: boolean;
-    uneb_center_code?: string;
-    capacity?: number;
-  };
-  analytics: {
-    financial: {
-      monthly_revenue: number;
-      subscription_cost: number;
-      profit_margin: number;
-    };
-    academic: {
-      average_performance: number;
-      attendance_rate: number;
-      completion_rate: number;
-    };
-    engagement: {
-      active_students: number;
-      forum_participation: number;
-      live_session_attendance: number;
-    };
-  };
+  primary_color: string;
+  secondary_color: string;
+  curriculum_track: string;
+  subscription_plan: string;
+  is_active: boolean;
+  country_code: string;
+  created_at: string;
+}
+
+interface ApiClass {
+  id: number;
+  subject_name: string;
+  class_level_name: string;
+  teacher_name: string;
+  title: string;
+  visibility: string;
+}
+
+interface ApiTimetableSlot {
+  id: number;
+  class_title: string;
+  room_name: string;
+  teacher_name: string;
+  day_name: string;
+  start_time: string;
+  end_time: string;
 }
 
 const InstitutionManagementPage: React.FC = () => {
-  const { user, userProfile, countryCode } = useAuth();
+  const { user, countryCode } = useAuth();
   const [institution, setInstitution] = useState<Institution | null>(null);
+  const [classes, setClasses] = useState<ApiClass[]>([]);
+  const [timetables, setTimetables] = useState<ApiTimetableSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const curriculumConfig = getCurriculumConfig(countryCode);
@@ -86,20 +73,21 @@ const InstitutionManagementPage: React.FC = () => {
 
   const fetchInstitutionData = async () => {
     try {
-      const response = await fetch('/data/institutions.json');
-      const data = await response.json();
-      
-      // Find institution associated with current admin
-      const adminInstitution = data.institutions.find((inst: Institution) => 
-        inst.admin_id === user?.id
-      );
-      
-      if (adminInstitution) {
-        setInstitution(adminInstitution);
+      const { data: instData } = await apiClient.get('/institutions/');
+      // An admin might belong to multiple, we grab the first for the dashboard context
+      if (instData.length > 0) {
+        setInstitution(instData[0]);
       }
+      
+      const { data: clsData } = await apiClient.get('/classes/');
+      setClasses(clsData);
+
+      const { data: ttData } = await apiClient.get('/scheduling/timetable/');
+      setTimetables(ttData);
+
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching institution data:', error);
+      console.error('Error fetching School OS data:', error);
       setLoading(false);
     }
   };
@@ -143,91 +131,27 @@ const InstitutionManagementPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{institution.name}</h1>
             <p className="text-lg text-gray-600">
-              {institution.location.district}, {institution.location.region} • {institution.type} Institution
+              Edify Shared Platform • Multi-Tenant Scope
             </p>
           </div>
         </div>
         
         <div className="flex items-center gap-4">
           <Badge 
-            variant={institution.subscription.status === 'active' ? 'default' : 'secondary'}
+            variant={institution.is_active ? 'default' : 'secondary'}
             className="text-sm"
           >
-            {institution.subscription.plan} Plan - {institution.subscription.status}
+            {institution.subscription_plan} Plan - {institution.is_active ? 'ACTIVE' : 'INACTIVE'}
           </Badge>
-          {institution.exam_center.is_registered && (
-            <Badge variant="outline" className="text-sm">
-              <Award className="h-3 w-3 mr-1" />
-              {curriculumConfig.examBody} Exam Center
-            </Badge>
-          )}
         </div>
       </div>
 
-      {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{institution.subscription.total_students}</div>
-            <p className="text-xs text-muted-foreground">
-              {institution.analytics.engagement.active_students} active this month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(institution.analytics.financial.monthly_revenue)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {institution.analytics.financial.profit_margin}% profit margin
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Academic Performance</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{institution.analytics.academic.average_performance}%</div>
-            <p className="text-xs text-muted-foreground">
-              {institution.analytics.academic.completion_rate}% completion rate
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Platform Engagement</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{institution.analytics.engagement.forum_participation}%</div>
-            <p className="text-xs text-muted-foreground">
-              {institution.analytics.engagement.live_session_attendance}% live session attendance
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="students">Students</TabsTrigger>
-          <TabsTrigger value="academics">Academics</TabsTrigger>
-          <TabsTrigger value="financials">Financials</TabsTrigger>
-          <TabsTrigger value="profile">Public Profile</TabsTrigger>
+          <TabsTrigger value="classes">Active Classes</TabsTrigger>
+          <TabsTrigger value="timetable">School Timetable</TabsTrigger>
+          <TabsTrigger value="members">Members</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -242,276 +166,105 @@ const InstitutionManagementPage: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Location</label>
+                  <label className="text-sm font-medium text-gray-700">Curriculum Track</label>
+                  <p className="text-sm text-gray-600 capitalize">{institution.curriculum_track}</p>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Country Target</label>
                   <p className="text-sm text-gray-600 flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
-                    {institution.location.address}
+                    {institution.country_code.toUpperCase()} Scope
                   </p>
                 </div>
                 
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Institution Type</label>
-                  <p className="text-sm text-gray-600 capitalize">{institution.type}</p>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Subscription</label>
+                  <label className="text-sm font-medium text-gray-700">Core Subscription</label>
                   <p className="text-sm text-gray-600">
-                    {institution.subscription.plan} Plan - {formatCurrency(institution.subscription.cost_per_student)} per student/{institution.subscription.billing_cycle}
+                    {institution.subscription_plan}
                   </p>
-                </div>
-                
-                {institution.exam_center.is_registered && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">{curriculumConfig.examBody} Center Code</label>
-                    <p className="text-sm text-gray-600 font-mono">
-                      {institution.exam_center.uneb_center_code}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Performance Metrics */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Performance Metrics
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Student Attendance Rate
-                  </label>
-                  <Progress value={institution.analytics.academic.attendance_rate} className="mb-1" />
-                  <p className="text-sm text-gray-600">{institution.analytics.academic.attendance_rate}%</p>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Class Completion Rate
-                  </label>
-                  <Progress value={institution.analytics.academic.completion_rate} className="mb-1" />
-                  <p className="text-sm text-gray-600">{institution.analytics.academic.completion_rate}%</p>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Forum Participation
-                  </label>
-                  <Progress value={institution.analytics.engagement.forum_participation} className="mb-1" />
-                  <p className="text-sm text-gray-600">{institution.analytics.engagement.forum_participation}%</p>
                 </div>
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
 
-          {/* Recent Achievements */}
+        <TabsContent value="classes" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5" />
-                Recent Achievements
+                <BookOpen className="h-5 w-5" />
+                Active Class Federation
               </CardTitle>
+              <CardDescription>
+                Private sections natively scoped to your School's Platform Database
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {institution.public_profile.achievements.map((achievement, index) => (
-                  <div key={index} className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                    <span className="text-sm font-medium">{achievement}</span>
-                  </div>
-                ))}
-              </div>
+              {classes.length === 0 ? (
+                 <p className="text-gray-500 py-4">No active classes scheduled. Click 'New Class' to begin.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                  {classes.map(cls => (
+                    <div key={cls.id} className="p-4 border rounded-lg hover:shadow-md transition">
+                       <h3 className="font-bold text-lg">{cls.title}</h3>
+                       <p className="text-sm text-blue-600 font-semibold mb-2">{cls.subject_name} • {cls.class_level_name}</p>
+                       <div className="flex justify-between items-center text-sm text-gray-600 border-t pt-2 mt-2">
+                         <span>Instructor: {cls.teacher_name}</span>
+                         <Badge variant="outline">{cls.visibility}</Badge>
+                       </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="students" className="space-y-6">
+        <TabsContent value="timetable" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Master Timetable Engine
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {timetables.length === 0 ? (
+                 <p className="text-gray-500 py-4">Timetable blocks have not been built for this Academic Term.</p>
+              ) : (
+                <div className="space-y-4">
+                  {timetables.map(slot => (
+                    <div key={slot.id} className="flex justify-between items-center p-3 border-l-4 border-blue-500 bg-gray-50 rounded shadow-sm">
+                      <div>
+                        <span className="font-bold text-gray-900">{slot.day_name}</span>
+                        <span className="mx-2 text-gray-400">|</span>
+                        <span className="font-mono text-gray-700 text-sm">{slot.start_time} - {slot.end_time}</span>
+                      </div>
+                      <div className="font-medium">{slot.class_title}</div>
+                      <div className="text-sm text-gray-500 flex items-center gap-2">
+                         <MapPin className="h-3 w-3" /> {slot.room_name} 
+                         <span className="mx-1">•</span> 
+                         <UserCheck className="h-3 w-3" /> {slot.teacher_name}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="members" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Student Management
-              </CardTitle>
-              <CardDescription>
-                Manage student enrollments and track their progress
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">
-                    {institution.subscription.total_students}
-                  </div>
-                  <p className="text-sm text-gray-600">Total Enrolled</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">
-                    {institution.analytics.engagement.active_students}
-                  </div>
-                  <p className="text-sm text-gray-600">Active Students</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-600 mb-2">
-                    {Math.round(institution.analytics.academic.attendance_rate)}%
-                  </div>
-                  <p className="text-sm text-gray-600">Attendance Rate</p>
-                </div>
-              </div>
-              
-              <div className="mt-6 flex gap-4">
-                <Button>Add New Student</Button>
-                <Button variant="outline">Import Students</Button>
-                <Button variant="outline">Export Student Data</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="academics" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <GraduationCap className="h-5 w-5" />
-                Academic Performance
+                Institution Roster
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Overall Performance</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">
-                        Average Academic Performance
-                      </label>
-                      <Progress value={institution.analytics.academic.average_performance} className="mb-1" />
-                      <p className="text-sm text-gray-600">{institution.analytics.academic.average_performance}%</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">
-                        Class Completion Rate
-                      </label>
-                      <Progress value={institution.analytics.academic.completion_rate} className="mb-1" />
-                      <p className="text-sm text-gray-600">{institution.analytics.academic.completion_rate}%</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4">
-                  <Button>View Detailed Reports</Button>
-                  <Button variant="outline">Download Academic Data</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="financials" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
-                Financial Overview
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Revenue Breakdown</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Monthly Revenue</span>
-                      <span className="font-semibold">{formatCurrency(institution.analytics.financial.monthly_revenue)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Platform Subscription</span>
-                      <span className="font-semibold">{formatCurrency(institution.analytics.financial.subscription_cost)}</span>
-                    </div>
-                    <div className="flex justify-between border-t pt-2">
-                      <span className="text-sm font-semibold">Net Profit</span>
-                      <span className="font-bold text-green-600">
-                        {formatCurrency(institution.analytics.financial.monthly_revenue - institution.analytics.financial.subscription_cost)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Subscription Details</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Plan</span>
-                      <span className="font-semibold capitalize">{institution.subscription.plan}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Cost per Student</span>
-                      <span className="font-semibold">{formatCurrency(institution.subscription.cost_per_student)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Billing Cycle</span>
-                      <span className="font-semibold capitalize">{institution.subscription.billing_cycle}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Status</span>
-                      <Badge variant={institution.subscription.status === 'active' ? 'default' : 'secondary'}>
-                        {institution.subscription.status}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="profile" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <School className="h-5 w-5" />
-                Public Institution Profile
-              </CardTitle>
-              <CardDescription>
-                Manage how your institution appears to potential students
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold">Profile Visibility</h3>
-                  <p className="text-sm text-gray-600">Allow students to find and apply to your institution</p>
-                </div>
-                <Badge variant={institution.public_profile.visible ? 'default' : 'secondary'}>
-                  {institution.public_profile.visible ? 'Visible' : 'Hidden'}
-                </Badge>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Institution Description
-                </label>
-                <p className="text-sm text-gray-600 p-3 bg-gray-50 rounded">
-                  {institution.public_profile.description}
-                </p>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Enrollment Fee
-                </label>
-                <p className="text-lg font-semibold">
-                  {formatCurrency(institution.public_profile.enrollment_fee)}
-                </p>
-              </div>
-              
-              <div className="flex gap-4">
-                <Button>Edit Profile</Button>
-                <Button variant="outline">Preview Public Page</Button>
-              </div>
+              <p className="text-gray-500 py-4">Student and Teacher onboarding portals are currently synchronized natively against internal class rosters.</p>
             </CardContent>
           </Card>
         </TabsContent>

@@ -6,55 +6,16 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BookOpen, Search, Filter, Globe2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { apiClient } from '@/lib/api';
 
-// Import our rigorous generated curriculum data
-import ugandaMath from '../../public/data/uganda-math-curriculum.json';
-import ugandaBiology from '../../public/data/uganda-biology-curriculum.json';
-import ugandaPhysics from '../../public/data/uganda-physics-curriculum.json';
-import ugandaChemistry from '../../public/data/uganda-chemistry-curriculum.json';
-import ugandaGeography from '../../public/data/uganda-geography-curriculum.json';
-import ugandaHistory from '../../public/data/uganda-history-curriculum.json';
-import ugandaEnglish from '../../public/data/uganda-english-curriculum.json';
-import ugandaGeneralPaper from '../../public/data/uganda-general-paper-curriculum.json';
-import ugandaSubMath from '../../public/data/uganda-submath-curriculum.json';
-import ugandaLiterature from '../../public/data/uganda-literature-curriculum.json';
-import ugandaICT from '../../public/data/uganda-ict-curriculum.json';
-import ugandaEconomics from '../../public/data/uganda-economics-curriculum.json';
-import ugandaArtDesign from '../../public/data/uganda-art-design-curriculum.json';
-import ugandaPerformingArts from '../../public/data/uganda-performing-arts-curriculum.json';
-import ugandaTechDesign from '../../public/data/uganda-technology-design-curriculum.json';
-import ugandaNutrition from '../../public/data/uganda-nutrition-curriculum.json';
-import ugandaFrench from '../../public/data/uganda-french-curriculum.json';
-import ugandaGerman from '../../public/data/uganda-german-curriculum.json';
-import ugandaArabic from '../../public/data/uganda-arabic-curriculum.json';
-import ugandaChinese from '../../public/data/uganda-chinese-curriculum.json';
-import ugandaLatin from '../../public/data/uganda-latin-curriculum.json';
-
-// Consolidate the registries for the top-level marketplace discovery
-// We use the first element (the lower-secondary base subject) to represent the card
-const ALL_SUBJECTS = [
-  ...ugandaMath.subjects,
-  ...ugandaBiology.subjects,
-  ...ugandaPhysics.subjects,
-  ...ugandaChemistry.subjects,
-  ...ugandaGeography.subjects,
-  ...ugandaHistory.subjects,
-  ...ugandaEnglish.subjects,
-  ...ugandaGeneralPaper.subjects,
-  ...ugandaSubMath.subjects,
-  ...ugandaLiterature.subjects,
-  ...ugandaICT.subjects,
-  ...ugandaEconomics.subjects,
-  ...ugandaArtDesign.subjects,
-  ...ugandaPerformingArts.subjects,
-  ...ugandaTechDesign.subjects,
-  ...ugandaNutrition.subjects,
-  ...ugandaFrench.subjects,
-  ...ugandaGerman.subjects,
-  ...ugandaArabic.subjects,
-  ...ugandaChinese.subjects,
-  ...ugandaLatin.subjects
-].filter(s => s.level === 'O-Level' || s.category === 'Compulsory' || s.category === 'Subsidiary' || s.category === 'Principal'); // Ensure A-Level only subjects also appear in the main marketplace
+// We define our local API type
+interface DjangoSubject {
+  id: number;
+  name: string;
+  code: string;
+  category?: string; // We will map this dynamically for now
+  classLevels?: string[];
+}
 
 const MarketplacePage: React.FC = () => {
   const { currentContext } = useAuth();
@@ -63,14 +24,37 @@ const MarketplacePage: React.FC = () => {
   // By default, match the user's current context, but allow them to browse other regions
   const [selectedCountry, setSelectedCountry] = useState(currentContext || 'uganda');
   const [searchTerm, setSearchTerm] = useState('');
+  const [apiStatus, setApiStatus] = useState<string>('disconnected');
+  const [subjects, setSubjects] = useState<DjangoSubject[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   
-  const filteredSubjects = ALL_SUBJECTS.filter(subject => {
-    const matchesCountry = subject.country.toLowerCase() === selectedCountry.toLowerCase();
+  React.useEffect(() => {
+    // Phase 2/3: Live Database Feed
+    apiClient.get('/curriculum/subjects/')
+      .then(res => {
+         // Map to mock categories visually until Phase 4 Backend Extensions
+         const mapped = res.data.map((subject: any) => ({
+             ...subject,
+             category: 'Core Syllabus' // Default mock flag
+         }));
+         setSubjects(mapped);
+         setApiStatus('connected');
+         setLoading(false);
+      })
+      .catch(err => {
+         console.error("API Connectivity Error (Backend may be offline):", err);
+         setApiStatus('disconnected');
+         setLoading(false);
+      });
+  }, []);
+  
+  const filteredSubjects = subjects.filter(subject => {
+    const matchesCountry = true; // We will expand Django models later to handle multi-country
     const matchesSearch = subject.name.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCountry && matchesSearch;
   });
 
-  const handleSubjectClick = (subjectId: string) => {
+  const handleSubjectClick = (subjectId: number | string) => {
     // Navigate strictly matching the new Subject -> Class hierarchy
     navigate(`/marketplace/${selectedCountry}/${subjectId}`);
   };
@@ -134,7 +118,12 @@ const MarketplacePage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredSubjects.length === 0 ? (
+        {loading ? (
+          <div className="col-span-full py-12 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
+             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+             <p className="text-gray-500">Loading curriculum data from Django cluster...</p>
+          </div>
+        ) : filteredSubjects.length === 0 ? (
           <div className="col-span-full py-12 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
             <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-3" />
             <h3 className="text-lg font-medium text-gray-900">No subjects found</h3>

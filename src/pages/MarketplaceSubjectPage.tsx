@@ -7,83 +7,75 @@ import { Button } from '@/components/ui/button';
 import { ChevronRight, ArrowLeft, BookOpen, Clock, Users, FileText, Video, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Import our rigorous generated curriculum data
-import ugandaMath from '../../public/data/uganda-math-curriculum.json';
-import ugandaBiology from '../../public/data/uganda-biology-curriculum.json';
-import ugandaPhysics from '../../public/data/uganda-physics-curriculum.json';
-import ugandaChemistry from '../../public/data/uganda-chemistry-curriculum.json';
-import ugandaGeography from '../../public/data/uganda-geography-curriculum.json';
-import ugandaHistory from '../../public/data/uganda-history-curriculum.json';
-import ugandaEnglish from '../../public/data/uganda-english-curriculum.json';
-import ugandaGeneralPaper from '../../public/data/uganda-general-paper-curriculum.json';
-import ugandaSubMath from '../../public/data/uganda-submath-curriculum.json';
-import ugandaLiterature from '../../public/data/uganda-literature-curriculum.json';
-import ugandaICT from '../../public/data/uganda-ict-curriculum.json';
-import ugandaEconomics from '../../public/data/uganda-economics-curriculum.json';
-import ugandaArtDesign from '../../public/data/uganda-art-design-curriculum.json';
-import ugandaPerformingArts from '../../public/data/uganda-performing-arts-curriculum.json';
-import ugandaTechDesign from '../../public/data/uganda-technology-design-curriculum.json';
-import ugandaNutrition from '../../public/data/uganda-nutrition-curriculum.json';
-import ugandaFrench from '../../public/data/uganda-french-curriculum.json';
-import ugandaGerman from '../../public/data/uganda-german-curriculum.json';
-import ugandaArabic from '../../public/data/uganda-arabic-curriculum.json';
-import ugandaChinese from '../../public/data/uganda-chinese-curriculum.json';
-import ugandaLatin from '../../public/data/uganda-latin-curriculum.json';
+import { apiClient } from '@/lib/api';
 
-const ALL_SUBJECTS = [
-  ...ugandaMath.subjects,
-  ...ugandaBiology.subjects,
-  ...ugandaPhysics.subjects,
-  ...ugandaChemistry.subjects,
-  ...ugandaGeography.subjects,
-  ...ugandaHistory.subjects,
-  ...ugandaEnglish.subjects,
-  ...ugandaGeneralPaper.subjects,
-  ...ugandaSubMath.subjects,
-  ...ugandaLiterature.subjects,
-  ...ugandaICT.subjects,
-  ...ugandaEconomics.subjects,
-  ...ugandaArtDesign.subjects,
-  ...ugandaPerformingArts.subjects,
-  ...ugandaTechDesign.subjects,
-  ...ugandaNutrition.subjects,
-  ...ugandaFrench.subjects,
-  ...ugandaGerman.subjects,
-  ...ugandaArabic.subjects,
-  ...ugandaChinese.subjects,
-  ...ugandaLatin.subjects
-];
+interface DjangoSubject {
+  id: number;
+  name: string;
+  code: string;
+}
 
-// Helper to generate a random number of resources since we don't have a real backend count yet
+interface DjangoTopic {
+  id: number;
+  name: string;
+  order: number;
+  class_level: {
+    id: number;
+    name: string;
+  };
+}
 const getRandomCount = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
 
 const MarketplaceSubjectPage: React.FC = () => {
   const { country, subjectId } = useParams<{ country: string; subjectId: string }>();
   const navigate = useNavigate();
 
-  // Find the exact subject from the registry
-  const rootSubject = useMemo(() => {
-    return ALL_SUBJECTS.find(s => s.id === subjectId && s.country.toLowerCase() === country?.toLowerCase());
-  }, [subjectId, country]);
+  const [rootSubject, setRootSubject] = useState<DjangoSubject | null>(null);
+  const [topics, setTopics] = useState<DjangoTopic[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // If a user clicks an O-level subject, we want to also bundle any structurally related A-level version 
-  // so that the Subject page actually shows *all* classes (S1-S6) for "Mathematics".
-  const fullSubjectFamily = useMemo(() => {
-    if (!rootSubject) return [];
-    // e.g., if root is "ug-math-o-level" (Mathematics), we want "ug-math-a-level" too. 
-    return ALL_SUBJECTS.filter(s => s.name === rootSubject.name && s.country.toLowerCase() === rootSubject.country.toLowerCase());
-  }, [rootSubject]);
+  React.useEffect(() => {
+    setLoading(true);
+    // Fetch the specific subject
+    apiClient.get(`/curriculum/subjects/${subjectId}/`)
+      .then(res => {
+         setRootSubject(res.data);
+         // Once subject loaded, fetch topics bound to this subject
+         return apiClient.get(`/curriculum/topics/?subject=${subjectId}`);
+      })
+      .then(res => {
+         setTopics(res.data);
+         setLoading(false);
+      })
+      .catch(err => {
+         console.error("Failed fetching subject data", err);
+         setLoading(false);
+      });
+  }, [subjectId]);
 
-  // Extract all distinct class levels (e.g., "S1", "S2", "S5-S6 Paper 1")
+  // Extract distinct class levels directly from the fetched topics
   const classLevels = useMemo(() => {
     const levels = new Set<string>();
-    fullSubjectFamily.forEach(s => {
-      s.classLevels.forEach((cl: string) => levels.add(cl));
-    });
-    return Array.from(levels);
-  }, [fullSubjectFamily]);
+    topics.forEach(t => levels.add(t.class_level.name));
+    return Array.from(levels).sort();
+  }, [topics]);
 
   const [activeTab, setActiveTab] = useState(classLevels[0] || '');
+
+  React.useEffect(() => {
+     if (!activeTab && classLevels.length > 0) {
+        setActiveTab(classLevels[0]);
+     }
+  }, [classLevels, activeTab]);
+
+  if (loading) {
+     return (
+       <div className="container mx-auto py-12 px-4 text-center">
+         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+         <p className="text-gray-500">Loading Subject Profile...</p>
+       </div>
+     );
+  }
 
   if (!rootSubject) {
     return (
@@ -97,15 +89,8 @@ const MarketplaceSubjectPage: React.FC = () => {
     );
   }
 
-  // Get topics for the currently selected class tab
-  const activeTopics = useMemo(() => {
-    let topics: any[] = [];
-    fullSubjectFamily.forEach(s => {
-      const classTopics = s.topics.filter((t: any) => t.classLevel === activeTab);
-      topics = [...topics, ...classTopics];
-    });
-    return topics.sort((a, b) => a.order - b.order);
-  }, [activeTab, fullSubjectFamily]);
+  // Filter topics based on active tab
+  const activeTopics = topics.filter(t => t.class_level.name === activeTab).sort((a, b) => a.order - b.order);
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -130,7 +115,7 @@ const MarketplaceSubjectPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
              {rootSubject.name} 
              <Badge className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 border-0">
-                {rootSubject.category}
+                Subject Hub
              </Badge>
           </h1>
           <p className="text-gray-600 mt-1">
@@ -188,7 +173,7 @@ const MarketplaceSubjectPage: React.FC = () => {
                                {topic.name}
                              </h4>
                              <p className="text-sm text-gray-500 mb-4 line-clamp-1">
-                               {topic.levelGroup} | Mandatory core topic strand mapping.
+                               Mandatory core topic strand mapping.
                              </p>
                              
                              <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-gray-600">

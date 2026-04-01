@@ -6,53 +6,19 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { apiClient } from '@/lib/api';
 
-// Import our rigorous generated curriculum data
-import ugandaMath from '../../../public/data/uganda-math-curriculum.json';
-import ugandaBiology from '../../../public/data/uganda-biology-curriculum.json';
-import ugandaPhysics from '../../../public/data/uganda-physics-curriculum.json';
-import ugandaChemistry from '../../../public/data/uganda-chemistry-curriculum.json';
-import ugandaGeography from '../../../public/data/uganda-geography-curriculum.json';
-import ugandaHistory from '../../../public/data/uganda-history-curriculum.json';
-import ugandaEnglish from '../../../public/data/uganda-english-curriculum.json';
-import ugandaGeneralPaper from '../../../public/data/uganda-general-paper-curriculum.json';
-import ugandaSubMath from '../../../public/data/uganda-submath-curriculum.json';
-import ugandaLiterature from '../../../public/data/uganda-literature-curriculum.json';
-import ugandaICT from '../../../public/data/uganda-ict-curriculum.json';
-import ugandaEconomics from '../../../public/data/uganda-economics-curriculum.json';
-import ugandaArtDesign from '../../../public/data/uganda-art-design-curriculum.json';
-import ugandaPerformingArts from '../../../public/data/uganda-performing-arts-curriculum.json';
-import ugandaTechDesign from '../../../public/data/uganda-technology-design-curriculum.json';
-import ugandaNutrition from '../../../public/data/uganda-nutrition-curriculum.json';
-import ugandaFrench from '../../../public/data/uganda-french-curriculum.json';
-import ugandaGerman from '../../../public/data/uganda-german-curriculum.json';
-import ugandaArabic from '../../../public/data/uganda-arabic-curriculum.json';
-import ugandaChinese from '../../../public/data/uganda-chinese-curriculum.json';
-import ugandaLatin from '../../../public/data/uganda-latin-curriculum.json';
-
-const ALL_SUBJECTS = [
-  ...ugandaMath.subjects,
-  ...ugandaBiology.subjects,
-  ...ugandaPhysics.subjects,
-  ...ugandaChemistry.subjects,
-  ...ugandaGeography.subjects,
-  ...ugandaHistory.subjects,
-  ...ugandaEnglish.subjects,
-  ...ugandaGeneralPaper.subjects,
-  ...ugandaSubMath.subjects,
-  ...ugandaLiterature.subjects,
-  ...ugandaICT.subjects,
-  ...ugandaEconomics.subjects,
-  ...ugandaArtDesign.subjects,
-  ...ugandaPerformingArts.subjects,
-  ...ugandaTechDesign.subjects,
-  ...ugandaNutrition.subjects,
-  ...ugandaFrench.subjects,
-  ...ugandaGerman.subjects,
-  ...ugandaArabic.subjects,
-  ...ugandaChinese.subjects,
-  ...ugandaLatin.subjects
-];
+interface DjangoSubject {
+   id: number;
+   name: string;
+   code: string;
+   topics: {
+      id: number;
+      name: string;
+      order: number;
+      class_level_name: string;
+   }[];
+}
 
 interface MarketplaceUploadModalProps {
   isOpen: boolean;
@@ -74,34 +40,43 @@ export const MarketplaceUploadModal: React.FC<MarketplaceUploadModalProps> = ({ 
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
 
-  // 1. Get unique subject names for the selected country
+  const [systemSubjects, setSystemSubjects] = useState<DjangoSubject[]>([]);
+
+  React.useEffect(() => {
+     if (isOpen) {
+        apiClient.get('/curriculum/subjects/')
+           .then(res => setSystemSubjects(res.data))
+           .catch(err => console.error(err));
+     }
+  }, [isOpen]);
+
+  // 1. Get unique subject names for the selected country (mocked locally, backend handles region decoupling eventually)
   const availableSubjects = useMemo(() => {
-    const subjectsInCountry = ALL_SUBJECTS.filter(s => s.country.toLowerCase() === country.toLowerCase());
-    const uniqueNames = new Set(subjectsInCountry.map(s => s.name));
+    const uniqueNames = new Set(systemSubjects.map(s => s.name));
     return Array.from(uniqueNames).sort();
-  }, [country]);
+  }, [systemSubjects, country]);
 
   // 2. Get all distinct classes available for that subject name across all levels (O-Level and A-Level)
   const availableClasses = useMemo(() => {
     if (!subjectName) return [];
-    const subjects = ALL_SUBJECTS.filter(s => s.country.toLowerCase() === country.toLowerCase() && s.name === subjectName);
+    const subjects = systemSubjects.filter(s => s.name === subjectName);
     const classes = new Set<string>();
-    subjects.forEach(s => s.classLevels.forEach(cl => classes.add(cl)));
+    subjects.forEach(s => s.topics.forEach((t: any) => classes.add(t.class_level_name)));
     return Array.from(classes).sort();
-  }, [subjectName, country]);
+  }, [subjectName, systemSubjects]);
 
   // 3. Get all topics for the specific class level
   const availableTopics = useMemo(() => {
     if (!subjectName || !classLevel) return [];
-    const subjects = ALL_SUBJECTS.filter(s => s.country.toLowerCase() === country.toLowerCase() && s.name === subjectName);
+    const subjects = systemSubjects.filter(s => s.name === subjectName);
     
     let topics: any[] = [];
     subjects.forEach(s => {
-       const classTopics = s.topics.filter((t: any) => t.classLevel === classLevel);
+       const classTopics = s.topics.filter((t: any) => t.class_level_name === classLevel);
        topics = [...topics, ...classTopics];
     });
     return topics.sort((a, b) => a.order - b.order);
-  }, [subjectName, classLevel, country]);
+  }, [subjectName, classLevel, systemSubjects]);
 
   const handleNext = () => setStep(step + 1 as 1 | 2 | 3);
   const handleBack = () => setStep(step - 1 as 1 | 2 | 3);

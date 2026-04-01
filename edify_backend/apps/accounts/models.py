@@ -21,6 +21,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=255)
     country_code = models.CharField(max_length=10) # e.g. UG, KE, RW
+    
+    ROLE_CHOICES = [
+        ('student', 'Student'),
+        ('teacher', 'Teacher'),
+        ('admin', 'Administrator'),
+        ('institution', 'Institution'),
+    ]
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
+    
     phone = models.CharField(max_length=20, blank=True, null=True)
     whatsapp_opt_in = models.BooleanField(default=False)
     
