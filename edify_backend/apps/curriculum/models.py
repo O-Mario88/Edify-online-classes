@@ -62,3 +62,39 @@ class SubjectSelectionRule(models.Model):
 
     def __str__(self):
         return f"Rules for {self.track.name}"
+
+class CurriculumVersion(models.Model):
+    track = models.ForeignKey(CurriculumTrack, on_delete=models.CASCADE, related_name='versions')
+    version_label = models.CharField(max_length=50, help_text="e.g. NCDC 2021 Update")
+    is_active = models.BooleanField(default=True)
+    release_date = models.DateField()
+
+    def __str__(self):
+        return self.version_label
+
+class TopicCompetency(models.Model):
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='competencies')
+    curriculum_version = models.ForeignKey(CurriculumVersion, on_delete=models.CASCADE, related_name='competencies')
+    description = models.TextField(help_text="National competency or learning objective expected at this topic.")
+    code = models.CharField(max_length=50, blank=True, null=True, help_text="e.g. BIO.S1.01")
+    
+    def __str__(self):
+        return f"{self.code}: {self.description[:30]}..."
+
+class ResourceQualityReview(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('approved', 'Officially Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    # In reality, this would link to `marketplace.Listing` or `resources.Resource`. 
+    # For loose coupling without circular imports, we store object IDs or generic references,
+    # but for Edify we will link directly to a generic target string payload for MVP.
+    target_resource_ref = models.CharField(max_length=255, help_text="UUID or reference to the specific teaching asset.")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    compliance_score = models.IntegerField(default=0, help_text="Scale 0-100 NCDC alignment score.")
+    reviewer_notes = models.TextField(blank=True, null=True)
+    reviewed_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Review [{self.status}] for {self.target_resource_ref}"

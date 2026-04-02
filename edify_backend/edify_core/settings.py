@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'live_sessions.apps.LiveSessionsConfig',
     'discussions.apps.DiscussionsConfig',
     'tutoring.apps.TutoringConfig',
+    'interventions.apps.InterventionsConfig',
     'exams.apps.ExamsConfig',
     'parent_portal.apps.ParentPortalConfig',
     'notifications.apps.NotificationsConfig',
@@ -68,6 +69,7 @@ INSTALLED_APPS = [
     'ai_services.apps.AiServicesConfig',
     'scheduling.apps.SchedulingConfig',
     'attendance.apps.AttendanceConfig',
+    'finance.apps.FinanceConfig',
 ]
 
 MIDDLEWARE = [
@@ -180,13 +182,32 @@ SIMPLE_JWT = {
 CORS_ALLOW_ALL_ORIGINS = True # Change to False in production
 CORS_ALLOW_CREDENTIALS = True
 
-# Celery Configuration
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/1'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CELERY CONFIGURATION
+# Production-ready Celery settings with fallback to local defaults
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60  # Avoid hung tasks (30 mins limits)
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+# Disable eager execution by default for true async behavior, uncomment for local non-Redis dev
+CELERY_TASK_ALWAYS_EAGER = True
+
+# Caching for Dashboard Metrics
+CACHES = {
+    'default': {
+        # Using LocMemCache for local dev to avoid crash if Redis isn't running
+        # Change to 'django.core.cache.backends.redis.RedisCache' in production
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}

@@ -1,615 +1,372 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
+import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
 import { 
-  BookOpen, 
-  Calendar, 
-  MessageCircle, 
-  CreditCard,
-  Play,
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  Users,
-  Award,
-  Target,
-  Bell,
-  MapPin,
-  GraduationCap,
-  Brain,
-  Lightbulb,
-  User
+  BookOpen, Calendar, MessageCircle, Play, CheckCircle, 
+  Clock, TrendingUp, TrendingDown, Target, Brain, 
+  AlertCircle, AlertTriangle, BarChart3, Flame, Activity, User, FileText, Video
 } from 'lucide-react';
-import { Student, UgandaLevel, Teacher, UniversalStudent, WebinarSession } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { UNEBReadinessGauge } from '../components/dashboard/UNEBReadinessGauge';
-import { TopicConfidenceRadar } from '../components/dashboard/TopicConfidenceRadar';
-
-interface ForumActivity {
-  id: string;
-  title: string;
-  author: string;
-  category: string;
-  replies: number;
-  lastActivity: string;
-}
+import { apiClient } from '../lib/api';
+import { CareerGuidanceWidget } from '../components/dashboard/CareerGuidanceWidget';
 
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
-  const [levels, setLevels] = useState<UgandaLevel[]>([]);
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [liveSessions, setLiveSessions] = useState<WebinarSession[]>([]);
-  const [forumActivity, setForumActivity] = useState<ForumActivity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<any>(null);
 
   const student = user as any;
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDashboard = async () => {
       try {
-        const [coursesResponse, usersResponse, sessionsResponse, forumResponse] = await Promise.all([
-          fetch('/data/courses.json'),
-          fetch('/data/users.json'),
-          fetch('/data/live-sessions.json'),
-          fetch('/data/forum.json')
-        ]);
-        
-        const coursesData = await coursesResponse.json();
-        const usersData = await usersResponse.json();
-        const sessionsData = await sessionsResponse.json();
-        const forumData = await forumResponse.json();
-        
-        setLevels(coursesData.levels);
-        setTeachers(usersData.teachers);
-        
-        // Process live sessions data
-        const allSessions = [
-          ...sessionsData.upcomingSessions,
-          ...sessionsData.liveNow,
-          ...sessionsData.pastSessions
-        ];
-        setLiveSessions(allSessions.slice(0, 5));
-
-        // Process forum activity
-        const recentPosts: ForumActivity[] = [];
-        forumData.categories.forEach((category: any) => {
-          if (category.posts) {
-            category.posts.forEach((post: any) => {
-              recentPosts.push({
-                id: post.id,
-                title: post.title,
-                author: post.authorName,
-                category: category.name,
-                replies: post.replies?.length || 0,
-                lastActivity: post.updatedAt || post.createdAt
-              });
-            });
-          }
-          // Also check subcategories
-          if (category.subcategories) {
-            category.subcategories.forEach((sub: any) => {
-              if (sub.posts) {
-                sub.posts.forEach((post: any) => {
-                  recentPosts.push({
-                    id: post.id,
-                    title: post.title,
-                    author: post.authorName,
-                    category: sub.name,
-                    replies: post.replies?.length || 0,
-                    lastActivity: post.updatedAt || post.createdAt
-                  });
-                });
-              }
-            });
-          }
-        });
-        
-        // Sort by most recent activity and take top 5
-        recentPosts.sort((a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime());
-        setForumActivity(recentPosts.slice(0, 5));
-        
+        const { data } = await apiClient.get('/analytics/student-dashboard/');
+        setDashboardData(data);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchData();
+    fetchDashboard();
   }, []);
 
-  const getEnrolledSubjects = () => {
-    const enrolledSubjects: Array<{
-      id: string;
-      name: string;
-      className: string;
-      level: string;
-      teacherName: string;
-      progress: number;
-    }> = [];
-
-    if (!student.enrolledSubjects) return enrolledSubjects;
-
-    levels.forEach(level => {
-      level.classes.forEach(ugandaClass => {
-        ugandaClass.terms.forEach(term => {
-          term.subjects.forEach(subject => {
-            if (student.enrolledSubjects.includes(subject.id)) {
-              const teacher = teachers.find(t => t.id === subject.teacherId);
-              enrolledSubjects.push({
-                id: subject.id,
-                name: subject.name,
-                className: ugandaClass.name,
-                level: ugandaClass.level,
-                teacherName: teacher?.name || 'Unknown Teacher',
-                progress: Math.floor(Math.random() * 80) + 10 // Simulate progress
-              });
-            }
-          });
-        });
-      });
-    });
-
-    return enrolledSubjects;
-  };
-
-  const getUpcomingExam = () => {
-    if (student.targetExam === 'UCE') {
-      return {
-        name: 'Uganda Certificate of Education (UCE)',
-        date: '2025-11-03',
-        daysLeft: Math.ceil((new Date('2025-11-03').getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-      };
-    } else if (student.targetExam === 'UACE') {
-      return {
-        name: 'Uganda Advanced Certificate of Education (UACE)',
-        date: '2025-11-24',
-        daysLeft: Math.ceil((new Date('2025-11-24').getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-      };
-    }
-    return null;
-  };
-
-  const enrolledSubjects = getEnrolledSubjects();
-  const upcomingExam = getUpcomingExam();
-
-  // Mock readiness for demo purposes if not present
-  const readinessData = student.uneb_readiness || {
-    overall_score: 68,
-    exam_target: student.preferences?.level === 'A-level' ? 'UACE' : 'UCE',
-    predicted_division: 2,
-    topics_confidence: [
-      { subject: 'Math', confidence: 80 },
-      { subject: 'Physics', confidence: 45 },
-      { subject: 'Chemistry', confidence: 60 },
-      { subject: 'Biology', confidence: 70 },
-      { subject: 'English', confidence: 85 }
-    ]
-  };
-
-  if (loading) {
+  if (loading || !dashboardData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <p className="text-gray-600">Loading your Learning Command Center...</p>
         </div>
       </div>
     );
   }
 
+  const { kpis, subjectPerformance, nextSession, assessmentSnapshot } = dashboardData;
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <MapPin className="h-5 w-5 text-blue-600" />
-            <span className="text-blue-600 font-medium">{student.location}</span>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Learning Command Center</h1>
+            <p className="text-gray-600 mt-1">Welcome back, {student?.name?.split(' ')[0] || 'Learner'}. Here is your active diagnostic overview.</p>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {student.name}!</h1>
-          <div className="flex items-center gap-4 text-gray-600 mt-2">
-            <div className="flex items-center gap-1">
-              <GraduationCap className="h-4 w-4" />
-              <span>{student.class} • {student.level}</span>
-            </div>
-            {student.school && (
-              <div className="flex items-center gap-1">
-                <BookOpen className="h-4 w-4" />
-                <span>{student.school}</span>
-              </div>
-            )}
-            {student.combination && (
-              <Badge variant="outline">{student.combination}</Badge>
-            )}
+          <div className="flex gap-3">
+             <Button className="shadow-sm"><BookOpen className="w-4 h-4 mr-2" /> Resume Course</Button>
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Enrolled Subjects</p>
-                  <p className="text-2xl font-bold text-gray-900">{enrolledSubjects.length}</p>
-                </div>
-                <BookOpen className="h-8 w-8 text-blue-600" />
+        {/* Row 1: KPI Strip */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <Card className="shadow-sm">
+            <CardContent className="p-4">
+              <p className="text-xs font-medium text-gray-500 mb-1">Overall Progress</p>
+              <div className="flex items-end gap-2">
+                <span className="text-2xl font-bold">{kpis.overallProgress}%</span>
+                <span className="text-xs text-green-600 flex items-center mb-1"><TrendingUp className="w-3 h-3 mr-1"/>{kpis.progressTrend}%</span>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="shadow-sm hover:border-red-300 transition-colors">
+            <CardContent className="p-4">
+              <p className="text-xs font-medium text-gray-500 mb-1">Attendance</p>
+              <div className="flex items-end gap-2">
+                <span className="text-2xl font-bold">{kpis.attendance}%</span>
+                <span className="text-xs text-red-600 flex items-center mb-1"><TrendingDown className="w-3 h-3 mr-1"/>{kpis.attendanceTrend}%</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Forum Posts</p>
-                  <p className="text-2xl font-bold text-gray-900">{student.forumPosts}</p>
-                </div>
-                <MessageCircle className="h-8 w-8 text-green-600" />
+          <Card className="shadow-sm">
+            <CardContent className="p-4">
+              <p className="text-xs font-medium text-gray-500 mb-1">Weekly Assessments</p>
+              <div className="flex items-end gap-2">
+                <span className="text-2xl font-bold">{kpis.assessmentsCompleted}</span>
+                <span className="text-xs text-gray-500 mb-1">completed</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Amount Paid</p>
-                  <p className="text-2xl font-bold text-gray-900">UGX {student.totalPaidUGX?.toLocaleString() || '0'}</p>
-                </div>
-                <CreditCard className="h-8 w-8 text-purple-600" />
+          <Card className="shadow-sm">
+            <CardContent className="p-4 flex flex-col justify-between h-full">
+              <p className="text-xs font-medium text-gray-500 mb-1 flex items-center justify-between">UNEB Readiness <Target className="w-3 h-3 text-blue-500"/></p>
+              <div className="text-2xl font-bold text-blue-700">{kpis.readinessScore}</div>
+              <Progress value={kpis.readinessScore} className="h-1 mt-2" />
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm border-red-200 bg-red-50/30">
+            <CardContent className="p-4">
+              <p className="text-xs font-medium text-red-800 mb-1">Overdue Tasks</p>
+              <div className="flex items-end gap-2 text-red-600">
+                <span className="text-2xl font-bold">{kpis.overdueTasks}</span>
+                <AlertCircle className="w-4 h-4 mb-1" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Avg Progress</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {enrolledSubjects.length > 0 
-                      ? Math.round(enrolledSubjects.reduce((sum, s) => sum + s.progress, 0) / enrolledSubjects.length)
-                      : 0}%
-                  </p>
-                </div>
-                <TrendingUp className="h-8 w-8 text-orange-600" />
+          <Card className="shadow-sm">
+            <CardContent className="p-4">
+              <p className="text-xs font-medium text-gray-500 mb-1">Live Sessions</p>
+              <div className="flex items-end gap-2">
+                <span className="text-2xl font-bold">{kpis.liveSessionsAttended}</span>
+                <span className="text-xs text-gray-500 mb-1">this month</span>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* AI-Powered Features Section */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Brain className="h-6 w-6 text-blue-600" />
+        {/* Row 2: Live Session + Risk + AI Guide */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Next Live Session Upgrade */}
+          <Card className="border-l-4 border-l-blue-500 shadow-sm relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-4 opacity-10">
+                <Calendar className="w-24 h-24" />
+             </div>
+             <CardHeader className="pb-2 relative z-10">
+               <CardTitle className="text-sm font-semibold text-gray-500 flex justify-between uppercase">
+                  Next Live Session
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                    <Flame className="w-3 h-3 text-orange-500 mr-1" /> {nextSession.streak} Streak
+                  </Badge>
+               </CardTitle>
+               <h3 className="text-xl font-bold mt-1 text-gray-900">{nextSession.subject}: {nextSession.topic}</h3>
+             </CardHeader>
+             <CardContent className="relative z-10">
+               <div className="flex justify-between items-end mb-4">
+                 <div className="space-y-1">
+                   <p className="text-sm text-gray-600 flex items-center"><Clock className="w-4 h-4 mr-2" /> {nextSession.time}</p>
+                   <p className="text-sm text-gray-600 flex items-center"><User className="w-4 h-4 mr-2" /> {nextSession.tutor}</p>
+                 </div>
+                 <div className="text-right">
+                    <p className="text-xs text-gray-500 font-medium">Starts in</p>
+                    <p className="text-xl font-bold text-blue-600">{nextSession.countdown}</p>
+                 </div>
+               </div>
+               <div className="space-y-3">
+                 <div className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm border">
+                   <span className="text-gray-600">Join Readiness</span>
+                   <Badge variant="secondary" className="text-yellow-700 bg-yellow-100">{nextSession.readinessState}</Badge>
+                 </div>
+                 <Button className="w-full"><Play className="w-4 h-4 mr-2" /> Join Meeting</Button>
+               </div>
+             </CardContent>
+          </Card>
+
+          {/* At Risk Card */}
+          <Card className="border border-red-200 shadow-sm bg-white">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-red-700 flex items-center uppercase">
+                <AlertTriangle className="w-4 h-4 mr-2" /> Attention Required
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                 <Alert variant="destructive" className="bg-red-50 border-none py-2 px-3">
+                    <AlertDescription className="text-xs font-medium">
+                      Physics attendance dropped below school average (60%).
+                    </AlertDescription>
+                 </Alert>
+                 <div className="text-sm space-y-2">
+                   <div className="flex justify-between items-center border-b pb-1">
+                     <span className="text-gray-600">Topics slipping</span>
+                     <span className="font-semibold text-gray-900">Kinematics</span>
+                   </div>
+                   <div className="flex justify-between items-center border-b pb-1">
+                     <span className="text-gray-600">Missed assignments</span>
+                     <span className="font-semibold text-red-600">2 pending</span>
+                   </div>
+                 </div>
+                 <div className="pt-2">
+                   <p className="text-xs text-gray-500 mb-2">Next best action</p>
+                   <Button variant="outline" className="w-full text-red-600 border-red-200 hover:bg-red-50">Review Overdue Tasks</Button>
+                 </div>
               </div>
-              AI-Powered Learning Tools
-            </CardTitle>
-            <p className="text-gray-600">Personalized learning experiences powered by artificial intelligence</p>
+            </CardContent>
+          </Card>
+
+          {/* Academic Resource Recommendation Engine */}
+          <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-100 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+            <CardHeader className="pb-2">
+               <CardTitle className="text-sm font-semibold text-indigo-900 flex items-center uppercase">
+                 <Brain className="w-4 h-4 mr-2 text-indigo-600" /> Resource Recommendations
+               </CardTitle>
+            </CardHeader>
+            <CardContent>
+               <div className="space-y-4">
+                 <div>
+                   <p className="text-xs font-medium text-indigo-800 opacity-70 uppercase tracking-wider mb-1">Based on recent Kinematics Quiz</p>
+                   <h4 className="text-lg font-bold text-gray-900 leading-tight">Calculus: Limits & Continuity</h4>
+                 </div>
+                 
+                 <div className="space-y-2">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-indigo-100 shadow-sm">
+                       <div className="flex items-center gap-2">
+                         <div className="p-1.5 bg-red-100 rounded text-red-600"><FileText className="w-4 h-4" /></div>
+                         <div>
+                            <p className="text-xs font-bold text-slate-900">Recovery Worksheet</p>
+                            <p className="text-[10px] text-slate-500">PDF Document • 2 pages</p>
+                         </div>
+                       </div>
+                       <Button size="sm" variant="ghost" className="text-indigo-600 h-8 px-2 text-xs">Download</Button>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-indigo-100 shadow-sm">
+                       <div className="flex items-center gap-2">
+                         <div className="p-1.5 bg-blue-100 rounded text-blue-600"><Video className="w-4 h-4" /></div>
+                         <div>
+                            <p className="text-xs font-bold text-slate-900">Limits Refresher Lesson</p>
+                            <p className="text-[10px] text-slate-500">Video • 12 mins</p>
+                         </div>
+                       </div>
+                       <Button size="sm" variant="ghost" className="text-indigo-600 h-8 px-2 text-xs">Watch</Button>
+                    </div>
+                 </div>
+
+                 <div className="pt-2 border-t border-indigo-100/50">
+                    <p className="text-xs text-indigo-900 font-semibold mb-2">Upcoming Support Session</p>
+                    <div className="flex justify-between items-center text-sm bg-white/60 p-2 rounded-md">
+                       <span className="text-slate-600 font-medium text-xs">Peer Discussion (by Jane A.)</span>
+                       <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 h-7 text-xs">Join Queue</Button>
+                    </div>
+                 </div>
+               </div>
+            </CardContent>
+          </Card>
+
+        </div>
+
+        {/* Row 3: Career Engine Injection */}
+        <CareerGuidanceWidget />
+
+        {/* Row 4: Subject Performance Grid */}
+        <Card className="shadow-sm">
+          <CardHeader className="border-b bg-gray-50/50 pb-4">
+             <CardTitle className="text-lg">Subject Performance Grid</CardTitle>
+             <CardDescription>Comprehensive diagnostic of your current academic standing</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Link to="/learning-path" className="group">
-                <div className="bg-white rounded-lg p-4 border border-blue-200 hover:shadow-md transition-all group-hover:border-blue-300">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Target className="h-8 w-8 text-blue-600" />
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Personal Learning Path</h4>
-                      <p className="text-sm text-gray-600">AI-customized study plan</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 mb-3">Get a personalized learning journey based on your strengths and areas for improvement</p>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">Smart Analysis</Badge>
-                    <Badge variant="outline" className="text-xs">Adaptive</Badge>
-                  </div>
-                </div>
-              </Link>
-
-              <Link to="/projects" className="group">
-                <div className="bg-white rounded-lg p-4 border border-green-200 hover:shadow-md transition-all group-hover:border-green-300">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Lightbulb className="h-8 w-8 text-green-600" />
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Collaborative Projects</h4>
-                      <p className="text-sm text-gray-600">Work with classmates</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 mb-3">Join group projects that enhance understanding through hands-on collaboration</p>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">Team Work</Badge>
-                    <Badge variant="outline" className="text-xs">Real Projects</Badge>
-                  </div>
-                </div>
-              </Link>
-
-              <Link to="/peer-tutoring" className="group">
-                <div className="bg-white rounded-lg p-4 border border-purple-200 hover:shadow-md transition-all group-hover:border-purple-300">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Users className="h-8 w-8 text-purple-600" />
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Peer Tutoring</h4>
-                      <p className="text-sm text-gray-600">Learn from peers</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 mb-3">Connect with verified peer tutors and join study groups for collaborative learning</p>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">Peer Learning</Badge>
-                    <Badge variant="outline" className="text-xs">Study Groups</Badge>
-                  </div>
-                </div>
-              </Link>
-            </div>
+          <CardContent className="p-0">
+             <div className="overflow-x-auto">
+               <table className="w-full text-sm text-left border-collapse">
+                 <thead className="bg-gray-50 text-gray-500 border-b">
+                   <tr>
+                     <th className="font-medium p-4 font-semibold uppercase text-xs">Subject</th>
+                     <th className="font-medium p-4 font-semibold uppercase text-xs text-center">Completion</th>
+                     <th className="font-medium p-4 font-semibold uppercase text-xs text-center">Avg Score</th>
+                     <th className="font-medium p-4 font-semibold uppercase text-xs text-center">Weak Topics</th>
+                     <th className="font-medium p-4 font-semibold uppercase text-xs text-center">Confidence</th>
+                     <th className="font-medium p-4 font-semibold uppercase text-xs text-right">Last Activity</th>
+                   </tr>
+                 </thead>
+                 <tbody className="divide-y">
+                   {subjectPerformance.map((subj, index) => (
+                     <tr key={index} className="hover:bg-gray-50 transition-colors">
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${subj.readinessColor}`}></div>
+                            <span className="font-bold text-gray-900">{subj.subject}</span>
+                          </div>
+                        </td>
+                        <td className="p-4 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <Progress value={subj.completion} className="w-16 h-2" />
+                            <span className="text-gray-600 font-medium">{subj.completion}%</span>
+                          </div>
+                        </td>
+                        <td className="p-4 text-center">
+                          <Badge variant="outline" className={subj.avgScore < 60 ? "text-red-600 border-red-200" : ""}>
+                            {subj.avgScore}%
+                          </Badge>
+                        </td>
+                        <td className="p-4 text-center">
+                          {subj.weakTopics > 0 ? (
+                            <span className="text-red-600 font-bold flex items-center justify-center gap-1">
+                              {subj.weakTopics} <AlertTriangle className="w-3 h-3" />
+                            </span>
+                          ) : (
+                            <span className="text-green-600 font-bold"><CheckCircle className="w-4 h-4 mx-auto" /></span>
+                          )}
+                        </td>
+                        <td className="p-4 text-center">
+                          <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                            subj.confidence === 'High' ? 'bg-green-100 text-green-700' :
+                            subj.confidence === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                          }`}>
+                            {subj.confidence}
+                          </span>
+                        </td>
+                        <td className="p-4 text-right text-gray-500 font-medium whitespace-nowrap">
+                          {subj.lastActivity}
+                        </td>
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+             </div>
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* UNEB Readiness Engine */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-               <UNEBReadinessGauge 
-                  score={readinessData.overall_score} 
-                  examTarget={readinessData.exam_target} 
-                  predictedDivision={readinessData.predicted_division} 
-               />
-               <TopicConfidenceRadar 
-                  topicsConfidence={readinessData.topics_confidence}
-               />
-            </div>
-
-            {/* Exam Countdown */}
-            {upcomingExam && (
-              <Card className="border-l-4 border-l-red-500">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Target className="h-5 w-5 text-red-600" />
-                      Exam Countdown
-                    </CardTitle>
-                    <Badge variant="destructive">{upcomingExam.daysLeft} days left</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{upcomingExam.name}</h3>
-                      <p className="text-gray-600">Exam starts: {upcomingExam.date}</p>
+        {/* Row 4: Assessment Trend & Quick Links */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-md flex items-center gap-2"><BarChart3 className="w-4 h-4 text-gray-500" /> Assessment Snapshot</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {assessmentSnapshot.map((assessment, i) => (
+                  <div key={i} className="flex flex-col gap-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="font-medium text-gray-800">{assessment.name}</span>
+                      <span className={assessment.scored < assessment.average ? "text-red-600 font-bold" : "text-green-600 font-bold"}>
+                        {assessment.scored}%
+                      </span>
                     </div>
-                    <div className="text-right">
-                      <div className="text-3xl font-bold text-red-600">{upcomingExam.daysLeft}</div>
-                      <div className="text-sm text-gray-600">days to go</div>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <Link to="/classes" className="flex-1">
-                      <Button className="w-full">
-                        <BookOpen className="mr-2 h-4 w-4" />
-                        Study Now
-                      </Button>
-                    </Link>
-                    <Link to="/live-sessions">
-                      <Button variant="outline">
-                        <Play className="mr-2 h-4 w-4" />
-                        Live Sessions
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Enrolled Subjects */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>My Subjects</CardTitle>
-                  <Link to="/classes">
-                    <Button variant="outline" size="sm">Browse More</Button>
-                  </Link>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {enrolledSubjects.length > 0 ? (
-                  <div className="space-y-4">
-                    {enrolledSubjects.map((subject) => (
-                      <div key={subject.id} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div>
-                            <h4 className="font-semibold text-gray-900">{subject.name}</h4>
-                            <p className="text-sm text-gray-600">{subject.className} • {subject.level}</p>
-                            <p className="text-sm text-gray-500">Taught by {subject.teacherName}</p>
-                          </div>
-                          <Badge variant="outline">{subject.progress}% complete</Badge>
-                        </div>
-                        <Progress value={subject.progress} className="mb-3" />
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline">
-                            <Play className="mr-2 h-4 w-4" />
-                            Continue Learning
-                          </Button>
-                          <Button size="sm" variant="ghost">
-                            View Details
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No enrolled subjects</h3>
-                    <p className="text-gray-600 mb-4">Start your learning journey by enrolling in subjects</p>
-                    <Link to="/classes">
-                      <Button>Browse Subjects</Button>
-                    </Link>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Recent Forum Activity */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Recent Forum Activity</CardTitle>
-                  <Link to="/forum">
-                    <Button variant="outline" size="sm">View All</Button>
-                  </Link>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {forumActivity.length > 0 ? (
-                  <div className="space-y-4">
-                    {forumActivity.map((activity) => (
-                      <div key={activity.id} className="border-b last:border-0 pb-3 last:pb-0">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900 mb-1">{activity.title}</h4>
-                            <div className="flex items-center gap-4 text-sm text-gray-600">
-                              <span>by {activity.author}</span>
-                              <span>in {activity.category}</span>
-                              <span>{activity.replies} replies</span>
-                            </div>
-                          </div>
-                          <span className="text-xs text-gray-500">
-                            {new Date(activity.lastActivity).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <MessageCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No recent activity</h3>
-                    <p className="text-gray-600 mb-4">Join the community discussions</p>
-                    <Link to="/forum">
-                      <Button>Visit Forum</Button>
-                    </Link>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Upcoming Live Sessions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Upcoming Live Sessions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {liveSessions.filter(s => s.status === 'scheduled').slice(0, 3).map((session) => (
-                  <div key={session.id} className="border-b last:border-0 py-3 last:pb-0">
-                    <h4 className="font-medium text-gray-900 mb-1">{session.title}</h4>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <p>by {session.hostName}</p>
-                      <p>{new Date(session.scheduledStart).toLocaleDateString()} at {new Date(session.scheduledStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                      <p className="text-blue-600">{session.subject}</p>
+                    <div className="flex items-center gap-3">
+                      <Progress value={assessment.scored} className="h-2 flex-1" />
+                      <span className="text-xs text-gray-500 w-24 text-right">Class Avg: {assessment.average}%</span>
                     </div>
                   </div>
                 ))}
-                <div className="pt-3">
-                  <Link to="/live-sessions">
-                    <Button variant="outline" size="sm" className="w-full">
-                      View All Sessions
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Payment History */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Payment Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Payment Status</span>
-                    <Badge variant={student.paymentStatus === 'active' ? 'default' : 'destructive'}>
-                      {student.paymentStatus}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Total Paid</span>
-                    <span className="font-semibold">UGX {student.totalPaidUGX?.toLocaleString() || '0'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Current Month</span>
-                    <span className="font-semibold">UGX 85,000</span>
-                  </div>
-                </div>
-                <div className="pt-3 mt-3 border-t">
-                  <Link to="/payment">
-                    <Button variant="outline" size="sm" className="w-full">
-                      <CreditCard className="mr-2 h-4 w-4" />
-                      Make Payment
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Link to="/forum">
-                  <Button variant="outline" className="w-full justify-start">
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Ask a Question
-                  </Button>
-                </Link>
-                <Link to="/live-sessions">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Play className="mr-2 h-4 w-4" />
-                    Join Live Session
-                  </Button>
-                </Link>
-                <Button variant="outline" className="w-full justify-start">
-                  <Bell className="mr-2 h-4 w-4" />
-                  Study Reminders
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Award className="mr-2 h-4 w-4" />
-                  View Certificates
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Study Tips */}
-            <Card className="bg-blue-50 border-blue-200">
-              <CardHeader>
-                <CardTitle className="text-blue-900">Study Tip of the Day</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-blue-800 text-sm">
-                  Practice past UCE/UACE papers regularly. They help you understand the exam format and identify 
-                  commonly tested topics. Focus on time management during practice sessions.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-md flex items-center gap-2"><TrendingUp className="w-4 h-4 text-gray-500" /> 7-Day Activity Trend</CardTitle>
+            </CardHeader>
+            <CardContent>
+               <div className="grid grid-cols-2 gap-4">
+                 <div className="p-3 bg-gray-50 rounded-lg border">
+                   <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Lessons Completed</p>
+                   <div className="flex items-end gap-2">
+                     <span className="text-xl font-bold text-gray-900">12</span>
+                     <span className="text-xs text-green-600 flex items-center pb-1"><TrendingUp className="w-3 h-3 mr-1" /> +3</span>
+                   </div>
+                 </div>
+                 <div className="p-3 bg-gray-50 rounded-lg border">
+                   <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Forum Posts</p>
+                   <div className="flex items-end gap-2">
+                     <span className="text-xl font-bold text-gray-900">4</span>
+                     <span className="text-xs text-red-600 flex items-center pb-1"><TrendingDown className="w-3 h-3 mr-1" /> -2</span>
+                   </div>
+                 </div>
+               </div>
+            </CardContent>
+          </Card>
         </div>
+
       </div>
     </div>
   );

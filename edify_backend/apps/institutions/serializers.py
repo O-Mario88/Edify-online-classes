@@ -21,3 +21,10 @@ class InstitutionMembershipSerializer(serializers.ModelSerializer):
             'role', 'status', 'joined_at'
         ]
         read_only_fields = ['joined_at', 'status']
+
+class BulkInviteSerializer(serializers.Serializer):
+    emails = serializers.ListField(
+        child=serializers.EmailField(),
+        allow_empty=False
+    )
+    role = serializers.ChoiceField(choices=InstitutionMembership.ROLE_CHOICES)

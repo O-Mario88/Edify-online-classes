@@ -376,31 +376,35 @@ export const ForumPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      {/* Neo-Morphic Banner */}
+      <div className="bg-gradient-to-r from-blue-700 to-indigo-800 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+        <div className="absolute bottom-0 left-20 w-40 h-40 bg-indigo-900/40 rounded-full blur-2xl -mb-10"></div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
           <div className="flex items-center gap-2 mb-4">
-            <MapPin className="h-5 w-5 text-blue-600" />
-            <span className="text-blue-600 font-medium">Uganda Secondary Education Community</span>
+            <MapPin className="h-5 w-5 text-indigo-300" />
+            <span className="text-indigo-200 font-medium tracking-wide">Uganda Secondary Education Community</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Discussion Forum</h1>
-          <p className="text-lg text-gray-600 mb-6">
-            Connect with fellow students and teachers across Uganda's O'level and A'level curriculum
+          <h1 className="text-4xl font-black text-white mb-4">Discussion Forum</h1>
+          <p className="text-lg text-indigo-100 max-w-2xl mb-8">
+            Connect with fellow students and teachers across Uganda's O'level and A'level curriculum. Ask questions, debate topics, and help your peers.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 max-w-3xl">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
               <Input
                 placeholder="Search discussions, topics, or ask a question..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-12 h-14 bg-white/10 dark:bg-slate-900/50 border-white/20 text-white placeholder:text-indigo-200/70 backdrop-blur-md rounded-xl text-lg focus-visible:ring-indigo-300"
               />
             </div>
-            <Button onClick={() => setShowNewPostModal(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              New Discussion
+            <Button onClick={() => setShowNewPostModal(true)} className="h-14 px-8 bg-white text-indigo-700 hover:bg-slate-100 rounded-xl text-lg font-bold">
+              <Plus className="mr-2 h-5 w-5" />
+              New Topic
             </Button>
           </div>
         </div>

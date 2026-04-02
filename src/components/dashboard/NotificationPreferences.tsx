@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Button } from '../ui/button';
-import { WhatsAppMockService } from '../../lib/whatsappService.mock';
+import { IntegrationsService } from '../../lib/integrations';
 import { MessageCircle, Bell, Mail, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -12,7 +12,7 @@ export const NotificationPreferences: React.FC = () => {
   const handleTestWhatsApp = async () => {
     setSendingTest(true);
     try {
-      await WhatsAppMockService.sendTemplateMessage({
+      await IntegrationsService.sendWhatsAppTemplate({
         to: '+256700000000',
         templateName: 'weekly_summary',
         variables: { studentName: 'Grace Nakato', score: 92, missing_homework: 2 }

@@ -50,8 +50,7 @@ class LessonAttendanceViewSet(viewsets.ModelViewSet):
         
         if staff_institutions.exists():
             # A lesson is tied to a Class, which is tied to an Institution.
-            # Using standard Django '__' lookups over the foreign key relational engine natively limits it here:
-            return LessonAttendance.objects.filter(lesson__assigned_class__institution_id__in=staff_institutions).order_by('-timestamp')
+            return LessonAttendance.objects.filter(lesson__parent_class__institution_id__in=staff_institutions).order_by('-timestamp')
             
         # 2. Students
         return LessonAttendance.objects.filter(student=user).order_by('-timestamp')

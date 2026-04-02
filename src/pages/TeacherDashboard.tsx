@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { apiClient } from '../lib/api';
+import { TeacherRedAlertsPanel } from '../components/dashboard/TeacherRedAlertsPanel';
+import { TeacherInterventionPanel } from '../components/dashboard/TeacherInterventionPanel';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -54,6 +57,7 @@ interface ClassOverview {
 
 export const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [levels, setLevels] = useState<UgandaLevel[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [stats, setStats] = useState<TeacherStats | null>(null);
@@ -123,6 +127,7 @@ export const TeacherDashboard: React.FC = () => {
     };
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teacher.id]);
 
   const upcomingSessions = [
@@ -183,7 +188,16 @@ export const TeacherDashboard: React.FC = () => {
             <MapPin className="h-5 w-5 text-blue-600" />
             <span className="text-blue-600 font-medium">Teaching in Uganda</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {teacher.name}!</h1>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Welcome back, {teacher.name}!</h1>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => navigate('/dashboard/teacher/marks-upload')} className="bg-indigo-600 hover:bg-indigo-700">
+                 Marks Upload (NCDC)
+              </Button>
+            </div>
+          </div>
           <div className="flex items-center gap-4 text-gray-600 mt-2">
             <div className="flex items-center gap-1">
               <GraduationCap className="h-4 w-4" />
@@ -198,6 +212,12 @@ export const TeacherDashboard: React.FC = () => {
             </Badge>
           </div>
         </div>
+
+        {/* Phase 5 Risk Interventions Dashboard */}
+        <TeacherRedAlertsPanel />
+
+        {/* Phase 8 Resource & Intervention Support */}
+        <TeacherInterventionPanel />
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

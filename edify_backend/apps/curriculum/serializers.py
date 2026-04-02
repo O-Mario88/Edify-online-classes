@@ -31,5 +31,18 @@ class SubjectSerializer(serializers.ModelSerializer):
         topics = obj.topics.all().select_related('class_level')
         return TopicSerializer(topics, many=True).data
         
+        
     def get_category(self, obj):
         return 'Compulsory' # Mock property since db holds it in SubjectCombination
+
+from .models import TopicCompetency, ResourceQualityReview
+
+class TopicCompetencySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TopicCompetency
+        fields = '__all__'
+
+class ResourceQualityReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResourceQualityReview
+        fields = '__all__'

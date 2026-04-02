@@ -220,6 +220,27 @@ export const LearningPathPage: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+               <Card className="hover:shadow-md transition-shadow">
+                  <CardHeader className="bg-purple-50 rounded-t-lg pb-4 border-b border-purple-100">
+                     <CardTitle className="text-purple-900 flex items-center gap-2"><Target className="w-5 h-5"/> Topic Readiness Diagnostic</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4 space-y-4">
+                     <p className="text-sm text-gray-600">You are currently struggling with solving Quadratic equations using the formula method. Practice to increase your NCDC mastery score.</p>
+                     <Button className="w-full bg-purple-600 hover:bg-purple-700">Start 15-Minute Practice Check</Button>
+                  </CardContent>
+               </Card>
+               <Card className="hover:shadow-md transition-shadow">
+                  <CardHeader className="bg-indigo-50 rounded-t-lg pb-4 border-b border-indigo-100">
+                     <CardTitle className="text-indigo-900 flex items-center gap-2"><Lightbulb className="w-5 h-5"/> Copilot Topic Breakdown</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4 space-y-4">
+                     <p className="text-sm text-gray-600">Confused about the skill tree? Let the AI Copilot explain the current topic map in simpler terms before you attempt the practice drills.</p>
+                     <Button variant="outline" className="w-full border-indigo-200 text-indigo-700 hover:bg-indigo-50">Ask Copilot to Explain</Button>
+                  </CardContent>
+               </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="weekly-plan">

@@ -135,6 +135,45 @@ class SubjectPerformanceSnapshot(models.Model):
     def __str__(self):
         return f"{self.student.email} mastery in {self.subject.name}: {self.average_score}%"
 
+class TeacherPerformanceSnapshot(models.Model):
+    """
+    Institution layer analytics: evaluates teacher performance in context.
+    """
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='teacher_performance_snapshots')
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE)
+    
+    # Context (Fairness markers)
+    baseline_difficulty_score = models.DecimalField(max_digits=5, decimal_places=2, default=50.00, help_text="Average historic score of this cohort")
+    
+    # Analytics
+    class_average_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    live_sessions_delivered = models.IntegerField(default=0)
+    assignments_published = models.IntegerField(default=0)
+    interventions_resolved = models.IntegerField(default=0)
+    
+    last_computed = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.teacher.email} Performance - {self.class_average_score}%"
+
+class TeacherAttendanceSnapshot(models.Model):
+    """
+    Aggregates online and offline dual-attendance for educators.
+    """
+    date = models.DateField(db_index=True)
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE)
+    
+    was_present_offline = models.BooleanField(default=True, help_text="Manual headteacher log")
+    online_sessions_completed = models.IntegerField(default=0)
+    late_starts = models.IntegerField(default=0)
+    
+    class Meta:
+        unique_together = ('date', 'teacher')
+
+    def __str__(self):
+        return f"{self.teacher.email} Attendance on {self.date}"
+
 class SystemHealthSnapshot(models.Model):
     """
     Operations & DevOps Dashboard Level.

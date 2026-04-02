@@ -20,6 +20,8 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { WebinarSession } from '../types';
 import { toast } from 'sonner';
+import { apiClient } from '@/lib/api';
+import { isFuture, isPast, addMinutes } from 'date-fns';
 
 export const LiveSessionsPage: React.FC = () => {
   const { user } = useAuth();
@@ -36,12 +38,29 @@ export const LiveSessionsPage: React.FC = () => {
   useEffect(() => {
     const fetchWebinars = async () => {
       try {
-        const response = await fetch('/data/live-sessions.json');
-        const data = await response.json();
+        const response = await apiClient.get('/live-sessions/live-session/');
+        const sessions = response.data.results || response.data || [];
         
-        setUpcomingWebinars(data.upcomingSessions || []);
-        setLiveWebinars(data.liveNow || []);
-        setPastWebinars(data.pastSessions || []);
+        const upcoming: WebinarSession[] = [];
+        const live: WebinarSession[] = [];
+        const past: WebinarSession[] = [];
+
+        sessions.forEach((session: any) => {
+          const start = new Date(session.scheduledStart);
+          const end = addMinutes(start, session.durationMinutes || 60);
+
+          if (isFuture(start)) {
+            upcoming.push(session);
+          } else if (isPast(end)) {
+            past.push(session);
+          } else {
+            live.push(session);
+          }
+        });
+        
+        setUpcomingWebinars(upcoming);
+        setLiveWebinars(live);
+        setPastWebinars(past);
       } catch (error) {
         console.error('Error fetching webinars:', error);
       } finally {
@@ -112,6 +131,9 @@ export const LiveSessionsPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="bg-blue-100 text-blue-700">
                 {session.subject}
+              </Badge>
+              <Badge variant="outline" className="text-gray-600 bg-gray-50">
+                {session.type || 'Live Lesson'}
               </Badge>
               {type === 'live' && (
                 <Badge variant="destructive" className="animate-pulse flex items-center gap-1">
@@ -221,8 +243,8 @@ export const LiveSessionsPage: React.FC = () => {
                 <MapPin className="h-4 w-4 text-blue-600" />
                 <span className="text-blue-600 font-medium text-sm">Uganda Digital Campus</span>
               </div>
-              <h1 className="text-3xl font-bold text-gray-900">Live Webinars</h1>
-              <p className="text-gray-600 mt-1">Structured interactive sessions hosted on Google Meet.</p>
+              <h1 className="text-3xl font-bold text-gray-900">Virtual Classrooms & Support</h1>
+              <p className="text-gray-600 mt-1">Join Live Lessons, Peer Tutoring Groups, and Office Hours.</p>
             </div>
             {isTeacher && (
               <Button onClick={() => toast.info('Opening Host Modal...')} className="shadow-md hidden md:flex">

@@ -15,17 +15,25 @@ import { PaymentPage } from './pages/PaymentPage';
 import LearningPathPage from './pages/LearningPathPage';
 import ProjectsPage from './pages/ProjectsPage';
 import AITeachingAssistant from './pages/AITeachingAssistant';
-import PeerTutoringPage from './pages/PeerTutoringPage';
+import PeerTutoringHub from './pages/PeerTutoringHub';
 import MarketplacePage from './pages/MarketplacePage';
 import MarketplaceSubjectPage from './pages/MarketplaceSubjectPage';
 import MarketplaceTopicPage from './pages/MarketplaceTopicPage';
-import InstitutionManagementPage from './pages/InstitutionManagementPage';
+import { InstitutionManagementPage } from './pages/InstitutionManagementPage';
+import { InstitutionTimetableStudio } from './pages/InstitutionTimetableStudio';
+import { AcademicLibraryPage } from './pages/AcademicLibraryPage';
 import ExamRegistrationPage from './pages/ExamRegistrationPage';
 import PlatformAnalyticsPage from './pages/PlatformAnalyticsPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ParentDashboard } from './pages/ParentDashboard';
+import { TeacherLessonStudio } from './pages/TeacherLessonStudio';
+import { AttendanceRegisterPage } from './pages/AttendanceRegisterPage';
 import { PublicProfile } from './pages/PublicProfile';
+import { TeacherStorefront } from './pages/TeacherStorefront';
+import { TeacherMarksUpload } from './pages/TeacherMarksUpload';
+import { AssignmentTargetingStudio } from './pages/AssignmentTargetingStudio';
 import { NetworkStatusWidget } from './components/NetworkStatusWidget';
+import { AITeacherCopilotWidget } from './components/copilot/AITeacherCopilotWidget';
 
 import { AICopilotProvider } from './contexts/AICopilotContext';
 
@@ -34,6 +42,7 @@ function App() {
     <AuthProvider>
       <AICopilotProvider>
         <NetworkStatusWidget />
+        <AITeacherCopilotWidget />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -43,8 +52,14 @@ function App() {
           <Route path="classes/:gradeId/:termId/:subjectId" element={<CourseDetail />} />
           <Route path="forum/*" element={<ForumPage />} />
           <Route path="live-sessions" element={<LiveSessionsPage />} />
+          <Route path="library" element={
+            <ProtectedRoute allowedRoles={['student', 'parent', 'institution_teacher', 'universal_teacher', 'institution_admin', 'platform_admin']}>
+              <AcademicLibraryPage />
+            </ProtectedRoute>
+          } />
           <Route path="payment" element={<PaymentPage />} />
           <Route path="p/:username" element={<PublicProfile />} />
+          <Route path="t/:username" element={<TeacherStorefront />} />
           
           {/* Hybrid Business Model Features */}
           <Route path="marketplace" element={<MarketplacePage />} />
@@ -74,7 +89,7 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="projects" element={<ProjectsPage />} />
-          <Route path="peer-tutoring" element={<PeerTutoringPage />} />
+          <Route path="peer-tutoring" element={<PeerTutoringHub />} />
           <Route path="ai-assistant" element={
             <ProtectedRoute allowedRoles={['independent_teacher', 'institution_admin']}>
               <AITeachingAssistant />
@@ -88,8 +103,28 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="dashboard/teacher" element={
-            <ProtectedRoute allowedRoles={['independent_teacher']}>
+            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher']}>
               <TeacherDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="dashboard/teacher/class/:classId" element={
+            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher']}>
+              <TeacherLessonStudio />
+            </ProtectedRoute>
+          } />
+          <Route path="dashboard/teacher/attendance" element={
+            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher']}>
+              <AttendanceRegisterPage />
+            </ProtectedRoute>
+          } />
+          <Route path="dashboard/teacher/marks-upload" element={
+            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher']}>
+              <TeacherMarksUpload />
+            </ProtectedRoute>
+          } />
+          <Route path="dashboard/teacher/targeting" element={
+            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher']}>
+              <AssignmentTargetingStudio />
             </ProtectedRoute>
           } />
           <Route path="dashboard/admin" element={
@@ -105,6 +140,11 @@ function App() {
           <Route path="dashboard/institution" element={
             <ProtectedRoute allowedRoles={['institution_admin']}>
               <InstitutionManagementPage />
+            </ProtectedRoute>
+          } />
+          <Route path="dashboard/institution/timetable" element={
+            <ProtectedRoute allowedRoles={['institution_admin']}>
+              <InstitutionTimetableStudio />
             </ProtectedRoute>
           } />
         </Route>

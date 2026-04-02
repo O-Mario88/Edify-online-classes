@@ -37,6 +37,7 @@ import {
   UNEB_ALEVEL_PRINCIPAL,
   UNEB_ALEVEL_SUBSIDIARY
 } from '@/lib/subjectConfig';
+import { apiClient } from '@/lib/api';
 
 interface ExamCenter {
   id: string;
@@ -125,9 +126,8 @@ const ExamRegistrationPage: React.FC = () => {
 
   const fetchExamCenters = async () => {
     try {
-      const response = await fetch('/data/exam-centers.json');
-      const data = await response.json();
-      setExamCenters(data.exam_centers || []);
+      const response = await apiClient.get('/exams/exam-center/');
+      setExamCenters(response.data.results || response.data || []);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching exam centers:', error);
@@ -181,8 +181,18 @@ const ExamRegistrationPage: React.FC = () => {
   const handleSubmitRegistration = async () => {
     setIsSubmitting(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const mockDocuments = {
+        id_copy: registration.documents.id_copy?.name,
+        academic_records: registration.documents.academic_records?.name,
+        passport_photo: registration.documents.passport_photo?.name
+      };
+      
+      await apiClient.post('/exams/candidate-registration/', {
+        exam_center: registration.exam_center_id,
+        exam_type: registration.exam_type,
+        registration_year: registration.academic_year,
+        documents: mockDocuments
+      });
       
       // Show success message
       alert('Registration submitted successfully! You will receive confirmation within 24 hours.');

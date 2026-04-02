@@ -8,8 +8,8 @@ import {
   Store, 
   Activity 
 } from 'lucide-react';
-import { PermissionGuard } from '../components/auth/PermissionGuard';
-import { Permission } from '../lib/permissions.matrix';
+import { PermissionGuard } from '../../components/auth/PermissionGuard';
+import { Permission } from '../../lib/permissions.matrix';
 
 export const AnalyticsLayout = () => {
   const location = useLocation();

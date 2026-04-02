@@ -9,7 +9,7 @@ class Class(models.Model):
         ('public', 'Public (Marketplace)'),
     ]
     institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='classes')
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='classes')
+    institution_subject = models.ForeignKey('institutions.InstitutionSubject', on_delete=models.SET_NULL, null=True, blank=True, related_name='classes')
     class_level = models.ForeignKey(ClassLevel, on_delete=models.CASCADE, related_name='classes')
     teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='taught_classes')
     

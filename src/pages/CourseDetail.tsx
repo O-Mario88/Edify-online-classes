@@ -309,27 +309,53 @@ export const CourseDetail: React.FC = () => {
                           {selectedTopic === topic.id && (
                             <div className="px-4 pb-4 border-t bg-gray-50">
                               {topic.subtopics.map((subtopic, subtopicIndex) => (
-                                <div key={subtopic.id} className="py-3 border-b last:border-0">
-                                  <h5 className="font-medium text-gray-800 mb-2">{subtopic.name}</h5>
-                                  <div className="space-y-2">
+                                <div key={subtopic.id} className="py-4 border-b last:border-0 last:pb-0">
+                                  <h5 className="font-semibold text-gray-800 mb-3">{subtopic.name}</h5>
+                                  <div className="space-y-4">
                                     {subtopic.lessons.map((lesson) => (
-                                      <div key={lesson.id} className="flex items-center gap-3 text-sm group">
-                                        {lesson.type === 'video' && <Play className="h-4 w-4 text-red-500" />}
-                                        {lesson.type === 'exercise' && <BookOpen className="h-4 w-4 text-blue-500" />}
-                                        {lesson.type === 'notes' && <FileText className="h-4 w-4 text-green-500" />}
-                                        <span className="flex-1 cursor-pointer hover:underline">{lesson.title}</span>
-                                        {lesson.duration && <span className="text-gray-500">{lesson.duration}</span>}
-                                        {lesson.completed && <CheckCircle className="h-4 w-4 text-green-500" />}
-                                        <button 
-                                           onClick={(e) => {
-                                              e.stopPropagation();
-                                              OfflineSyncEngine.queueJob('download_course', lesson.id);
-                                           }}
-                                           className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-blue-500 transition-opacity ml-2 tooltip"
-                                           title="Save for offline"
-                                        >
-                                          <Download className="h-4 w-4" />
-                                        </button>
+                                      <div key={lesson.id} className="bg-white p-4 rounded-lg border shadow-sm">
+                                        <div className="flex items-start justify-between mb-3">
+                                          <div className="flex items-center gap-3">
+                                            {lesson.type === 'video' && <Play className="h-5 w-5 text-red-500" />}
+                                            {lesson.type === 'exercise' && <BookOpen className="h-5 w-5 text-purple-500" />}
+                                            {lesson.type === 'notes' && <FileText className="h-5 w-5 text-green-500" />}
+                                            <div>
+                                              <span className="font-medium text-gray-900 block">{lesson.title}</span>
+                                              {lesson.duration && <span className="text-xs text-gray-500">Est: {lesson.duration}</span>}
+                                            </div>
+                                          </div>
+                                          {lesson.completed ? (
+                                              <Badge className="bg-green-100 text-green-700 hover:bg-green-100"><CheckCircle className="w-3 h-3 mr-1"/> Completed</Badge>
+                                          ) : (
+                                              <Badge variant="outline" className="text-gray-500">Pending</Badge>
+                                          )}
+                                        </div>
+                                        
+                                        {/* Student Learning Action Strip */}
+                                        <div className="flex flex-wrap gap-2 pt-2 border-t mt-2">
+                                          <Button variant="ghost" size="sm" className="text-xs h-7 text-blue-600 bg-blue-50 hover:bg-blue-100">
+                                            {lesson.type === 'video' ? 'Watch Lesson' : 'Read Notes'}
+                                          </Button>
+                                          <Button variant="ghost" size="sm" className="text-xs h-7 text-purple-600 bg-purple-50 hover:bg-purple-100">
+                                            Start Practice
+                                          </Button>
+                                          <Button variant="ghost" size="sm" className="text-xs h-7 text-gray-600 bg-gray-100 hover:bg-gray-200">
+                                            Join Discussion
+                                          </Button>
+                                          
+                                          <div className="flex-1 flex justify-end">
+                                            <button 
+                                              onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  OfflineSyncEngine.queueJob('download_course', lesson.id);
+                                              }}
+                                              className="p-1.5 text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded transition-all"
+                                              title="Save for offline view"
+                                            >
+                                              <Download className="h-4 w-4" />
+                                            </button>
+                                          </div>
+                                        </div>
                                       </div>
                                     ))}
                                   </div>

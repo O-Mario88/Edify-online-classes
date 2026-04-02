@@ -7,11 +7,20 @@ class Listing(models.Model):
         ('published', 'Published'),
         ('archived', 'Archived'),
     ]
+    CONTENT_TYPES = [
+        ('video', 'Video Lesson'),
+        ('notes', 'Revision Notes'),
+        ('assessment', 'Practice Test'),
+    ]
     teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='listings')
     title = models.CharField(max_length=255)
+    content_type = models.CharField(max_length=20, choices=CONTENT_TYPES, default='video')
     price_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     currency = models.CharField(max_length=10, default='UGX')
     visibility_state = models.CharField(max_length=20, choices=VISIBILITY_STATES, default='draft')
+    average_rating = models.DecimalField(max_digits=3, decimal_places=1, default=5.0)
+    review_count = models.IntegerField(default=0)
+    student_count = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -19,6 +19,19 @@ class Institution(models.Model):
     def __str__(self):
         return self.name
 
+class SubscriptionLedger(models.Model):
+    institution = models.OneToOneField(Institution, on_delete=models.CASCADE, related_name='ledger')
+    plan_tier = models.CharField(max_length=50, default='free') # free, essential, premium
+    monthly_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    outstanding_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    currency = models.CharField(max_length=10, default='UGX')
+    next_billing_date = models.DateField(null=True, blank=True)
+    is_suspended = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.institution.name} [{self.plan_tier}] - Balance: {self.outstanding_balance}"
+
 class InstitutionMembership(models.Model):
     ROLE_CHOICES = [
         ('headteacher', 'Headteacher'),
@@ -52,3 +65,36 @@ class InstitutionMembership(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.institution.name} ({self.role})"
+
+class InstitutionSubject(models.Model):
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='active_subjects')
+    subject = models.ForeignKey('curriculum.Subject', on_delete=models.CASCADE, related_name='active_in_institutions')
+    is_offered = models.BooleanField(default=True)
+    custom_name = models.CharField(max_length=200, blank=True, null=True, help_text="Optional local override for the global subject name")
+    
+    class Meta:
+        unique_together = ('institution', 'subject')
+
+    def __str__(self):
+        name = self.custom_name if self.custom_name else self.subject.name
+        return f"{name} ({self.institution.name})"
+
+class InstitutionImplementationScorecard(models.Model):
+    institution = models.OneToOneField(Institution, on_delete=models.CASCADE, related_name='compliance_scorecard')
+    syllabus_coverage_pct = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, help_text="e.g. 85.50%")
+    assessment_compliance_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, help_text="Measures formative/summative alignment")
+    practical_learning_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    last_computed = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.institution.name} - Coverage: {self.syllabus_coverage_pct}%"
+
+class TeacherQualityScore(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='quality_score')
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='teacher_scores', null=True, blank=True)
+    consistency_score = models.IntegerField(default=0, help_text="0-100 score based on lesson delivery timing")
+    curriculum_fidelity_score = models.IntegerField(default=0, help_text="0-100 score based on topic competency tagging")
+    is_ncdc_verified = models.BooleanField(default=False, help_text="Has the teacher been verified by external moderation bodies?")
+    
+    def __str__(self):
+        return f"Quality Score for {self.user.email}"

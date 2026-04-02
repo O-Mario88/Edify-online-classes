@@ -10,6 +10,12 @@ class LiveSession(models.Model):
     provider = models.CharField(max_length=50, choices=PROVIDERS, default='google_meet')
     provider_event_id = models.CharField(max_length=255, blank=True, null=True)
 
+    # Added Frontend Requirements
+    scheduled_start = models.DateTimeField(null=True, blank=True)
+    duration_minutes = models.IntegerField(default=60)
+    capacity = models.IntegerField(default=100)
+    enrolled_count = models.IntegerField(default=0)
+
     def __str__(self):
         return f"Live Session for {self.lesson.title}"
 

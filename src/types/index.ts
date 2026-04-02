@@ -345,6 +345,7 @@ export interface WebinarSession {
   title: string;
   description: string;
   subject: string;
+  type?: string;
   scheduledStart: string; // ISO String
   scheduledEnd: string; // ISO String
   timezone: string;

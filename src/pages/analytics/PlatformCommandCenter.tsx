@@ -1,63 +1,86 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, School, PlayCircle, BookmarkCheck, TrendingUp, AlertTriangle } from 'lucide-react';
 import { MetricCard } from '../../components/dashboard/MetricCard';
 import { AlertBanner } from '../../components/dashboard/AlertBanner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { apiClient } from '../../lib/api';
 
 export const PlatformCommandCenter = () => {
-  // Mock Data
-  const weeklyData = [
-    { name: 'Mon', signups: 120, active: 400 },
-    { name: 'Tue', signups: 200, active: 800 },
-    { name: 'Wed', signups: 150, active: 950 },
-    { name: 'Thu', signups: 280, active: 1100 },
-    { name: 'Fri', signups: 200, active: 1250 },
-    { name: 'Sat', signups: 90, active: 1600 },
-    { name: 'Sun', signups: 110, active: 1750 },
-  ];
+  const [metrics, setMetrics] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiClient.get('/analytics/daily-platform-metric/')
+      .then(res => {
+        setMetrics(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load metrics", err);
+        setLoading(false);
+      });
+  }, []);
+
+  const latest = metrics.length > 0 ? metrics[0] : null;
+
+  // Format for charts
+  const weeklyData = [...metrics].reverse().slice(-7).map(m => {
+    const d = new Date(m.date);
+    return {
+      name: d.toLocaleDateString('en-US', { weekday: 'short' }),
+      signups: m.dau,
+      active: m.total_active_users
+    };
+  });
+
+  if (loading) {
+    return <div className="p-8 text-center text-gray-500 animate-pulse">Loading Command Center...</div>;
+  }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-in fade-in duration-500">
       
       {/* Smart Alerts Engine */}
       <div className="space-y-3">
+        {latest?.exam_registrations_pending > 100 && (
+          <AlertBanner 
+            type="error" 
+            title="Exam Registration Risk" 
+            message={`${latest.exam_registrations_pending} pending exam registrations found. Deadlines approach.`}
+            action={<button className="px-3 py-1 bg-red-100/50 text-red-700 rounded text-sm font-medium hover:bg-red-100 transition-colors">Review Schools</button>}
+          />
+        )}
         <AlertBanner 
           type="warning" 
           title="Attendance Anomaly Detected" 
           message="Attendance is down 18% this week in S3 Mathematics across the Wakiso District."
-        />
-        <AlertBanner 
-          type="error" 
-          title="Exam Registration Risk" 
-          message="Three schools have UNEB registration deadlines in 5 days with unpaid candidates."
-          action={<button className="px-3 py-1 bg-red-100/50 text-red-700 rounded text-sm font-medium hover:bg-red-100">Review Schools</button>}
         />
       </div>
 
       {/* Primary KPI Ribbon */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
-          title="Total Active Users (MAU)"
-          value="14,208"
+          title="Total Active Users"
+          value={latest ? latest.total_active_users.toLocaleString() : "0"}
           trend={12.5}
           icon={<Users />}
         />
         <MetricCard
           title="Paying Institutions"
-          value="240"
+          value={latest ? latest.paying_institutions.toString() : "0"}
           trend={4.2}
           icon={<School />}
         />
         <MetricCard
-          title="Lessons Completed Today"
-          value="8,401"
+          title="Lessons Completed"
+          value={latest ? latest.lessons_completed.toLocaleString() : "0"}
           trend={22.0}
           trendLabel="vs yesterday"
           icon={<PlayCircle />}
         />
         <MetricCard
           title="Marketplace GMV"
-          value="UGX 1.4M"
+          value={latest ? `UGX ${(parseFloat(latest.marketplace_gmv) / 1000000).toFixed(1)}M` : "UGX 0M"}
           trend={8.1}
           icon={<TrendingUp />}
         />
@@ -75,7 +98,7 @@ export const PlatformCommandCenter = () => {
                 <YAxis axisLine={false} tickLine={false} />
                 <Tooltip cursor={{fill: '#f3f4f6'}} />
                 <Bar dataKey="active" name="Active Users" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="signups" name="New Signups" fill="#93c5fd" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="signups" name="DAU" fill="#93c5fd" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -88,22 +111,28 @@ export const PlatformCommandCenter = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center pb-4 border-b border-gray-50">
                 <span className="text-gray-500 text-sm">Monthly Run Rate (MRR)</span>
-                <span className="font-semibold text-gray-900">UGX 42M</span>
+                <span className="font-semibold text-gray-900">
+                  {latest ? `UGX ${(parseFloat(latest.mrr) / 1000000).toFixed(1)}M` : "UGX 0M"}
+                </span>
               </div>
               <div className="flex justify-between items-center pb-4 border-b border-gray-50">
                 <span className="text-gray-500 text-sm">B2B License Revenue</span>
                 <span className="font-semibold text-gray-900">UGX 28M</span>
               </div>
               <div className="flex justify-between items-center pb-4 border-b border-gray-50">
-                <span className="text-gray-500 text-sm">Marketplace Take Rate</span>
-                <span className="font-semibold text-green-600">UGX 1.2M</span>
+                <span className="text-gray-500 text-sm">Marketplace GMV</span>
+                <span className="font-semibold text-green-600">
+                  {latest ? `UGX ${(parseFloat(latest.marketplace_gmv) / 1000000).toFixed(1)}M` : "UGX 0M"}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <div className="flex items-center text-amber-600">
                   <AlertTriangle className="w-4 h-4 mr-1" />
                   <span className="text-sm font-medium">Pending Payout Liabilities</span>
                 </div>
-                <span className="font-bold text-gray-900">UGX 840K</span>
+                <span className="font-bold text-gray-900">
+                   {latest ? `UGX ${(parseFloat(latest.payout_liabilities) / 1000).toFixed(0)}K` : "UGX 0K"}
+                </span>
               </div>
             </div>
           </div>
