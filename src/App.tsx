@@ -6,6 +6,7 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { CourseCatalog } from './pages/CourseCatalog';
 import { CourseDetail } from './pages/CourseDetail';
+import { ClassSyllabusPage } from './pages/ClassSyllabusPage';
 import { StudentDashboard } from './pages/StudentDashboard';
 import { TeacherDashboard } from './pages/TeacherDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
@@ -49,6 +50,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="classes" element={<CourseCatalog />} />
+          <Route path="classes/:classId" element={<ClassSyllabusPage />} />
           <Route path="classes/:gradeId/:termId/:subjectId" element={<CourseDetail />} />
           <Route path="forum/*" element={<ForumPage />} />
           <Route path="live-sessions" element={<LiveSessionsPage />} />

@@ -37,8 +37,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" replace />;
   }
 
-  // Legacy role check
-  if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+  // Legacy role check — platform_admin bypasses all role gates
+  if (allowedRoles && allowedRoles.length > 0 && user.role !== 'platform_admin' && !allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }
 

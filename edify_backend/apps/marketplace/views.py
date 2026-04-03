@@ -59,12 +59,22 @@ class ListingViewSet(viewsets.ReadOnlyModelViewSet):
         
         return Response({"detail": "Purchase successful! Content added to library.", "teacher_cut": teacher_cut}, status=status.HTTP_200_OK)
 
-from .models import PayoutRequest
-from .serializers import PayoutRequestSerializer
+from .models import PayoutRequest, TeacherPayoutProfile
+from .serializers import PayoutRequestSerializer, TeacherPayoutProfileSerializer
+
+class TeacherPayoutProfileViewSet(viewsets.ModelViewSet):
+    serializer_class = TeacherPayoutProfileSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return TeacherPayoutProfile.objects.filter(teacher=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(teacher=self.request.user)
 
 class PayoutRequestViewSet(viewsets.ModelViewSet):
     """
-    Teacher Monetization: Allows teachers to request withdraws from their Edify Wallets.
+    Teacher Monetization: Allows teachers to request withdrawals from their platform MoMo.
     """
     serializer_class = PayoutRequestSerializer
     permission_classes = [IsAuthenticated]
@@ -72,24 +82,83 @@ class PayoutRequestViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # Admins see all, teachers only see their own
         if self.request.user.role == 'platform_admin':
-            return PayoutRequest.objects.all()
-        return PayoutRequest.objects.filter(wallet__teacher=self.request.user)
+            return PayoutRequest.objects.all().order_by('-requested_at')
+        return PayoutRequest.objects.filter(teacher=self.request.user).order_by('-requested_at')
 
     def create(self, request, *args, **kwargs):
+        from .services.payout_eligibility import TeacherPayoutEligibilityService
+        
         user = request.user
-        wallet, _ = Wallet.objects.get_or_create(teacher=user)
-        amount = float(request.data.get('amount', 0))
+        success, result = TeacherPayoutEligibilityService.execute_payout_request(user, actor=user)
 
-        if amount <= 0:
-            raise exceptions.ValidationError("Payout amount must be greater than zero.")
+        if not success:
+            raise exceptions.ValidationError({"detail": result})
 
-        if float(wallet.balance) < amount:
-            raise exceptions.ValidationError("Insufficient funds in your Edify Wallet.")
-
-        # Deduct right now, put into escrow
-        wallet.balance = float(wallet.balance) - amount
-        wallet.save()
-
-        payout = PayoutRequest.objects.create(wallet=wallet, amount=amount, status='pending')
-        serializer = self.get_serializer(payout)
+        # result is the payout_request object
+        serializer = self.get_serializer(result)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'])
+    def eligibility(self, request):
+        from .services.payout_eligibility import TeacherPayoutEligibilityService
+        eligibility = TeacherPayoutEligibilityService.check_eligibility(request.user)
+        return Response(eligibility)
+
+from rest_framework import views, serializers
+from billing.models import TeacherAccessFeeAccount
+from .models import TeacherPayoutBatch
+from lessons.models import LessonQualificationRecord
+
+class PayoutBatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeacherPayoutBatch
+        fields = '__all__'
+
+class LessonQualificationSerializer(serializers.ModelSerializer):
+    lesson_title = serializers.CharField(source='lesson.title', read_only=True)
+    scheduled_at = serializers.DateTimeField(source='lesson.scheduled_at', read_only=True)
+    class Meta:
+        model = LessonQualificationRecord
+        fields = ['id', 'lesson', 'lesson_title', 'scheduled_at', 'status', 'rejection_reason', 'calculated_payout', 'reviewed_at']
+
+class PayoutBatchViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Teacher Monetization: Biweekly payout batch history
+    """
+    serializer_class = PayoutBatchSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return TeacherPayoutBatch.objects.filter(teacher=self.request.user).order_by('-cycle_start_date')
+
+class LessonQualificationViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Teacher Monetization: Track earnings/rejections lesson by lesson.
+    """
+    serializer_class = LessonQualificationSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return LessonQualificationRecord.objects.filter(lesson__parent_class__teacher=self.request.user).order_by('-lesson__scheduled_at')
+
+class MonetizationOverviewView(views.APIView):
+    """
+    Teacher Monetization: Central tracker for the Access Fee Obligation.
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+        fee_account, _ = TeacherAccessFeeAccount.objects.get_or_create(teacher=user)
+        
+        latest_batch = TeacherPayoutBatch.objects.filter(teacher=user).order_by('-cycle_end_date').first()
+        last_net_payout = latest_batch.net_payout if latest_batch else 0.00
+        
+        return Response({
+            'total_obligation': fee_account.total_obligation,
+            'recovered_amount': fee_account.recovered_amount,
+            'remaining_balance': fee_account.remaining_balance,
+            'is_recovered': fee_account.is_recovered,
+            'last_net_payout': last_net_payout
+        })
+

@@ -48,3 +48,24 @@ class SharedResourceLink(models.Model):
 
     def __str__(self):
         return f"{self.resource.title} attached to {self.target_class.title}"
+
+class ResourceLessonLink(models.Model):
+    PURPOSE_CHOICES = [
+        ('core_note', 'Core Teaching Note'),
+        ('presentation', 'Presentation/Slides'),
+        ('reading', 'Recommended Reading'),
+        ('worksheet', 'Worksheet'),
+        ('assignment', 'Assignment'),
+        ('other', 'Other material')
+    ]
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name='lesson_links')
+    lesson = models.ForeignKey('lessons.Lesson', on_delete=models.CASCADE, related_name='resource_links')
+    purpose = models.CharField(max_length=50, choices=PURPOSE_CHOICES, default='other')
+    added_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('resource', 'lesson')
+
+    def __str__(self):
+        return f"{self.resource.title} attached to {self.lesson.title} ({self.purpose})"

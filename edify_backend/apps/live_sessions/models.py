@@ -15,6 +15,13 @@ class LiveSession(models.Model):
     duration_minutes = models.IntegerField(default=60)
     capacity = models.IntegerField(default=100)
     enrolled_count = models.IntegerField(default=0)
+    
+    SESSION_STATUS = [
+        ('scheduled', 'Scheduled'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    status = models.CharField(max_length=20, choices=SESSION_STATUS, default='scheduled')
 
     def __str__(self):
         return f"Live Session for {self.lesson.title}"

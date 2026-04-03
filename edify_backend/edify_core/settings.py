@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'scheduling.apps.SchedulingConfig',
     'attendance.apps.AttendanceConfig',
     'finance.apps.FinanceConfig',
+    'billing.apps.BillingConfig',
 ]
 
 MIDDLEWARE = [
@@ -153,6 +154,12 @@ STATIC_URL = 'static/'
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
+
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    'edify_core.backends.DualAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # REST Framework Configuration
 REST_FRAMEWORK = {

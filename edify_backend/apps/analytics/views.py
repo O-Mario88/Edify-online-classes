@@ -251,36 +251,60 @@ class InstitutionDashboardView(APIView):
         # Simulating fetching the first institution they manage, or active one
         membership = InstitutionMembership.objects.filter(user=request.user, status='active').first()
         scorecard = None
+        activation_status = 'setup'
+        unpaid_seats = 0
+        total_students = 0
+        
         if membership:
+            institution = membership.institution
+            total_students = institution.active_student_count
             try:
-                scorecard = membership.institution.compliance_scorecard
+                scorecard = institution.compliance_scorecard
             except Exception:
                 pass
+            
+            if hasattr(institution, 'billing_profile'):
+                activation_status = institution.billing_profile.activation_status
+                unpaid_seats = max(0, total_students - institution.billing_profile.paid_seat_count)
+            else:
+                unpaid_seats = total_students
+                
+        is_setup = activation_status == 'setup'
 
-
-        return Response({
+        response_data = {
+            "activationStatus": activation_status,
+            "unpaidSeats": unpaid_seats,
             "kpis": {
-                "totalStudents": 1205,
-                "totalTeachers": 42,
-                "activeClasses": 84,
-                "attendanceToday": 94,
-                "avgPerformance": 76,
-                "riskAlerts": 8
-            },
-            "academicPerformance": [
+                "totalStudents": total_students,
+                "totalTeachers": 42 if not is_setup else 2,
+                "activeClasses": 84 if not is_setup else 0,
+                "attendanceToday": 94 if not is_setup else None,
+                "avgPerformance": 76 if not is_setup else None,
+                "riskAlerts": 8 if not is_setup else 0
+            }
+        }
+        
+        if is_setup:
+            # Mask or limit setup state
+            response_data["academicPerformance"] = []
+            response_data["financialMetrics"] = None
+            response_data["complianceTracking"] = None
+        else:
+            response_data["academicPerformance"] = [
                 { "subject": 'S4 Physics Core', "enrollment": 145, "avgScore": 68, "completion": 82, "teacher": 'Mr. Omondi', "status": 'On Track' },
                 { "subject": 'S3 Biology East', "enrollment": 112, "avgScore": 54, "completion": 65, "teacher": 'Mrs. Kintu', "status": 'At Risk' },
                 { "subject": 'S4 Mathematics', "enrollment": 145, "avgScore": 72, "completion": 80, "teacher": 'Mr. Kato', "status": 'On Track' },
-            ],
-            "financialMetrics": {
+            ]
+            response_data["financialMetrics"] = {
                 "plan": 'Premium (Active)',
                 "feeCollection": 88,
                 "outstandingBalance": '12.4M UGX',
                 "examPayments": 95
-            },
-            "complianceTracking": {
+            }
+            response_data["complianceTracking"] = {
                 "syllabusCoveragePct": float(getattr(scorecard, 'syllabus_coverage_pct', 85.5)),
                 "assessmentCompliance": float(getattr(scorecard, 'assessment_compliance_score', 92.0)),
                 "practicalLearning": float(getattr(scorecard, 'practical_learning_score', 65.0))
             }
-        })
+
+        return Response(response_data)

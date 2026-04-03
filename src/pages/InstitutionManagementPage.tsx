@@ -19,12 +19,15 @@ import { InstitutionIntelligenceHub } from '../components/dashboard/InstitutionI
 import { PastoralTimeline } from '../components/pastoral/PastoralTimeline';
 import { TeacherAssignmentManager } from '../components/dashboard/TeacherAssignmentManager';
 import { InstitutionFinanceHub } from './InstitutionFinanceHub';
+import { InstitutionBillingPortal } from '../components/institutions/InstitutionBillingPortal';
+import { StudentOnboardingForm } from '../components/institutions/StudentOnboardingForm';
 
 export const InstitutionManagementPage: React.FC = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [showOnboardingForm, setShowOnboardingForm] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -68,7 +71,8 @@ export const InstitutionManagementPage: React.FC = () => {
      )
   }
 
-  const { kpis, academicPerformance, financialMetrics } = dashboardData;
+  const { kpis, academicPerformance, financialMetrics, activationStatus, unpaidSeats } = dashboardData;
+  const isSetup = activationStatus === 'setup';
 
   return (
     <div className="container mx-auto py-8 px-4 space-y-8">
@@ -96,6 +100,13 @@ export const InstitutionManagementPage: React.FC = () => {
         <strong className="font-bold flex items-center"><ShieldAlert className="w-4 h-4 mr-2"/> Privacy Bound Scope Active.</strong> 
         All analytics displayed on this dashboard represent ONLY Kampala Model High School learners, teachers, and financial transactions.
       </div>
+
+      {isSetup && (
+        <InstitutionBillingPortal 
+           activeStudents={kpis.totalStudents} 
+           unpaidSeats={unpaidSeats} 
+        />
+      )}
 
       {/* Row 1: KPI Strip (Local) */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -256,6 +267,23 @@ export const InstitutionManagementPage: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="students" className="space-y-6">
+           <Card className="shadow-sm border-indigo-200">
+             <CardHeader className="pb-4 border-b bg-indigo-50/30 flex flex-row justify-between items-center">
+               <div>
+                  <CardTitle className="text-indigo-900">Learner Onboarding Station</CardTitle>
+                  <CardDescription>Enroll students into the institution and attach parent/payment linkage.</CardDescription>
+               </div>
+               <Button onClick={() => setShowOnboardingForm(!showOnboardingForm)} className="bg-indigo-600 hover:bg-indigo-700">
+                  {showOnboardingForm ? 'Close Station' : 'Launch Onboarding Form'}
+               </Button>
+             </CardHeader>
+             {showOnboardingForm && (
+               <CardContent className="p-6 bg-slate-50 border-b">
+                  <StudentOnboardingForm />
+               </CardContent>
+             )}
+           </Card>
+
            <Card className="shadow-sm">
              <CardHeader className="pb-4 border-b bg-gray-50/50">
                <CardTitle>Student Interventions & Risk Radar</CardTitle>
@@ -269,14 +297,22 @@ export const InstitutionManagementPage: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="timetable" className="space-y-6">
-           <Card className="shadow-sm text-center py-8">
-              <Calendar className="w-12 h-12 text-indigo-600 mx-auto mb-4"/>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Master Timetable & Cover Substitutions</h3>
-              <p className="text-xs text-gray-500 max-w-sm mx-auto mb-4">Launch the Studio to resolve scheduling collisions and assign cover blocks.</p>
-              <Link to="/dashboard/institution/timetable">
-                <Button className="bg-indigo-600 hover:bg-indigo-700">Launch Studio</Button>
-              </Link>
-           </Card>
+           {isSetup ? (
+             <Card className="shadow-sm border-dashed border-2 border-gray-300 text-center py-16">
+               <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+               <h3 className="text-lg font-bold text-gray-900 mb-2">Timetable Studio Locked</h3>
+               <p className="font-medium text-gray-500">Please complete institution activation to access the Timetable Studio.</p>
+             </Card>
+           ) : (
+             <Card className="shadow-sm text-center py-8">
+                <Calendar className="w-12 h-12 text-indigo-600 mx-auto mb-4"/>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Master Timetable & Cover Substitutions</h3>
+                <p className="text-xs text-gray-500 max-w-sm mx-auto mb-4">Launch the Studio to resolve scheduling collisions and assign cover blocks.</p>
+                <Link to="/dashboard/institution/timetable">
+                  <Button className="bg-indigo-600 hover:bg-indigo-700">Launch Studio</Button>
+                </Link>
+             </Card>
+           )}
         </TabsContent>
 
         <TabsContent value="pastoral" className="space-y-6">
@@ -327,7 +363,15 @@ export const InstitutionManagementPage: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="finance" className="space-y-6">
-           <InstitutionFinanceHub />
+           {isSetup ? (
+             <Card className="shadow-sm border-dashed border-2 border-gray-300 text-center py-16">
+               <DollarSign className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+               <h3 className="text-lg font-bold text-gray-900 mb-2">Finance Hub Locked</h3>
+               <p className="font-medium text-gray-500">Please complete institution activation to access finance operations.</p>
+             </Card>
+           ) : (
+             <InstitutionFinanceHub />
+           )}
         </TabsContent>
 
       </Tabs>

@@ -22,7 +22,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from curriculum.views import CountryViewSet, SubjectViewSet, ClassLevelViewSet, TopicViewSet
 from marketplace.views import ListingViewSet
 from ai_services.views import CopilotInferenceView
-from institutions.views import InstitutionViewSet, InstitutionMembershipViewSet, BillingStatusView
+from institutions.views import InstitutionViewSet, InstitutionMembershipViewSet, BillingStatusView, LearnerRegistrationViewSet, AdminPinResetView
 from classes.views import ClassViewSet, ClassEnrollmentViewSet
 from scheduling.views import TimetableSlotViewSet
 from attendance.views import DailyRegisterViewSet, LessonAttendanceViewSet
@@ -49,13 +49,17 @@ from curriculum.views import TopicCompetencyViewSet, ResourceQualityReviewViewSe
 router.register(r'curriculum/topic-competencies', TopicCompetencyViewSet, basename='topic-competency')
 router.register(r'curriculum/resource-reviews', ResourceQualityReviewViewSet, basename='resource-review')
 
-from marketplace.views import ListingViewSet, PayoutRequestViewSet
+from marketplace.views import ListingViewSet, PayoutRequestViewSet, PayoutBatchViewSet, LessonQualificationViewSet, MonetizationOverviewView, TeacherPayoutProfileViewSet
 router.register(r'marketplace/listings', ListingViewSet, basename='marketplace-listing')
 router.register(r'marketplace/payouts', PayoutRequestViewSet, basename='marketplace-payout')
+router.register(r'marketplace/payout-profile', TeacherPayoutProfileViewSet, basename='marketplace-payout-profile')
+router.register(r'marketplace/teacher-batches', PayoutBatchViewSet, basename='marketplace-teacher-batch')
+router.register(r'marketplace/lesson-qualifications', LessonQualificationViewSet, basename='marketplace-lesson-qual')
 
 # School OS Endpoints
 router.register(r'institutions', InstitutionViewSet, basename='institution')
 router.register(r'institution-memberships', InstitutionMembershipViewSet, basename='institution-membership')
+router.register(r'institutions/learner-registrations', LearnerRegistrationViewSet, basename='learner-registration')
 router.register(r'billing', BillingStatusView, basename='billing')
 router.register(r'classes', ClassViewSet, basename='class')
 router.register(r'class-enrollments', ClassEnrollmentViewSet, basename='class-enrollment')
@@ -130,4 +134,9 @@ urlpatterns = [
     path('api/v1/analytics/parent-dashboard/', ParentDashboardView.as_view(), name='parent_dashboard_api'),
     path('api/v1/analytics/admin-dashboard/', AdminDashboardView.as_view(), name='admin_dashboard_api'),
     path('api/v1/analytics/institution-dashboard/', InstitutionDashboardView.as_view(), name='institution_dashboard_api'),
+    path('api/v1/institutions/admin-pin-reset/', AdminPinResetView.as_view(), name='admin_pin_reset'),
+    path('api/v1/marketplace/monetization-overview/', MonetizationOverviewView.as_view(), name='monetization_overview_api'),
+    
+    # Billing / Subscriptions / Monetization
+    path('api/v1/billing/', include('billing.urls')),
 ]

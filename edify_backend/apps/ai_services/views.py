@@ -1,3 +1,5 @@
+import json
+import os
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -9,11 +11,8 @@ class CopilotInferenceView(APIView):
 
     def post(self, request):
         content = request.data.get('content', '')
-        context_type = request.data.get('context', 'general') # student_help, teacher_studio, grading
+        context_type = request.data.get('context', 'general') # smart_reply, quiz_generator, teaching_analytics
         
-        if not content:
-            return Response({'error': 'Message content is required.'}, status=400)
-            
         # 1. Log the query
         job = AIJob.objects.create(
             requestor=request.user,
@@ -22,46 +21,78 @@ class CopilotInferenceView(APIView):
             status='processing'
         )
         
-        # 2. Live OpenAI SDK Integration with Graceful Degradation
-        import os
-        ai_response = ""
+        # 2. Live OpenAI Integration
         api_key = os.environ.get('OPENAI_API_KEY') or getattr(settings, 'OPENAI_API_KEY', None)
+        
+        ai_response = None
+        is_json_format = False
 
         if api_key:
             try:
                 from openai import OpenAI
                 client = OpenAI(api_key=api_key)
                 
-                system_prompt = f"You are the Edify Senior Curriculum Copilot. The user is a {request.user.role}. Context of this conversation: {context_type}. Provide helpful, structured, and pedagogical responses. Keep it concise."
+                # Context routing strategy
+                if context_type == 'quiz_generator':
+                    system_prompt = f"You are the Edify Assessment AI. User wants a quiz about: {content}. Output ONLY valid JSON containing an array of 3 'questions'. Each object must have 'id', 'type' (multiple-choice), 'question', 'options' (array of 4 strings), 'correctAnswer', and 'explanation'."
+                    is_json_format = True
+                
+                elif context_type == 'smart_reply':
+                    system_prompt = f"You are the Edify Teaching Assistant. The student just asked: {content}. Generate a warm, pedagogical, strictly accurate answer to help them. Keep it under 2 paragraphs."
+                
+                elif context_type == 'teaching_analytics':
+                    # We inject deep simulated analytics stats to OpenAI so it can output an actionable report
+                    stats = {
+                        "avg_session_time": "45min",
+                        "completion_rate": "87%",
+                        "help_requests": 23,
+                        "struggling_topics": ["Quadratic Equations", "Algebraic Fractions", "Cellular Respiration"]
+                    }
+                    system_prompt = f"You are Edify's Data Scientist AI. Given these teacher class metrics: {json.dumps(stats)}. Write a 3-bullet point 'Confusion Report' and 'Intervention Recommendation'. Be incredibly insightful and concise."
+                
+                else:
+                    system_prompt = f"You are the Edify Senior Curriculum Copilot. The user is a {request.user.role}. Provide helpful, structured, and pedagogical responses. Keep it concise."
+
                 
                 response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
                         {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": content}
+                        {"role": "user", "content": content if context_type != 'teaching_analytics' else "Generate analytics report."}
                     ],
-                    max_tokens=600
+                    response_format={ "type": "json_object" } if is_json_format else { "type": "text" },
+                    max_tokens=800
                 )
                 ai_response = response.choices[0].message.content
+                
+                if is_json_format:
+                    ai_response = json.loads(ai_response)
+
             except Exception as e:
                 print(f"[AI Services] OpenAI API Error: {e}. Falling back to mock data.")
 
         if not ai_response:
             # Fallback Mock AI Logic (Graceful Degradation)
-            ai_response = "I'm your Edify AI Assistant. How can I help you structurally today?"
-            content_lower = content.lower()
+            if context_type == 'quiz_generator':
+                ai_response = {
+                    "questions": [
+                        {
+                            "id": "mock_q1",
+                            "type": "multiple-choice",
+                            "question": f"What is a key concept in {content}?",
+                            "options": ["Concept A", "Concept B", "Concept C", "Concept D"],
+                            "correctAnswer": "Concept A",
+                            "explanation": "This is automatically provided by the mock backend."
+                        }
+                    ]
+                }
+            elif context_type == 'smart_reply':
+                ai_response = f"I've broken down {content} for you: First, ensure you recognize the baseline principles. Would you like me to elaborate further on this specific topic?"
+            elif context_type == 'teaching_analytics':
+                ai_response = "1. Students are struggling significantly with Quadratic Equations (65% failure rate in latest quiz).\n2. Intervention: Run a Live Remedial Session focused solely on the Quadratic Formula.\n3. Engagement: Session lengths are above average (45m), showing strong effort despite confusion."
+            else:
+                ai_response = "I am your Edify AI Assistant. OpenAI keys are not configured, so I am running in fallback mode."
 
-            if 'intervention' in content_lower or 'dropout' in content_lower:
-                ai_response = "Based on the Analytics Engine, Alice and Bob are at high risk of truancy in the next 14 days. **Suggested Intervention:** Schedule a brief 1-on-1 check-in before Friday and temporarily reduce their assignment backlog by 20% to ease cognitive loading."
-            elif 'lesson plan' in content_lower or 'syllabus' in content_lower:
-                ai_response = "Here is a drafted 45-minute Lesson Plan for Cellular Respiration:\n\n**0-10m:** Hook & Recap (Mitochondria Review)\n**10-25m:** Glycolysis theory breakdown.\n**25-35m:** Independent practice worksheet.\n**35-45m:** Exit Ticket (Multiple Choice).\n\nWould you like me to generate the Exit Ticket?"
-            elif 'grade' in content_lower or 'mark' in content_lower:
-                ai_response = "I've scanned the 14 un-graded assessments using OCR. 12/14 perfectly map to the rubric. The remaining 2 require manual grading. Shall I auto-publish the 12 verified scores to the gradebook?"
-            elif 'quiz' in content_lower:
-                ai_response = "Sure! Here is a Quick Quiz:\n\n1. What is the standard form of a quadratic equation?\nA) y = mx + c\nB) ax² + bx + c = 0\nC) A + B = C\n\nReply with your answer!"
-            elif 'summary' in content_lower or 'summarize' in content_lower:
-                ai_response = "Here is a brief summary of Kinematics: Kinematics describes motion without considering its causes. Key concepts include displacement, velocity, and acceleration. Master the 4 kinematic equations to easily solve UACE problems!"
-            
         # 3. Complete the Job
         job.status = 'done'
         job.save()

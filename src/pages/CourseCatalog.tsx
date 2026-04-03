@@ -255,8 +255,7 @@ const ClassCard: React.FC<{ ugandaClass: UgandaClass; teachers: Teacher[] }> = (
             )}
           </div>
           <div className="text-right">
-            <div className="text-lg font-bold text-blue-600">UGX {ugandaClass.priceUGX.toLocaleString()}</div>
-            <div className="text-xs text-gray-500">per month</div>
+            <Badge variant="outline" className="text-emerald-600 bg-emerald-50 border-emerald-200">Start Free</Badge>
           </div>
         </div>
         <CardTitle className="text-xl">{ugandaClass.name}</CardTitle>
@@ -316,7 +315,7 @@ const ClassCard: React.FC<{ ugandaClass: UgandaClass; teachers: Teacher[] }> = (
           </div>
         )}
 
-        <Link to={`/classes/${ugandaClass.id}/${ugandaClass.terms[0]?.id}/${ugandaClass.terms[0]?.subjects[0]?.id}`}>
+        <Link to={`/classes/${ugandaClass.id}`}>
           <Button className="w-full">
             Explore {ugandaClass.name}
             <ChevronRight className="ml-2 h-4 w-4" />
@@ -413,10 +412,9 @@ const ClassListItem: React.FC<{ ugandaClass: UgandaClass; teachers: Teacher[] }>
           
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <div className="text-2xl font-bold text-blue-600">UGX {ugandaClass.priceUGX.toLocaleString()}</div>
-              <div className="text-sm text-gray-500">per month</div>
+              <Badge variant="outline" className="text-emerald-600 bg-emerald-50 border-emerald-200 mb-2 block w-fit ml-auto">Start Free</Badge>
             </div>
-            <Link to={`/classes/${ugandaClass.id}/${ugandaClass.terms[0]?.id}/${ugandaClass.terms[0]?.subjects[0]?.id}`}>
+            <Link to={`/classes/${ugandaClass.id}`}>
               <Button>
                 View Details
                 <ChevronRight className="ml-2 h-4 w-4" />

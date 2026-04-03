@@ -18,7 +18,7 @@ class ListingSerializer(serializers.ModelSerializer):
         bindings = obj.topic_bindings.all()
         return [TopicSerializer(b.topic).data for b in bindings]
 
-from .models import Wallet, PayoutRequest
+from .models import Wallet, PayoutRequest, TeacherPayoutProfile
 
 class WalletSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,6 +26,15 @@ class WalletSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PayoutRequestSerializer(serializers.ModelSerializer):
+    transaction_status = serializers.CharField(source='transaction.status', read_only=True)
+    provider_reference = serializers.CharField(source='transaction.provider_reference', read_only=True)
+    
     class Meta:
         model = PayoutRequest
         fields = '__all__'
+
+class TeacherPayoutProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeacherPayoutProfile
+        fields = '__all__'
+        read_only_fields = ['teacher', 'is_verified']

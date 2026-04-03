@@ -136,3 +136,66 @@ def HasInstitutionPermission(required_permission):
             return required_permission in user_perms
 
     return _HasInstitutionPermission
+
+class IsActivatedInstitution(permissions.BasePermission):
+    """
+    Blocks advanced operations if the institution is in 'setup' or 'suspended' billing state.
+    """
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+            
+        # Optional: bypass for platform admins
+        if request.user.role == 'admin':
+            return True
+            
+        institution_id = view.kwargs.get('institution_id') or request.data.get('institution_id')
+        if not institution_id:
+            return True
+            
+        from institutions.models import Institution
+        try:
+            institution = Institution.objects.get(id=institution_id)
+            if not hasattr(institution, 'billing_profile'):
+                return True # no billing profile, fail open or closed? let's fail open if missing locally
+            return institution.billing_profile.activation_status == 'active'
+        except Institution.DoesNotExist:
+            return False
+
+class IsSubscribedOrFreeAllowed(permissions.BasePermission):
+    """
+    Freemium gated access to SubjectClass combinations for independent learners.
+    """
+    def has_object_permission(self, request, view, obj):
+        if not request.user.is_authenticated:
+            return False
+        
+        # If it's a teacher or admin, let them through
+        if request.user.role in ['teacher', 'admin']:
+            return True
+            
+        # Is the asset explicitly marked free? Assuming 'access_mode' exists on obj
+        if hasattr(obj, 'access_mode') and getattr(obj, 'access_mode', '') == 'free':
+            return True
+            
+        from billing.models import StudentSubscription
+        subject_id = None
+        class_level_id = None
+        
+        # Determine subject and class level from the object to check subscription...
+        if hasattr(obj, 'parent_class'):
+            class_level_id = obj.parent_class.class_level_id
+            if obj.parent_class.institution_subject:
+                subject_id = obj.parent_class.institution_subject.subject_id
+            
+        if subject_id and class_level_id:
+            has_sub = StudentSubscription.objects.filter(
+                student=request.user,
+                product__subject_id=subject_id,
+                product__class_level_id=class_level_id,
+                status__in=['active', 'grace_period']
+            ).exists()
+            if has_sub:
+                return True
+        
+        return False

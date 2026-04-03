@@ -1,4 +1,5 @@
 from rest_framework import viewsets, permissions, status
+from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
@@ -157,3 +158,128 @@ class BillingStatusView(viewsets.ViewSet):
         ledger.save()
         
         return Response({"detail": "Payment successful. Balance updated."}, status=status.HTTP_200_OK)
+
+import random
+
+class LearnerRegistrationViewSet(viewsets.ModelViewSet):
+    """
+    Handles the 3-step student onboarding flow natively inside the school OS.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    # We use a dummy generic queryset here just to satisfy the router for now,
+    # though custom actions drive the actual flow.
+    from .models import LearnerRegistration
+    queryset = LearnerRegistration.objects.all()
+
+    def get_queryset(self):
+        user = self.request.user
+        admin_institutions = InstitutionMembership.objects.filter(
+            user=user, role__in=SCHOOL_ADMIN_ROLES, status='active'
+        ).values_list('institution_id', flat=True)
+        from .models import LearnerRegistration
+        return LearnerRegistration.objects.filter(institution_id__in=admin_institutions)
+
+    @action(detail=False, methods=['post'])
+    def start_registration(self, request):
+        institution_id = request.data.get('institution_id')
+        
+        from .models import LearnerRegistration
+        reg = LearnerRegistration.objects.create(
+            institution_id=institution_id,
+            full_name=request.data.get('full_name'),
+            learner_id_number=request.data.get('learner_id_number'),
+            parent_name=request.data.get('parent_name'),
+            parent_phone=request.data.get('parent_phone'),
+            parent_relationship=request.data.get('parent_relationship'),
+            status='pending_payment'
+        )
+        
+        # Real world: dispatch MTN MoMo prompt to `parent_phone`
+        return Response({'registration_id': reg.id, 'status': reg.status})
+
+    @action(detail=True, methods=['post'])
+    def verify_payment(self, request, pk=None):
+        reg = self.get_object()
+        reg.status = 'payment_verified'
+        reg.save()
+        return Response({'status': reg.status})
+
+    @action(detail=True, methods=['post'])
+    def finalize_account(self, request, pk=None):
+        from django.utils import timezone
+        reg = self.get_object()
+        pin = request.data.get('pin')
+        
+        # 1. Generate ID and Username safely
+        student_id = f"EDU-UG-{timezone.now().year}-{random.randint(1000, 9999)}"
+        username_base = reg.full_name.lower().replace(' ', '')
+        username = f"{username_base}{random.randint(100, 999)}"
+        
+        User = get_user_model()
+        user = User.objects.create(
+            email=f"{username}@student.edify.mock",
+            full_name=reg.full_name,
+            country_code=reg.institution.country_code,
+            role='student'
+        )
+        user.set_password(pin)
+        user.save()
+        
+        # Enable Dual Auth System Support
+        from accounts.models import StudentProfile
+        StudentProfile.objects.create(
+            user=user,
+            system_username=username,
+            student_id_number=student_id,
+            default_institution=reg.institution,
+            onboarding_status='completed'
+        )
+        
+        InstitutionMembership.objects.create(
+            user=user,
+            institution=reg.institution,
+            role='student',
+            status='active'
+        )
+        
+        # Handle the Siblings rule seamlessly
+        parent_user, _ = User.objects.get_or_create(
+            phone=reg.parent_phone,
+            defaults={
+                'full_name': reg.parent_name,
+                'email': f"parent_{reg.parent_phone}@edify.mock",
+                'role': 'parent'
+            }
+        )
+        
+        reg.student_user = user
+        reg.status = 'active'
+        reg.save()
+        
+        return Response({
+            'student_id': student_id,
+            'username': username,
+            'status': 'active'
+        })
+
+class AdminPinResetView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        student_id = request.data.get('student_id')
+        new_pin = request.data.get('new_pin')
+        
+        User = get_user_model()
+        student = User.objects.get(id=student_id)
+        
+        student.set_password(new_pin)
+        student.save()
+        
+        from .models import TemporaryPinReset
+        TemporaryPinReset.objects.create(
+            student=student,
+            requested_by=request.user,
+            method='admin',
+            is_used=True
+        )
+        return Response({'status': 'PIN Reset Successful'})

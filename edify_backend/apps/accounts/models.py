@@ -50,6 +50,10 @@ class StudentProfile(models.Model):
     onboarding_status = models.CharField(max_length=50, default='pending')
     default_institution = models.ForeignKey('institutions.Institution', on_delete=models.SET_NULL, null=True, blank=True)
     
+    # Auto-generated identifiers for lab logins without email
+    system_username = models.CharField(max_length=150, blank=True, null=True, unique=True)
+    student_id_number = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    
     def __str__(self):
         return f"Student: {self.user.full_name}"
 

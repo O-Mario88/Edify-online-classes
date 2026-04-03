@@ -16,6 +16,11 @@ class Institution(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def active_student_count(self):
+        """Returns the number of active enrolled students for billing purposes."""
+        return self.members.filter(role='student', status='active').count()
+
     def __str__(self):
         return self.name
 
@@ -98,3 +103,48 @@ class TeacherQualityScore(models.Model):
     
     def __str__(self):
         return f"Quality Score for {self.user.email}"
+
+import uuid
+
+class LearnerRegistration(models.Model):
+    """Tracks the 3-step student onboarding flow within an institution"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='learner_registrations')
+    full_name = models.CharField(max_length=255)
+    class_level = models.ForeignKey('curriculum.ClassLevel', on_delete=models.SET_NULL, null=True, blank=True)
+    learner_id_number = models.CharField(max_length=100, blank=True, null=True)
+    
+    parent_name = models.CharField(max_length=255, blank=True, null=True)
+    parent_phone = models.CharField(max_length=20, blank=True, null=True)
+    parent_relationship = models.CharField(max_length=50, blank=True, null=True)
+    
+    STATE_CHOICES = [
+        ('draft', 'Draft'),
+        ('pending_payment', 'Pending Payment'),
+        ('payment_verified', 'Payment Verified'),
+        ('account_creation_pending', 'Account Creation Pending'),
+        ('active', 'Active'),
+        ('failed', 'Failed')
+    ]
+    status = models.CharField(max_length=50, choices=STATE_CHOICES, default='draft')
+    
+    # Track the linked user once active
+    student_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='registration_record')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.full_name} ({self.status})"
+
+class TemporaryPinReset(models.Model):
+    """Audit log and tracking for PIN resets via SMS or Admin"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='pin_resets')
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='initiated_resets')
+    method = models.CharField(max_length=20, choices=[('sms', 'Parent SMS'), ('admin', 'School Admin')])
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Reset for {self.student.email} via {self.method}"

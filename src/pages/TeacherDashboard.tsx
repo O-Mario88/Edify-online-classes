@@ -33,6 +33,7 @@ import {
 import { Teacher, UgandaLevel, Student } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { MarketplaceUploadModal } from '../components/marketplace/MarketplaceUploadModal';
+import { TeacherMonetizationDashboard } from '../components/marketplace/TeacherMonetizationDashboard';
 
 interface TeacherStats {
   totalStudents: number;
@@ -719,110 +720,7 @@ export const TeacherDashboard: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="earnings">
-            <div className="space-y-6">
-              {/* Earnings Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Total Earnings</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-3xl font-bold text-green-600">UGX {stats?.totalEarnings.toLocaleString() || '0'}</p>
-                    <p className="text-sm text-gray-600 mt-1">Lifetime earnings</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">This Month</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-3xl font-bold text-blue-600">UGX {stats?.monthlyEarnings.toLocaleString() || '0'}</p>
-                    <p className="text-sm text-gray-600 mt-1">Current month</p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Pending Payout</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-3xl font-bold text-orange-600">UGX {stats?.pendingPayouts.toLocaleString() || '0'}</p>
-                    <p className="text-sm text-gray-600 mt-1">Available for withdrawal</p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Revenue Share Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Revenue Share Details</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-medium mb-3">Your Share: 60%</h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Student payments this month</span>
-                          <span>UGX 850,000</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Platform fee (40%)</span>
-                          <span>UGX 340,000</span>
-                        </div>
-                        <div className="flex justify-between font-semibold">
-                          <span>Your earnings (60%)</span>
-                          <span>UGX 510,000</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-3">Payout Information</h4>
-                      <div className="space-y-2 text-sm text-gray-600">
-                        <p>• Minimum payout: UGX 100,000</p>
-                        <p>• Payout schedule: Every 15th of the month</p>
-                        <p>• Payment methods: Mobile Money, Bank Transfer</p>
-                        <p>• Processing time: 2-3 business days</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Payout History */}
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <CardTitle>Payout History</CardTitle>
-                    <Button>
-                      <Download className="mr-2 h-4 w-4" />
-                      Request Payout
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      { date: '2025-06-15', amount: 450000, status: 'Completed', method: 'MTN Mobile Money' },
-                      { date: '2025-05-15', amount: 380000, status: 'Completed', method: 'Bank Transfer' },
-                      { date: '2025-04-15', amount: 420000, status: 'Completed', method: 'MTN Mobile Money' },
-                      { date: '2025-03-15', amount: 350000, status: 'Completed', method: 'Airtel Money' }
-                    ].map((payout, index) => (
-                      <div key={index} className="flex items-center justify-between border rounded-lg p-3">
-                        <div>
-                          <p className="font-medium">UGX {payout.amount.toLocaleString()}</p>
-                          <p className="text-sm text-gray-600">{payout.date} • {payout.method}</p>
-                        </div>
-                        <Badge variant={payout.status === 'Completed' ? 'default' : 'secondary'}>
-                          {payout.status}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <TeacherMonetizationDashboard />
           </TabsContent>
         </Tabs>
       </div>

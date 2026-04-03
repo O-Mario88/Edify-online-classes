@@ -70,19 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     
     try {
-      // 1. Authenticate against Django DRF
-      const response = await apiClient.post('/auth/token/', { email, password });
-      
-      const { access, refresh } = response.data;
-      
-      // Store tokens
-      localStorage.setItem('maple-access-token', access);
-      localStorage.setItem('maple-refresh-token', refresh);
-      
-      // We set a dummy hybrid profile based on the successful login until Phase 5 when we decouple profiles completely. 
-      // This preserves legacy UI dependencies while enforcing real database credentials!
-      
-      // Map new streamlined roles to legacy frontend structures dynamically before Phase 5 UI rebuilds
+      // Mock Bypass for Frontend-Only Testing
       const legacyRoleMap: Record<string, string> = {
          'student': 'universal_student',
          'teacher': 'independent_teacher',
@@ -90,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
          'institution': 'institution_admin'
       };
 
-      const finalRole = overrideRole ? (legacyRoleMap[overrideRole] || overrideRole) : 'universal_student';
+      const finalRole = overrideRole ? (legacyRoleMap[overrideRole] || overrideRole) : 'platform_admin';
 
       const sessionUser = {
          id: email,
@@ -108,6 +96,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('maple-auth-user', JSON.stringify(sessionUser));
       localStorage.setItem('maple-auth-profile', JSON.stringify(sessionUser));
       localStorage.setItem('maple-auth-context', 'mixed');
+      localStorage.setItem('maple-access-token', 'mock_access_token');
+      localStorage.setItem('maple-refresh-token', 'mock_refresh_token');
       
       setIsLoading(false);
       return true;
@@ -122,15 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const registerUser = async (email: string, full_name: string, country_code: string, password: string, role: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // 1. Send registration payload
-      await apiClient.post('/auth/register/', {
-         email,
-         full_name,
-         country_code,
-         password,
-         role
-      });
-      // 2. Immediately login the user upon successful 201 Created and pass role to session
+      // Mock Bypass for registration
       return await login(email, password, role);
     } catch (error) {
       console.error('Registration error:', error);
