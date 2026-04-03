@@ -35,8 +35,8 @@ export const CourseCatalog: React.FC = () => {
     const fetchData = async () => {
       try {
         const [coursesResponse, usersResponse] = await Promise.all([
-          fetch('/data/courses.json'),
-          fetch('/data/users.json')
+          fetch(`/data/courses.json?t=${new Date().getTime()}`),
+          fetch(`/data/users.json?t=${new Date().getTime()}`)
         ]);
         
         const coursesData = await coursesResponse.json();
@@ -282,35 +282,25 @@ const ClassCard: React.FC<{ ugandaClass: UgandaClass; teachers: Teacher[] }> = (
           <div className="mb-4">
             <p className="text-sm font-medium text-gray-700 mb-2">Subject combinations:</p>
             <div className="flex flex-wrap gap-1">
-              {ugandaClass.subjectCombinations.slice(0, 3).map((combo) => (
+              {ugandaClass.subjectCombinations.map((combo) => (
                 <Badge key={combo} variant="outline" className="text-xs">
                   {combo}
                 </Badge>
               ))}
-              {ugandaClass.subjectCombinations.length > 3 && (
-                <Badge variant="outline" className="text-xs">
-                  +{ugandaClass.subjectCombinations.length - 3} more
-                </Badge>
-              )}
             </div>
           </div>
         )}
 
-        {/* Subjects Preview for O'level */}
-        {ugandaClass.level === 'O\'level' && ugandaClass.terms[0]?.subjects && (
+        {/* Subjects Preview */}
+        {ugandaClass.terms[0]?.subjects && ugandaClass.terms[0].subjects.length > 0 && (
           <div className="mb-4">
-            <p className="text-sm font-medium text-gray-700 mb-2">Core subjects:</p>
+            <p className="text-sm font-medium text-gray-700 mb-2">Offered subjects (All):</p>
             <div className="flex flex-wrap gap-1">
-              {ugandaClass.terms[0].subjects.slice(0, 4).map((subject) => (
+              {ugandaClass.terms[0].subjects.map((subject) => (
                 <Badge key={subject.id} variant="outline" className="text-xs">
                   {subject.name}
                 </Badge>
               ))}
-              {ugandaClass.terms[0].subjects.length > 4 && (
-                <Badge variant="outline" className="text-xs">
-                  +{ugandaClass.terms[0].subjects.length - 4} more
-                </Badge>
-              )}
             </div>
           </div>
         )}
@@ -393,21 +383,24 @@ const ClassListItem: React.FC<{ ugandaClass: UgandaClass; teachers: Teacher[] }>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-1">
-              {ugandaClass.level === 'A\'level' && ugandaClass.subjectCombinations ? (
-                ugandaClass.subjectCombinations.slice(0, 5).map((combo) => (
+            <div className="flex flex-wrap items-center gap-1 mt-2">
+              <span className="text-xs font-semibold text-gray-700 mr-2">Subjects:</span>
+              {ugandaClass.terms[0]?.subjects.map((subject) => (
+                <Badge key={subject.id} variant="outline" className="text-xs">
+                  {subject.name}
+                </Badge>
+              ))}
+            </div>
+            {ugandaClass.level === 'A\'level' && ugandaClass.subjectCombinations && (
+              <div className="flex flex-wrap items-center gap-1 mt-2">
+                <span className="text-xs font-semibold text-gray-700 mr-2">Combinations:</span>
+                {ugandaClass.subjectCombinations.map((combo) => (
                   <Badge key={combo} variant="outline" className="text-xs">
                     {combo}
                   </Badge>
-                ))
-              ) : (
-                ugandaClass.terms[0]?.subjects.slice(0, 5).map((subject) => (
-                  <Badge key={subject.id} variant="outline" className="text-xs">
-                    {subject.name}
-                  </Badge>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
           
           <div className="flex items-center gap-4">

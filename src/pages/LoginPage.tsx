@@ -23,29 +23,7 @@ export const LoginPage: React.FC = () => {
     const success = await login(email, password);
     
     if (success) {
-      // Read immediately synchronously set local storage
-      const storedUser = localStorage.getItem('maple-auth-user');
-      let role = '';
-      if (storedUser) {
-          role = JSON.parse(storedUser).role;
-      }
-      
-      // Auto-infer mock roles if they click demo accounts
-      if (email.includes('teacher') || email.includes('nakamya')) role = 'independent_teacher';
-      if (email.includes('student') || email.includes('nakato')) role = 'universal_student';
-      if (email.includes('admin') || email.includes('namaganda')) role = 'platform_admin';
-
-      if (['universal_student', 'institution_student'].includes(role)) {
-         navigate('/dashboard/student');
-      } else if (['independent_teacher', 'institution_teacher'].includes(role)) {
-         navigate('/dashboard/teacher');
-      } else if (['parent_guardian'].includes(role)) {
-         navigate('/dashboard/parent');
-      } else if (['platform_admin', 'superadmin', 'institution_admin'].includes(role)) {
-         navigate('/dashboard/admin');
-      } else {
-         navigate('/dashboard/student'); // Default safe fallback
-      }
+      navigate('/dashboard');
     } else {
       setError('Invalid email or password');
     }

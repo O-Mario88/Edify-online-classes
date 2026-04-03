@@ -78,7 +78,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
          'institution': 'institution_admin'
       };
 
-      const finalRole = overrideRole ? (legacyRoleMap[overrideRole] || overrideRole) : 'platform_admin';
+      let inferredRole = overrideRole ? (legacyRoleMap[overrideRole] || overrideRole) : undefined;
+      
+      if (!inferredRole) {
+        const lowerEmail = email.toLowerCase();
+        if (lowerEmail.includes('teacher') || lowerEmail.includes('nakamya')) {
+          inferredRole = 'independent_teacher';
+        } else if (lowerEmail.includes('student') || lowerEmail.includes('nakato')) {
+          inferredRole = 'universal_student';
+        } else if (lowerEmail.includes('admin') || lowerEmail.includes('namaganda')) {
+          inferredRole = 'platform_admin';
+        } else {
+          inferredRole = 'universal_student'; // Safe default
+        }
+      }
+
+      const finalRole = inferredRole;
 
       const sessionUser = {
          id: email,

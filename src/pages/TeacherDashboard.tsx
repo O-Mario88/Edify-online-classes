@@ -4,6 +4,24 @@ import { apiClient } from '../lib/api';
 import { TeacherRedAlertsPanel } from '../components/dashboard/TeacherRedAlertsPanel';
 import { TeacherInterventionPanel } from '../components/dashboard/TeacherInterventionPanel';
 import { TeacherResourceEngagementPanel } from '../components/dashboard/TeacherResourceEngagementPanel';
+import { Leaderboards } from '../components/competition/Leaderboards';
+import { HouseStandingsCard } from '../components/competition/HouseStandingsCard';
+import { TeacherQualityScore } from '../components/teachers/TeacherQualityScore';
+import { SmartInterventionBuilder } from '../components/teachers/SmartInterventionBundle';
+import { VoiceNoteWidget } from '../components/teachers/VoiceNoteWidget';
+import { SmartStudyPlanner } from '../components/students/SmartStudyPlanner';
+import { ClassHealthCard } from '../components/teachers/ClassHealthCard';
+import { NextBestActionQueue, ActionQueueItem } from '../components/teachers/NextBestActionQueue';
+import { TeachingWinsTimeline, TeachingWin } from '../components/teachers/TeachingWinsTimeline';
+import { ResourceEffectivenessIntelligence } from '../components/teachers/ResourceEffectivenessIntelligence';
+import { TeacherReflectionAssistant } from '../components/teachers/TeacherReflectionAssistant';
+import { ParentCommunicationCopilot } from '../components/teachers/ParentCommunicationCopilot';
+import { AITeachingPartner } from '../components/teachers/AITeachingPartner';
+import { TeacherPerformanceStory } from '../components/teachers/TeacherPerformanceStory';
+import { TeacherGrowthPassport } from '../components/teachers/TeacherGrowthPassport';
+import { InstitutionTeacherWellness } from '../components/teachers/InstitutionTeacherWellness';
+import { TeacherCollabHub } from '../components/teachers/TeacherCollabHub';
+import { IndependentEarningsIntelligence } from '../components/teachers/IndependentEarningsIntelligence';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -35,6 +53,8 @@ import { Teacher, UgandaLevel, Student } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { MarketplaceUploadModal } from '../components/marketplace/MarketplaceUploadModal';
 import { TeacherMonetizationDashboard } from '../components/marketplace/TeacherMonetizationDashboard';
+import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
+import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 
 interface TeacherStats {
   totalStudents: number;
@@ -45,6 +65,7 @@ interface TeacherStats {
   completedSessions: number;
   avgRating: number;
   totalContent: number;
+  intelligence?: any[];
 }
 
 interface ClassOverview {
@@ -89,12 +110,65 @@ export const TeacherDashboard: React.FC = () => {
         const teacherStats: TeacherStats = {
           totalStudents: teacher.totalStudents,
           activeClasses: teacher.classes?.length || 0,
-          totalEarnings: teacher.earnings.totalEarned,
-          monthlyEarnings: teacher.earnings.currentMonth,
-          pendingPayouts: teacher.earnings.pendingPayouts,
+          totalEarnings: teacher.earnings?.totalEarned || 0,
+          monthlyEarnings: teacher.earnings?.currentMonth || 0,
+          pendingPayouts: teacher.earnings?.pendingPayouts || 0,
           completedSessions: sessionsData.pastSessions.filter((s: any) => s.teacherId === teacher.id).length,
           avgRating: teacher.rating,
-          totalContent: Math.floor(Math.random() * 200) + 50 // Simulated content count
+          totalContent: Math.floor(Math.random() * 200) + 50, // Simulated content count
+          intelligence: [
+            {
+              title: 'Class Declining',
+              value: 'S3 Physics',
+              trendValue: 12,
+              trendLabel: 'avg score drop',
+              trendDirection: 'down',
+              riskLevel: 'critical',
+              alertText: 'Kinematics failing',
+              actionLabel: 'Assign revision',
+              actionLink: '/dashboard/library',
+              drillDownText: 'View topic analysis',
+              drillDownLink: '/dashboard/analytics'
+            },
+            {
+              title: 'Need Intervention',
+              value: '8 Students',
+              trendValue: 3,
+              trendLabel: 'new at risk',
+              trendDirection: 'up',
+              trendIsGood: false,
+              riskLevel: 'warning',
+              alertText: 'Check attendance drops',
+              actionLabel: 'Message parents',
+              actionLink: '/dashboard/students',
+              drillDownText: 'View risk roster',
+              drillDownLink: '/dashboard/interventions'
+            },
+            {
+              title: 'Qualified Payouts',
+              value: '4 Lessons',
+              trendValue: 4,
+              trendLabel: 'newly monetized',
+              trendDirection: 'up',
+              riskLevel: 'healthy',
+              alertText: 'Ready for review',
+              actionLabel: 'Claim payout',
+              actionLink: '/dashboard/teacher/store',
+              drillDownText: 'View payout ledger',
+              drillDownLink: '/dashboard/earnings'
+            },
+            {
+              title: 'Effective Resources',
+              value: 'Video 3',
+              trendValue: 89,
+              trendLabel: 'recovery rate',
+              trendDirection: 'up',
+              riskLevel: 'healthy',
+              alertText: 'Highest impact',
+              drillDownText: 'View engagement stats',
+              drillDownLink: '/dashboard/resources'
+            }
+          ]
         };
         setStats(teacherStats);
 
@@ -171,48 +245,152 @@ export const TeacherDashboard: React.FC = () => {
   ];
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton type="teacher" />;
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <MapPin className="h-5 w-5 text-blue-600" />
-            <span className="text-blue-600 font-medium">Teaching in Uganda</span>
+        {/* Signature Page Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+               <h1 className="text-3xl font-bold tracking-tight text-slate-900">Teaching Command Center</h1>
+               <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 mt-1">Uganda Curriculum</Badge>
+            </div>
+            <p className="text-slate-500 font-medium">Welcome back, {teacher.name}. Here is your command center.</p>
           </div>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Welcome back, {teacher.name}!</h1>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={() => navigate('/dashboard/teacher/marks-upload')} className="bg-indigo-600 hover:bg-indigo-700">
-                 Marks Upload (NCDC)
-              </Button>
-            </div>
+          <div className="flex gap-3">
+             <Button onClick={() => navigate('/dashboard/teacher/marks-upload')} size="lg" className="bg-indigo-600 hover:bg-indigo-700 shadow-sm font-bold tracking-wide">
+                Upload Target Grades
+             </Button>
           </div>
-          <div className="flex items-center gap-4 text-gray-600 mt-2">
-            <div className="flex items-center gap-1">
-              <GraduationCap className="h-4 w-4" />
-              <span>{teacher.qualification}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 text-yellow-400" />
-              <span>{teacher.rating} rating</span>
-            </div>
-            <Badge variant={teacher.verified ? 'default' : 'secondary'}>
-              {teacher.verified ? 'Verified Teacher' : 'Pending Verification'}
-            </Badge>
-          </div>
+        </div>
+
+        {/* Intelligence System Block (Hero Strip) */}
+        <div className="flex flex-wrap gap-4 mb-8">
+          {stats?.intelligence?.map((card: any, i: number) => (
+             <div key={i} className="flex-[1_1_250px] flex flex-col">
+                <div className="flex-1 h-full">
+                  <IntelligenceCard {...card} />
+                </div>
+             </div>
+          ))}
+        </div>
+
+        {/* Teacher Personal Planner */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 mt-6">
+           <div className="lg:col-span-2">
+              <SmartStudyPlanner 
+                 mode="interactive" 
+                 titleOverride="My Teaching Planner" 
+                 descriptionOverride="Track your lesson prep, grading, and administrative tasks"
+                 dailyPlan={[
+                 {
+                   dayOfWeek: "Monday",
+                   date: "Today",
+                   tasks: [
+                     { id: "t-1", title: "Grade Senior 4 Exams", type: "deadline", subject: "Maths", durationMinutes: 120, isCompleted: false },
+                     { id: "t-2", title: "Prep Term 2 Topic Outline", type: "custom", subject: "Physics", durationMinutes: 60, isCompleted: true }
+                   ]
+                 }
+               ]} />
+           </div>
+        </div>
+
+        {/* Phase 2: Interventions & Resource Intelligence */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+           <div className="lg:col-span-1">
+             <SmartInterventionBuilder data={{
+               topicName: 'Algebraic Formulations',
+               targetStudentsCount: 14,
+               availableResources: [
+                 { id: '1', type: 'video', title: 'Solving for X - Core Demo' },
+                 { id: '2', type: 'quiz', title: '5-Question Diagnostic' },
+                 { id: '3', type: 'note', title: 'Algebra Rule Set PDF' },
+                 { id: '4', type: 'peer_support', title: 'Peer Study Group (Top Improver Mentor)' },
+                 { id: '5', type: 'parent_note', title: 'Parent Intervention Notice' }
+               ]
+             }} />
+           </div>
+           <div className="lg:col-span-1">
+             <ResourceEffectivenessIntelligence 
+               subjectContext="Senior 4 Mathematics"
+               resources={[
+                 { id: 'r1', title: 'Calculus Crash Course', type: 'video', views: 340, avgCompletionRate: 88, impactScore: 14, status: 'highly_effective' },
+                 { id: 'r2', title: 'Functions Practice Sheet', type: 'note', views: 45, avgCompletionRate: 30, impactScore: -2, status: 'needs_revision' },
+                 { id: 'r3', title: 'Algebra Introduction', type: 'video', views: 12, avgCompletionRate: 15, impactScore: 0, status: 'ignored' }
+               ]}
+             />
+           </div>
+           <div className="lg:col-span-1">
+             <ParentCommunicationCopilot />
+           </div>
+           <div className="lg:col-span-1 flex flex-col gap-6">
+             <TeacherReflectionAssistant />
+             <VoiceNoteWidget />
+           </div>
+        </div>
+
+        {/* Phase 3: AI Partner & Reputation */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+           <div className="lg:col-span-1">
+              <AITeachingPartner />
+           </div>
+           <div className="lg:col-span-1 flex flex-col gap-6">
+              <TeacherPerformanceStory />
+              {/* Keeping the detailed legacy metric score as well */}
+              <TeacherQualityScore metrics={{
+                 overallScore: 88,
+                 deliveryConsistency: 92,
+                 studentEngagement: 84,
+                 studentImprovement: 78,
+                 markingTurnaroundDays: 2,
+                 punctuality: 98,
+                 nextImprovementGoal: 'Decrease turnaround on essay assignments'
+               }} />
+           </div>
+           <div className="lg:col-span-1">
+              <TeacherGrowthPassport />
+           </div>
+        </div>
+
+        {/* Phase 4: Business & Institutional Tooling */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+           {teacher.institutionId ? (
+              <>
+                <div className="md:col-span-1">
+                   <InstitutionTeacherWellness />
+                </div>
+                <div className="md:col-span-1">
+                   <TeacherCollabHub />
+                </div>
+              </>
+           ) : (
+              <div className="md:col-span-2 lg:col-span-1">
+                 <IndependentEarningsIntelligence />
+              </div>
+           )}
+        </div>
+
+        {/* Phase 6: Student Follow Up View (Readonly/Assign Planner) */}
+        <div className="grid grid-cols-1 mb-8">
+           <div className="lg:col-span-1">
+              <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                 Student Spotlight: At-Risk Learner (Joan Doe)
+              </h3>
+              <SmartStudyPlanner mode="assign" titleOverride="Joan's Active Study Plan" descriptionOverride="Assign manual intervention tasks directly to this student" dailyPlan={[
+                 {
+                   dayOfWeek: "Monday",
+                   date: "Today",
+                   tasks: [
+                     { id: "1", title: "Review Quadratic Forms", type: "weak_topic", subject: "Mathematics", durationMinutes: 30, isCompleted: true },
+                     { id: "2", title: "Complete Physics Lab Report", type: "deadline", subject: "Physics", durationMinutes: 45, isCompleted: false },
+                     { id: "3", title: "Teacher's Custom Task", type: "custom", subject: "Chemistry", durationMinutes: 60, isCompleted: false }
+                   ]
+                 }
+               ]} />
+           </div>
         </div>
 
         {/* Phase 5 Risk Interventions Dashboard */}
@@ -224,56 +402,49 @@ export const TeacherDashboard: React.FC = () => {
         {/* Phase 8 Resource & Intervention Support */}
         <TeacherInterventionPanel />
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Total Students</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats?.totalStudents || 0}</p>
-                </div>
-                <Users className="h-8 w-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Active Classes</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats?.activeClasses || 0}</p>
-                </div>
-                <BookOpen className="h-8 w-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">This Month</p>
-                  <p className="text-2xl font-bold text-gray-900">UGX {stats?.monthlyEarnings.toLocaleString() || '0'}</p>
-                </div>
-                <DollarSign className="h-8 w-8 text-purple-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Rating</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats?.avgRating || 0}</p>
-                </div>
-                <Star className="h-8 w-8 text-yellow-600" />
-              </div>
-            </CardContent>
-          </Card>
+        {/* Phase 2 Competition Engine: Teacher View */}
+        <div className="flex flex-wrap gap-6 mb-8 mt-8">
+           <div className="flex-[2_2_600px] flex flex-col">
+              <Leaderboards 
+                currentStudentId="none"
+                boards={[
+                  {
+                    title: 'Class Top Improvers',
+                    type: 'improvers',
+                    description: 'Students who have jumped the most in assessment scores this month.',
+                    entries: [
+                      { id: 't1', rank: 1, studentId: 'stu1', name: 'Alinafe M.', score: 85 },
+                      { id: 't2', rank: 2, studentId: 'stu2', name: 'Joshua K.', score: 72 },
+                      { id: 't3', rank: 3, studentId: 'stu3', name: 'Grace N.', score: 68 },
+                      { id: 't4', rank: 4, studentId: 'stu4', name: 'Simon P.', score: 55 },
+                    ]
+                  },
+                  {
+                    title: 'Peer Support Heroes',
+                    type: 'peer_support',
+                    description: 'Students actively answering questions in your class forum.',
+                    entries: [
+                      { id: 'p1', rank: 1, studentId: 'stu5', name: 'Lucy A.', score: 14 },
+                      { id: 'p2', rank: 2, studentId: 'stu6', name: 'Peter S.', score: 12 },
+                    ]
+                  }
+                ]} 
+              />
+           </div>
+           <div className="flex-[1_1_300px] flex flex-col">
+              <HouseStandingsCard 
+                institutionName="Kampala High"
+                houses={[
+                  { id: 'h1', name: 'Crane', color: '#dc2626', points: 45000 },
+                  { id: 'h2', name: 'Kob', color: '#2563eb', points: 42000 },
+                  { id: 'h3', name: 'Rhino', color: '#16a34a', points: 39500 },
+                  { id: 'h4', name: 'Leopard', color: '#ca8a04', points: 38200 }
+                ]}
+              />
+           </div>
         </div>
+
+
 
         {/* AI Teaching Assistant Section */}
         <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200 mb-8">
@@ -287,9 +458,9 @@ export const TeacherDashboard: React.FC = () => {
             <p className="text-gray-600">Leverage AI to enhance your teaching effectiveness and student engagement</p>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Link to="/ai-assistant" className="group">
-                <div className="bg-white rounded-lg p-4 border border-purple-200 hover:shadow-md transition-all group-hover:border-purple-300">
+            <div className="flex flex-wrap gap-4">
+              <Link to="/ai-assistant" className="group flex-1 min-w-[200px]">
+                <div className="bg-white rounded-lg p-4 border border-purple-200 hover:shadow-md transition-all group-hover:border-purple-300 h-full flex flex-col">
                   <div className="flex items-center gap-3 mb-3">
                     <AlertCircle className="h-8 w-8 text-orange-600" />
                     <div>
@@ -297,13 +468,13 @@ export const TeacherDashboard: React.FC = () => {
                       <p className="text-sm text-gray-600">Student analytics</p>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mb-3">Identify topics where students struggle most</p>
-                  <Badge variant="secondary" className="text-xs">Weekly Insights</Badge>
+                  <p className="text-xs text-gray-500 mb-3 flex-1">Identify topics where students struggle most</p>
+                  <Badge variant="secondary" className="text-xs w-max">Weekly Insights</Badge>
                 </div>
               </Link>
 
-              <Link to="/ai-assistant" className="group">
-                <div className="bg-white rounded-lg p-4 border border-blue-200 hover:shadow-md transition-all group-hover:border-blue-300">
+              <Link to="/ai-assistant" className="group flex-1 min-w-[200px]">
+                <div className="bg-white rounded-lg p-4 border border-blue-200 hover:shadow-md transition-all group-hover:border-blue-300 h-full flex flex-col">
                   <div className="flex items-center gap-3 mb-3">
                     <MessageSquare className="h-8 w-8 text-blue-600" />
                     <div>
@@ -311,13 +482,13 @@ export const TeacherDashboard: React.FC = () => {
                       <p className="text-sm text-gray-600">AI assistance</p>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mb-3">Generate helpful responses to student questions</p>
-                  <Badge variant="secondary" className="text-xs">Auto-Generate</Badge>
+                  <p className="text-xs text-gray-500 mb-3 flex-1">Generate helpful responses to student questions</p>
+                  <Badge variant="secondary" className="text-xs w-max">Auto-Generate</Badge>
                 </div>
               </Link>
 
-              <Link to="/ai-assistant" className="group">
-                <div className="bg-white rounded-lg p-4 border border-green-200 hover:shadow-md transition-all group-hover:border-green-300">
+              <Link to="/ai-assistant" className="group flex-1 min-w-[200px]">
+                <div className="bg-white rounded-lg p-4 border border-green-200 hover:shadow-md transition-all group-hover:border-green-300 h-full flex flex-col">
                   <div className="flex items-center gap-3 mb-3">
                     <CheckCircle className="h-8 w-8 text-green-600" />
                     <div>
@@ -325,13 +496,13 @@ export const TeacherDashboard: React.FC = () => {
                       <p className="text-sm text-gray-600">Auto-create tests</p>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mb-3">Create quizzes from your lesson content automatically</p>
-                  <Badge variant="secondary" className="text-xs">AI-Powered</Badge>
+                  <p className="text-xs text-gray-500 mb-3 flex-1">Create quizzes from your lesson content automatically</p>
+                  <Badge variant="secondary" className="text-xs w-max">AI-Powered</Badge>
                 </div>
               </Link>
 
-              <Link to="/ai-assistant" className="group">
-                <div className="bg-white rounded-lg p-4 border border-indigo-200 hover:shadow-md transition-all group-hover:border-indigo-300">
+              <Link to="/ai-assistant" className="group flex-1 min-w-[200px]">
+                <div className="bg-white rounded-lg p-4 border border-indigo-200 hover:shadow-md transition-all group-hover:border-indigo-300 h-full flex flex-col">
                   <div className="flex items-center gap-3 mb-3">
                     <BarChart3 className="h-8 w-8 text-indigo-600" />
                     <div>
@@ -339,8 +510,8 @@ export const TeacherDashboard: React.FC = () => {
                       <p className="text-sm text-gray-600">Performance insights</p>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mb-3">Track content effectiveness and student engagement</p>
-                  <Badge variant="secondary" className="text-xs">Data-Driven</Badge>
+                  <p className="text-xs text-gray-500 mb-3 flex-1">Track content effectiveness and student engagement</p>
+                  <Badge variant="secondary" className="text-xs w-max">Data-Driven</Badge>
                 </div>
               </Link>
             </div>
@@ -358,170 +529,68 @@ export const TeacherDashboard: React.FC = () => {
           </TabsList>
 
           <TabsContent value="overview">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Main Content */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* My Classes Overview */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>My Classes Overview</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {classes.slice(0, 3).map((classItem) => (
-                        <div key={classItem.id} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <h4 className="font-semibold text-gray-900">{classItem.name} - {classItem.subject}</h4>
-                              <p className="text-sm text-gray-600">{classItem.level} • {classItem.enrolledStudents} students</p>
-                            </div>
-                            <Badge variant="outline">{classItem.completionRate}% avg completion</Badge>
-                          </div>
-                          <Progress value={classItem.completionRate} className="mb-3" />
-                          <div className="flex justify-between text-sm text-gray-600">
-                            <span>Last active: {new Date(classItem.lastActive).toLocaleDateString()}</span>
-                            <Link to="/live-sessions" className="text-blue-600 hover:underline">
-                              Schedule session
-                            </Link>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4">
-                      <Button variant="outline" className="w-full">
-                        View All Classes
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+            <div className="flex flex-wrap gap-6 items-start">
+              {/* Main Content Area */}
+              <div className="flex-[2_2_600px] flex flex-col space-y-6">
+                
+                {/* 1. Next Best Action Queue */}
+                <NextBestActionQueue actions={[
+                   { id: 'a1', title: 'Grade Senior 4 Exams', description: '24 exams pending grading. Expected turnaround is 2 days.', type: 'grading_blocker', priority: 'high', actionLabel: 'Go to Grading' },
+                   { id: 'a2', title: 'Intervene: Joan Doe', description: 'Joan has failed 3 consecutive Physics assignments.', type: 'urgent_academic', priority: 'high', actionLabel: 'Launch Intervention' },
+                   { id: 'a3', title: 'Follow-up with Parents (S2)', description: '5 students missed yesterday’s live session.', type: 'attendance_risk', priority: 'medium', actionLabel: 'Message Parents' },
+                   { id: 'a4', title: 'Claim Pending Payout', description: 'You have UGX 450,000 cleared for withdrawal.', type: 'payout_blocker', priority: 'low', actionLabel: 'Withdraw Funds', isIndependentContext: true }
+                ]} />
 
-                {/* Recent Content Performance */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Recent Content Performance</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {recentContent.map((content) => (
-                        <div key={content.id} className="flex items-center justify-between border-b pb-3 last:border-0">
-                          <div className="flex items-center gap-3">
-                            {content.type === 'video' ? (
-                              <Video className="h-5 w-5 text-red-500" />
-                            ) : (
-                              <FileText className="h-5 w-5 text-blue-500" />
-                            )}
-                            <div>
-                              <h4 className="font-medium text-gray-900">{content.title}</h4>
-                              <p className="text-sm text-gray-600">Uploaded {content.uploadDate}</p>
-                            </div>
-                          </div>
-                          <div className="text-right text-sm">
-                            <div className="flex items-center gap-2 text-gray-600">
-                              <Eye className="h-4 w-4" />
-                              <span>{content.views}</span>
-                              <Star className="h-4 w-4 text-yellow-400" />
-                              <span>{content.likes}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                {/* 2. Instant Class Health Cards */}
+                <div>
+                   <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                     <Users className="w-5 h-5 text-blue-600" />
+                     Class Health Monitor
+                   </h3>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <ClassHealthCard 
+                        id="c1"
+                        className="Senior 3 Physics"
+                        subject="Physics"
+                        attendancePct={94}
+                        avgPerformance={72}
+                        redAlertStudents={0}
+                        weakestTopic="Kinematics"
+                        improvementTrend="up"
+                     />
+                     <ClassHealthCard 
+                        id="c2"
+                        className="Senior 4 Mathematics"
+                        subject="Mathematics"
+                        attendancePct={78}
+                        avgPerformance={48}
+                        redAlertStudents={5}
+                        weakestTopic="Vectors"
+                        improvementTrend="down"
+                     />
+                     <ClassHealthCard 
+                        id="c3"
+                        className="Senior 2 Science"
+                        subject="Chemistry"
+                        attendancePct={98}
+                        avgPerformance={81}
+                        redAlertStudents={0}
+                        weakestTopic="Atomic Structure"
+                        improvementTrend="flat"
+                     />
+                   </div>
+                </div>
+             </div>
 
-              {/* Sidebar */}
-              <div className="space-y-6">
-                {/* Upcoming Sessions */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Calendar className="h-5 w-5" />
-                      Upcoming Sessions
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {upcomingSessions.map((session) => (
-                        <div key={session.id} className="border rounded-lg p-3">
-                          <h4 className="font-medium text-gray-900 mb-2">{session.title}</h4>
-                          <div className="text-sm text-gray-600 space-y-1">
-                            <p>{session.date} at {session.time}</p>
-                            <p>{session.students} students registered</p>
-                            <p>{session.duration} minutes</p>
-                          </div>
-                          <Button size="sm" className="w-full mt-3">
-                            <Play className="mr-2 h-4 w-4" />
-                            Start Session
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4">
-                      <Link to="/live-sessions">
-                        <Button variant="outline" size="sm" className="w-full">
-                          Schedule New Session
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Quick Actions */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <Button variant="outline" className="w-full justify-start" onClick={() => setIsUploadModalOpen(true)}>
-                      <Upload className="mr-2 h-4 w-4" />
-                      Upload Content
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      Schedule Session
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Message Students
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <BarChart3 className="mr-2 h-4 w-4" />
-                      View Analytics
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Earnings Summary */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <DollarSign className="h-5 w-5" />
-                      Earnings Summary
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Total Earned</span>
-                        <span className="font-semibold">UGX {stats?.totalEarnings.toLocaleString() || '0'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">This Month</span>
-                        <span className="font-semibold">UGX {stats?.monthlyEarnings.toLocaleString() || '0'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Pending Payout</span>
-                        <span className="font-semibold text-orange-600">UGX {stats?.pendingPayouts.toLocaleString() || '0'}</span>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <Button variant="outline" size="sm" className="w-full">
-                        Request Payout
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+              {/* Sidebar Area */}
+              <div className="flex-[1_1_300px] flex flex-col space-y-6">
+                 {/* 3. Teaching Wins Timeline */}
+                 <TeachingWinsTimeline wins={[
+                    { id: 'w1', timestamp: 'Today, 10:00 AM', title: 'S3 Physics recovered', description: 'Class average jumped by 12% after your recent intervention block.', impactType: 'score_jump' },
+                    { id: 'w2', timestamp: 'Yesterday', title: 'New Resource Trending', description: 'Your "Vectors Summary" notes were downloaded 45 times.', impactType: 'resource_popular' },
+                    { id: 'w3', timestamp: 'Yesterday', title: 'Joan Doe Recovered', description: 'Joan scored 85% on her makeup quiz, exiting red-alert status.', impactType: 'intervention_success' },
+                    { id: 'w4', timestamp: 'Monday', title: 'Top Attendance', description: 'Your classes had the highest attendance in the school this week.', impactType: 'attendance_improved' }
+                 ]} />
               </div>
             </div>
           </TabsContent>
@@ -533,9 +602,9 @@ export const TeacherDashboard: React.FC = () => {
                 <p className="text-gray-600">Manage your teaching assignments across different Uganda classes</p>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="flex flex-wrap gap-6">
                   {classes.map((classItem) => (
-                    <Card key={classItem.id} className="hover:shadow-md transition-shadow">
+                    <Card key={classItem.id} className="hover:shadow-md transition-shadow flex-[1_1_300px] flex flex-col justify-between">
                       <CardHeader>
                         <div className="flex justify-between items-start">
                           <Badge variant={classItem.level === 'O\'level' ? 'default' : 'secondary'}>
@@ -584,16 +653,16 @@ export const TeacherDashboard: React.FC = () => {
                   <p className="text-gray-600">Add videos, notes, or exercises to the academic marketplace</p>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Button variant="outline" className="h-24 flex-col" onClick={() => setIsUploadModalOpen(true)}>
+                  <div className="flex flex-wrap gap-4">
+                    <Button variant="outline" className="h-24 flex-[1_1_250px] flex flex-col" onClick={() => setIsUploadModalOpen(true)}>
                       <Video className="h-8 w-8 mb-2 text-red-500" />
                       Upload Video
                     </Button>
-                    <Button variant="outline" className="h-24 flex-col" onClick={() => setIsUploadModalOpen(true)}>
+                    <Button variant="outline" className="h-24 flex-[1_1_250px] flex flex-col" onClick={() => setIsUploadModalOpen(true)}>
                       <FileText className="h-8 w-8 mb-2 text-blue-500" />
                       Add Notes
                     </Button>
-                    <Button variant="outline" className="h-24 flex-col" onClick={() => setIsUploadModalOpen(true)}>
+                    <Button variant="outline" className="h-24 flex-[1_1_250px] flex flex-col" onClick={() => setIsUploadModalOpen(true)}>
                       <BookOpen className="h-8 w-8 mb-2 text-green-500" />
                       Create Exercise
                     </Button>
@@ -651,7 +720,7 @@ export const TeacherDashboard: React.FC = () => {
                       <label className="block text-sm font-medium mb-2">Subject</label>
                       <select className="w-full border border-gray-300 rounded-md px-3 py-2">
                         <option>Select subject...</option>
-                        {teacher.subjects.map(subject => (
+                        {teacher.subjects?.map(subject => (
                           <option key={subject} value={subject}>{subject}</option>
                         ))}
                       </select>

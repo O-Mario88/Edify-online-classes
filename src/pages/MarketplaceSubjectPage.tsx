@@ -143,9 +143,13 @@ const MarketplaceSubjectPage: React.FC = () => {
             <div className="md:col-span-3 space-y-4">
               <div className="bg-white rounded-lg border p-4 mb-4 shadow-sm flex items-center justify-between">
                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">Syllabus Topics ({activeTopics.length})</h3>
-                    <p className="text-sm text-gray-500">Topics are mandated by the NCDC Competency-Based Curriculum.</p>
-                 </div>
+                     <h3 className="text-lg font-semibold text-gray-800">Syllabus Topics ({activeTopics.length})</h3>
+                     <p className="text-sm text-gray-500">
+                        {['Senior 5', 'Senior 6', "A'level"].includes(activeTab)
+                          ? 'Topics are mandated by the Advanced Level UNEB Curriculum.'
+                          : 'Topics are mandated by the NCDC Competency-Based Curriculum.'}
+                     </p>
+                  </div>
                  <Badge variant="outline" className="bg-blue-50 text-blue-700 font-medium">
                    {activeTab} Scope
                  </Badge>

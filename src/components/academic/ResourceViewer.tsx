@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { X, Maximize, Minimize, CheckCircle2, Clock, PlayCircle } from 'lucide-react';
 import { Resource } from '../../types';
 import { useResourceEngagement } from '../../hooks/useResourceEngagement';
+import { useStudentContinuity } from '../../hooks/useStudentContinuity';
 
 interface ResourceViewerProps {
   resource: Resource;
@@ -25,6 +26,8 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
     resourceId: resource.id,
     assignedBy: 'system', // Default mock assignment state
   });
+
+  const { updateResourceState } = useStudentContinuity();
 
   // Handle PDF / Text Scroll Progress
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -69,6 +72,19 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
   }, []);
 
   const handleClose = () => {
+    // Record exact position and completion data to continuity engine
+    const isCompletedFinal = completionPercentage >= 95; // count as complete if >95%
+    updateResourceState({
+      id: resource.id,
+      title: resource.title,
+      type: resource.type as 'video' | 'pdf' | 'document' | 'interactive' | 'note',
+      subject: (resource as any).subject || 'General',
+      topic: 'Current Topic', // usually passed in but we mock it here since resource object in Viewer may lack it
+      progressPercentage: completionPercentage,
+      isCompleted: isCompletedFinal,
+      lastActiveAt: new Date().toISOString()
+    });
+    
     onClose(getEngagementSnapshot());
   };
 

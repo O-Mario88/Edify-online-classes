@@ -36,8 +36,9 @@ import { TeacherMarksUpload } from './pages/TeacherMarksUpload';
 import { AssignmentTargetingStudio } from './pages/AssignmentTargetingStudio';
 import { NetworkStatusWidget } from './components/NetworkStatusWidget';
 import { AITeacherCopilotWidget } from './components/copilot/AITeacherCopilotWidget';
-
+import { DashboardRouter } from './components/DashboardRouter';
 import { AICopilotProvider } from './contexts/AICopilotContext';
+import { MissedSessionRecoveryPage } from './pages/MissedSessionRecoveryPage';
 
 function App() {
   return (
@@ -101,33 +102,39 @@ function App() {
           } />
           
           {/* Dashboard Routes */}
+          <Route path="dashboard" element={<DashboardRouter />} />
           <Route path="dashboard/student" element={
-            <ProtectedRoute allowedRoles={['universal_student']}>
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student']}>
               <StudentDashboard />
             </ProtectedRoute>
           } />
+          <Route path="dashboard/sessions/recover/:sessionId" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'parent', 'independent_teacher', 'institution_admin', 'institution_teacher']}>
+              <MissedSessionRecoveryPage />
+            </ProtectedRoute>
+          } />
           <Route path="dashboard/teacher" element={
-            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher']}>
+            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
               <TeacherDashboard />
             </ProtectedRoute>
           } />
           <Route path="dashboard/teacher/class/:classId" element={
-            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher']}>
+            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
               <TeacherLessonStudio />
             </ProtectedRoute>
           } />
           <Route path="dashboard/teacher/attendance" element={
-            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher']}>
+            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
               <AttendanceRegisterPage />
             </ProtectedRoute>
           } />
           <Route path="dashboard/teacher/marks-upload" element={
-            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher']}>
+            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
               <TeacherMarksUpload />
             </ProtectedRoute>
           } />
           <Route path="dashboard/teacher/targeting" element={
-            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher']}>
+            <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
               <AssignmentTargetingStudio />
             </ProtectedRoute>
           } />

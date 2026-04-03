@@ -10,6 +10,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Progress } from '../components/ui/progress';
 import { ParentResourceEngagementPanel } from '../components/dashboard/ParentResourceEngagementPanel';
+import { StreakTracker } from '../components/competition/StreakTracker';
+import { AchievementShowcase } from '../components/competition/AchievementShowcase';
+import { ParentActionCenter } from '../components/parents/ParentActionCenter';
+import { CelebrationEngineWidget } from '../components/dashboard/CelebrationEngineWidget';
+import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
+import { SmartStudyPlanner } from '../components/students/SmartStudyPlanner';
 
 export const ParentDashboard: React.FC = () => {
   const { userProfile } = useAuth();
@@ -23,7 +29,101 @@ export const ParentDashboard: React.FC = () => {
         const { data } = await apiClient.get('/analytics/parent-dashboard/');
         setDashboardData(data);
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error('Error fetching dashboard data, falling back to mock data:', error);
+        setDashboardData({
+          intelligence: [
+            {
+              title: 'Doing Well In',
+              value: 'Mathematics',
+              trendValue: 5,
+              trendLabel: 'score increase',
+              trendDirection: 'up',
+              riskLevel: 'healthy',
+              alertText: 'Top of class',
+              actionLabel: 'Commend child',
+              actionLink: '/dashboard/messages',
+              drillDownText: 'View assignments',
+              drillDownLink: '/dashboard/assignments'
+            },
+            {
+              title: 'Struggling With',
+              value: 'Physics',
+              trendValue: 12,
+              trendLabel: 'score drop',
+              trendDirection: 'down',
+              riskLevel: 'critical',
+              alertText: 'Kinematics failing',
+              actionLabel: 'Book tutor',
+              actionLink: '/dashboard/tutoring',
+              drillDownText: 'View intervention',
+              drillDownLink: '/dashboard/interventions'
+            },
+            {
+              title: 'Study Time',
+              value: '4h 30m',
+              trendValue: 15,
+              trendLabel: 'vs last week',
+              trendDirection: 'down',
+              trendIsGood: true,
+              riskLevel: 'warning',
+              alertText: 'Below target',
+              actionLabel: 'Check library',
+              actionLink: '/dashboard/library'
+            },
+            {
+              title: 'Teacher Support',
+              value: '2 Plans',
+              trendValue: 1,
+              trendLabel: 'active',
+              trendDirection: 'up',
+              riskLevel: 'healthy',
+              alertText: 'Teacher engaged',
+              drillDownText: 'View plans',
+              drillDownLink: '/dashboard/support'
+            },
+            {
+              title: 'Action List',
+              value: '1 Task',
+              trendValue: 1,
+              trendLabel: 'new overdue',
+              trendDirection: 'up',
+              trendIsGood: false,
+              riskLevel: 'warning',
+              alertText: 'Physics Lab',
+              actionLabel: 'Review task',
+              actionLink: '/dashboard/tasks'
+            }
+          ],
+          kpis: {
+            attendance: 92,
+            classProgress: 75,
+            avgPerformance: 81,
+            readinessScore: 78,
+            missedTasks: 1,
+            alertLevel: 'Moderate'
+          },
+          riskAlert: {
+            title: 'Attendance Dropping in Physics',
+            description: 'Grace has missed 2 of the last 3 online Physics sessions.',
+            action: 'Review recorded lessons and submit absentee task.',
+            status: 'Pending Parent Review'
+          },
+          weeklySummary: {
+            aiNarrative: 'Grace is performing well overall, but her Physics grades have dipped recently due to missed sessions.',
+            strongestSubject: 'Mathematics',
+            weakestTopic: 'Kinematics',
+            assessmentTrend: 'Trending down in Sciences',
+            recommendedFocus: 'Review Kinematics Video and complete pending Lab.'
+          },
+          childPerformance: {
+            name: 'Grace',
+            grade: 'Senior 2',
+            subjects: [
+               { name: 'Mathematics', completion: 80, attendance: 95, lastScore: 88, teacherComment: 'Excellent work', trend: 'up', revisionNeeded: 'None' },
+               { name: 'Physics', completion: 60, attendance: 70, lastScore: 55, teacherComment: 'Needs to catch up on labs', trend: 'down', revisionNeeded: 'Kinematics' }
+            ]
+          }
+        });
       } finally {
         setLoading(false);
       }
@@ -66,80 +166,18 @@ export const ParentDashboard: React.FC = () => {
           </TabsList>
 
           <TabsContent value="academics" className="space-y-8 mt-0">
-            {/* Row 1: KPI Strip */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Card className="shadow-sm">
-            <CardContent className="p-4">
-              <p className="text-xs font-medium text-gray-500 mb-1 leading-tight">Overall Attendance</p>
-              <div className="text-2xl font-bold text-gray-900">{kpis.attendance}%</div>
-            </CardContent>
-          </Card>
-          
-          <Card className="shadow-sm">
-            <CardContent className="p-4">
-              <p className="text-xs font-medium text-gray-500 mb-1 leading-tight">Class Progress</p>
-              <div className="text-2xl font-bold text-gray-900">{kpis.classProgress}%</div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm">
-            <CardContent className="p-4">
-              <p className="text-xs font-medium text-gray-500 mb-1 leading-tight">Avg Performance</p>
-              <div className="text-2xl font-bold text-gray-900">{kpis.avgPerformance}%</div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm border-blue-200 bg-blue-50/30">
-            <CardContent className="p-4">
-              <p className="text-xs font-medium text-blue-800 mb-1 flex items-center justify-between leading-tight">UNEB Readiness <Target className="w-3 h-3 text-blue-500"/></p>
-              <div className="text-2xl font-bold text-blue-700">{kpis.readinessScore} <span className="text-sm font-normal text-blue-600 ml-1">Div 1 Est.</span></div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm border-red-200 bg-red-50/30">
-            <CardContent className="p-4">
-              <p className="text-xs font-medium text-red-800 mb-1 leading-tight">Missed Tasks (Week)</p>
-              <div className="flex items-end gap-2 text-red-600">
-                <span className="text-2xl font-bold">{kpis.missedTasks}</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className={`shadow-sm ${kpis.alertLevel === 'Moderate' ? 'border-yellow-300 bg-yellow-50' : ''}`}>
-            <CardContent className="p-4">
-              <p className="text-xs font-medium text-gray-600 mb-1 leading-tight">Current Alert Level</p>
-              <div className="flex items-end gap-2">
-                <span className={`text-xl font-bold ${kpis.alertLevel === 'Moderate' ? 'text-yellow-700' : 'text-gray-900'}`}>{kpis.alertLevel}</span>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Row 1: KPI Strip (Intelligence Cards) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {dashboardData.intelligence?.map((card: any, i: number) => (
+             <IntelligenceCard key={i} {...card} />
+          ))}
         </div>
 
-        {/* Row 2: Alert Banner & Weekly Summary */}
+        {/* Row 2: Pillar 4 Action & Ecosystem Layer */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-           <Card className="lg:col-span-2 shadow-md border-red-300 bg-white overflow-hidden relative">
-              <div className="absolute top-0 left-0 w-1 h-full bg-red-600"></div>
-              <CardHeader className="pb-2 bg-red-50/50">
-                <CardTitle className="text-lg font-bold text-red-900 flex items-center">
-                  <AlertTriangle className="w-5 h-5 mr-2 text-red-600" /> {riskAlert.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4 space-y-4">
-                 <p className="text-gray-800 leading-relaxed font-medium">
-                   {riskAlert.description}
-                 </p>
-                 <div className="p-3 bg-red-50 rounded-lg border border-red-100 mb-4">
-                   <p className="text-sm text-red-800"><span className="font-bold">Next Recommended Action:</span> {riskAlert.action}</p>
-                 </div>
-                 <div className="flex justify-between items-center pt-2">
-                   <Badge variant="outline" className="text-yellow-600 border-yellow-300 bg-yellow-50">{riskAlert.status}</Badge>
-                   <div className="flex gap-2">
-                     <Button size="sm" variant="outline" className="text-gray-600">Acknowledge</Button>
-                     <Button size="sm" className="bg-red-600 hover:bg-red-700"><Calendar className="w-4 h-4 mr-2"/> Book Meeting</Button>
-                   </div>
-                 </div>
-              </CardContent>
-           </Card>
+           <div className="lg:col-span-2">
+             <ParentActionCenter />
+           </div>
 
            <Card className="shadow-sm border-indigo-100 bg-gradient-to-br from-indigo-50 to-white">
               <CardHeader className="pb-2 border-b border-indigo-50">
@@ -173,8 +211,47 @@ export const ParentDashboard: React.FC = () => {
             </Card>
         </div>
 
+        <div className="mt-8 mb-4">
+           <CelebrationEngineWidget />
+        </div>
+
+        {/* Child's Study Plan (Readonly) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 mt-6">
+           <div className="lg:col-span-1">
+              <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                 Child's Study Plan
+              </h3>
+              <SmartStudyPlanner mode="readonly" dailyPlan={[
+                 {
+                   dayOfWeek: "Monday",
+                   date: "Today",
+                   tasks: [
+                     { id: "1", title: "Review Quadratic Forms", type: "weak_topic", subject: "Mathematics", durationMinutes: 30, isCompleted: true },
+                     { id: "2", title: "Complete Physics Lab Report", type: "deadline", subject: "Physics", durationMinutes: 45, isCompleted: false },
+                     { id: "3", title: "Read Chapter 4 Notes", type: "custom", subject: "Biology", durationMinutes: 45, isCompleted: false }
+                   ]
+                 }
+               ]} />
+           </div>
+        </div>
+
         {/* Phase 8 Resource Engagement Tracking */}
         <ParentResourceEngagementPanel />
+
+        {/* Phase 2 Competition Engine: Parent Visibility */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+           <div className="lg:col-span-1">
+              <StreakTracker streaks={[
+                { id: '1', title: 'Daily Study', currentStreakCount: 5, longestStreakCount: 12, streakType: 'daily', status: 'active', maintenanceActionText: 'Read 1 resource today' }
+              ]} />
+           </div>
+           <div className="lg:col-span-2">
+              <AchievementShowcase badges={[
+                { id: 'b1', name: 'Top Improver', description: 'Improved Math score by 15%', category: 'improvement', unlockedAt: '2026-04-01', rarity: 'epic' },
+                { id: 'b4', name: 'Perfect Attendance', description: 'Never missed a live session this term', category: 'attendance', unlockedAt: '2026-03-15', rarity: 'legendary' }
+              ]} />
+           </div>
+        </div>
 
         {/* Row 3: Child Subject Performance Cards */}
         <Card className="shadow-sm">

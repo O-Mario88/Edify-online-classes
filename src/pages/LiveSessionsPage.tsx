@@ -22,6 +22,7 @@ import { WebinarSession } from '../types';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/api';
 import { isFuture, isPast, addMinutes } from 'date-fns';
+import { LiveSessionCTA } from '../components/dashboard/LiveSessionCTA';
 
 export const LiveSessionsPage: React.FC = () => {
   const { user } = useAuth();
@@ -212,10 +213,14 @@ export const LiveSessionsPage: React.FC = () => {
               )}
               
               {type === 'live' && (
-                <Button className="w-full bg-red-600 hover:bg-red-700 text-white shadow-md">
-                  <Play className="mr-2 h-4 w-4 fill-white flex-shrink-0" />
-                  Join Google Meet
-                </Button>
+                 <LiveSessionCTA 
+                    sessionId={session.id}
+                    scheduledStart={session.scheduledStart}
+                    durationMinutes={session.durationMinutes || 60}
+                    attended={false}
+                    meetingUrl={session.meetingUrl}
+                    className="w-full"
+                 />
               )}
               
               {type === 'past' && session.recordingUrl && (

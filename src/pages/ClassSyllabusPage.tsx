@@ -36,7 +36,7 @@ export const ClassSyllabusPage: React.FC = () => {
   useEffect(() => {
     const fetchClassData = async () => {
       try {
-        const response = await fetch('/data/courses.json');
+        const response = await fetch(`/data/courses.json?t=${new Date().getTime()}`);
         const data = await response.json();
         let foundClass = null;
         for (const level of data.levels) {
@@ -89,22 +89,42 @@ export const ClassSyllabusPage: React.FC = () => {
   const getPedagogicalTags = (topicIndex: number, subtopicIndex: number, lessonIndex: number) => {
     const tags = [];
     const hash = topicIndex * 13 + subtopicIndex * 7 + lessonIndex * 3;
-    if (hash % 3 === 0) tags.push({ label: 'Assignment', color: 'bg-blue-100 text-blue-800 border-blue-200' });
-    if (hash % 5 === 0) tags.push({ label: 'Project Work', color: 'bg-purple-100 text-purple-800 border-purple-200' });
-    if (hash % 4 === 1 || lessonIndex === 0) tags.push({ label: 'Activity of Integration', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' });
+    
+    if (classData?.level === "A'level") {
+      if (hash % 3 === 0) tags.push({ label: 'Assignment', color: 'bg-blue-100 text-blue-800 border-blue-200' });
+      if (hash % 4 === 1) tags.push({ label: 'UNEB Past Paper Review', color: 'bg-orange-100 text-orange-800 border-orange-200' });
+      if (hash % 5 === 0) tags.push({ label: 'Practical', color: 'bg-purple-100 text-purple-800 border-purple-200' });
+    } else {
+      if (hash % 3 === 0) tags.push({ label: 'Assignment', color: 'bg-blue-100 text-blue-800 border-blue-200' });
+      if (hash % 5 === 0) tags.push({ label: 'Project Work', color: 'bg-purple-100 text-purple-800 border-purple-200' });
+      if (hash % 4 === 1 || lessonIndex === 0) tags.push({ label: 'Activity of Integration', color: 'bg-emerald-100 text-emerald-800 border-emerald-200' });
+    }
+    
     return tags;
   };
 
   // Resource types for the expanded lesson panel
-  const resourceItems = [
-    { icon: FileText, label: 'Lesson Notes', desc: 'Downloadable PDF notes', color: 'text-blue-600 bg-blue-50' },
-    { icon: PlayCircle, label: 'Video Lesson', desc: 'Watch recorded explanation', color: 'text-red-600 bg-red-50' },
-    { icon: Video, label: 'Recorded Live Session', desc: 'Past live class replay', color: 'text-orange-600 bg-orange-50' },
-    { icon: ClipboardList, label: 'Assignment', desc: 'Practice & submit work', color: 'text-indigo-600 bg-indigo-50' },
-    { icon: MessageSquare, label: 'Discussion Forum', desc: 'Ask questions on this topic', color: 'text-teal-600 bg-teal-50' },
-    { icon: PenTool, label: 'Project Work', desc: 'Extended project activity', color: 'text-purple-600 bg-purple-50' },
-    { icon: Award, label: 'Activity of Integration', desc: 'Cross-topic assessment', color: 'text-emerald-600 bg-emerald-50' },
-  ];
+  const getResourceItems = () => {
+    const items = [
+      { icon: FileText, label: 'Lesson Notes', desc: 'Downloadable PDF notes', color: 'text-blue-600 bg-blue-50' },
+      { icon: PlayCircle, label: 'Video Lesson', desc: 'Watch recorded explanation', color: 'text-red-600 bg-red-50' },
+      { icon: Video, label: 'Recorded Live Session', desc: 'Past live class replay', color: 'text-orange-600 bg-orange-50' },
+      { icon: ClipboardList, label: 'Assignment', desc: 'Practice & submit work', color: 'text-indigo-600 bg-indigo-50' },
+      { icon: MessageSquare, label: 'Discussion Forum', desc: 'Ask questions on this topic', color: 'text-teal-600 bg-teal-50' },
+    ];
+    
+    if (classData?.level === "A'level") {
+      items.push({ icon: Award, label: 'UNEB Marking Guide', desc: 'Past paper assessment', color: 'text-emerald-600 bg-emerald-50' });
+      items.push({ icon: PenTool, label: 'Practical Guide', desc: 'Advanced laboratory instructions', color: 'text-purple-600 bg-purple-50' });
+    } else {
+      items.push({ icon: PenTool, label: 'Project Work', desc: 'Extended project activity', color: 'text-purple-600 bg-purple-50' });
+      items.push({ icon: Award, label: 'Activity of Integration', desc: 'Cross-topic assessment', color: 'text-emerald-600 bg-emerald-50' });
+    }
+    
+    return items;
+  };
+
+  const resourceItems = getResourceItems();
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -123,7 +143,7 @@ export const ClassSyllabusPage: React.FC = () => {
                 {classData.name} Journey
               </h1>
               <p className="mt-4 text-lg text-indigo-100 max-w-2xl leading-relaxed">
-                {classData.description}. Choose a term and subject below to explore the official NCDC curriculum flow.
+                {classData.description}. Choose a term and subject below to explore the official {classData.level === "A'level" ? 'UNEB Advanced' : 'NCDC Lower Secondary'} curriculum flow.
               </p>
             </div>
             <Button size="lg" className="bg-white text-indigo-900 hover:bg-indigo-50 font-bold whitespace-nowrap shadow-lg">
@@ -266,7 +286,9 @@ export const ClassSyllabusPage: React.FC = () => {
                                                                       {tags.map((tag, i) => (
                                                                          <Badge key={i} className={`${tag.color} border font-medium text-[10px] px-2 py-0 h-5`}>
                                                                             {tag.label === 'Activity of Integration' && <Award className="h-3 w-3 mr-1 inline" />}
+                                                                            {tag.label === 'UNEB Past Paper Review' && <Award className="h-3 w-3 mr-1 inline" />}
                                                                             {tag.label === 'Project Work' && <Lightbulb className="h-3 w-3 mr-1 inline" />}
+                                                                            {tag.label === 'Practical' && <Lightbulb className="h-3 w-3 mr-1 inline" />}
                                                                             {tag.label}
                                                                          </Badge>
                                                                       ))}

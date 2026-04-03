@@ -176,6 +176,7 @@ export interface Teacher {
   role: 'teacher';
   avatar: string;
   bio: string;
+  institutionId?: string;
   subjects: string[];
   levels: string[];
   classes: string[];

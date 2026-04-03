@@ -37,22 +37,22 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" replace />;
   }
 
-  // Legacy role check — platform_admin bypasses all role gates
-  if (allowedRoles && allowedRoles.length > 0 && user.role !== 'platform_admin' && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+  // Role check
+  if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Granular RBAC Checks
   if (requiredPermission && !hasPermission(requiredPermission)) {
-    return <Navigate to="/" replace />; // Alternatively: /unauthorized
+    return <Navigate to="/dashboard" replace />;
   }
 
   if (requireAnyPermission && !hasAnyPermission(requireAnyPermission)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   if (requireAllPermissions && !hasAllPermissions(requireAllPermissions)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;

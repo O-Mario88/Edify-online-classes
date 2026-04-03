@@ -162,7 +162,7 @@ const MarketplaceTopicPage: React.FC = () => {
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">{topic.name}</h1>
           <p className="text-gray-600 mb-4 max-w-3xl">
-            Complete resource tree mapping directly to the syllabus for {topic.name}. Learn from vetted institutional educators through rigorous video guides, printable notes, and diagnostic assessments.
+            Complete resource tree mapping directly to the {['Senior 5', 'Senior 6', 'S5', 'S6'].includes(classId) || ['Senior 5', 'Senior 6'].includes(topic?.class_level?.name) ? 'Advanced Level UNEB syllabus' : 'NCDC Competency-Based syllabus'} for {topic.name}. Learn from vetted institutional educators through rigorous video guides, printable notes, and diagnostic assessments.
           </p>
           <div className="flex flex-wrap items-center gap-3">
              <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 py-1 px-3">Topic {topic.order || 0}</Badge>

@@ -29635,17 +29635,1082 @@
             {
               "id": "term-1",
               "name": "Term 1",
-              "subjects": []
+              "subjects": [
+                {
+                  "id": "senior-5-math",
+                  "name": "Mathematics",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced Mathematics (P425) syllabus for senior-5",
+                  "topics": [
+                    {
+                      "id": "senior-5-math-term-1-t0",
+                      "name": "Paper 1 (Pure Math) Preparation",
+                      "description": "Focus strictly on UNEB P425 Paper 1 (Pure Math)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-math-term-1-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "f38e6322",
+                              "title": "Video Lesson: Paper 1 (Pure Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "773f0ba1",
+                              "title": "Guided Notes: Paper 1 (Pure Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "9ca3e61f",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-math-term-1-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "5c671859",
+                              "title": "Video Lesson: Paper 1 (Pure Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "33098da3",
+                              "title": "Guided Notes: Paper 1 (Pure Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "793f63b8",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-5-math-term-1-t1",
+                      "name": "Paper 2 (Applied Math) Preparation",
+                      "description": "Focus strictly on UNEB P425 Paper 2 (Applied Math)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-math-term-1-t1-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "d8545a11",
+                              "title": "Video Lesson: Paper 2 (Applied Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "645b1208",
+                              "title": "Guided Notes: Paper 2 (Applied Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "03bd8514",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-math-term-1-t1-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "46a90c52",
+                              "title": "Video Lesson: Paper 2 (Applied Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "1f258c74",
+                              "title": "Guided Notes: Paper 2 (Applied Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "14b02638",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-physics",
+                  "name": "Physics",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced Physics (P510) syllabus for senior-5",
+                  "topics": [
+                    {
+                      "id": "senior-5-physics-term-1-t0",
+                      "name": "Paper 1 (Mechanics) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 1 (Mechanics)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-physics-term-1-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "91ad5a4b",
+                              "title": "Video Lesson: Paper 1 (Mechanics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "c70c4d7a",
+                              "title": "Guided Notes: Paper 1 (Mechanics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "dd04dd24",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-physics-term-1-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "1dbceb0d",
+                              "title": "Video Lesson: Paper 1 (Mechanics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "641f1efe",
+                              "title": "Guided Notes: Paper 1 (Mechanics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "79a11c35",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-5-physics-term-1-t1",
+                      "name": "Paper 2 (Heat/Modern Physics) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 2 (Heat/Modern Physics)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-physics-term-1-t1-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "0e502c0e",
+                              "title": "Video Lesson: Paper 2 (Heat/Modern Physics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "8cb19689",
+                              "title": "Guided Notes: Paper 2 (Heat/Modern Physics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "c95d5fa9",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-physics-term-1-t1-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "391db6d7",
+                              "title": "Video Lesson: Paper 2 (Heat/Modern Physics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "f67da0ad",
+                              "title": "Guided Notes: Paper 2 (Heat/Modern Physics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "4345fbdb",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-5-physics-term-1-t2",
+                      "name": "Paper 3 (Practical) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 3 (Practical)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-physics-term-1-t2-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "487e38b2",
+                              "title": "Video Lesson: Paper 3 (Practical) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "5694b46a",
+                              "title": "Guided Notes: Paper 3 (Practical)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "96d89738",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-physics-term-1-t2-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "2fe51931",
+                              "title": "Video Lesson: Paper 3 (Practical) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "76c7edcb",
+                              "title": "Guided Notes: Paper 3 (Practical)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "a260e836",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-gp",
+                  "name": "General Paper",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced General Paper (S101) syllabus for senior-5",
+                  "topics": [
+                    {
+                      "id": "senior-5-gp-term-1-t0",
+                      "name": "Paper 1 Preparation",
+                      "description": "Focus strictly on UNEB S101 Paper 1",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-gp-term-1-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "1a427d35",
+                              "title": "Video Lesson: Paper 1 Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "fbb0741d",
+                              "title": "Guided Notes: Paper 1",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "1b8d898e",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-gp-term-1-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "653ccd9d",
+                              "title": "Video Lesson: Paper 1 Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "7580f64a",
+                              "title": "Guided Notes: Paper 1",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "d98f558b",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             },
             {
               "id": "term-2",
               "name": "Term 2",
-              "subjects": []
+              "subjects": [
+                {
+                  "id": "senior-5-math",
+                  "name": "Mathematics",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced Mathematics (P425) syllabus for senior-5",
+                  "topics": [
+                    {
+                      "id": "senior-5-math-term-2-t0",
+                      "name": "Paper 1 (Pure Math) Preparation",
+                      "description": "Focus strictly on UNEB P425 Paper 1 (Pure Math)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-math-term-2-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "aead05d0",
+                              "title": "Video Lesson: Paper 1 (Pure Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "b7ef913c",
+                              "title": "Guided Notes: Paper 1 (Pure Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "3eacdde9",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-math-term-2-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "dde80932",
+                              "title": "Video Lesson: Paper 1 (Pure Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "67fc749c",
+                              "title": "Guided Notes: Paper 1 (Pure Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "d05ca5dc",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-5-math-term-2-t1",
+                      "name": "Paper 2 (Applied Math) Preparation",
+                      "description": "Focus strictly on UNEB P425 Paper 2 (Applied Math)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-math-term-2-t1-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "957f187c",
+                              "title": "Video Lesson: Paper 2 (Applied Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "27347ed8",
+                              "title": "Guided Notes: Paper 2 (Applied Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "27e9061b",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-math-term-2-t1-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "e5d4f7e8",
+                              "title": "Video Lesson: Paper 2 (Applied Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "98bfb8f9",
+                              "title": "Guided Notes: Paper 2 (Applied Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "ed8ab0b9",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-physics",
+                  "name": "Physics",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced Physics (P510) syllabus for senior-5",
+                  "topics": [
+                    {
+                      "id": "senior-5-physics-term-2-t0",
+                      "name": "Paper 1 (Mechanics) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 1 (Mechanics)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-physics-term-2-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "4d693c22",
+                              "title": "Video Lesson: Paper 1 (Mechanics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "981c47b3",
+                              "title": "Guided Notes: Paper 1 (Mechanics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "119d7804",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-physics-term-2-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "eef516e0",
+                              "title": "Video Lesson: Paper 1 (Mechanics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "4b24a8b1",
+                              "title": "Guided Notes: Paper 1 (Mechanics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "c6cd8f94",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-5-physics-term-2-t1",
+                      "name": "Paper 2 (Heat/Modern Physics) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 2 (Heat/Modern Physics)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-physics-term-2-t1-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "2475e4db",
+                              "title": "Video Lesson: Paper 2 (Heat/Modern Physics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "76772aec",
+                              "title": "Guided Notes: Paper 2 (Heat/Modern Physics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "8cc7f78e",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-physics-term-2-t1-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "b40aa198",
+                              "title": "Video Lesson: Paper 2 (Heat/Modern Physics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "cb75c9f0",
+                              "title": "Guided Notes: Paper 2 (Heat/Modern Physics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "18014929",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-5-physics-term-2-t2",
+                      "name": "Paper 3 (Practical) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 3 (Practical)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-physics-term-2-t2-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "285e5c39",
+                              "title": "Video Lesson: Paper 3 (Practical) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "492b06d7",
+                              "title": "Guided Notes: Paper 3 (Practical)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "5a947bbe",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-physics-term-2-t2-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "caaffc4f",
+                              "title": "Video Lesson: Paper 3 (Practical) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "e8064b35",
+                              "title": "Guided Notes: Paper 3 (Practical)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "2e62ecb1",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-gp",
+                  "name": "General Paper",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced General Paper (S101) syllabus for senior-5",
+                  "topics": [
+                    {
+                      "id": "senior-5-gp-term-2-t0",
+                      "name": "Paper 1 Preparation",
+                      "description": "Focus strictly on UNEB S101 Paper 1",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-gp-term-2-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "784cc82e",
+                              "title": "Video Lesson: Paper 1 Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "3b0e4163",
+                              "title": "Guided Notes: Paper 1",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "31420836",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-gp-term-2-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "13c1757a",
+                              "title": "Video Lesson: Paper 1 Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "6e91083c",
+                              "title": "Guided Notes: Paper 1",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "7a863be6",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             },
             {
               "id": "term-3",
               "name": "Term 3",
-              "subjects": []
+              "subjects": [
+                {
+                  "id": "senior-5-math",
+                  "name": "Mathematics",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced Mathematics (P425) syllabus for senior-5",
+                  "topics": [
+                    {
+                      "id": "senior-5-math-term-3-t0",
+                      "name": "Paper 1 (Pure Math) Preparation",
+                      "description": "Focus strictly on UNEB P425 Paper 1 (Pure Math)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-math-term-3-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "73f66b08",
+                              "title": "Video Lesson: Paper 1 (Pure Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "a3d15180",
+                              "title": "Guided Notes: Paper 1 (Pure Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "524838f5",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-math-term-3-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "6c1bc1ee",
+                              "title": "Video Lesson: Paper 1 (Pure Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "73c4b01d",
+                              "title": "Guided Notes: Paper 1 (Pure Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "1cc0c0b9",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-5-math-term-3-t1",
+                      "name": "Paper 2 (Applied Math) Preparation",
+                      "description": "Focus strictly on UNEB P425 Paper 2 (Applied Math)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-math-term-3-t1-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "64140e53",
+                              "title": "Video Lesson: Paper 2 (Applied Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "ad6b3e2f",
+                              "title": "Guided Notes: Paper 2 (Applied Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "93c07b38",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-math-term-3-t1-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "a81640cc",
+                              "title": "Video Lesson: Paper 2 (Applied Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "8069d575",
+                              "title": "Guided Notes: Paper 2 (Applied Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "4a001df1",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-physics",
+                  "name": "Physics",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced Physics (P510) syllabus for senior-5",
+                  "topics": [
+                    {
+                      "id": "senior-5-physics-term-3-t0",
+                      "name": "Paper 1 (Mechanics) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 1 (Mechanics)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-physics-term-3-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "2283e310",
+                              "title": "Video Lesson: Paper 1 (Mechanics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "bb3676d9",
+                              "title": "Guided Notes: Paper 1 (Mechanics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "e2dd02a7",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-physics-term-3-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "c83f099f",
+                              "title": "Video Lesson: Paper 1 (Mechanics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "e9a0330c",
+                              "title": "Guided Notes: Paper 1 (Mechanics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "1c0ebc59",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-5-physics-term-3-t1",
+                      "name": "Paper 2 (Heat/Modern Physics) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 2 (Heat/Modern Physics)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-physics-term-3-t1-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "432f306e",
+                              "title": "Video Lesson: Paper 2 (Heat/Modern Physics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "2be78413",
+                              "title": "Guided Notes: Paper 2 (Heat/Modern Physics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "5db3f017",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-physics-term-3-t1-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "46930529",
+                              "title": "Video Lesson: Paper 2 (Heat/Modern Physics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "4acff687",
+                              "title": "Guided Notes: Paper 2 (Heat/Modern Physics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "6bc82cb4",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-5-physics-term-3-t2",
+                      "name": "Paper 3 (Practical) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 3 (Practical)",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-physics-term-3-t2-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "9bcaad83",
+                              "title": "Video Lesson: Paper 3 (Practical) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "68a4efeb",
+                              "title": "Guided Notes: Paper 3 (Practical)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "fce40ea5",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-physics-term-3-t2-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "1aa5c584",
+                              "title": "Video Lesson: Paper 3 (Practical) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "be68f4ee",
+                              "title": "Guided Notes: Paper 3 (Practical)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "6405b295",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-5-gp",
+                  "name": "General Paper",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced General Paper (S101) syllabus for senior-5",
+                  "topics": [
+                    {
+                      "id": "senior-5-gp-term-3-t0",
+                      "name": "Paper 1 Preparation",
+                      "description": "Focus strictly on UNEB S101 Paper 1",
+                      "subtopics": [
+                        {
+                          "id": "senior-5-gp-term-3-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "677e948e",
+                              "title": "Video Lesson: Paper 1 Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "4eeac34f",
+                              "title": "Guided Notes: Paper 1",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "18961ef0",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-5-gp-term-3-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "4331961a",
+                              "title": "Video Lesson: Paper 1 Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "d461b3ad",
+                              "title": "Guided Notes: Paper 1",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "12764008",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -29667,17 +30732,1082 @@
             {
               "id": "term-1",
               "name": "Term 1",
-              "subjects": []
+              "subjects": [
+                {
+                  "id": "senior-6-math",
+                  "name": "Mathematics",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced Mathematics (P425) syllabus for senior-6",
+                  "topics": [
+                    {
+                      "id": "senior-6-math-term-1-t0",
+                      "name": "Paper 1 (Pure Math) Preparation",
+                      "description": "Focus strictly on UNEB P425 Paper 1 (Pure Math)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-math-term-1-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "360d06d3",
+                              "title": "Video Lesson: Paper 1 (Pure Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "936f4074",
+                              "title": "Guided Notes: Paper 1 (Pure Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "e504da07",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-math-term-1-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "47e6ffe7",
+                              "title": "Video Lesson: Paper 1 (Pure Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "94798b4e",
+                              "title": "Guided Notes: Paper 1 (Pure Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "15a4698b",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-6-math-term-1-t1",
+                      "name": "Paper 2 (Applied Math) Preparation",
+                      "description": "Focus strictly on UNEB P425 Paper 2 (Applied Math)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-math-term-1-t1-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "88cd9b33",
+                              "title": "Video Lesson: Paper 2 (Applied Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "15060f9e",
+                              "title": "Guided Notes: Paper 2 (Applied Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "feb2d81f",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-math-term-1-t1-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "9d78044c",
+                              "title": "Video Lesson: Paper 2 (Applied Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "24f3e01a",
+                              "title": "Guided Notes: Paper 2 (Applied Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "2ebc1427",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-6-physics",
+                  "name": "Physics",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced Physics (P510) syllabus for senior-6",
+                  "topics": [
+                    {
+                      "id": "senior-6-physics-term-1-t0",
+                      "name": "Paper 1 (Mechanics) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 1 (Mechanics)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-physics-term-1-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "3f0b0b85",
+                              "title": "Video Lesson: Paper 1 (Mechanics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "70bd6147",
+                              "title": "Guided Notes: Paper 1 (Mechanics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "914783c2",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-physics-term-1-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "37506ebd",
+                              "title": "Video Lesson: Paper 1 (Mechanics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "7fbd7b59",
+                              "title": "Guided Notes: Paper 1 (Mechanics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "5105780a",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-6-physics-term-1-t1",
+                      "name": "Paper 2 (Heat/Modern Physics) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 2 (Heat/Modern Physics)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-physics-term-1-t1-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "ab7759c0",
+                              "title": "Video Lesson: Paper 2 (Heat/Modern Physics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "b410b1f7",
+                              "title": "Guided Notes: Paper 2 (Heat/Modern Physics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "fb1e2a9f",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-physics-term-1-t1-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "f48c298e",
+                              "title": "Video Lesson: Paper 2 (Heat/Modern Physics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "1f52bcb8",
+                              "title": "Guided Notes: Paper 2 (Heat/Modern Physics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "3e77a736",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-6-physics-term-1-t2",
+                      "name": "Paper 3 (Practical) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 3 (Practical)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-physics-term-1-t2-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "7df27a27",
+                              "title": "Video Lesson: Paper 3 (Practical) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "69cd5af4",
+                              "title": "Guided Notes: Paper 3 (Practical)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "9c7409d4",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-physics-term-1-t2-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "9df6f8fa",
+                              "title": "Video Lesson: Paper 3 (Practical) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "b89568a3",
+                              "title": "Guided Notes: Paper 3 (Practical)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "5812d696",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-6-gp",
+                  "name": "General Paper",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced General Paper (S101) syllabus for senior-6",
+                  "topics": [
+                    {
+                      "id": "senior-6-gp-term-1-t0",
+                      "name": "Paper 1 Preparation",
+                      "description": "Focus strictly on UNEB S101 Paper 1",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-gp-term-1-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "6417e2c3",
+                              "title": "Video Lesson: Paper 1 Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "f52e8eaf",
+                              "title": "Guided Notes: Paper 1",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "a0297f45",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-gp-term-1-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "37d36572",
+                              "title": "Video Lesson: Paper 1 Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "921364fe",
+                              "title": "Guided Notes: Paper 1",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "f43731ba",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             },
             {
               "id": "term-2",
               "name": "Term 2",
-              "subjects": []
+              "subjects": [
+                {
+                  "id": "senior-6-math",
+                  "name": "Mathematics",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced Mathematics (P425) syllabus for senior-6",
+                  "topics": [
+                    {
+                      "id": "senior-6-math-term-2-t0",
+                      "name": "Paper 1 (Pure Math) Preparation",
+                      "description": "Focus strictly on UNEB P425 Paper 1 (Pure Math)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-math-term-2-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "eb8d3880",
+                              "title": "Video Lesson: Paper 1 (Pure Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "83f311ab",
+                              "title": "Guided Notes: Paper 1 (Pure Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "97e440f7",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-math-term-2-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "86cbd8a7",
+                              "title": "Video Lesson: Paper 1 (Pure Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "d2c3dd3d",
+                              "title": "Guided Notes: Paper 1 (Pure Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "09a81f3d",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-6-math-term-2-t1",
+                      "name": "Paper 2 (Applied Math) Preparation",
+                      "description": "Focus strictly on UNEB P425 Paper 2 (Applied Math)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-math-term-2-t1-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "b4bb9c52",
+                              "title": "Video Lesson: Paper 2 (Applied Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "be5a3066",
+                              "title": "Guided Notes: Paper 2 (Applied Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "c78335c1",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-math-term-2-t1-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "21c63536",
+                              "title": "Video Lesson: Paper 2 (Applied Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "c3f5c445",
+                              "title": "Guided Notes: Paper 2 (Applied Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "a9b1c5b4",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-6-physics",
+                  "name": "Physics",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced Physics (P510) syllabus for senior-6",
+                  "topics": [
+                    {
+                      "id": "senior-6-physics-term-2-t0",
+                      "name": "Paper 1 (Mechanics) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 1 (Mechanics)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-physics-term-2-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "03abe0cd",
+                              "title": "Video Lesson: Paper 1 (Mechanics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "6cd696dd",
+                              "title": "Guided Notes: Paper 1 (Mechanics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "cd9048f2",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-physics-term-2-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "561532a1",
+                              "title": "Video Lesson: Paper 1 (Mechanics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "3785c6d4",
+                              "title": "Guided Notes: Paper 1 (Mechanics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "2354dcfb",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-6-physics-term-2-t1",
+                      "name": "Paper 2 (Heat/Modern Physics) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 2 (Heat/Modern Physics)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-physics-term-2-t1-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "69a1e322",
+                              "title": "Video Lesson: Paper 2 (Heat/Modern Physics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "a05d956b",
+                              "title": "Guided Notes: Paper 2 (Heat/Modern Physics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "93753b5e",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-physics-term-2-t1-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "4809bc98",
+                              "title": "Video Lesson: Paper 2 (Heat/Modern Physics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "8a14e78f",
+                              "title": "Guided Notes: Paper 2 (Heat/Modern Physics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "87109aaf",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-6-physics-term-2-t2",
+                      "name": "Paper 3 (Practical) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 3 (Practical)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-physics-term-2-t2-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "a3f5151a",
+                              "title": "Video Lesson: Paper 3 (Practical) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "f58bd6af",
+                              "title": "Guided Notes: Paper 3 (Practical)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "1c556c46",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-physics-term-2-t2-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "ef971283",
+                              "title": "Video Lesson: Paper 3 (Practical) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "c4681922",
+                              "title": "Guided Notes: Paper 3 (Practical)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "a8aaed63",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-6-gp",
+                  "name": "General Paper",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced General Paper (S101) syllabus for senior-6",
+                  "topics": [
+                    {
+                      "id": "senior-6-gp-term-2-t0",
+                      "name": "Paper 1 Preparation",
+                      "description": "Focus strictly on UNEB S101 Paper 1",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-gp-term-2-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "c398877a",
+                              "title": "Video Lesson: Paper 1 Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "320fd4a8",
+                              "title": "Guided Notes: Paper 1",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "d5dce6bf",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-gp-term-2-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "fbcf78e8",
+                              "title": "Video Lesson: Paper 1 Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "86f4a5f9",
+                              "title": "Guided Notes: Paper 1",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "9648b142",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             },
             {
               "id": "term-3",
               "name": "Term 3",
-              "subjects": []
+              "subjects": [
+                {
+                  "id": "senior-6-math",
+                  "name": "Mathematics",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced Mathematics (P425) syllabus for senior-6",
+                  "topics": [
+                    {
+                      "id": "senior-6-math-term-3-t0",
+                      "name": "Paper 1 (Pure Math) Preparation",
+                      "description": "Focus strictly on UNEB P425 Paper 1 (Pure Math)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-math-term-3-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "07bb7e0b",
+                              "title": "Video Lesson: Paper 1 (Pure Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "6f8026a0",
+                              "title": "Guided Notes: Paper 1 (Pure Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "93156f9c",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-math-term-3-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "45b200c9",
+                              "title": "Video Lesson: Paper 1 (Pure Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "43733627",
+                              "title": "Guided Notes: Paper 1 (Pure Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "c28fee88",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-6-math-term-3-t1",
+                      "name": "Paper 2 (Applied Math) Preparation",
+                      "description": "Focus strictly on UNEB P425 Paper 2 (Applied Math)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-math-term-3-t1-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "551d5d9a",
+                              "title": "Video Lesson: Paper 2 (Applied Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "b540afab",
+                              "title": "Guided Notes: Paper 2 (Applied Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "252b1037",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-math-term-3-t1-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "3d7e7fa8",
+                              "title": "Video Lesson: Paper 2 (Applied Math) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "ed45e666",
+                              "title": "Guided Notes: Paper 2 (Applied Math)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "ada8e745",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-6-physics",
+                  "name": "Physics",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced Physics (P510) syllabus for senior-6",
+                  "topics": [
+                    {
+                      "id": "senior-6-physics-term-3-t0",
+                      "name": "Paper 1 (Mechanics) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 1 (Mechanics)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-physics-term-3-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "0822a961",
+                              "title": "Video Lesson: Paper 1 (Mechanics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "4d5d7f92",
+                              "title": "Guided Notes: Paper 1 (Mechanics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "040f1a54",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-physics-term-3-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "d594b4f7",
+                              "title": "Video Lesson: Paper 1 (Mechanics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "201a2361",
+                              "title": "Guided Notes: Paper 1 (Mechanics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "b5ef4dc7",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-6-physics-term-3-t1",
+                      "name": "Paper 2 (Heat/Modern Physics) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 2 (Heat/Modern Physics)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-physics-term-3-t1-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "5d81b1a3",
+                              "title": "Video Lesson: Paper 2 (Heat/Modern Physics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "28c05d3f",
+                              "title": "Guided Notes: Paper 2 (Heat/Modern Physics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "ef579245",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-physics-term-3-t1-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "d98554c3",
+                              "title": "Video Lesson: Paper 2 (Heat/Modern Physics) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "d4149b77",
+                              "title": "Guided Notes: Paper 2 (Heat/Modern Physics)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "2f819d29",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "senior-6-physics-term-3-t2",
+                      "name": "Paper 3 (Practical) Preparation",
+                      "description": "Focus strictly on UNEB P510 Paper 3 (Practical)",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-physics-term-3-t2-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "a49c6585",
+                              "title": "Video Lesson: Paper 3 (Practical) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "76376700",
+                              "title": "Guided Notes: Paper 3 (Practical)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "6ad59bfe",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-physics-term-3-t2-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "1d21cae4",
+                              "title": "Video Lesson: Paper 3 (Practical) Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "dfe1b6b0",
+                              "title": "Guided Notes: Paper 3 (Practical)",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "24288347",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "senior-6-gp",
+                  "name": "General Paper",
+                  "teacherId": "sys-auto",
+                  "description": "Advanced General Paper (S101) syllabus for senior-6",
+                  "topics": [
+                    {
+                      "id": "senior-6-gp-term-3-t0",
+                      "name": "Paper 1 Preparation",
+                      "description": "Focus strictly on UNEB S101 Paper 1",
+                      "subtopics": [
+                        {
+                          "id": "senior-6-gp-term-3-t0-sub1",
+                          "name": "Module 1: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "3ee2dbb6",
+                              "title": "Video Lesson: Paper 1 Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "d8e8c9ae",
+                              "title": "Guided Notes: Paper 1",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "99794055",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "senior-6-gp-term-3-t0-sub2",
+                          "name": "Module 2: Core Concepts",
+                          "lessons": [
+                            {
+                              "id": "6bf5e52d",
+                              "title": "Video Lesson: Paper 1 Concepts",
+                              "type": "video",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "ed994d17",
+                              "title": "Guided Notes: Paper 1",
+                              "type": "notes",
+                              "duration": "45 min"
+                            },
+                            {
+                              "id": "5e86c5f7",
+                              "title": "Past Paper Review exercise",
+                              "type": "exercise",
+                              "duration": "45 min"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }

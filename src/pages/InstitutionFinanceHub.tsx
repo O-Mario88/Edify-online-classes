@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DynamicSchemaForm } from '@/components/forms/DynamicSchemaForm';
 import { FeeItemConfig, OfflinePOSReceiptConfig, ExpenseRecordConfig } from '@/schemas/financeSchemas';
 import { useToast } from '@/hooks/use-toast';
+import { IntelligenceCard } from '@/components/dashboard/IntelligenceCard';
 
 export function InstitutionFinanceHub() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -60,79 +61,62 @@ export function InstitutionFinanceHub() {
 
         {/* 1. EXECUTIVE DASHBOARD */}
         <TabsContent value="dashboard" className="mt-0 space-y-6">
-          {/* Top KPIs */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            
-            <Card className="border border-slate-200 dark:border-slate-800 shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Net Cash Position</p>
-                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white mt-1">UGX 42.5M</h3>
-                  </div>
-                  <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
-                    <Wallet className="w-6 h-6 text-emerald-600" />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center text-sm font-medium text-emerald-600">
-                  <TrendingUp className="w-4 h-4 mr-1" /> +12% from last term
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-slate-200 dark:border-slate-800 shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Collections (Term 1)</p>
-                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white mt-1">84%</h3>
-                  </div>
-                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                    <TrendingUp className="w-6 h-6 text-blue-600" />
-                  </div>
-                </div>
-                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 mt-4 overflow-hidden">
-                  <div className="bg-blue-600 h-2 rounded-full w-[84%]"></div>
-                </div>
-                <p className="text-xs text-slate-500 mt-2 font-medium">UGX 120M expected / 100M collected</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-rose-200 dark:border-rose-900/30 shadow-sm bg-rose-50/30 dark:bg-rose-900/10">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-semibold text-rose-800 dark:text-rose-400 uppercase tracking-wide">Total Arrears</p>
-                    <h3 className="text-3xl font-bold text-rose-700 dark:text-rose-300 mt-1">UGX 18.2M</h3>
-                  </div>
-                  <div className="p-3 bg-rose-100 dark:bg-rose-900/30 rounded-xl">
-                    <AlertCircle className="w-6 h-6 text-rose-600" />
-                  </div>
-                </div>
-                <div className="mt-4 text-xs font-medium text-rose-600 flex justify-between">
-                  <span>From 34 students</span>
-                  <span className="underline cursor-pointer hover:text-rose-800" onClick={() => setActiveTab('ledgers')}>View Debtors</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-slate-200 dark:border-slate-800 shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Operating Expenses</p>
-                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white mt-1">UGX 32M</h3>
-                  </div>
-                  <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-                    <CreditCard className="w-6 h-6 text-amber-600" />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center text-sm font-medium text-slate-500">
-                  <TrendingDown className="w-4 h-4 mr-1 text-emerald-500" /> Under budget by 5%
-                </div>
-              </CardContent>
-            </Card>
-
+          {/* Top KPIs (Intelligence Cards) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            {[
+              {
+                title: 'Net Cash Position',
+                value: 'UGX 42.5M',
+                trendValue: 12,
+                trendLabel: 'vs last term',
+                trendDirection: 'up',
+                riskLevel: 'healthy'
+              },
+              {
+                title: 'Collections',
+                value: '84%',
+                trendValue: 5,
+                trendLabel: 'ahead of schedule',
+                trendDirection: 'up',
+                riskLevel: 'healthy',
+                alertText: '100M / 120M Collected'
+              },
+              {
+                title: 'Total Arrears',
+                value: 'UGX 18.2M',
+                trendValue: 8,
+                trendLabel: 'growth',
+                trendDirection: 'up',
+                trendIsGood: false,
+                riskLevel: 'critical',
+                alertText: 'From 34 students',
+                actionLabel: 'View Debtors',
+                actionCallback: () => setActiveTab('ledgers')
+              },
+              {
+                title: 'Finance Locks',
+                value: '34 Locked',
+                trendValue: 12,
+                trendLabel: 'newly locked',
+                trendDirection: 'up',
+                trendIsGood: false,
+                riskLevel: 'warning',
+                alertText: 'Report cards disabled',
+                actionLabel: 'Message Parents',
+                actionCallback: () => handleAction('Messaging', 'Sent reminder to 34 parents.')
+              },
+              {
+                title: 'Operating Expenses',
+                value: 'UGX 32M',
+                trendValue: 5,
+                trendLabel: 'under budget',
+                trendDirection: 'down',
+                trendIsGood: true,
+                riskLevel: 'healthy'
+              }
+            ].map((card: any, i: number) => (
+              <IntelligenceCard key={i} {...card} />
+            ))}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
