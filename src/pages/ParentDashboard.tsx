@@ -9,6 +9,7 @@ import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Progress } from '../components/ui/progress';
+import { ParentResourceEngagementPanel } from '../components/dashboard/ParentResourceEngagementPanel';
 
 export const ParentDashboard: React.FC = () => {
   const { userProfile } = useAuth();
@@ -169,8 +170,11 @@ export const ParentDashboard: React.FC = () => {
                    <p className="text-xs text-gray-700">{weeklySummary.recommendedFocus}</p>
                  </div>
               </CardContent>
-           </Card>
+            </Card>
         </div>
+
+        {/* Phase 8 Resource Engagement Tracking */}
+        <ParentResourceEngagementPanel />
 
         {/* Row 3: Child Subject Performance Cards */}
         <Card className="shadow-sm">

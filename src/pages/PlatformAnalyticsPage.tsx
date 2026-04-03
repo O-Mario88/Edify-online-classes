@@ -628,6 +628,44 @@ const PlatformAnalyticsPage: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+
+          <div className="mt-6 border-t pt-6 border-slate-200">
+            <h3 className="text-xl font-bold mb-4 text-slate-900 border-l-4 border-indigo-500 pl-3">Resource Engagement Tracking</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="bg-indigo-50 border-indigo-100 shadow-sm">
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="text-sm font-semibold text-indigo-900 uppercase">Avg Active Time</p>
+                    <BookOpen className="w-4 h-4 text-indigo-500" />
+                  </div>
+                  <p className="text-3xl font-black text-indigo-950">42<span className="text-lg font-medium text-indigo-700 ml-1">mins</span></p>
+                  <p className="text-xs text-indigo-700 mt-2 font-medium">Per day, per active user</p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-sm">
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="text-sm font-medium text-slate-500 uppercase">Video Completion Rate</p>
+                  </div>
+                  <p className="text-3xl font-bold text-slate-900">76%</p>
+                  <Progress value={76} className="h-1.5 mt-3 mb-1 bg-slate-100 [&>div]:bg-red-500" />
+                  <p className="text-xs text-slate-500 mt-2">Up 12% since disabling downloads</p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-sm">
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="text-sm font-medium text-slate-500 uppercase">Document Reading Depth</p>
+                  </div>
+                  <p className="text-3xl font-bold text-slate-900">68%</p>
+                  <Progress value={68} className="h-1.5 mt-3 mb-1 bg-slate-100 [&>div]:bg-blue-500" />
+                  <p className="text-xs text-slate-500 mt-2">Avg scroll position achieved</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="geographic" className="space-y-6">

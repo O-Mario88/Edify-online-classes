@@ -13,6 +13,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../lib/api';
 import { CareerGuidanceWidget } from '../components/dashboard/CareerGuidanceWidget';
+import { StudentResourceEngagementPanel } from '../components/dashboard/StudentResourceEngagementPanel';
 
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -123,6 +124,9 @@ export const StudentDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Phase 8 Resource Engagement */}
+        <StudentResourceEngagementPanel />
 
         {/* Row 2: Live Session + Risk + AI Guide */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -15,6 +15,7 @@ import { DiscussionThread } from '../components/academic/DiscussionThread';
 import { ResourceUploadModal } from '../components/academic/ResourceUploadModal';
 import { AssignmentCreateModal } from '../components/academic/AssignmentCreateModal';
 import { ProjectActivityPanel } from '../components/academic/ProjectActivityPanel';
+import { ResourceViewer } from '../components/academic/ResourceViewer';
 
 interface Lesson {
   id: string;
@@ -53,11 +54,11 @@ const RESOURCE_TYPE_CONFIG: Record<string, { icon: any; color: string }> = {
 };
 
 const MOCK_TOPIC_RESOURCES = [
-  { id: 'res-1', title: 'Comprehensive Topic Summary Notes', type: 'notes', author: 'Mr. Ssebunya', downloads: 234, size: '2.4 MB' },
-  { id: 'res-2', title: 'UNEB Past Paper Questions (2019-2025)', type: 'pdf', author: 'Edify Admin', downloads: 890, size: '8.1 MB' },
-  { id: 'res-3', title: 'Recorded Revision Session', type: 'recording', author: 'Ms. Namuli', downloads: 156, size: '45 min' },
-  { id: 'res-4', title: 'Practice Worksheet Pack', type: 'worksheet', author: 'Mr. Ssebunya', downloads: 412, size: '1.2 MB' },
-  { id: 'res-5', title: 'Visual Slides Presentation', type: 'slides', author: 'Ms. Namuli', downloads: 178, size: '5.3 MB' },
+  { id: 'res-1', title: 'Comprehensive Topic Summary Notes', type: 'notes', authorName: 'Mr. Ssebunya' },
+  { id: 'res-2', title: 'UNEB Past Paper Questions (2019-2025)', type: 'pdf', authorName: 'Edify Admin' },
+  { id: 'res-3', title: 'Recorded Revision Session', type: 'recording', authorName: 'Ms. Namuli' },
+  { id: 'res-4', title: 'Practice Worksheet Pack', type: 'worksheet', authorName: 'Mr. Ssebunya' },
+  { id: 'res-5', title: 'Visual Slides Presentation', type: 'slides', authorName: 'Ms. Namuli' },
 ];
 
 const MOCK_ASSIGNMENTS = [
@@ -76,6 +77,7 @@ export const TopicDetailPage: React.FC = () => {
   const [expandedLesson, setExpandedLesson] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [activeResource, setActiveResource] = useState<any | null>(null);
   const isTeacher = user?.role?.includes('teacher') || user?.role === 'platform_admin' || user?.role === 'institution_admin';
 
   useEffect(() => {
@@ -269,14 +271,14 @@ export const TopicDetailPage: React.FC = () => {
                               </TabsList>
                               <TabsContent value="lesson-resources" className="mt-3">
                                 <div className="flex flex-wrap gap-2">
-                                  <Button variant="outline" size="sm" className="text-xs h-8">
+                                  <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => setActiveResource({ id: `vid-${lesson.id}`, title: lesson.title, type: 'video', authorName: 'Platform Content' })}>
                                     <Play className="h-3 w-3 mr-1.5 text-red-500" /> Watch Video
                                   </Button>
-                                  <Button variant="outline" size="sm" className="text-xs h-8">
+                                  <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => setActiveResource({ id: `note-${lesson.id}`, title: lesson.title, type: 'notes', authorName: 'Platform Content' })}>
                                     <FileText className="h-3 w-3 mr-1.5 text-blue-500" /> Read Notes
                                   </Button>
-                                  <Button variant="outline" size="sm" className="text-xs h-8">
-                                    <Download className="h-3 w-3 mr-1.5 text-gray-500" /> Download PDF
+                                  <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => setActiveResource({ id: `pdf-${lesson.id}`, title: lesson.title, type: 'pdf', authorName: 'Platform Content' })}>
+                                    <BookOpen className="h-3 w-3 mr-1.5 text-gray-500" /> Open Workbook
                                   </Button>
                                   {isTeacher && (
                                     <Button variant="outline" size="sm" className="text-xs h-8 border-dashed" onClick={() => setShowUploadModal(true)}>
@@ -339,13 +341,11 @@ export const TopicDetailPage: React.FC = () => {
                           <div className="flex-1 min-w-0">
                             <h4 className="font-medium text-gray-900 group-hover:text-indigo-700 transition-colors">{res.title}</h4>
                             <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
-                              <span>{res.author}</span>
-                              <span className="flex items-center gap-0.5"><Download className="h-3 w-3" /> {res.downloads}</span>
-                              <span>{res.size}</span>
+                              <span>{res.authorName}</span>
                             </div>
                           </div>
-                          <Button size="sm" variant="outline" className="flex-shrink-0 text-xs h-8">
-                            <Download className="h-3 w-3 mr-1" /> Get
+                          <Button size="sm" variant="outline" className="flex-shrink-0 text-xs h-8" onClick={() => setActiveResource(res)}>
+                            <BookOpen className="h-3 w-3 mr-1" /> Open
                           </Button>
                         </div>
                       </CardContent>
@@ -429,6 +429,16 @@ export const TopicDetailPage: React.FC = () => {
         subjectName={subject.name}
         className={className}
       />
+      {activeResource && (
+        <ResourceViewer
+          resource={activeResource}
+          studentId={user?.id || 'anonymous'}
+          onClose={(snapshot) => {
+            console.log("Mock engagement saved:", snapshot);
+            setActiveResource(null);
+          }}
+        />
+      )}
     </div>
   );
 };

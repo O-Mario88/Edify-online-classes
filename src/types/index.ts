@@ -988,3 +988,46 @@ export interface ParentUser extends User {
     notificationChannels: Array<'email' | 'whatsapp' | 'sms'>;
   };
 }
+
+// ==== Phase 8: Resource Engagement Tracking ====
+export interface Resource {
+  id: string;
+  title: string;
+  type: 'pdf' | 'video' | 'notes' | 'slides' | 'interactive';
+  format?: string;
+  url?: string;
+  content?: string; // For rendered text notes
+  subjectId?: string;
+  classId?: string;
+  topicId?: string;
+  lessonId?: string;
+  authorId: string;
+  authorName: string;
+  createdAt: string;
+  size?: string;
+}
+
+export interface ResourceEngagement {
+  id: string;
+  studentId: string;
+  resourceId: string;
+  assignedBy: 'teacher' | 'intervention' | 'self' | 'system';
+  firstAccessedAt: string;
+  lastAccessedAt: string;
+  totalActiveTimeMins: number;
+  totalSessions: number;
+  completionPercentage: number;
+  lastPosition: number; // Seconds for video, Page/Scroll percentage for PDF/Text
+  isCompleted: boolean;
+}
+
+export interface ResourceAnalyticsSummary {
+  resourceId: string;
+  assignedStudentsCount: number;
+  openedByCount: number;
+  completedByCount: number;
+  averageActiveTimeMins: number;
+  averageCompletionPercentage: number;
+  topEngagedStudentIds: string[];
+  leastEngagedStudentIds: string[];
+}

@@ -339,7 +339,7 @@ export const HomePage: React.FC = () => {
                         <div key={ugandaClass.id} className="p-3 bg-gray-50 rounded-md">
                           <div className="font-medium text-sm">{ugandaClass.name}</div>
                           <div className="text-xs text-gray-600">
-                            UGX {ugandaClass.priceUGX.toLocaleString()}/month
+                            UGX {(ugandaClass.priceUGX || 0).toLocaleString()}/month
                           </div>
                           {ugandaClass.isExamYear && (
                             <Badge variant="outline" className="text-xs mt-1">

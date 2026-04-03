@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { apiClient } from '../lib/api';
 import { TeacherRedAlertsPanel } from '../components/dashboard/TeacherRedAlertsPanel';
 import { TeacherInterventionPanel } from '../components/dashboard/TeacherInterventionPanel';
+import { TeacherResourceEngagementPanel } from '../components/dashboard/TeacherResourceEngagementPanel';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -216,6 +217,9 @@ export const TeacherDashboard: React.FC = () => {
 
         {/* Phase 5 Risk Interventions Dashboard */}
         <TeacherRedAlertsPanel />
+
+        {/* Phase 8 Resource Engagement Tracking */}
+        <TeacherResourceEngagementPanel />
 
         {/* Phase 8 Resource & Intervention Support */}
         <TeacherInterventionPanel />
