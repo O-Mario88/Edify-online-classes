@@ -15,7 +15,8 @@ import {
   Brain,
   Target,
   Lightbulb,
-  MessageSquare
+  MessageSquare,
+  Library
 } from 'lucide-react';
 import { useState } from 'react';
 import { AICopilotWidget } from './copilot/AICopilotWidget';
@@ -51,7 +52,7 @@ export const Layout: React.FC = () => {
     const baseItems = [
       { label: 'Home', href: '/', icon: GraduationCap },
       { label: 'Classes', href: '/classes', icon: BookOpen },
-      { label: 'Forum', href: '/forum', icon: Users },
+      { label: 'Resource Center', href: '/library', icon: Library },
       { label: 'Live Sessions', href: '/live-sessions', icon: Video },
       { label: 'Marketplace', href: '/marketplace', icon: BookOpen },
     ];
@@ -61,13 +62,11 @@ export const Layout: React.FC = () => {
       if (user.role === 'universal_student') {
         baseItems.push(
           { label: 'Learning Path', href: '/learning-path', icon: Target },
-          { label: 'Projects', href: '/projects', icon: Lightbulb },
           { label: 'Peer Tutoring', href: '/peer-tutoring', icon: MessageSquare },
           { label: 'Exam Registration', href: '/exam-registration', icon: CreditCard }
         );
       } else if (user.role === 'independent_teacher') {
         baseItems.push(
-          { label: 'Projects', href: '/projects', icon: Lightbulb },
           { label: 'AI Assistant', href: '/ai-assistant', icon: Brain },
           { label: 'Peer Tutoring', href: '/peer-tutoring', icon: MessageSquare }
         );
@@ -240,9 +239,9 @@ export const Layout: React.FC = () => {
             <div>
               <h4 className="font-semibold mb-4">Community</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link to="/forum" className="hover:text-white">Forum</Link></li>
+                <li><Link to="/library" className="hover:text-white">Resource Center</Link></li>
                 <li><Link to="/live-sessions" className="hover:text-white">Live Sessions</Link></li>
-                <li><a href="#" className="hover:text-white">Teacher Resources</a></li>
+                <li><Link to="/forum" className="hover:text-white">Community Forum</Link></li>
               </ul>
             </div>
             

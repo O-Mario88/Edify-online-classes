@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import {
@@ -24,6 +24,7 @@ import { UgandaClass, Term, Subject, Topic, Subtopic, Lesson } from '../types';
 
 export const ClassSyllabusPage: React.FC = () => {
   const { classId } = useParams<{ classId: string }>();
+  const navigate = useNavigate();
   const [classData, setClassData] = useState<UgandaClass | null>(null);
   const [loading, setLoading] = useState(true);
   
@@ -221,7 +222,16 @@ export const ClassSyllabusPage: React.FC = () => {
                                            {topic.description && <p className="text-sm text-gray-500 mt-0.5">{topic.description}</p>}
                                         </div>
                                      </div>
-                                     <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                     <div className="flex items-center gap-2">
+                                        <Button
+                                          variant="ghost" size="sm"
+                                          className="text-indigo-600 hover:bg-indigo-50 text-xs"
+                                          onClick={(e) => { e.stopPropagation(); navigate(`/classes/${classData.id}/${currentTerm.id}/${currentSubject.id}/topic/${topic.id}`); }}
+                                        >
+                                          Open Topic <ArrowRight className="ml-1 h-3 w-3" />
+                                        </Button>
+                                        <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                     </div>
                                   </button>
                                   
                                   {isExpanded && (

@@ -11,6 +11,7 @@ import { StudentDashboard } from './pages/StudentDashboard';
 import { TeacherDashboard } from './pages/TeacherDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ForumPage } from './pages/ForumPage';
+import { TopicDetailPage } from './pages/TopicDetailPage';
 import { LiveSessionsPage } from './pages/LiveSessionsPage';
 import { PaymentPage } from './pages/PaymentPage';
 import LearningPathPage from './pages/LearningPathPage';
@@ -52,6 +53,7 @@ function App() {
           <Route path="classes" element={<CourseCatalog />} />
           <Route path="classes/:classId" element={<ClassSyllabusPage />} />
           <Route path="classes/:gradeId/:termId/:subjectId" element={<CourseDetail />} />
+          <Route path="classes/:classId/:termId/:subjectId/topic/:topicId" element={<TopicDetailPage />} />
           <Route path="forum/*" element={<ForumPage />} />
           <Route path="live-sessions" element={<LiveSessionsPage />} />
           <Route path="library" element={

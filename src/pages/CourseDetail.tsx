@@ -305,6 +305,16 @@ export const CourseDetail: React.FC = () => {
                               selectedTopic === topic.id ? 'rotate-90' : ''
                             }`} />
                           </button>
+                          {/* Open Full Topic Page */}
+                          <div className="px-4 pb-2 flex justify-end">
+                            <Link
+                              to={`/classes/${classId}/${currentClass.terms[0]?.id || 'term-1'}/${subjectId}/topic/${topic.id}`}
+                              className="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              Open full topic page <ChevronRight className="h-3 w-3" />
+                            </Link>
+                          </div>
                           
                           {selectedTopic === topic.id && (
                             <div className="px-4 pb-4 border-t bg-gray-50">
