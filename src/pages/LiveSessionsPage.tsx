@@ -232,7 +232,7 @@ export const LiveSessionsPage: React.FC = () => {
         className="fixed inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
         style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
       />
-      <div className="fixed inset-0 bg-white/60 backdrop-blur-[2px] pointer-events-none" />
+      <div className="fixed inset-0 bg-white/40 pointer-events-none" />
 
       {/* 1. Hero Section (2-Column) */}
       <div className="relative pt-20 pb-20 overflow-hidden z-10">

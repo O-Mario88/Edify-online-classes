@@ -46,7 +46,7 @@ export const RegisterPage: React.FC = () => {
         className="fixed inset-0 bg-cover bg-center opacity-[0.85]"
         style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
       />
-      <div className="fixed inset-0 bg-white/40 backdrop-blur-[2px]" />
+      <div className="fixed inset-0 bg-white/40" />
 
       {/* Main Register Card */}
       <EditorialPanel 

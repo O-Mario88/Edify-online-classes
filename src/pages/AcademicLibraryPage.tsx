@@ -9,88 +9,97 @@ import { ResourceViewer } from '../components/academic/ResourceViewer';
 // Realistic Academic Mock Data
 const MOCK_RESOURCES = [
   {
-    id: 'res-1',
-    title: "Senior 4 Mathematics Revision Notes",
-    authorName: "Sarah Nakamya",
-    subject: "Mathematics",
-    category: "Notes",
-    coverURL: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80",
-    rating: 4.8,
-    ratingsCount: "1.2k",
-    pages: 120,
+    id: 'res-1', title: "Senior 4 Mathematics Revision Notes", authorName: "Sarah Nakamya", subject: "Mathematics", category: "Notes",
+    coverURL: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80", rating: 4.8, ratingsCount: "1.2k", pages: 120,
     description: "Complete coverage of O-level geometry, algebra, and statistics with practice problems.",
-    format: "pdf",
-    isFeatured: true,
-    color: "from-rose-400 to-rose-300"
+    format: "pdf", isFeatured: true, color: "from-rose-400 to-rose-300"
   },
   {
-    id: 'res-2',
-    title: "Biology: Human Circulatory System",
-    authorName: "Michael Okello",
-    subject: "Biology",
-    category: "Textbook",
-    coverURL: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=600&q=80",
-    rating: 4.9,
-    ratingsCount: "2.1k",
-    pages: 85,
+    id: 'res-2', title: "Biology: Human Circulatory System", authorName: "Michael Okello", subject: "Biology", category: "Textbook",
+    coverURL: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=600&q=80", rating: 4.9, ratingsCount: "2.1k", pages: 85,
     description: "Visual exploration of the heart, blood vessels, and circulatory pathways.",
-    format: "pdf",
-    isFeatured: true,
-    color: "from-blue-400 to-blue-300"
+    format: "pdf", isFeatured: true, color: "from-blue-400 to-blue-300"
   },
   {
-    id: 'res-3',
-    title: "English Language Comprehension",
-    authorName: "Edify Board",
-    subject: "English",
-    category: "Workbook",
-    coverURL: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=80",
-    rating: 4.7,
-    ratingsCount: "845",
-    pages: 45,
+    id: 'res-3', title: "English Language Comprehension", authorName: "Edify Board", subject: "English", category: "Workbook",
+    coverURL: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=80", rating: 4.7, ratingsCount: "845", pages: 45,
     description: "Master techniques for summary writing, passage analysis, and critical reading.",
-    format: "pdf",
-    isFeatured: true,
-    color: "from-emerald-400 to-emerald-300"
+    format: "pdf", isFeatured: true, color: "from-emerald-400 to-emerald-300"
   },
   {
-    id: 'res-4',
-    title: "Physics Practical Guide",
-    authorName: "Dr. Kaggwa",
-    subject: "Physics",
-    category: "Notes",
-    coverURL: "https://images.unsplash.com/photo-1603126852811-0421213038ce?w=600&q=80",
-    rating: 4.5,
-    ratingsCount: "320",
-    pages: 60,
-    description: "Step-by-step guides for mechanics, optics, and electricity experiments.",
-    format: "pdf"
+    id: 'res-4', title: "Physics Practical Guide", authorName: "Dr. Kaggwa", subject: "Physics", category: "Notes",
+    coverURL: "https://images.unsplash.com/photo-1603126852811-0421213038ce?w=600&q=80", rating: 4.5, ratingsCount: "320", pages: 60,
+    description: "Step-by-step guides for mechanics, optics, and electricity experiments.", format: "pdf"
   },
   {
-    id: 'res-5',
-    title: "Geography Atlas Companion",
-    authorName: "Jane Doe",
-    subject: "Geography",
-    category: "Textbook",
-    coverURL: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600&q=80",
-    rating: 4.6,
-    ratingsCount: "560",
-    pages: 140,
-    description: "Detailed maps and analytical notes on East African physical geography.",
-    format: "pdf"
+    id: 'res-5', title: "Geography Atlas Companion", authorName: "Jane Doe", subject: "Geography", category: "Textbook",
+    coverURL: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600&q=80", rating: 4.6, ratingsCount: "560", pages: 140,
+    description: "Detailed maps and analytical notes on East African physical geography.", format: "pdf"
   },
   {
-    id: 'res-6',
-    title: "General Paper Reading Pack",
-    authorName: "Edify Arts Team",
-    subject: "General Paper",
-    category: "Notes",
-    coverURL: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80",
-    rating: 4.8,
-    ratingsCount: "1.5k",
-    pages: 200,
-    description: "Curated essays and critical thinking prompts for A-level preparation.",
-    format: "pdf"
+    id: 'res-6', title: "General Paper Reading Pack", authorName: "Edify Arts Team", subject: "General Paper", category: "Notes",
+    coverURL: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80", rating: 4.8, ratingsCount: "1.5k", pages: 200,
+    description: "Curated essays and critical thinking prompts for A-level preparation.", format: "pdf"
+  },
+  {
+    id: 'res-7', title: "Chemistry: Organic Compounds", authorName: "Dr. Asiimwe", subject: "Chemistry", category: "Textbook",
+    coverURL: "https://images.unsplash.com/photo-1628863353691-0071c8c1874c?w=600&q=80", rating: 4.7, ratingsCount: "980", pages: 110,
+    description: "In-depth coverage of hydrocarbons, alcohols, and carbonyl compounds for A-level.", format: "pdf"
+  },
+  {
+    id: 'res-8', title: "History: Colonial Africa", authorName: "Prof. Wamala", subject: "History", category: "Notes",
+    coverURL: "https://images.unsplash.com/photo-1568667256549-094345857637?w=600&q=80", rating: 4.6, ratingsCount: "740", pages: 95,
+    description: "A comprehensive guide to the scramble, partition, and colonial resistance in Africa.", format: "pdf"
+  },
+  {
+    id: 'res-9', title: "Economics: Demand & Supply", authorName: "Edify Economics Dept", subject: "Economics", category: "Notes",
+    coverURL: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=80", rating: 4.5, ratingsCount: "610", pages: 78,
+    description: "Structured notes on price theory, elasticity, and consumer behaviour.", format: "pdf"
+  },
+  {
+    id: 'res-10', title: "Literature: Hamlet Study Guide", authorName: "Ruth Achieng", subject: "Literature", category: "Workbook",
+    coverURL: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&q=80", rating: 4.9, ratingsCount: "2.4k", pages: 65,
+    description: "Scene-by-scene analysis, themes, and essay guides for Shakespeare's Hamlet.", format: "pdf"
+  },
+  {
+    id: 'res-11', title: "Agriculture: Crop Production", authorName: "Mr. Byabagambi", subject: "Agriculture", category: "Textbook",
+    coverURL: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=600&q=80", rating: 4.4, ratingsCount: "290", pages: 130,
+    description: "NCDC-aligned notes on soil science, planting, and crop protection methods.", format: "pdf"
+  },
+  {
+    id: 'res-12', title: "ICT: Databases and Networking", authorName: "Tech Dept Edify", subject: "ICT", category: "Notes",
+    coverURL: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=80", rating: 4.6, ratingsCount: "430", pages: 88,
+    description: "Covers relational databases, SQL basics, and networking fundamentals for A-level.", format: "pdf"
+  },
+  {
+    id: 'res-13', title: "CRE: Old Testament Prophets", authorName: "Sister Nalubega", subject: "CRE", category: "Notes",
+    coverURL: "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=600&q=80", rating: 4.7, ratingsCount: "510", pages: 72,
+    description: "Teachings of Amos, Isaiah, and Jeremiah mapped to contemporary social justice.", format: "pdf"
+  },
+  {
+    id: 'res-14', title: "Sub-Mathematics: Linear Programming", authorName: "Moses Tumusiime", subject: "Sub-Mathematics", category: "Workbook",
+    coverURL: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&q=80", rating: 4.5, ratingsCount: "385", pages: 55,
+    description: "Graphical and algebraic approaches to linear programming with worked examples.", format: "pdf"
+  },
+  {
+    id: 'res-15', title: "Biology: Ecology & Environment", authorName: "Dr. Nassali", subject: "Biology", category: "Textbook",
+    coverURL: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80", rating: 4.8, ratingsCount: "1.1k", pages: 100,
+    description: "Ecosystems, food chains, nutrient cycles, and conservation strategies.", format: "pdf"
+  },
+  {
+    id: 'res-16', title: "Mathematics: Integration Techniques", authorName: "Paul Ssekibuule", subject: "Mathematics", category: "Notes",
+    coverURL: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80", rating: 4.9, ratingsCount: "1.8k", pages: 90,
+    description: "Comprehensive coverage of integration by parts, substitution, and partial fractions.", format: "pdf"
+  },
+  {
+    id: 'res-17', title: "Physics: Electromagnetism", authorName: "Dr. Mugisha", subject: "Physics", category: "Textbook",
+    coverURL: "https://images.unsplash.com/photo-1495592822108-9e6261896da8?w=600&q=80", rating: 4.6, ratingsCount: "670", pages: 115,
+    description: "Faraday's law, Lenz's law, motors, generators and electromagnetic induction.", format: "pdf"
+  },
+  {
+    id: 'res-18', title: "Entrepreneurship: Business Plans", authorName: "Edify Commerce Team", subject: "Entrepreneurship", category: "Workbook",
+    coverURL: "https://images.unsplash.com/photo-1664575602554-2087b04935a5?w=600&q=80", rating: 4.5, ratingsCount: "520", pages: 80,
+    description: "Step-by-step workbook for drafting, pitching, and refining a business plan.", format: "pdf"
   }
 ];
 
@@ -124,7 +133,7 @@ export function AcademicLibraryPage() {
         className="fixed inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
         style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
       />
-      <div className="fixed inset-0 bg-white/60 backdrop-blur-[2px] pointer-events-none" />
+      <div className="fixed inset-0 bg-white/40 pointer-events-none" />
 
       {/* 1. Top Header Zone */}
       <div className="relative z-10 sticky top-0 bg-[#fbfaf8]/90 backdrop-blur-md border-b border-white z-50 py-4">
@@ -215,15 +224,22 @@ export function AcademicLibraryPage() {
             {/* Top Materials of the year */}
             <div>
               <h4 className="text-lg font-bold text-slate-800 mb-6">Top Materials</h4>
-              <div className="space-y-6">
-                {MOCK_RESOURCES.slice(0, 4).map((book) => (
-                  <div key={book.id} className="flex items-start gap-4 group cursor-pointer" onClick={() => setActiveResource(book)}>
-                    <div className="w-14 h-20 rounded shadow-sm overflow-hidden flex-shrink-0">
+              <div className="space-y-5 max-h-[600px] overflow-y-auto pr-1 hide-scrollbar">
+                {MOCK_RESOURCES.map((book, idx) => (
+                  <div key={book.id} className="flex items-start gap-3 group cursor-pointer" onClick={() => setActiveResource(book)}>
+                    <span className="text-[10px] font-black text-slate-300 w-4 flex-shrink-0 mt-1">#{idx + 1}</span>
+                    <div className="w-12 h-16 rounded-lg shadow-sm overflow-hidden flex-shrink-0">
                       <img src={book.coverURL} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
-                    <div>
-                      <h5 className="font-semibold text-slate-700 text-sm leading-snug group-hover:text-amber-700 transition-colors line-clamp-2 mb-1">{book.title}</h5>
+                    <div className="min-w-0">
+                      <h5 className="font-semibold text-slate-700 text-sm leading-snug group-hover:text-amber-700 transition-colors line-clamp-2 mb-0.5">{book.title}</h5>
                       <p className="text-[10px] text-slate-400 font-medium">by {book.authorName}</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <div className="flex gap-0.5">
+                          {[1,2,3,4,5].map(s => <Star key={s} className={`w-2 h-2 ${s <= Math.floor(book.rating) ? 'text-amber-400 fill-amber-400' : 'text-slate-200 fill-slate-200'}`} />)}
+                        </div>
+                        <span className="text-[9px] text-slate-400">{book.ratingsCount}</span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -258,59 +274,66 @@ export function AcademicLibraryPage() {
                </div>
              </div>
 
-             {/* 5. Main content listing cards (2-Col Image Left Layout) */}
-             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+             {/* 5. Main content — 6-col vertical book card grid */}
+             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                {filteredResources.map((book) => (
-                 <EditorialPanel 
-                   key={book.id} 
-                   variant="glass" 
-                   padding="none" 
-                   className="overflow-hidden border border-white flex shadow-sm group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 cursor-pointer h-[240px]"
+                 <div
+                   key={book.id}
+                   className="group bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 flex flex-col"
                    onClick={() => setActiveResource(book)}
                  >
-                    {/* Left Cover Image */}
-                    <div className="w-[160px] h-full flex-shrink-0 relative overflow-hidden bg-slate-100">
-                      <img src={book.coverURL} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                      {/* Optional reading progress or tag */}
-                      <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded shadow-sm text-[9px] font-black uppercase tracking-widest text-[#8e8268]">
-                        {book.category}
-                      </div>
-                    </div>
+                   {/* Cover Image (tall, fills top) */}
+                   <div className="relative overflow-hidden bg-slate-100 aspect-[3/4] w-full flex-shrink-0">
+                     <img
+                       src={book.coverURL}
+                       alt={book.title}
+                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                     />
+                     {/* Category badge */}
+                     <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm text-[9px] font-black uppercase tracking-widest text-[#8e8268]">
+                       {book.category}
+                     </div>
+                   </div>
 
-                    {/* Right Content */}
-                    <div className="flex-1 p-6 flex flex-col relative bg-white/40">
-                      
-                      <h4 className="text-lg font-bold text-slate-900 group-hover:text-amber-700 transition-colors leading-tight line-clamp-2 mb-1">{book.title}</h4>
-                      <p className="text-sm font-medium text-slate-500 mb-3">by {book.authorName}</p>
+                   {/* Details below cover */}
+                   <div className="p-3 flex flex-col flex-1">
+                     <h4 className="text-xs font-bold text-slate-900 group-hover:text-amber-700 transition-colors leading-snug line-clamp-2 mb-1">
+                       {book.title}
+                     </h4>
+                     <p className="text-[10px] font-medium text-slate-400 mb-2">by {book.authorName}</p>
 
-                      <div className="flex items-center gap-1.5 mb-3">
-                        <div className="flex gap-0.5">
-                          {[1,2,3,4,5].map(s => <Star key={s} className={`w-3 h-3 ${s <= Math.floor(book.rating) ? 'text-amber-400 fill-amber-400' : 'text-slate-200 fill-slate-200'}`} />)}
-                        </div>
-                        <span className="text-xs font-semibold text-slate-400 ml-1">{book.ratingsCount} users</span>
-                      </div>
+                     <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed font-light mb-3 flex-1">
+                       {book.description}
+                     </p>
 
-                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed font-light mb-4 flex-1">
-                        {book.description}
-                      </p>
+                     {/* Engagement Strip */}
+                     <div className="flex items-center gap-1.5 pb-2 border-b border-slate-100 mb-2">
+                       <div className="flex -space-x-1.5">
+                         <img src="https://i.pravatar.cc/150?img=11" className="w-4 h-4 rounded-full border border-white" alt="user" />
+                         <img src="https://i.pravatar.cc/150?img=12" className="w-4 h-4 rounded-full border border-white" alt="user" />
+                         <img src="https://i.pravatar.cc/150?img=13" className="w-4 h-4 rounded-full border border-white" alt="user" />
+                       </div>
+                       <p className="text-[9px] text-slate-400 font-medium leading-tight">
+                         150+ students
+                       </p>
+                     </div>
 
-                      {/* Engagement Strip */}
-                      <div className="flex items-center gap-2 mt-auto pt-4 border-t border-slate-100/50 mix-blend-multiply">
-                        <div className="flex -space-x-2">
-                           <img src="https://i.pravatar.cc/150?img=11" className="w-6 h-6 rounded-full border border-white" alt="user" />
-                           <img src="https://i.pravatar.cc/150?img=12" className="w-6 h-6 rounded-full border border-white" alt="user" />
-                           <img src="https://i.pravatar.cc/150?img=13" className="w-6 h-6 rounded-full border border-white" alt="user" />
-                        </div>
-                        <p className="text-[10px] text-slate-400 font-medium">Assigned to 150+ students in {book.subject}</p>
-                      </div>
-
-                    </div>
-                 </EditorialPanel>
+                     {/* Rating row — bottom of card */}
+                     <div className="flex items-center gap-1">
+                       <div className="flex gap-0.5">
+                         {[1,2,3,4,5].map(s => (
+                           <Star key={s} className={`w-2.5 h-2.5 ${s <= Math.floor(book.rating) ? 'text-amber-400 fill-amber-400' : 'text-slate-200 fill-slate-200'}`} />
+                         ))}
+                       </div>
+                       <span className="text-[9px] font-semibold text-slate-400">{book.ratingsCount} ratings</span>
+                     </div>
+                   </div>
+                 </div>
                ))}
-               
+
                {filteredResources.length === 0 && (
                  <div className="col-span-full py-20 text-center text-slate-500">
-                    No resources match this selection.
+                   No resources match this selection.
                  </div>
                )}
              </div>

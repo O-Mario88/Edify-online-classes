@@ -103,14 +103,13 @@ export const TopicDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf9f7] font-sans relative pb-24">
-      {/* Ambient background blobs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{zIndex: 0}}>
-        <div className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-amber-200/20 blur-[120px]" />
-        <div className="absolute top-1/3 -left-40 w-[500px] h-[500px] rounded-full bg-rose-200/15 blur-[100px]" />
-        <div className="absolute -bottom-40 right-1/4 w-[500px] h-[500px] rounded-full bg-sky-200/15 blur-[120px]" />
-        <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] rounded-full bg-violet-100/15 blur-[90px] -translate-x-1/2" />
-      </div>
+    <div className="min-h-screen bg-[#fbfaf8] font-sans relative pb-24">
+      {/* Soft Background */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
+        style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
+      />
+      <div className="fixed inset-0 bg-white/40 pointer-events-none" />
 
       {/* Top Breadcrumb Context */}
       <div className="relative z-10 pt-8 pb-6 border-b border-white mix-blend-multiply flex flex-col items-center">

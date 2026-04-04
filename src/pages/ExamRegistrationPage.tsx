@@ -257,7 +257,7 @@ const ExamRegistrationPage: React.FC = () => {
         className="fixed inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
         style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
       />
-      <div className="fixed inset-0 bg-white/60 backdrop-blur-[2px] pointer-events-none" />
+      <div className="fixed inset-0 bg-white/40 pointer-events-none" />
 
       {/* Header Area */}
       <div className="relative z-10 pt-16 pb-8 border-b border-white mix-blend-multiply">

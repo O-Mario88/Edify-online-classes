@@ -91,16 +91,8 @@ export const CourseCatalog: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf9f7] font-sans pt-12 pb-24 relative">
-      {/* Ambient background blobs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{zIndex: 0}}>
-        <div className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-amber-200/20 blur-[120px]" />
-        <div className="absolute top-1/3 -left-40 w-[500px] h-[500px] rounded-full bg-rose-200/15 blur-[100px]" />
-        <div className="absolute -bottom-40 right-1/4 w-[500px] h-[500px] rounded-full bg-sky-200/15 blur-[120px]" />
-        <div className="absolute top-2/3 left-1/2 w-[400px] h-[400px] rounded-full bg-emerald-100/20 blur-[90px] -translate-x-1/2" />
-        {/* Subtle noise grain */}
-        <div className="absolute inset-0 opacity-[0.025]" style={{backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")', backgroundRepeat: 'repeat', backgroundSize: '128px'}} />
-      </div>
+    <div className="min-h-screen bg-[#fbfaf8] font-sans pt-12 pb-24 relative">
+      <div className="fixed inset-0 bg-white/40 pointer-events-none" />
 
       {/* 1. Top Filter Row (Picture 1) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mb-12">
