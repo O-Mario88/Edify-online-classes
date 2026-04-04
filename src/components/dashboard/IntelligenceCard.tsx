@@ -105,28 +105,28 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
   };
 
   return (
-    <Card className={`transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_-6px_rgba(0,0,0,0.08)] flex flex-col justify-between ${riskBg}`}>
-      <CardHeader className="p-5 pb-0 flex flex-row items-center justify-between">
-        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest truncate max-w-full" title={title}>{title}</p>
-        {icon && <div className="text-slate-400 opacity-60">{icon}</div>}
+    <Card className={`h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between overflow-hidden relative group border-slate-200/60 ${riskBg}`}>
+      <CardHeader className="p-5 pb-2 flex flex-row items-center justify-between">
+        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest truncate max-w-full" title={title}>{title}</p>
+        {icon && <div className="text-slate-400 group-hover:text-primary transition-colors opacity-70">{icon}</div>}
       </CardHeader>
       
-      <CardContent className="p-5 pt-3 flex-grow">
+      <CardContent className="p-5 pt-1 flex-grow">
         {/* Live Status & Trend */}
-        <div className="flex justify-between items-end mb-4">
-          <div className="text-3xl font-extrabold text-slate-900 tracking-tight leading-none break-all mr-2">{value}</div>
+        <div className="flex justify-between items-center mb-4 gap-2">
+          <div className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight leading-tight shrink-0 mr-2 max-w-[65%] leading-snug break-words hyphens-auto mix-blend-multiply">{value}</div>
           
           {trendValue !== undefined && (
-            <div className={`flex flex-col items-end`}>
-               <div className={`flex items-center text-sm font-bold ${trendColor}`}>
+            <div className={`flex flex-col items-end flex-shrink-0`}>
+               <div className={`flex items-center text-xs font-black px-2 py-1 rounded-full bg-slate-50/80 border shadow-sm ${trendColor.includes('emerald') ? 'border-emerald-100/50 bg-emerald-50/30' : trendColor.includes('rose') ? 'border-rose-100/50 bg-rose-50/30' : 'border-slate-100'} ${trendColor}`}>
                  {trendDirection === 'up' && '+'}
                  {trendDirection === 'down' && '-'}
                  {Math.abs(trendValue)}%
-                 {trendDirection === 'up' && <ArrowUpRight className="w-4 h-4 ml-0.5" />}
-                 {trendDirection === 'down' && <ArrowDownRight className="w-4 h-4 ml-0.5" />}
-                 {trendDirection === 'flat' && <Minus className="w-4 h-4 ml-0.5" />}
+                 {trendDirection === 'up' && <ArrowUpRight className="w-3 h-3 ml-0.5" />}
+                 {trendDirection === 'down' && <ArrowDownRight className="w-3 h-3 ml-0.5" />}
+                 {trendDirection === 'flat' && <Minus className="w-3 h-3 ml-0.5" />}
                </div>
-               {trendLabel && <span className="text-[10px] uppercase font-bold text-gray-400 mt-0.5 text-right max-w-[120px] leading-tight break-words">{trendLabel}</span>}
+               {trendLabel && <span className="text-[9px] uppercase font-bold text-slate-400 mt-1 text-right whitespace-nowrap tracking-wider">{trendLabel}</span>}
             </div>
           )}
         </div>

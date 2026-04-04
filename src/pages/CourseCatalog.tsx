@@ -1,35 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Input } from '../components/ui/input';
+import { EditorialHeader } from '../components/ui/editorial/EditorialHeader';
 import { 
-  BookOpen, 
-  Search, 
-  Filter,
-  Star,
   Users,
   Clock,
+  BookOpen,
+  Star,
   ChevronRight,
-  Grid,
-  List,
-  GraduationCap, Target, MapPin
+  ChevronLeft
 } from 'lucide-react';
 import { UgandaLevel, UgandaClass, Teacher } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { getCurriculumConfig } from '../lib/curriculum';
 
 export const CourseCatalog: React.FC = () => {
   const [levels, setLevels] = useState<UgandaLevel[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState<string>('all');
-  const [selectedClass, setSelectedClass] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  
   const { countryCode } = useAuth();
-  const curriculumConfig = getCurriculumConfig(countryCode);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,10 +43,6 @@ export const CourseCatalog: React.FC = () => {
     fetchData();
   }, []);
 
-  const getTeacherById = (teacherId: string) => {
-    return teachers.find(teacher => teacher.id === teacherId);
-  };
-
   const getAllClasses = (): UgandaClass[] => {
     const allClasses: UgandaClass[] = [];
     levels.forEach(level => {
@@ -69,353 +54,180 @@ export const CourseCatalog: React.FC = () => {
   const getFilteredClasses = () => {
     const classes = getAllClasses();
     return classes.filter(ugandaClass => {
-      const matchesSearch = ugandaClass.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           ugandaClass.level.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           ugandaClass.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesLevel = selectedLevel === 'all' || ugandaClass.level === selectedLevel;
-      const matchesClass = selectedClass === 'all' || ugandaClass.id === selectedClass;
-      return matchesSearch && matchesLevel && matchesClass;
+      const levelMatch = 
+        selectedCategory === 'all' || 
+        ugandaClass.level.toLowerCase().includes(selectedCategory.toLowerCase());
+      
+      const typeMatch = 
+        (selectedCategory === 'sciences' && ugandaClass.description.toLowerCase().includes('science')) ||
+        (selectedCategory === 'arts' && ugandaClass.description.toLowerCase().includes('arts'));
+
+      if (['sciences', 'arts'].includes(selectedCategory)) return typeMatch;
+      return levelMatch;
     });
   };
 
-  const levelOptions = ['O\'level', 'A\'level'];
-  const classOptions = getAllClasses().map(c => ({ id: c.id, name: c.name, level: c.level }));
+  const categories = ['ALL', "O'LEVEL", "A'LEVEL", 'SCIENCES', 'ARTS'];
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading classes...</p>
-        </div>
+      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
+        <div className="animate-pulse w-12 h-12 rounded-full bg-[#f4efe2]"></div>
       </div>
     );
   }
 
+  // Soft pastel colors based on ID
+  const getBackgroundColor = (id: string, index: number) => {
+    const colors = [
+      'bg-rose-50',
+      'bg-amber-50',
+      'bg-blue-50',
+      'bg-emerald-50',
+      'bg-purple-50',
+      'bg-slate-50'
+    ];
+    return colors[index % colors.length];
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center gap-2 mb-4">
-            <MapPin className="h-5 w-5 text-blue-600" />
-            <span className="text-blue-600 font-medium">{curriculumConfig.countryName} Secondary Education</span>
+    <div className="min-h-screen bg-[#faf9f7] font-sans pt-12 pb-24 relative">
+      {/* Ambient background blobs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{zIndex: 0}}>
+        <div className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-amber-200/20 blur-[120px]" />
+        <div className="absolute top-1/3 -left-40 w-[500px] h-[500px] rounded-full bg-rose-200/15 blur-[100px]" />
+        <div className="absolute -bottom-40 right-1/4 w-[500px] h-[500px] rounded-full bg-sky-200/15 blur-[120px]" />
+        <div className="absolute top-2/3 left-1/2 w-[400px] h-[400px] rounded-full bg-emerald-100/20 blur-[90px] -translate-x-1/2" />
+        {/* Subtle noise grain */}
+        <div className="absolute inset-0 opacity-[0.025]" style={{backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")', backgroundRepeat: 'repeat', backgroundSize: '128px'}} />
+      </div>
+
+      {/* 1. Top Filter Row (Picture 1) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mb-12">
+        <div className="flex items-center gap-3">
+          <button className="w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-50 shadow-sm flex-shrink-0 transition-colors">
+             <ChevronLeft className="h-5 w-5" />
+          </button>
+          
+          <div className="flex-1 overflow-x-auto hide-scrollbar flex gap-4 py-2 px-1">
+             {categories.map((category) => {
+               const active = selectedCategory.toLowerCase() === category.toLowerCase();
+               return (
+                 <button
+                   key={category}
+                   onClick={() => setSelectedCategory(category.toLowerCase())}
+                   className={`whitespace-nowrap px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 border ${
+                     active 
+                       ? 'bg-slate-900 text-white border-slate-900 shadow-md' 
+                       : 'bg-white text-slate-400 border-white shadow-sm hover:text-slate-600'
+                   }`}
+                 >
+                   {category}
+                 </button>
+               )
+             })}
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Class Catalog</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Comprehensive classes aligned with the {curriculumConfig.countryName} ({curriculumConfig.examBody}) curriculum
-          </p>
+
+          <button className="w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-50 shadow-sm flex-shrink-0 transition-colors">
+             <ChevronRight className="h-5 w-5" />
+          </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters and Search */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search by class name, level, or description..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+      {/* 2. Class Cards Grid (Picture 1 Layout, Picture 4 Theme) */}
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {getFilteredClasses().map((ugandaClass, index) => {
+             const firstSubject = ugandaClass.terms[0]?.subjects[0];
+             const teacher = teachers.find(t => t.id === firstSubject?.teacherId);
+             
+             const totalModules = ugandaClass.terms.reduce((acc, term) => 
+               acc + term.subjects.reduce((sAcc, sub) => sAcc + sub.topics.length, 0), 0
+             );
 
-            {/* Level Filter */}
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-500" />
-              <select
-                value={selectedLevel}
-                onChange={(e) => setSelectedLevel(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Levels</option>
-                {levelOptions.map(level => (
-                  <option key={level} value={level}>{level}</option>
-                ))}
-              </select>
-            </div>
+             return (
+               <div key={ugandaClass.id} className="group bg-white rounded-[2rem] overflow-hidden border border-white shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-xl transition-all duration-300 flex flex-col h-full hover:-translate-y-1">
+                 
+                 {/* Top Pastel Block */}
+                 <div className={`h-40 relative ${getBackgroundColor(ugandaClass.id, index)} p-5 flex flex-col justify-between overflow-hidden transition-colors`}>
+                    <div className="flex justify-between items-start z-10 relative">
+                       <span className="bg-white text-slate-800 text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-sm">
+                         {ugandaClass.level}
+                       </span>
+                    </div>
+                 </div>
 
-            {/* Class Filter */}
-            <div className="flex items-center gap-2">
-              <select
-                value={selectedClass}
-                onChange={(e) => setSelectedClass(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Classes</option>
-                {classOptions.map(ugandaClass => (
-                  <option key={ugandaClass.id} value={ugandaClass.id}>
-                    {ugandaClass.name} ({ugandaClass.level})
-                  </option>
-                ))}
-              </select>
-            </div>
+                 <div className="p-6 flex flex-col flex-grow relative bg-white">
+                    
+                    {/* Teacher / Meta Row */}
+                    <div className="flex items-center gap-3 mb-5 mt-[-36px] z-20">
+                      <div className="w-10 h-10 rounded-[0.8rem] bg-white p-1 shadow-sm border border-slate-100">
+                         <div className="w-full h-full bg-[#f4efe2] rounded-[0.6rem] flex items-center justify-center overflow-hidden">
+                           {teacher ? (
+                             <img src={teacher.avatar} alt="teacher" className="w-full h-full object-cover" />
+                           ) : (
+                             <span className="text-[10px] font-black text-[#8e8268]">ED</span>
+                           )}
+                         </div>
+                      </div>
+                      <div className="mt-6 flex items-center gap-2 flex-wrap">
+                         <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">{teacher?.name || 'Edify Educators'}</span>
+                         <span className="text-[9px] font-black text-[#8e8268] uppercase tracking-widest bg-[#f4efe2] px-2 py-0.5 rounded-full">Core</span>
+                      </div>
+                    </div>
 
-            {/* View Mode Toggle */}
-            <div className="flex items-center border rounded-md">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 ${viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : 'text-gray-500'}`}
-              >
-                <Grid className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 ${viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'text-gray-500'}`}
-              >
-                <List className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
+                    <h3 className="text-2xl font-bold text-slate-900 mb-3 leading-tight group-hover:text-amber-700 transition-colors line-clamp-2">
+                      {ugandaClass.name}
+                    </h3>
+                    
+                    {/* Metadata Line */}
+                    <div className="flex items-center gap-4 text-xs font-bold text-slate-400 mb-6">
+                       <div className="flex items-center gap-1.5">
+                         <Clock className="w-3.5 h-3.5" />
+                         {totalModules * 2} Hrs
+                       </div>
+                       <div className="flex items-center gap-1.5">
+                         <Users className="w-3.5 h-3.5" />
+                         {Math.floor(Math.random() * 200) + 110} Students
+                       </div>
+                    </div>
+
+                    {/* Footer Row */}
+                    <div className="mt-auto pt-5 border-t border-slate-50 flex items-center justify-between">
+                       <div className="flex items-center gap-1.5">
+                          <span className="text-amber-500 font-bold text-sm leading-none">4.9</span>
+                          <div className="flex gap-0.5">
+                             {[1,2,3,4,5].map(s => <Star key={s} className="w-2.5 h-2.5 text-amber-500 fill-amber-500" />)}
+                          </div>
+                       </div>
+                       <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+                          <BookOpen className="w-3.5 h-3.5" />
+                          {totalModules} Modules
+                       </div>
+                    </div>
+
+                    {/* Click Overlay */}
+                    <Link to={`/classes/${ugandaClass.id}`} className="absolute inset-0 z-10">
+                      <span className="sr-only">View Class</span>
+                    </Link>
+                 </div>
+               </div>
+             );
+          })}
         </div>
-
-        {/* Results Summary */}
-        <div className="mb-6">
-          <p className="text-gray-600">
-            Showing {getFilteredClasses().length} class{getFilteredClasses().length !== 1 ? 'es' : ''}
-            {searchTerm && ` matching "${searchTerm}"`}
-          </p>
-        </div>
-
-        {/* Class Grid/List */}
-        {viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {getFilteredClasses().map((ugandaClass) => (
-              <ClassCard key={ugandaClass.id} ugandaClass={ugandaClass} teachers={teachers} />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {getFilteredClasses().map((ugandaClass) => (
-              <ClassListItem key={ugandaClass.id} ugandaClass={ugandaClass} teachers={teachers} />
-            ))}
-          </div>
-        )}
-
-        {getFilteredClasses().length === 0 && (
-          <div className="text-center py-12">
-            <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No classes found</h3>
-            <p className="text-gray-600">Try adjusting your search criteria</p>
-          </div>
-        )}
       </div>
+
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 };
 
-const ClassCard: React.FC<{ ugandaClass: UgandaClass; teachers: Teacher[] }> = ({ ugandaClass, teachers }) => {
-  const getTeacherCount = () => {
-    const teacherIds = new Set();
-    ugandaClass.terms.forEach(term => {
-      term.subjects.forEach(subject => {
-        teacherIds.add(subject.teacherId);
-      });
-    });
-    return teacherIds.size;
-  };
-
-  const getTotalSubjects = () => {
-    let total = 0;
-    ugandaClass.terms.forEach(term => {
-      total += term.subjects.length;
-    });
-    return total;
-  };
-
-  const getTotalLessons = () => {
-    let total = 0;
-    ugandaClass.terms.forEach(term => {
-      term.subjects.forEach(subject => {
-        subject.topics.forEach(topic => {
-          topic.subtopics.forEach(subtopic => {
-            total += subtopic.lessons.length;
-          });
-        });
-      });
-    });
-    return total;
-  };
-
-  return (
-    <Card className="hover:shadow-lg transition-all duration-200">
-      <CardHeader>
-        <div className="flex justify-between items-start mb-2">
-          <div className="flex items-center gap-2">
-            <Badge variant={ugandaClass.level === 'O\'level' ? 'default' : 'secondary'}>
-              {ugandaClass.level}
-            </Badge>
-            {ugandaClass.isExamYear && (
-              <Badge variant="outline" className="text-xs">
-                {ugandaClass.examType} Year
-              </Badge>
-            )}
-          </div>
-          <div className="text-right">
-            <Badge variant="outline" className="text-emerald-600 bg-emerald-50 border-emerald-200">Start Free</Badge>
-          </div>
-        </div>
-        <CardTitle className="text-xl">{ugandaClass.name}</CardTitle>
-        <p className="text-sm text-gray-600">{ugandaClass.description}</p>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3 mb-6">
-          <div className="flex items-center text-sm text-gray-600">
-            <BookOpen className="h-4 w-4 mr-2" />
-            {ugandaClass.terms.length} term{ugandaClass.terms.length > 1 ? 's' : ''} • {getTotalSubjects()} subjects • {getTotalLessons()} lessons
-          </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <Users className="h-4 w-4 mr-2" />
-            {getTeacherCount()} expert teacher{getTeacherCount() > 1 ? 's' : ''}
-          </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <Target className="h-4 w-4 mr-2" />
-            {ugandaClass.isExamYear ? `${ugandaClass.examType} exam preparation` : 'Foundation building'}
-          </div>
-        </div>
-
-        {/* Subject Combinations for A'level */}
-        {ugandaClass.level === 'A\'level' && ugandaClass.subjectCombinations && (
-          <div className="mb-4">
-            <p className="text-sm font-medium text-gray-700 mb-2">Subject combinations:</p>
-            <div className="flex flex-wrap gap-1">
-              {ugandaClass.subjectCombinations.map((combo) => (
-                <Badge key={combo} variant="outline" className="text-xs">
-                  {combo}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Subjects Preview */}
-        {ugandaClass.terms[0]?.subjects && ugandaClass.terms[0].subjects.length > 0 && (
-          <div className="mb-4">
-            <p className="text-sm font-medium text-gray-700 mb-2">Offered subjects (All):</p>
-            <div className="flex flex-wrap gap-1">
-              {ugandaClass.terms[0].subjects.map((subject) => (
-                <Badge key={subject.id} variant="outline" className="text-xs">
-                  {subject.name}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <Link to={`/classes/${ugandaClass.id}`}>
-          <Button className="w-full">
-            Explore {ugandaClass.name}
-            <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
-      </CardContent>
-    </Card>
-  );
-};
-
-const ClassListItem: React.FC<{ ugandaClass: UgandaClass; teachers: Teacher[] }> = ({ ugandaClass, teachers }) => {
-  const getTeacherCount = () => {
-    const teacherIds = new Set();
-    ugandaClass.terms.forEach(term => {
-      term.subjects.forEach(subject => {
-        teacherIds.add(subject.teacherId);
-      });
-    });
-    return teacherIds.size;
-  };
-
-  const getTotalSubjects = () => {
-    let total = 0;
-    ugandaClass.terms.forEach(term => {
-      total += term.subjects.length;
-    });
-    return total;
-  };
-
-  const getTotalLessons = () => {
-    let total = 0;
-    ugandaClass.terms.forEach(term => {
-      term.subjects.forEach(subject => {
-        subject.topics.forEach(topic => {
-          topic.subtopics.forEach(subtopic => {
-            total += subtopic.lessons.length;
-          });
-        });
-      });
-    });
-    return total;
-  };
-
-  return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <Badge variant={ugandaClass.level === 'O\'level' ? 'default' : 'secondary'}>
-                {ugandaClass.level}
-              </Badge>
-              <h3 className="text-xl font-semibold text-gray-900">{ugandaClass.name}</h3>
-              {ugandaClass.isExamYear && (
-                <Badge variant="outline" className="text-xs">
-                  {ugandaClass.examType} Year
-                </Badge>
-              )}
-            </div>
-            
-            <p className="text-gray-600 mb-3">{ugandaClass.description}</p>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-              <div className="flex items-center text-sm text-gray-600">
-                <BookOpen className="h-4 w-4 mr-2" />
-                {ugandaClass.terms.length} terms • {getTotalSubjects()} subjects
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <Users className="h-4 w-4 mr-2" />
-                {getTeacherCount()} teachers
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <Clock className="h-4 w-4 mr-2" />
-                {getTotalLessons()} lessons
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-1 mt-2">
-              <span className="text-xs font-semibold text-gray-700 mr-2">Subjects:</span>
-              {ugandaClass.terms[0]?.subjects.map((subject) => (
-                <Badge key={subject.id} variant="outline" className="text-xs">
-                  {subject.name}
-                </Badge>
-              ))}
-            </div>
-            {ugandaClass.level === 'A\'level' && ugandaClass.subjectCombinations && (
-              <div className="flex flex-wrap items-center gap-1 mt-2">
-                <span className="text-xs font-semibold text-gray-700 mr-2">Combinations:</span>
-                {ugandaClass.subjectCombinations.map((combo) => (
-                  <Badge key={combo} variant="outline" className="text-xs">
-                    {combo}
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <Badge variant="outline" className="text-emerald-600 bg-emerald-50 border-emerald-200 mb-2 block w-fit ml-auto">Start Free</Badge>
-            </div>
-            <Link to={`/classes/${ugandaClass.id}`}>
-              <Button>
-                View Details
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+export default CourseCatalog;

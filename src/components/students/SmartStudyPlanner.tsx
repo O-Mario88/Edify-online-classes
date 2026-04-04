@@ -95,51 +95,51 @@ export const SmartStudyPlanner: React.FC<SmartStudyPlannerProps> = ({
   };
 
   return (
-    <Card className="h-full shadow-sm border-indigo-100 bg-white">
-      <CardHeader className="bg-indigo-50/50 border-b border-indigo-100 pb-4">
+    <Card className="h-full flex flex-col shadow-sm border-white/10 bg-white/5 backdrop-blur-md">
+      <CardHeader className="bg-white/5 border-b border-white/10 pb-4">
          <div className="flex justify-between items-start">
             <div>
-               <CardTitle className="text-lg flex items-center gap-2 text-indigo-900">
-                  <Calendar className="w-5 h-5 text-indigo-600" />
+               <CardTitle className="text-lg flex items-center gap-2 text-slate-100">
+                  <Calendar className="w-5 h-5 text-indigo-400" />
                   {titleOverride || getDefaultTitle()}
                </CardTitle>
-               <CardDescription className="text-indigo-700/80 mt-1">
+               <CardDescription className="text-slate-400 mt-1">
                  {descriptionOverride || getDefaultDescription()}
                </CardDescription>
             </div>
             {mode !== 'readonly' && (
-              <Button size="sm" variant="outline" className="border-indigo-200 hover:bg-indigo-100 text-indigo-800 shadow-sm" onClick={() => setIsAddingTask(!isAddingTask)}>
+              <Button size="sm" variant="outline" className="border-white/20 hover:bg-white/10 text-slate-200 shadow-sm" onClick={() => setIsAddingTask(!isAddingTask)}>
                 <Plus className="w-4 h-4 mr-1" /> {mode === 'assign' ? 'Assign Task' : 'Add Task'}
               </Button>
             )}
          </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="divide-y divide-slate-100">
+      <CardContent className="p-0 flex-1 flex flex-col">
+        <div className="divide-y divide-white/10 flex-1 flex flex-col">
            {isAddingTask && mode !== 'readonly' && (
-             <div className="p-4 bg-indigo-50/30">
+             <div className="p-4 bg-white/5">
                <div className="flex justify-between items-center mb-2">
-                 <h4 className="text-sm font-bold text-indigo-900">{mode === 'assign' ? 'Assign Custom Task' : 'Create Custom Task'}</h4>
+                 <h4 className="text-sm font-bold text-slate-100">{mode === 'assign' ? 'Assign Custom Task' : 'Create Custom Task'}</h4>
                  <button onClick={() => setIsAddingTask(false)} className="text-slate-400 hover:text-red-500"><X className="w-4 h-4"/></button>
                </div>
                <div className="space-y-3">
                  <input 
                    placeholder="Task description (e.g. Read Chapter 5)" 
-                   className="w-full text-sm p-2 border border-slate-200 rounded-md focus:outline-none focus:border-indigo-500"
+                   className="w-full text-sm p-2 border border-white/20 rounded-md bg-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-400"
                    value={newTask.title}
                    onChange={e => setNewTask({...newTask, title: e.target.value})}
                  />
                  <div className="flex gap-2">
                    <input 
                      placeholder="Subject" 
-                     className="w-1/2 text-sm p-2 border border-slate-200 rounded-md focus:outline-none focus:border-indigo-500"
+                     className="w-1/2 text-sm p-2 border border-white/20 rounded-md bg-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-400"
                      value={newTask.subject}
                      onChange={e => setNewTask({...newTask, subject: e.target.value})}
                    />
                    <input 
                      type="number"
                      placeholder="Mins" 
-                     className="w-1/2 text-sm p-2 border border-slate-200 rounded-md focus:outline-none focus:border-indigo-500"
+                     className="w-1/2 text-sm p-2 border border-white/20 rounded-md bg-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-400"
                      value={newTask.duration}
                      onChange={e => setNewTask({...newTask, duration: Number(e.target.value)})}
                    />
@@ -154,12 +154,12 @@ export const SmartStudyPlanner: React.FC<SmartStudyPlannerProps> = ({
            {plans.map((day, idx) => {
               const isToday = idx === 0;
               return (
-                 <div key={day.date} className={`p-4 ${isToday ? 'bg-blue-50/10' : ''}`}>
+                 <div key={day.date} className={`p-4 ${isToday ? 'bg-blue-900/10' : ''}`}>
                     <div className="flex items-end gap-2 mb-3">
-                       <span className={`font-bold ${isToday ? 'text-blue-900' : 'text-slate-800'}`}>
+                       <span className={`font-bold ${isToday ? 'text-blue-300' : 'text-slate-300'}`}>
                          {isToday ? 'Today' : day.dayOfWeek}
                        </span>
-                       <span className="text-xs text-slate-500 mb-0.5">{day.date}</span>
+                       <span className="text-xs text-slate-400 mb-0.5">{day.date}</span>
                     </div>
 
                     <div className="space-y-2">
@@ -167,18 +167,18 @@ export const SmartStudyPlanner: React.FC<SmartStudyPlannerProps> = ({
                          <p className="text-sm text-slate-400 italic">Rest day scheduled.</p>
                        ) : (
                          day.tasks.map(task => (
-                           <div key={task.id} className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${task.isCompleted ? 'bg-slate-50 border-slate-100 opacity-60' : 'bg-white border-slate-200 shadow-sm'} ${mode === 'interactive' && !task.isCompleted ? 'hover:border-indigo-200 cursor-pointer' : ''}`} onClick={() => mode === 'interactive' && handleToggleTask(idx, task.id)}>
-                              <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${task.isCompleted ? 'bg-green-500 border-green-500 text-white' : 'border-slate-300'}`}>
+                           <div key={task.id} className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${task.isCompleted ? 'bg-white/5 border-white/5 opacity-60' : 'bg-white/10 border-white/10 shadow-sm'} ${mode === 'interactive' && !task.isCompleted ? 'hover:border-indigo-400/30 cursor-pointer' : ''}`} onClick={() => mode === 'interactive' && handleToggleTask(idx, task.id)}>
+                              <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${task.isCompleted ? 'bg-green-500 border-green-500 text-white' : 'border-slate-500'}`}>
                                  {task.isCompleted && <CheckCircle className="w-3.5 h-3.5" />}
                               </div>
                               <div className="flex-1 min-w-0">
-                                 <p className={`text-sm font-semibold truncate ${task.isCompleted ? 'line-through text-slate-500' : 'text-slate-800'}`}>{task.title}</p>
+                                 <p className={`text-sm font-semibold truncate ${task.isCompleted ? 'line-through text-slate-500' : 'text-slate-100'}`}>{task.title}</p>
                                  <div className="flex flex-wrap items-center gap-2 mt-1.5">
                                     <Badge variant="outline" className={`text-[10px] uppercase font-bold py-0 ${getTypeColor(task.type)}`}>
                                       {getIconForType(task.type)} {task.type.replace('_', ' ')}
                                     </Badge>
-                                    <span className="text-xs text-slate-500 font-medium">{task.subject}</span>
-                                    <span className="text-xs text-slate-400 flex items-center"><Clock className="w-3 h-3 mr-0.5"/> {task.durationMinutes}m</span>
+                                    <span className="text-xs text-slate-400 font-medium">{task.subject}</span>
+                                    <span className="text-xs text-slate-500 flex items-center"><Clock className="w-3 h-3 mr-0.5"/> {task.durationMinutes}m</span>
                                  </div>
                               </div>
                            </div>

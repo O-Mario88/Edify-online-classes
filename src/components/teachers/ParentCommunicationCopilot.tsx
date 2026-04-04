@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
-import { MessageSquare, Wand2, RefreshCw, Send } from 'lucide-react';
+import { MessageSquare, Wand2, RefreshCw, Send, Info } from 'lucide-react';
 
 export const ParentCommunicationCopilot: React.FC = () => {
   const [studentSearch, setStudentSearch] = useState('');
@@ -29,15 +29,23 @@ export const ParentCommunicationCopilot: React.FC = () => {
   };
 
   return (
-    <Card className="shadow-sm border-blue-100 bg-white">
+    <Card className="h-full flex flex-col justify-between shadow-sm border-blue-100 bg-white">
       <CardHeader className="pb-3 border-b border-slate-100">
         <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
           <MessageSquare className="w-5 h-5 text-blue-600" />
           Parent Communication Copilot
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-4">
-        <div className="space-y-4">
+      <CardContent className="pt-4 flex-1 flex flex-col justify-between">
+        <div className="space-y-4 flex-1 flex flex-col justify-between">
+          {/* Guidance Description */}
+          <div className="flex gap-2.5 p-3 bg-blue-50/70 rounded-lg border border-blue-100">
+            <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+            <p className="text-xs text-blue-700 leading-relaxed">
+              Quickly draft professional messages to parents about attendance, academic praise, or intervention needs. Select a student, choose a context, and let AI generate the message for you.
+            </p>
+          </div>
+
           <div>
             <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Context Target</label>
             <div className="flex gap-2">
@@ -73,7 +81,7 @@ export const ParentCommunicationCopilot: React.FC = () => {
             <div className="space-y-3 animate-in fade-in zoom-in duration-300">
               <div className="relative">
                 <textarea 
-                  className="w-full text-sm p-3 border border-blue-200 rounded-lg min-h-[160px] focus:outline-none focus:ring-1 focus:ring-blue-500 bg-slate-50 text-slate-800"
+                  className="w-full text-sm p-3 border border-blue-200 rounded-lg min-h-[140px] focus:outline-none focus:ring-1 focus:ring-blue-500 bg-slate-50 text-slate-800"
                   value={generatedDraft}
                   onChange={(e) => setGeneratedDraft(e.target.value)}
                 />

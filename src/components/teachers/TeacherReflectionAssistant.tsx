@@ -12,7 +12,7 @@ export const TeacherReflectionAssistant: React.FC = () => {
   };
 
   return (
-    <Card className="shadow-sm border-purple-100 bg-gradient-to-br from-white to-purple-50/30">
+    <Card className="h-full flex flex-col justify-between shadow-sm border-purple-100 bg-gradient-to-br from-white to-purple-50/30">
       <CardHeader className="pb-3 border-b border-purple-50">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-bold text-purple-900 flex items-center gap-2">
@@ -22,7 +22,7 @@ export const TeacherReflectionAssistant: React.FC = () => {
           {reflectionPhase === 'completed' && <CheckCircle className="w-5 h-5 text-green-500" />}
         </div>
       </CardHeader>
-      <CardContent className="pt-4">
+      <CardContent className="pt-4 flex-1 flex flex-col justify-between">
         {reflectionPhase === 'prompt' && (
           <div className="space-y-4">
             <p className="text-sm text-slate-700">Taking 2 minutes to reflect drastically improves long-term teaching impact. Ready to review your week?</p>

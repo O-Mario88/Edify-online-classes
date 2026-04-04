@@ -126,17 +126,15 @@ interface PlatformData {
   };
 }
 
-const PlatformAnalyticsPage: React.FC = () => {
-  const { user } = useAuth();
+export const PlatformAnalyticsTabs: React.FC = () => {
   const [platformData, setPlatformData] = useState<PlatformData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTimeframe, setSelectedTimeframe] = useState('month');
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    if (user?.role === 'platform_admin') {
-      fetchPlatformData();
-    }
-  }, [user]);
+    fetchPlatformData();
+  }, []);
 
   const fetchPlatformData = async () => {
     try {
@@ -162,24 +160,11 @@ const PlatformAnalyticsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 px-4">
-        <div className="text-center">Loading platform analytics...</div>
-      </div>
+      <div className="w-full py-8 text-center text-slate-500">Loading extended platform analytics...</div>
     );
   }
 
-  if (!platformData || user?.role !== 'platform_admin') {
-    return (
-      <div className="container mx-auto py-8 px-4">
-        <Card>
-          <CardContent className="text-center py-8">
-            <h2 className="text-xl font-semibold mb-2">Access Restricted</h2>
-            <p className="text-gray-600">Only platform administrators can access analytics.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  if (!platformData) return null;
 
   const revenueBreakdownData = [
     { name: 'B2B Subscriptions', value: platformData.platform_overview.revenue_breakdown.b2b_subscriptions, color: '#0088FE' },
@@ -194,17 +179,16 @@ const PlatformAnalyticsPage: React.FC = () => {
   }));
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      {/* Header */}
+    <div className="w-full mt-10">
       <div className="mb-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-center justify-between text-center md:text-left gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Platform Analytics</h1>
             <p className="text-lg text-gray-600">
               Comprehensive insights into Maple Online School platform performance
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-center gap-4 w-full md:w-auto">
             <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
               <SelectTrigger className="w-32">
                 <SelectValue />
@@ -287,13 +271,18 @@ const PlatformAnalyticsPage: React.FC = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="geographic">Geographic</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-5 gap-2 bg-transparent p-1">
+          {['overview', 'revenue', 'users', 'performance', 'geographic'].map(tab => (
+            <TabsTrigger
+              key={tab}
+              value={tab}
+              className="transition-all rounded-md text-sm font-medium py-2"
+              style={activeTab === tab ? { backgroundColor: '#059669', color: 'white', boxShadow: '0 1px 3px rgba(5,150,105,0.3)' } : {}}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -315,16 +304,17 @@ const PlatformAnalyticsPage: React.FC = () => {
                         data={revenueBreakdownData}
                         cx="50%"
                         cy="50%"
-                        outerRadius={100}
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                        outerRadius={120}
                         fill="#8884d8"
                         dataKey="value"
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       >
-                        {revenueBreakdownData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        {revenueBreakdownData.map((entry, idx) => (
+                          <Cell key={`cell-${idx}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                      <Tooltip formatter={(value: number) => formatCurrency(value)} />
                     </RechartsPieChart>
                   </ResponsiveContainer>
                 </div>
@@ -335,10 +325,10 @@ const PlatformAnalyticsPage: React.FC = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <LineChart className="h-5 w-5" />
+                  <TrendingUp className="h-5 w-5" />
                   Growth Trend
                 </CardTitle>
-                <CardDescription>Monthly growth rate percentage</CardDescription>
+                <CardDescription>Monthly growth rate (%)</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-80">
@@ -347,98 +337,55 @@ const PlatformAnalyticsPage: React.FC = () => {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="month" />
                       <YAxis />
-                      <Tooltip formatter={(value) => [`${value}%`, 'Growth Rate']} />
-                      <Line type="monotone" dataKey="growth" stroke="#8884d8" strokeWidth={2} />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="growth" stroke="#0088FE" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
                     </RechartsLineChart>
                   </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
           </div>
-
-          {/* Key Performance Indicators */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                Key Performance Indicators
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Student Satisfaction
-                  </label>
-                  <Progress value={platformData.performance_metrics.student_success.student_satisfaction * 20} className="mb-1" />
-                  <p className="text-sm text-gray-600">{platformData.performance_metrics.student_success.student_satisfaction}/5.0</p>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Class Completion Rate
-                  </label>
-                  <Progress value={platformData.performance_metrics.student_success.average_course_completion} className="mb-1" />
-                  <p className="text-sm text-gray-600">{platformData.performance_metrics.student_success.average_course_completion}%</p>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Teacher Rating
-                  </label>
-                  <Progress value={platformData.performance_metrics.teacher_success.average_rating * 20} className="mb-1" />
-                  <p className="text-sm text-gray-600">{platformData.performance_metrics.teacher_success.average_rating}/5.0</p>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Student Retention
-                  </label>
-                  <Progress value={platformData.performance_metrics.student_success.retention_rate} className="mb-1" />
-                  <p className="text-sm text-gray-600">{platformData.performance_metrics.student_success.retention_rate}%</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="revenue" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Monthly Revenue Breakdown</CardTitle>
-                <CardDescription>June 2025 financial summary</CardDescription>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Monthly Revenue Summary
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">B2B Subscriptions</span>
-                    <span className="font-semibold">
-                      {formatCurrency(platformData.financial_summary.monthly_breakdown.june_2025.b2b_subscriptions.amount)}
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+                    <span className="text-sm font-medium text-slate-700">Total Revenue</span>
+                    <span className="text-lg font-bold text-green-600">
+                      {formatCurrency(platformData.platform_overview.total_revenue_monthly)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Marketplace Commission</span>
-                    <span className="font-semibold">
-                      {formatCurrency(platformData.financial_summary.monthly_breakdown.june_2025.marketplace_sales.platform_commission)}
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+                    <span className="text-sm font-medium text-slate-700">B2B Subscriptions</span>
+                    <span className="text-lg font-bold text-blue-600">
+                      {formatCurrency(platformData.platform_overview.revenue_breakdown.b2b_subscriptions)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Exam Registration Fees</span>
-                    <span className="font-semibold">
-                      {formatCurrency(platformData.financial_summary.monthly_breakdown.june_2025.exam_registrations.platform_fees)}
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+                    <span className="text-sm font-medium text-slate-700">Marketplace</span>
+                    <span className="text-lg font-bold text-emerald-600">
+                      {formatCurrency(platformData.platform_overview.revenue_breakdown.marketplace_commissions)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Enrollment Facilitation</span>
-                    <span className="font-semibold">
-                      {formatCurrency(platformData.financial_summary.monthly_breakdown.june_2025.enrollment_facilitations.platform_fees)}
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+                    <span className="text-sm font-medium text-slate-700">Exam Centers</span>
+                    <span className="text-lg font-bold text-amber-600">
+                      {formatCurrency(platformData.platform_overview.revenue_breakdown.exam_center_fees)}
                     </span>
                   </div>
-                  <div className="border-t pt-2 flex justify-between items-center">
-                    <span className="font-semibold">Total Revenue</span>
-                    <span className="font-bold text-green-600 text-lg">
-                      {formatCurrency(platformData.financial_summary.monthly_breakdown.june_2025.total_revenue)}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-slate-700">Facilitation</span>
+                    <span className="text-lg font-bold text-purple-600">
+                      {formatCurrency(platformData.platform_overview.revenue_breakdown.facilitation_fees)}
                     </span>
                   </div>
                 </div>
@@ -447,41 +394,34 @@ const PlatformAnalyticsPage: React.FC = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Revenue Projections</CardTitle>
-                <CardDescription>Forecast for 2025</CardDescription>
+                <CardTitle>Marketplace Economics</CardTitle>
+                <CardDescription>June 2025 Breakdown</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold mb-2">Q3 2025 Targets</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Estimated Revenue</span>
-                        <span className="font-semibold">
-                          {formatCurrency(platformData.financial_summary.projections.q3_2025.estimated_revenue)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Target Institutions</span>
-                        <span className="font-semibold">{platformData.financial_summary.projections.q3_2025.target_institutions}</span>
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+                    <span className="text-sm font-medium text-slate-700">Courses Sold</span>
+                    <span className="text-lg font-bold text-blue-600">
+                      {platformData.financial_summary.monthly_breakdown.june_2025.marketplace_sales.total_courses_sold}
+                    </span>
                   </div>
-                  
-                  <div className="border-t pt-4">
-                    <h4 className="font-semibold mb-2">End of Year 2025</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Estimated Revenue</span>
-                        <span className="font-semibold">
-                          {formatCurrency(platformData.financial_summary.projections.end_of_year_2025.estimated_revenue)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Target Students</span>
-                        <span className="font-semibold">{platformData.financial_summary.projections.end_of_year_2025.target_students.toLocaleString()}</span>
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+                    <span className="text-sm font-medium text-slate-700">Teacher Earnings</span>
+                    <span className="text-lg font-bold text-green-600">
+                      {formatCurrency(platformData.financial_summary.monthly_breakdown.june_2025.marketplace_sales.teacher_earnings)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+                    <span className="text-sm font-medium text-slate-700">Platform Commission</span>
+                    <span className="text-lg font-bold text-indigo-600">
+                      {formatCurrency(platformData.financial_summary.monthly_breakdown.june_2025.marketplace_sales.platform_commission)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-slate-700">Exam Registrations</span>
+                    <span className="text-lg font-bold text-amber-600">
+                      {platformData.financial_summary.monthly_breakdown.june_2025.exam_registrations.total_registrations}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -490,43 +430,78 @@ const PlatformAnalyticsPage: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="users" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* LEFT CARD: User Statistics + Exam Performance combined */}
+            <Card className="h-full flex flex-col">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
                   User Statistics
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1">
                 <div className="space-y-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+                    <span className="text-sm font-medium text-slate-700">Universal Students</span>
+                    <span className="text-lg font-bold text-blue-600">
                       {platformData.platform_overview.user_statistics.total_universal_students.toLocaleString()}
-                    </div>
-                    <p className="text-sm text-gray-600">Universal Students</p>
+                    </span>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
-                      {platformData.platform_overview.user_statistics.total_independent_teachers}
-                    </div>
-                    <p className="text-sm text-gray-600">Independent Teachers</p>
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+                    <span className="text-sm font-medium text-slate-700">Independent Teachers</span>
+                    <span className="text-lg font-bold text-green-600">
+                      {platformData.platform_overview.user_statistics.total_independent_teachers.toLocaleString()}
+                    </span>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">
-                      {platformData.platform_overview.user_statistics.total_institutions}
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+                    <span className="text-sm font-medium text-slate-700">Partner Institutions</span>
+                    <span className="text-lg font-bold text-purple-600">
+                      {platformData.platform_overview.user_statistics.total_institutions.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between border-b pb-3 border-slate-100">
+                    <span className="text-sm font-medium text-slate-700">Monthly Active Users</span>
+                    <span className="text-lg font-bold text-indigo-600">
+                      {platformData.platform_overview.user_statistics.monthly_active_users.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-slate-700">New Registrations (This Month)</span>
+                    <span className="text-lg font-bold text-emerald-600">
+                      {platformData.platform_overview.user_statistics.new_registrations_this_month.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Exam Performance section merged below */}
+                <div className="mt-6 pt-6 border-t border-slate-200">
+                  <h4 className="text-sm font-semibold text-slate-800 mb-4">Exam Performance — 2024 Results</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-1.5">
+                        <span className="text-sm font-medium text-slate-700">UCE Pass Rate</span>
+                        <span className="text-sm font-bold text-emerald-600">{platformData.performance_metrics.student_success.exam_pass_rates.uce_2024}%</span>
+                      </div>
+                      <Progress value={platformData.performance_metrics.student_success.exam_pass_rates.uce_2024} className="h-2" />
                     </div>
-                    <p className="text-sm text-gray-600">Partner Institutions</p>
+                    <div>
+                      <div className="flex justify-between mb-1.5">
+                        <span className="text-sm font-medium text-slate-700">UACE Pass Rate</span>
+                        <span className="text-sm font-bold text-blue-600">{platformData.performance_metrics.student_success.exam_pass_rates.uace_2024}%</span>
+                      </div>
+                      <Progress value={platformData.performance_metrics.student_success.exam_pass_rates.uace_2024} className="h-2" />
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            {/* RIGHT CARD: Popular Subjects */}
+            <Card className="h-full flex flex-col">
               <CardHeader>
                 <CardTitle>Popular Subjects</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-1">
                 <div className="space-y-2">
                   {platformData.platform_overview.market_intelligence.popular_subjects.map((subject, index) => (
                     <div key={subject} className="flex items-center justify-between">
@@ -534,32 +509,6 @@ const PlatformAnalyticsPage: React.FC = () => {
                       <Badge variant="secondary">#{index + 1}</Badge>
                     </div>
                   ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Exam Performance</CardTitle>
-                <CardDescription>2024 Results</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      UCE Pass Rate
-                    </label>
-                    <Progress value={platformData.performance_metrics.student_success.exam_pass_rates.uce_2024} className="mb-1" />
-                    <p className="text-sm text-gray-600">{platformData.performance_metrics.student_success.exam_pass_rates.uce_2024}%</p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                      UACE Pass Rate
-                    </label>
-                    <Progress value={platformData.performance_metrics.student_success.exam_pass_rates.uace_2024} className="mb-1" />
-                    <p className="text-sm text-gray-600">{platformData.performance_metrics.student_success.exam_pass_rates.uace_2024}%</p>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -632,14 +581,14 @@ const PlatformAnalyticsPage: React.FC = () => {
           <div className="mt-6 border-t pt-6 border-slate-200">
             <h3 className="text-xl font-bold mb-4 text-slate-900 border-l-4 border-indigo-500 pl-3">Resource Engagement Tracking</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="bg-indigo-50 border-indigo-100 shadow-sm">
+              <Card className="bg-purple-100 border-purple-300 shadow-sm">
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start mb-2">
-                    <p className="text-sm font-semibold text-indigo-900 uppercase">Avg Active Time</p>
-                    <BookOpen className="w-4 h-4 text-indigo-500" />
+                    <p className="text-sm font-bold text-purple-700 uppercase tracking-wide">Avg Active Time</p>
+                    <BookOpen className="w-4 h-4 text-purple-600" />
                   </div>
-                  <p className="text-3xl font-black text-indigo-950">42<span className="text-lg font-medium text-indigo-700 ml-1">mins</span></p>
-                  <p className="text-xs text-indigo-700 mt-2 font-medium">Per day, per active user</p>
+                  <p className="text-3xl font-black text-purple-800">42<span className="text-lg font-medium text-purple-600 ml-1">mins</span></p>
+                  <p className="text-xs text-purple-600 mt-2 font-semibold">Per day, per active user</p>
                 </CardContent>
               </Card>
 
@@ -683,7 +632,7 @@ const PlatformAnalyticsPage: React.FC = () => {
                     <h4 className="font-semibold mb-2">Active Regions</h4>
                     <div className="flex flex-wrap gap-2">
                       {platformData.platform_overview.geographic_coverage.regions_active.map((region) => (
-                        <Badge key={region} variant="default">{region}</Badge>
+                        <Badge key={region} variant="secondary" className="bg-slate-100 text-slate-700">{region}</Badge>
                       ))}
                     </div>
                   </div>
@@ -692,7 +641,7 @@ const PlatformAnalyticsPage: React.FC = () => {
                     <h4 className="font-semibold mb-2">Top Performing Regions</h4>
                     <div className="flex flex-wrap gap-2">
                       {platformData.platform_overview.geographic_coverage.top_performing_regions.map((region) => (
-                        <Badge key={region} variant="default" className="bg-green-600">{region}</Badge>
+                        <Badge key={region} variant="default" className="bg-indigo-600">{region}</Badge>
                       ))}
                     </div>
                   </div>
@@ -724,5 +673,3 @@ const PlatformAnalyticsPage: React.FC = () => {
     </div>
   );
 };
-
-export default PlatformAnalyticsPage;

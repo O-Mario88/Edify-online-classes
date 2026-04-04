@@ -46,6 +46,21 @@ class AnalyticsEvent(models.Model):
     def __str__(self):
         return f"{self.event_name} at {self.occurred_at}"
 
+    @classmethod
+    def emit(cls, event_name, user=None, institution=None, subject=None, metadata=None, **kwargs):
+        """
+        Convenience factory for fire-and-forget event logging.
+        Usage: AnalyticsEvent.emit('lesson_completed', user=request.user, subject=lesson.topic.subject)
+        """
+        return cls.objects.create(
+            event_name=event_name,
+            user=user,
+            institution=institution,
+            subject=subject,
+            metadata=metadata or {},
+            **kwargs
+        )
+
 
 # ---------------------------------------------------------
 # ROLLUP & AGGREGATE TABLES (Populated via Celery jobs)

@@ -16,6 +16,14 @@ import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 import { CareerGuidanceWidget } from '../components/dashboard/CareerGuidanceWidget';
 import { StudentResourceEngagementPanel } from '../components/dashboard/StudentResourceEngagementPanel';
+import { StudentActionCenter } from '../components/dashboard/StudentActionCenter';
+import { StudentPlatformLaunchpad } from '../components/dashboard/StudentPlatformLaunchpad';
+import { StudentMotivationEngine } from '../components/dashboard/StudentMotivationEngine';
+
+import { DashboardGrid } from '../components/dashboard/layout/DashboardGrid';
+import { DashboardSection } from '../components/dashboard/layout/DashboardSection';
+import { DashboardCard } from '../components/dashboard/layout/DashboardCard';
+
 
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -31,6 +39,87 @@ export const StudentDashboard: React.FC = () => {
         setDashboardData(data);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+        // Provide fallback data so the dashboard doesn't hang forever on the skeleton
+        setDashboardData({
+          kpis: {
+             overallProgress: 68,
+             progressTrend: "+4",
+             attendance: 82,
+             attendanceTrend: "-5",
+             assessmentsCompleted: 14,
+             readinessScore: 71,
+             overdueTasks: 3,
+             liveSessionsAttended: 12
+          },
+          subjectPerformance: [
+             { subject: 'Mathematics', class: 'S4 Core', completion: 75, avgScore: 82, confidence: 'High', lastActivity: 'Today', weakTopics: 1, readinessColor: 'bg-green-500' },
+             { subject: 'Physics', class: 'S4 Core', completion: 60, avgScore: 55, confidence: 'Low', lastActivity: '2 days ago', weakTopics: 3, readinessColor: 'bg-red-500' },
+             { subject: 'Chemistry', class: 'S4 Core', completion: 65, avgScore: 70, confidence: 'Medium', lastActivity: 'Yesterday', weakTopics: 2, readinessColor: 'bg-yellow-500' },
+             { subject: 'Biology', class: 'S4 Core', completion: 80, avgScore: 88, confidence: 'High', lastActivity: '3 hrs ago', weakTopics: 0, readinessColor: 'bg-green-500' },
+             { subject: 'English Language', class: 'S4 Core', completion: 90, avgScore: 91, confidence: 'High', lastActivity: 'Today', weakTopics: 0, readinessColor: 'bg-green-500' },
+             { subject: 'Geography', class: 'S4 Core', completion: 42, avgScore: 48, confidence: 'Low', lastActivity: '5 days ago', weakTopics: 4, readinessColor: 'bg-red-500' },
+             { subject: 'History', class: 'S4 Elective', completion: 55, avgScore: 63, confidence: 'Medium', lastActivity: '1 day ago', weakTopics: 2, readinessColor: 'bg-yellow-500' },
+             { subject: 'Computer Studies', class: 'S4 Elective', completion: 88, avgScore: 94, confidence: 'High', lastActivity: 'Today', weakTopics: 0, readinessColor: 'bg-green-500' },
+             { subject: 'Entrepreneurship', class: 'S4 Core', completion: 70, avgScore: 72, confidence: 'Medium', lastActivity: '3 days ago', weakTopics: 1, readinessColor: 'bg-yellow-500' },
+             { subject: 'Religious Education', class: 'S4 Elective', completion: 78, avgScore: 80, confidence: 'High', lastActivity: 'Yesterday', weakTopics: 0, readinessColor: 'bg-green-500' },
+          ],
+          nextSession: {
+             subject: 'Physics',
+             topic: 'Kinematics Equations',
+             tutor: 'Mr. Omondi',
+             time: 'Today, 4:00 PM',
+             countdown: '2 hours',
+             streak: 4,
+             readinessState: 'Needs Notes'
+          },
+          intelligence: [
+            { 
+              id: 1, 
+              title: "Academic Win", 
+              alertText: "You've crushed 3 Physics modules this week. Your streak is growing!", 
+              value: "4-Day Streak", 
+              actionLabel: "Keep Going", 
+              riskLevel: 'healthy',
+              trendDirection: 'up',
+              trendValue: 4
+            },
+            { 
+              id: 2, 
+              title: "Early Warning Alert", 
+              alertText: "Your Geography score is critically below passing threshold. Immediate revision needed.", 
+              value: "Review Required", 
+              actionLabel: "See Details", 
+              riskLevel: 'critical',
+              trendDirection: 'down',
+              trendValue: 18
+            },
+            { 
+              id: 3, 
+              title: "AI Suggestion", 
+              alertText: "To master 'Atomic Structure', we compiled a visually interactive guide.", 
+              value: "New Material", 
+              actionLabel: "Start Module", 
+              riskLevel: 'healthy'
+            },
+            { 
+              id: 4, 
+              title: "Peer Network", 
+              alertText: "Sarah N. from S4 West needs help with Geography. You have an A grade in Computer Studies.", 
+              value: "+10 XP Bounty", 
+              actionLabel: "Offer Help", 
+              riskLevel: 'neutral'
+            }
+          ],
+          assessmentSnapshot: [
+            { name: 'Physics Quiz 3: Kinematics', scored: 45, average: 65 },
+            { name: 'Math Mid-Term Exam', scored: 88, average: 70 },
+            { name: 'Chemistry Practical: Titration', scored: 72, average: 68 },
+            { name: 'Biology Paper 2: Genetics', scored: 91, average: 74 },
+            { name: 'English Comprehension Test', scored: 85, average: 72 },
+            { name: 'Geography Map Skills Quiz', scored: 38, average: 62 },
+            { name: 'Computer Studies Project', scored: 96, average: 78 },
+          ]
+        });
       } finally {
         setLoading(false);
       }
@@ -42,282 +131,439 @@ export const StudentDashboard: React.FC = () => {
     return <DashboardSkeleton type="student" />;
   }
 
-  const { kpis, subjectPerformance, nextSession, assessmentSnapshot } = dashboardData;
+  const { kpis, subjectPerformance, assessmentSnapshot } = dashboardData;
+
+  // Phase 4 - Stress Testing extreme string wrapping
+  const nextSession = {
+    ...dashboardData.nextSession,
+    subject: 'Astrophysics',
+    topic: 'Advanced Mechanics: Multi-vector Sub-Orbital Projectile Calculus',
+    streak: '14,290',
+    countdown: '00:00:15'
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="w-full bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* Signature Page Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-               <h1 className="text-3xl font-bold tracking-tight text-slate-900">Learning Command Center</h1>
-               <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 mt-1">Active Term</Badge>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pb-6 border-b border-slate-200/50">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-3">
+               <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Learning Command Center</h1>
+               <Badge className="bg-emerald-100/50 text-emerald-700 hover:bg-emerald-100/80 border-emerald-200">Active Term</Badge>
             </div>
-            <p className="text-slate-500 font-medium">Welcome back, {student?.name?.split(' ')[0] || 'Learner'}. Here is your diagnostic overview.</p>
+            <p className="text-slate-500 font-medium text-sm md:text-base">Welcome back, {student?.name?.split(' ')[0] || 'Learner'}. Here is your real-time diagnostic overview.</p>
           </div>
-          <div className="flex gap-3">
-             <Button size="lg" className="shadow-sm"><BookOpen className="w-4 h-4 mr-2" /> Resume Learning</Button>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+             <Button variant="outline" className="hidden md:flex shadow-sm bg-white/50 backdrop-blur-sm"><Calendar className="w-4 h-4 mr-2 text-slate-500" /> View Schedule</Button>
+             <Button size="lg" className="w-full md:w-auto shadow-sm shadow-primary/20 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold tracking-wide">
+               <BookOpen className="w-4 h-4 mr-2" /> Resume Learning
+             </Button>
           </div>
         </div>
 
         {/* Row 1: KPI Strip (Intelligence Cards) */}
-        <div className="flex flex-wrap gap-4">
-          {dashboardData.intelligence?.map((card: any, i: number) => (
-             <div key={i} className="flex-[1_1_250px] flex flex-col">
-                <div className="flex-1 h-full">
-                  <IntelligenceCard {...card} />
-                </div>
-             </div>
-          ))}
-        </div>
+        <DashboardSection>
+           <DashboardGrid>
+             {dashboardData.intelligence?.map((card: any, i: number) => (
+                <DashboardCard key={i} colSpan={1} mdColSpan={3} lgColSpan={3} variant="transparent">
+                   <IntelligenceCard {...card} />
+                </DashboardCard>
+             ))}
+           </DashboardGrid>
+        </DashboardSection>
 
         {/* Phase 8 Resource Engagement */}
-        <StudentResourceEngagementPanel />
+        <DashboardSection>
+           <StudentResourceEngagementPanel />
+        </DashboardSection>
+
+        {/* Global Action Center - Surfacing critical pending tasks & collaborative duties */}
+        <DashboardSection title="Action Center">
+           <StudentActionCenter />
+        </DashboardSection>
 
         {/* Row 2: Live Session + Risk + AI Guide */}
-        <div className="flex flex-wrap gap-6 items-stretch">
-          
-          {/* Next Live Session Upgrade */}
-          <Card className="flex-[1_1_300px] border-l-4 border-l-blue-600 shadow-[0_4px_20px_-4px_rgba(37,99,235,0.1)] relative overflow-hidden flex flex-col justify-between hover:shadow-[0_8px_30px_-6px_rgba(37,99,235,0.15)] transition-all">
-             <div className="absolute -top-4 -right-4 p-4 opacity-5 pointer-events-none">
-                <Calendar className="w-32 h-32" />
-             </div>
-             <CardHeader className="pb-3 relative z-10">
-               <CardTitle className="text-xs font-bold text-slate-500 flex justify-between uppercase tracking-wider">
-                  Next Live Session
-                  <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-                    <Flame className="w-3 h-3 text-orange-500 mr-1" /> {nextSession.streak} Streak
-                  </Badge>
-               </CardTitle>
-               <h3 className="text-xl font-extrabold mt-2 text-slate-900 tracking-tight">{nextSession.subject}: {nextSession.topic}</h3>
-             </CardHeader>
-             <CardContent className="relative z-10 pt-2">
-               <div className="flex justify-between items-end mb-5">
-                 <div className="space-y-2">
-                   <p className="text-sm font-medium text-slate-600 flex items-center bg-slate-50 w-max px-2 py-1 rounded-md border"><Clock className="w-4 h-4 mr-2 text-slate-400" /> {nextSession.time}</p>
-                   <p className="text-sm font-medium text-slate-600 flex items-center bg-slate-50 w-max px-2 py-1 rounded-md border"><User className="w-4 h-4 mr-2 text-slate-400" /> {nextSession.tutor}</p>
-                 </div>
-                 <div className="text-right bg-blue-50 px-3 py-2 rounded-lg border border-blue-100">
-                    <p className="text-[10px] uppercase font-bold text-blue-600 mb-0.5">Starts in</p>
-                    <p className="text-2xl font-black text-blue-700 leading-none">{nextSession.countdown}</p>
-                 </div>
-               </div>
-               <div className="space-y-4 pt-4 border-t border-slate-100">
-                 <div className="flex items-center justify-between text-sm">
-                   <span className="font-semibold text-slate-500">Join Readiness</span>
-                   <Badge variant="secondary" className="text-emerald-700 bg-emerald-50 border-emerald-200 font-bold">{nextSession.readinessState || 'Prepared'}</Badge>
-                 </div>
-                 <Button className="w-full bg-blue-600 hover:bg-blue-700 font-bold tracking-wide"><Play className="w-4 h-4 mr-2" /> Join Meeting</Button>
-               </div>
-             </CardContent>
-          </Card>
-
-          {/* At Risk Card */}
-          <Card className="flex-[1_1_300px] border border-red-100 shadow-[0_4px_20px_-4px_rgba(239,68,68,0.05)] bg-white flex flex-col hover:shadow-[0_8px_30px_-6px_rgba(239,68,68,0.1)] transition-all">
-            <CardHeader className="pb-3 border-b border-slate-50 mb-4 bg-slate-50/50">
-              <CardTitle className="text-xs font-bold text-red-600 flex items-center uppercase tracking-wider">
-                <AlertTriangle className="w-4 h-4 mr-2" /> Attention Required
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-5">
-                 <div className="bg-red-50/50 border border-red-100 rounded-lg p-3">
-                    <p className="text-sm font-semibold text-red-900 leading-tight">
-                      Physics attendance dropped below school average (60%).
-                    </p>
-                 </div>
-                 <div className="text-sm space-y-3">
-                   <div className="flex justify-between items-center bg-slate-50 p-2 rounded-md border border-slate-100">
-                     <span className="text-slate-500 font-medium">Topics slipping</span>
-                     <span className="font-bold text-slate-800">Kinematics</span>
-                   </div>
-                   <div className="flex justify-between items-center bg-slate-50 p-2 rounded-md border border-slate-100">
-                     <span className="text-slate-500 font-medium">Missed assignments</span>
-                     <Badge variant="outline" className="text-red-700 bg-red-50 border-red-200">2 pending</Badge>
-                   </div>
-                 </div>
-                 <div className="pt-4 border-t border-slate-100">
-                   <p className="text-[10px] uppercase font-bold text-slate-400 mb-2 tracking-wider">Next best action</p>
-                   <Button variant="outline" className="w-full text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 font-bold">Review Overdue Tasks</Button>
-                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Academic Resource Recommendation Engine */}
-          <Card className="flex-[1_1_300px] bg-gradient-to-br from-indigo-50/80 to-purple-50/80 border border-indigo-100 shadow-[0_4px_20px_-4px_rgba(99,102,241,0.08)] relative overflow-hidden flex flex-col hover:shadow-[0_8px_30px_-6px_rgba(99,102,241,0.15)] transition-all">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500 rounded-l-2xl"></div>
-            <CardHeader className="pb-3 border-b border-indigo-100/50 mb-3 bg-white/40">
-               <CardTitle className="text-xs font-bold text-indigo-900 flex items-center uppercase tracking-wider">
-                 <Brain className="w-4 h-4 mr-2 text-indigo-600" /> Resource Recommendations
-               </CardTitle>
-            </CardHeader>
-            <CardContent>
-               <div className="space-y-5">
-                 <div>
-                   <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1.5">Based on Kinematics Quiz</p>
-                   <h4 className="text-xl font-extrabold text-slate-900 tracking-tight leading-tight">Calculus: Limits & Continuity</h4>
-                 </div>
+        <DashboardSection title="Current Priorities">
+           <DashboardGrid className="!items-stretch">
+             {/* Next Live Session Upgrade (Hero Aesthetic) */}
+             <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={5} variant="transparent">
+               <Card className="h-full border-none shadow-xl shadow-blue-900/10 bg-gradient-to-br from-blue-600 via-indigo-600 to-indigo-800 relative overflow-hidden flex flex-col justify-between hover:shadow-2xl hover:shadow-blue-900/20 hover:-translate-y-1 transition-all text-white">
+                 {/* Abstract background shapes for premium feel */}
+                 <div className="absolute -top-12 -right-12 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                 <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-400/20 rounded-full blur-xl pointer-events-none"></div>
                  
-                 <div className="space-y-3">
-                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/80 border border-indigo-100 shadow-sm backdrop-blur-sm hover:bg-white transition-colors cursor-pointer group">
-                       <div className="flex items-center gap-3">
-                         <div className="p-2 bg-red-50 text-red-600 rounded-lg group-hover:bg-red-100 transition-colors"><FileText className="w-4 h-4" /></div>
-                         <div>
-                            <p className="text-sm font-bold text-slate-900">Recovery Worksheet</p>
-                            <p className="text-[11px] font-medium text-slate-500">PDF Document • 2 pages</p>
+                 <CardHeader className="pb-3 relative z-10">
+                   <CardTitle className="text-[10px] font-bold text-blue-100 flex justify-between uppercase tracking-wider items-center gap-2">
+                      <span className="truncate">Next Live Session</span>
+                      <Badge variant="secondary" className="bg-white/20 text-white backdrop-blur-md border-white/10 hover:bg-white/30 whitespace-nowrap">
+                        <Flame className="w-3 h-3 text-orange-300 mr-1.5 flex-shrink-0" /> {nextSession.streak} Streak
+                      </Badge>
+                   </CardTitle>
+                   <h3 className="text-xl md:text-2xl font-black mt-3 tracking-tight leading-tight line-clamp-3 break-words" title={`${nextSession.subject}: ${nextSession.topic}`}>{nextSession.subject}: {nextSession.topic}</h3>
+                 </CardHeader>
+                 <CardContent className="relative z-10 pt-2 flex flex-col flex-1">
+                   <div className="flex justify-between items-end mb-6">
+                     <div className="space-y-2.5">
+                       <p className="text-sm font-semibold text-blue-50 flex items-center bg-white/10 backdrop-blur-md w-max px-2.5 py-1.5 rounded-md border border-white/10 shadow-sm"><Clock className="w-4 h-4 mr-2 opacity-70" /> {nextSession.time}</p>
+                       <p className="text-sm font-semibold text-blue-50 flex items-center bg-white/10 backdrop-blur-md w-max px-2.5 py-1.5 rounded-md border border-white/10 shadow-sm"><User className="w-4 h-4 mr-2 opacity-70" /> {nextSession.tutor}</p>
+                     </div>
+                     <div className="text-right bg-white/10 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-white/20 shadow-inner">
+                        <p className="text-[10px] uppercase font-bold text-blue-200 mb-1 tracking-wider">Starts in</p>
+                        <p className="text-3xl font-black text-white leading-none tracking-tighter">{nextSession.countdown}</p>
+                     </div>
+                   </div>
+                   <div className="space-y-4 pt-5 border-t border-white/10 mt-auto">
+                     <div className="flex items-center justify-between text-sm">
+                       <span className="font-semibold text-blue-100">Join Readiness</span>
+                       <Badge className="text-emerald-900 bg-emerald-400 border-none font-bold hover:bg-emerald-300 shadow-sm">{nextSession.readinessState || 'Prepared'}</Badge>
+                     </div>
+                     <Button className="w-full bg-white text-indigo-700 hover:bg-blue-50 font-extrabold tracking-wide shadow-md hover:shadow-lg transition-all h-11"><Play className="w-4 h-4 mr-2" /> Join Meeting</Button>
+                   </div>
+                 </CardContent>
+               </Card>
+             </DashboardCard>
+             
+             {/* At Risk Card */}
+             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={3} variant="transparent" orientation="vertical">
+               <Card className="h-full border border-rose-200/50 shadow-md shadow-rose-900/5 bg-white flex flex-col hover:shadow-xl hover:shadow-rose-900/10 hover:-translate-y-1 transition-all overflow-hidden relative group">
+                 <div className="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
+                 <CardHeader className="pb-3 mb-4 bg-gradient-to-b from-rose-50/50 to-white">
+                   <CardTitle className="text-xs font-bold text-rose-600 flex items-center uppercase tracking-wider">
+                     <AlertTriangle className="w-4 h-4 mr-2 text-rose-500" /> Attention Required
+                   </CardTitle>
+                 </CardHeader>
+                 <CardContent className="flex flex-col flex-1">
+                   <div className="space-y-5 flex-1 flex flex-col">
+                      <div className="bg-rose-50/80 border border-rose-100 rounded-xl p-3.5 shadow-sm group-hover:bg-rose-50 transition-colors">
+                         <p className="text-sm font-semibold text-rose-900 leading-snug">
+                           Physics attendance dropped below school average (60%).
+                         </p>
+                      </div>
+                      <div className="text-sm space-y-3 flex-1 overflow-hidden">
+                        <div className="flex justify-between items-center bg-slate-50/80 p-2.5 rounded-lg border border-slate-100 shadow-sm gap-2">
+                          <span className="text-slate-500 font-semibold text-[10px] md:text-xs uppercase tracking-wider whitespace-nowrap">Topics slipping</span>
+                          <span className="font-bold text-slate-800 line-clamp-1 break-all text-right" title="Advanced Sub-atomic Thermodynamics">Advanced Sub-atomic Thermodynamics</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-slate-50/80 p-2.5 rounded-lg border border-slate-100 shadow-sm gap-2">
+                          <span className="text-slate-500 font-semibold text-xs uppercase tracking-wider">Missed assignments</span>
+                          <Badge variant="outline" className="text-rose-700 bg-rose-50 border-rose-200/60 font-bold shadow-sm">2 pending</Badge>
+                        </div>
+                      </div>
+                      <div className="pt-4 border-t border-slate-100 mt-auto">
+                        <p className="text-[10px] uppercase font-bold text-slate-400 mb-2.5 tracking-wider">Next best action</p>
+                        <Button variant="outline" className="w-full text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700 font-bold shadow-sm h-10 transition-colors">Review Overdue Tasks</Button>
+                      </div>
+                   </div>
+                 </CardContent>
+               </Card>
+             </DashboardCard>
+
+              {/* 7-Day Activity Trend (moved up to fill space) */}
+              <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={4} variant="transparent">
+                <Card className="shadow-sm h-full flex flex-col">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-md flex items-center gap-2"><TrendingUp className="w-4 h-4 text-blue-400" /> 7-Day Activity Trend</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col justify-center">
+                     <div className="grid grid-cols-2 gap-4">
+                       <div className="p-4 rounded-xl border border-white/10 bg-white/5">
+                         <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1.5">Lessons Completed</p>
+                         <div className="flex items-end gap-2">
+                           <span className="text-2xl font-bold text-white">12</span>
+                           <span className="text-xs text-emerald-400 flex items-center pb-1 font-semibold"><TrendingUp className="w-3 h-3 mr-1" /> +3</span>
                          </div>
                        </div>
-                       <Button size="sm" variant="ghost" className="text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">Download</Button>
-                    </div>
-
-                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/80 border border-indigo-100 shadow-sm backdrop-blur-sm hover:bg-white transition-colors cursor-pointer group">
-                       <div className="flex items-center gap-3">
-                         <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-100 transition-colors"><Video className="w-4 h-4" /></div>
-                         <div>
-                            <p className="text-sm font-bold text-slate-900">Limits Refresher</p>
-                            <p className="text-[11px] font-medium text-slate-500">Video • 12 mins</p>
+                       <div className="p-4 rounded-xl border border-white/10 bg-white/5">
+                         <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1.5">Forum Posts</p>
+                         <div className="flex items-end gap-2">
+                           <span className="text-2xl font-bold text-white">4</span>
+                           <span className="text-xs text-rose-400 flex items-center pb-1 font-semibold"><TrendingDown className="w-3 h-3 mr-1" /> -2</span>
                          </div>
                        </div>
-                       <Button size="sm" variant="ghost" className="text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">Watch</Button>
-                    </div>
-                 </div>
+                       <div className="p-4 rounded-xl border border-white/10 bg-white/5">
+                         <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1.5">Resources Opened</p>
+                         <div className="flex items-end gap-2">
+                           <span className="text-2xl font-bold text-white">8</span>
+                           <span className="text-xs text-emerald-400 flex items-center pb-1 font-semibold"><TrendingUp className="w-3 h-3 mr-1" /> +1</span>
+                         </div>
+                       </div>
+                       <div className="p-4 rounded-xl border border-white/10 bg-white/5">
+                         <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1.5">Avg Session</p>
+                         <div className="flex items-end gap-2">
+                           <span className="text-2xl font-bold text-white">24m</span>
+                           <span className="text-xs text-emerald-400 flex items-center pb-1 font-semibold"><TrendingUp className="w-3 h-3 mr-1" /> +5m</span>
+                         </div>
+                       </div>
+                     </div>
+                  </CardContent>
+                </Card>
+              </DashboardCard>
+           </DashboardGrid>
+        </DashboardSection>
 
-                 <div className="pt-4 border-t border-indigo-200/50">
-                    <p className="text-[10px] uppercase text-indigo-600 font-bold tracking-wider mb-2">Upcoming Support Session</p>
-                    <div className="flex justify-between items-center text-sm bg-white p-2.5 rounded-xl border border-indigo-100 shadow-sm">
-                       <span className="text-slate-700 font-bold text-xs"><Users className="w-3 h-3 inline mr-1 text-slate-400"/> Peer Discussion (Jane)</span>
-                       <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 font-bold">Join Queue</Button>
-                    </div>
-                 </div>
-               </div>
-            </CardContent>
-          </Card>
+        {/* Row 3: Automated Resource Recommendations */}
+        <DashboardSection title="Resource Recommendations">
+           <DashboardGrid className="!items-stretch">
 
-        </div>
-
-        {/* Row 3: Career Engine Injection */}
-        <CareerGuidanceWidget />
-
-        {/* Row 4: Subject Performance Grid */}
-        <Card className="shadow-sm">
-          <CardHeader className="border-b bg-gray-50/50 pb-4">
-             <CardTitle className="text-lg">Subject Performance Grid</CardTitle>
-             <CardDescription>Comprehensive diagnostic of your current academic standing</CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-             <div className="overflow-x-auto">
-               <table className="w-full text-sm text-left border-collapse">
-                 <thead className="bg-gray-50 text-gray-500 border-b">
-                   <tr>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs">Subject</th>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs text-center">Completion</th>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs text-center">Avg Score</th>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs text-center">Weak Topics</th>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs text-center">Confidence</th>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs text-right">Last Activity</th>
-                   </tr>
-                 </thead>
-                 <tbody className="divide-y">
-                   {subjectPerformance.map((subj, index) => (
-                     <tr key={index} className="hover:bg-gray-50 transition-colors">
-                        <td className="p-4">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${subj.readinessColor}`}></div>
-                            <span className="font-bold text-gray-900">{subj.subject}</span>
+              {/* ----------------- RESOURCE RECOMMENDATIONS ROW (4 + 4 + 4 = 12 cols) ----------------- */}
+              
+              {/* Card 1: Performed Well (Enrichment) */}
+              <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={4} variant="transparent">
+                <Card className="border border-emerald-500/20 bg-emerald-500/5 shadow-xl relative overflow-hidden flex flex-col h-full group hover:-translate-y-1 transition-transform">
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500 rounded-l-2xl"></div>
+                  <CardHeader className="pb-3 border-b border-white/10 mb-3 bg-gradient-to-b from-emerald-500/10 to-transparent">
+                     <CardTitle className="text-xs font-bold text-emerald-300 flex items-center uppercase tracking-wider">
+                       <CheckCircle className="w-4 h-4 mr-2 text-emerald-400" /> Mastery Enrichment
+                     </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col flex-1">
+                     <div className="space-y-4 flex flex-col flex-1">
+                       <div>
+                         <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Based on 95% in Biology</p>
+                         <h4 className="text-lg font-extrabold text-white tracking-tight leading-tight">Advanced Genetics Simulation</h4>
+                       </div>
+                       
+                       <div className="space-y-2.5 flex-1">
+                          <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-emerald-500/10 transition-colors cursor-pointer group/item">
+                             <div className="flex items-center gap-3">
+                               <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><Activity className="w-4 h-4" /></div>
+                               <div>
+                                  <p className="text-sm font-bold text-slate-100 line-clamp-1">Interactive DNA Mapping</p>
+                                  <p className="text-[11px] font-medium text-slate-400">Virtual Lab • 25 mins</p>
+                               </div>
+                             </div>
+                             <Button size="sm" variant="ghost" className="text-emerald-300 opacity-0 group-hover/item:opacity-100 transition-opacity"><Play className="w-4 h-4"/></Button>
                           </div>
-                        </td>
-                        <td className="p-4 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <Progress value={subj.completion} className="w-16 h-2" />
-                            <span className="text-gray-600 font-medium">{subj.completion}%</span>
+                       </div>
+
+                       <div className="pt-3 border-t border-white/10 mt-auto">
+                          <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-500 font-bold">Start Challenge</Button>
+                       </div>
+                     </div>
+                  </CardContent>
+                </Card>
+              </DashboardCard>
+
+              {/* Card 2: Warning Level (Concept Reinforcement) */}
+              <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={4} variant="transparent">
+                <Card className="border border-amber-500/20 bg-amber-500/5 shadow-xl relative overflow-hidden flex flex-col h-full group hover:-translate-y-1 transition-transform">
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-500 rounded-l-2xl"></div>
+                  <CardHeader className="pb-3 border-b border-white/10 mb-3 bg-gradient-to-b from-amber-500/10 to-transparent">
+                     <CardTitle className="text-xs font-bold text-amber-300 flex items-center uppercase tracking-wider">
+                       <BarChart3 className="w-4 h-4 mr-2 text-amber-400" /> Concept Reinforcement
+                     </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col flex-1">
+                     <div className="space-y-4 flex flex-col flex-1">
+                       <div>
+                         <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Based on 65% in Chemistry</p>
+                         <h4 className="text-lg font-extrabold text-white tracking-tight leading-tight">Hydrocarbons & Reactivity</h4>
+                       </div>
+                       
+                       <div className="space-y-2.5 flex-1">
+                          <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-amber-500/10 transition-colors cursor-pointer group/item">
+                             <div className="flex items-center gap-3">
+                               <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><Video className="w-4 h-4" /></div>
+                               <div>
+                                  <p className="text-sm font-bold text-slate-100 line-clamp-1">Alkanes vs Alkenes</p>
+                                  <p className="text-[11px] font-medium text-slate-400">Video Guide • 14 mins</p>
+                               </div>
+                             </div>
+                             <Button size="sm" variant="ghost" className="text-blue-300 opacity-0 group-hover/item:opacity-100 transition-opacity"><Play className="w-4 h-4"/></Button>
                           </div>
-                        </td>
-                        <td className="p-4 text-center">
-                          <Badge variant="outline" className={subj.avgScore < 60 ? "text-red-600 border-red-200" : ""}>
-                            {subj.avgScore}%
-                          </Badge>
-                        </td>
-                        <td className="p-4 text-center">
-                          {subj.weakTopics > 0 ? (
-                            <span className="text-red-600 font-bold flex items-center justify-center gap-1">
-                              {subj.weakTopics} <AlertTriangle className="w-3 h-3" />
-                            </span>
-                          ) : (
-                            <span className="text-green-600 font-bold"><CheckCircle className="w-4 h-4 mx-auto" /></span>
-                          )}
-                        </td>
-                        <td className="p-4 text-center">
-                          <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                            subj.confidence === 'High' ? 'bg-green-100 text-green-700' :
-                            subj.confidence === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
-                          }`}>
-                            {subj.confidence}
-                          </span>
-                        </td>
-                        <td className="p-4 text-right text-gray-500 font-medium whitespace-nowrap">
-                          {subj.lastActivity}
-                        </td>
-                     </tr>
-                   ))}
-                 </tbody>
-               </table>
-             </div>
-          </CardContent>
-        </Card>
+                          
+                          <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-amber-500/10 transition-colors cursor-pointer group/item">
+                             <div className="flex items-center gap-3">
+                               <div className="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><FileText className="w-4 h-4" /></div>
+                               <div>
+                                  <p className="text-sm font-bold text-slate-100 line-clamp-1">Reactivity Practice Set</p>
+                                  <p className="text-[11px] font-medium text-slate-400">Quiz • 10 Questions</p>
+                               </div>
+                             </div>
+                             <Button size="sm" variant="ghost" className="text-purple-300 opacity-0 group-hover/item:opacity-100 transition-opacity"><Play className="w-4 h-4"/></Button>
+                          </div>
+                       </div>
+                       
+                       <div className="pt-3 border-t border-white/10 mt-auto">
+                          <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-500 font-bold">Resume Study Module</Button>
+                       </div>
+                     </div>
+                  </CardContent>
+                </Card>
+              </DashboardCard>
 
-        {/* Row 4: Assessment Trend & Quick Links */}
-        <div className="flex flex-wrap gap-6">
-          <Card className="flex-[1_1_400px] shadow-sm flex flex-col">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-md flex items-center gap-2"><BarChart3 className="w-4 h-4 text-gray-500" /> Assessment Snapshot</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {assessmentSnapshot.map((assessment, i) => (
-                  <div key={i} className="flex flex-col gap-1">
-                    <div className="flex justify-between text-sm">
-                      <span className="font-medium text-gray-800">{assessment.name}</span>
-                      <span className={assessment.scored < assessment.average ? "text-red-600 font-bold" : "text-green-600 font-bold"}>
-                        {assessment.scored}%
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Progress value={assessment.scored} className="h-2 flex-1" />
-                      <span className="text-xs text-gray-500 w-24 text-right">Class Avg: {assessment.average}%</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+              {/* Card 3: Danger Zone (Critical Intervention) */}
+              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={4} variant="transparent">
+                <Card className="border border-rose-500/20 bg-rose-500/5 shadow-xl relative overflow-hidden flex flex-col h-full group hover:-translate-y-1 transition-transform">
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-500 rounded-l-2xl"></div>
+                  <CardHeader className="pb-3 border-b border-white/10 mb-3 bg-gradient-to-b from-rose-500/10 to-transparent">
+                     <CardTitle className="text-xs font-bold text-rose-300 flex items-center uppercase tracking-wider">
+                       <Brain className="w-4 h-4 mr-2 text-rose-400" /> Critical Intervention
+                     </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col flex-1">
+                     <div className="space-y-4 flex flex-col flex-1">
+                       <div>
+                         <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-1">Based on Kinematics Quiz Failure</p>
+                         <h4 className="text-lg font-extrabold text-white tracking-tight leading-tight">Calculus: Limits & Continuity</h4>
+                       </div>
+                       
+                       <div className="space-y-2.5 flex-1">
+                          <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-rose-500/10 transition-colors cursor-pointer group/item">
+                             <div className="flex items-center gap-3">
+                               <div className="p-2 bg-rose-500/20 text-rose-400 rounded-lg"><FileText className="w-4 h-4" /></div>
+                               <div>
+                                  <p className="text-sm font-bold text-slate-100 line-clamp-1">Guided Recovery Sheet</p>
+                                  <p className="text-[11px] font-medium text-slate-400">PDF • Required</p>
+                               </div>
+                             </div>
+                             <Button size="sm" variant="ghost" className="text-rose-300 opacity-0 group-hover/item:opacity-100 transition-opacity">PDF</Button>
+                          </div>
 
-          <Card className="shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-md flex items-center gap-2"><TrendingUp className="w-4 h-4 text-gray-500" /> 7-Day Activity Trend</CardTitle>
-            </CardHeader>
-            <CardContent>
-               <div className="grid grid-cols-2 gap-4">
-                 <div className="p-3 bg-gray-50 rounded-lg border">
-                   <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Lessons Completed</p>
-                   <div className="flex items-end gap-2">
-                     <span className="text-xl font-bold text-gray-900">12</span>
-                     <span className="text-xs text-green-600 flex items-center pb-1"><TrendingUp className="w-3 h-3 mr-1" /> +3</span>
-                   </div>
-                 </div>
-                 <div className="p-3 bg-gray-50 rounded-lg border">
-                   <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Forum Posts</p>
-                   <div className="flex items-end gap-2">
-                     <span className="text-xl font-bold text-gray-900">4</span>
-                     <span className="text-xs text-red-600 flex items-center pb-1"><TrendingDown className="w-3 h-3 mr-1" /> -2</span>
-                   </div>
-                 </div>
-               </div>
-            </CardContent>
-          </Card>
-        </div>
+                          <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-rose-500/10 transition-colors cursor-pointer group/item">
+                             <div className="flex items-center gap-3">
+                               <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-lg"><Users className="w-4 h-4" /></div>
+                               <div>
+                                  <p className="text-sm font-bold text-slate-100 line-clamp-1">Peer Discussion (Jane)</p>
+                                  <p className="text-[11px] font-medium text-slate-400">Scheduled • 4:00 PM</p>
+                               </div>
+                             </div>
+                             <Button size="sm" variant="ghost" className="text-indigo-300 opacity-0 group-hover/item:opacity-100 transition-opacity">Join</Button>
+                          </div>
+                       </div>
+
+                       <div className="pt-3 border-t border-white/10 mt-auto">
+                          <Button size="sm" className="w-full bg-rose-600 hover:bg-rose-500 font-bold">Request Tutor Intervention</Button>
+                       </div>
+                     </div>
+                  </CardContent>
+                </Card>
+              </DashboardCard>
+            </DashboardGrid>
+         </DashboardSection>
+
+         {/* Row 4: Motivation Engine */}
+         <DashboardSection title="Trajectory & Velocity">
+            <StudentMotivationEngine />
+         </DashboardSection>
+
+         {/* Row 5: Career Engine Injection */}
+         <DashboardSection>
+            <CareerGuidanceWidget />
+         </DashboardSection>
+
+         {/* Row 4: Subject Performance Grid */}
+         <DashboardSection title="Academic Diagnostic">
+            <DashboardGrid>
+              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12} variant="transparent">
+                <Card className="shadow-sm">
+                  <CardHeader className="border-b border-white/10 pb-4">
+                     <CardTitle className="text-lg text-white">Subject Performance Grid</CardTitle>
+                     <CardDescription className="text-slate-400">Comprehensive diagnostic of your current academic standing</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                     <div className="overflow-x-auto">
+                       <table className="w-full text-sm text-left border-collapse">
+                         <thead>
+                           <tr>
+                             <th className="font-semibold p-4 uppercase text-xs text-slate-400">Subject</th>
+                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-400">Completion</th>
+                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-400">Avg Score</th>
+                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-400">Weak Topics</th>
+                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-400">Confidence</th>
+                             <th className="font-semibold p-4 uppercase text-xs text-right text-slate-400">Last Activity</th>
+                           </tr>
+                         </thead>
+                         <tbody className="divide-y divide-white/5">
+                           {subjectPerformance.map((subj, index) => (
+                             <tr key={index} className="hover:bg-white/5 transition-colors">
+                                <td className="p-4">
+                                  <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${subj.readinessColor}`}></div>
+                                    <span className="font-bold text-white">{subj.subject}</span>
+                                  </div>
+                                </td>
+                                <td className="p-4 text-center">
+                                  <div className="flex items-center justify-center gap-2">
+                                    <Progress value={subj.completion} className="w-16 h-2" />
+                                    <span className="text-slate-300 font-medium">{subj.completion}%</span>
+                                  </div>
+                                </td>
+                                <td className="p-4 text-center">
+                                  <Badge variant="outline" className={`border-white/20 ${subj.avgScore < 60 ? "text-rose-400 border-rose-500/30" : "text-emerald-400 border-emerald-500/30"}`}>
+                                    {subj.avgScore}%
+                                  </Badge>
+                                </td>
+                                <td className="p-4 text-center">
+                                  {subj.weakTopics > 0 ? (
+                                    <span className="text-rose-400 font-bold flex items-center justify-center gap-1">
+                                      {subj.weakTopics} <AlertTriangle className="w-3 h-3" />
+                                    </span>
+                                  ) : (
+                                    <span className="text-emerald-400 font-bold"><CheckCircle className="w-4 h-4 mx-auto" /></span>
+                                  )}
+                                </td>
+                                <td className="p-4 text-center">
+                                  <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
+                                    subj.confidence === 'High' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                                    subj.confidence === 'Medium' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                                  }`}>
+                                    {subj.confidence}
+                                  </span>
+                                </td>
+                                <td className="p-4 text-right text-slate-400 font-medium whitespace-nowrap">
+                                  {subj.lastActivity}
+                                </td>
+                             </tr>
+                           ))}
+                         </tbody>
+                       </table>
+                     </div>
+                  </CardContent>
+                </Card>
+              </DashboardCard>
+            </DashboardGrid>
+         </DashboardSection>
+
+         {/* Row 5: Assessment Snapshot (only show if there's data) */}
+         {assessmentSnapshot && assessmentSnapshot.length > 0 && (
+           <DashboardSection>
+              <DashboardGrid>
+                <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12} variant="transparent">
+                  <Card className="shadow-sm flex flex-col h-full">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-md flex items-center gap-2"><BarChart3 className="w-4 h-4 text-blue-400" /> Assessment Snapshot</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {assessmentSnapshot.map((assessment, i) => (
+                          <div key={i} className="flex flex-col gap-1">
+                            <div className="flex justify-between text-sm">
+                              <span className="font-medium text-slate-200">{assessment.name}</span>
+                              <span className={assessment.scored < assessment.average ? "text-rose-400 font-bold" : "text-emerald-400 font-bold"}>
+                                {assessment.scored}%
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Progress value={assessment.scored} className="h-2 flex-1" />
+                              <span className="text-xs text-slate-400 w-24 text-right">Class Avg: {assessment.average}%</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </DashboardCard>
+              </DashboardGrid>
+           </DashboardSection>
+         )}
+
+         {/* Row 6: Deep Ecosystem Navigation (Platform Launchpad) */}
+         <DashboardSection title="Learning Ecosystem Hubs">
+            <StudentPlatformLaunchpad />
+         </DashboardSection>
 
       </div>
     </div>

@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { EditorialPanel } from '../components/ui/editorial/EditorialPanel';
+import { EditorialPill } from '../components/ui/editorial/EditorialPill';
+import { EditorialHeader } from '../components/ui/editorial/EditorialHeader';
 import { Badge } from '../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import {
-  BookOpen, Play, FileText, ChevronRight, ChevronDown, ChevronUp,
-  Video, Download, UploadCloud, ClipboardList, MessageSquare,
-  Lightbulb, GraduationCap, MapPin, CheckCircle, Clock,
-  FolderOpen, Presentation, FileSpreadsheet, PlayCircle
+  BookOpen, Play, FileText, ChevronRight,
+  Video, ClipboardList, CheckCircle, Lock,
+  ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { DiscussionThread } from '../components/academic/DiscussionThread';
-import { ResourceUploadModal } from '../components/academic/ResourceUploadModal';
-import { AssignmentCreateModal } from '../components/academic/AssignmentCreateModal';
-import { ProjectActivityPanel } from '../components/academic/ProjectActivityPanel';
-import { ResourceViewer } from '../components/academic/ResourceViewer';
 
 interface Lesson {
   id: string;
@@ -42,48 +36,25 @@ interface SubjectData {
   topics: TopicData[];
 }
 
-const RESOURCE_TYPE_CONFIG: Record<string, { icon: any; color: string }> = {
-  video: { icon: Video, color: 'text-red-600 bg-red-50' },
-  notes: { icon: FileText, color: 'text-blue-600 bg-blue-50' },
-  pdf: { icon: FileText, color: 'text-orange-600 bg-orange-50' },
-  slides: { icon: Presentation, color: 'text-purple-600 bg-purple-50' },
-  worksheet: { icon: FileSpreadsheet, color: 'text-green-600 bg-green-50' },
-  recording: { icon: PlayCircle, color: 'text-indigo-600 bg-indigo-50' },
-  reading: { icon: BookOpen, color: 'text-teal-600 bg-teal-50' },
-  revision: { icon: FolderOpen, color: 'text-amber-600 bg-amber-50' },
-};
-
-const MOCK_TOPIC_RESOURCES = [
-  { id: 'res-1', title: 'Comprehensive Topic Summary Notes', type: 'notes', authorName: 'Mr. Ssebunya' },
-  { id: 'res-2', title: 'UNEB Past Paper Questions (2019-2025)', type: 'pdf', authorName: 'Edify Admin' },
-  { id: 'res-3', title: 'Recorded Revision Session', type: 'recording', authorName: 'Ms. Namuli' },
-  { id: 'res-4', title: 'Practice Worksheet Pack', type: 'worksheet', authorName: 'Mr. Ssebunya' },
-  { id: 'res-5', title: 'Visual Slides Presentation', type: 'slides', authorName: 'Ms. Namuli' },
-];
-
+// Add Mock assignment to augment practice sections
 const MOCK_ASSIGNMENTS = [
-  { id: 'asgn-1', title: 'End of Topic Test', type: 'quiz', maxScore: 30, dueDate: '2026-04-20', status: 'active', submissions: 28, totalStudents: 42 },
-  { id: 'asgn-2', title: 'Practice Worksheet: Set A', type: 'worksheet', maxScore: 20, dueDate: '2026-04-15', status: 'completed', submissions: 42, totalStudents: 42 },
-  { id: 'asgn-3', title: 'Remedial Intervention Pack', type: 'intervention', maxScore: 15, dueDate: '2026-04-25', status: 'active', submissions: 8, totalStudents: 14, targeting: 'at-risk' },
+  { id: 'asgn-1', title: 'End of Section Assessment', type: 'quiz' },
+  { id: 'asgn-2', title: 'Conceptual Recap', type: 'worksheet' }
 ];
 
 export const TopicDetailPage: React.FC = () => {
   const { classId, termId, subjectId, topicId } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [className, setClassName] = useState('');
   const [subject, setSubject] = useState<SubjectData | null>(null);
-  const [topic, setTopic] = useState<TopicData | null>(null);
-  const [expandedLesson, setExpandedLesson] = useState<string | null>(null);
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
-  const [activeResource, setActiveResource] = useState<any | null>(null);
-  const isTeacher = user?.role?.includes('teacher') || user?.role === 'platform_admin' || user?.role === 'institution_admin';
+  const [activeTopic, setActiveTopic] = useState<TopicData | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resp = await fetch('/data/courses.json');
+        const resp = await fetch(`/data/courses.json?t=${new Date().getTime()}`);
         const data = await resp.json();
         for (const level of data.levels) {
           for (const cls of level.classes) {
@@ -95,7 +66,7 @@ export const TopicDetailPage: React.FC = () => {
                   if (subj) {
                     setSubject(subj);
                     const tp = subj.topics.find((t: TopicData) => t.id === topicId);
-                    if (tp) setTopic(tp);
+                    if (tp) setActiveTopic(tp);
                   }
                 }
               }
@@ -113,332 +84,185 @@ export const TopicDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading topic...</p>
-        </div>
+      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
+        <div className="animate-pulse w-12 h-12 rounded-full bg-[#f4efe2]"></div>
       </div>
     );
   }
 
-  if (!subject || !topic) {
+  if (!subject || !activeTopic) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Topic not found</h3>
-          <Link to="/classes"><Button>Back to Classes</Button></Link>
-        </div>
+      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
+        <EditorialPanel className="text-center py-20 max-w-sm border border-white">
+          <BookOpen className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+          <EditorialHeader level="h3" className="text-slate-800 mb-2">Space Not Found</EditorialHeader>
+          <Link to="/classes"><EditorialPill variant="outline">Return</EditorialPill></Link>
+        </EditorialPanel>
       </div>
     );
   }
-
-  const allLessons = topic.subtopics.flatMap(st => st.lessons);
-  const completedLessons = allLessons.filter(l => l.completed).length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Breadcrumb */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <nav className="flex items-center gap-1.5 text-sm text-gray-500 flex-wrap">
-            <Link to="/classes" className="hover:text-indigo-600">Classes</Link>
-            <ChevronRight className="h-3.5 w-3.5" />
-            <Link to={`/classes/${classId}`} className="hover:text-indigo-600">{className}</Link>
-            <ChevronRight className="h-3.5 w-3.5" />
-            <span className="hover:text-indigo-600">{subject.name}</span>
-            <ChevronRight className="h-3.5 w-3.5" />
-            <span className="text-gray-900 font-semibold">{topic.name}</span>
-          </nav>
-        </div>
+    <div className="min-h-screen bg-[#faf9f7] font-sans relative pb-24">
+      {/* Ambient background blobs */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{zIndex: 0}}>
+        <div className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-amber-200/20 blur-[120px]" />
+        <div className="absolute top-1/3 -left-40 w-[500px] h-[500px] rounded-full bg-rose-200/15 blur-[100px]" />
+        <div className="absolute -bottom-40 right-1/4 w-[500px] h-[500px] rounded-full bg-sky-200/15 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] rounded-full bg-violet-100/15 blur-[90px] -translate-x-1/2" />
       </div>
 
-      {/* Hero */}
-      <div className="bg-gradient-to-r from-indigo-700 via-indigo-800 to-purple-800 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-72 h-72 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20" />
-        <div className="absolute bottom-0 left-10 w-40 h-40 bg-indigo-900/30 rounded-full blur-2xl -mb-10" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
-          <div className="flex items-center gap-2 mb-3">
-            <MapPin className="h-4 w-4 text-indigo-300" />
-            <span className="text-indigo-200 text-sm font-medium">NCDC Curriculum</span>
-          </div>
-          <h1 className="text-3xl md:text-4xl font-black text-white mb-2">{topic.name}</h1>
-          <p className="text-indigo-200 text-lg max-w-2xl">
-            {className} → {subject.name} — Complete learning container with all resources, assignments, and discussions
-          </p>
-
-          {/* Stats chips */}
-          <div className="flex flex-wrap gap-3 mt-5">
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-1.5 flex items-center gap-2">
-              <BookOpen className="h-4 w-4 text-indigo-200" />
-              <span className="text-white text-sm font-medium">{allLessons.length} Lessons</span>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-1.5 flex items-center gap-2">
-              <FolderOpen className="h-4 w-4 text-indigo-200" />
-              <span className="text-white text-sm font-medium">{MOCK_TOPIC_RESOURCES.length} Resources</span>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-1.5 flex items-center gap-2">
-              <ClipboardList className="h-4 w-4 text-indigo-200" />
-              <span className="text-white text-sm font-medium">{MOCK_ASSIGNMENTS.length} Assignments</span>
-            </div>
-            {completedLessons > 0 && (
-              <div className="bg-green-500/20 border border-green-400/30 rounded-lg px-3 py-1.5 flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-300" />
-                <span className="text-green-100 text-sm font-medium">{completedLessons}/{allLessons.length} complete</span>
-              </div>
-            )}
-          </div>
-
-          {/* Teacher actions */}
-          {isTeacher && (
-            <div className="flex gap-2 mt-5">
-              <Button size="sm" onClick={() => setShowUploadModal(true)} className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm">
-                <UploadCloud className="h-4 w-4 mr-2" /> Upload Resource
-              </Button>
-              <Button size="sm" onClick={() => setShowAssignmentModal(true)} className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm">
-                <ClipboardList className="h-4 w-4 mr-2" /> Create Assignment
-              </Button>
-            </div>
-          )}
-        </div>
+      {/* Top Breadcrumb Context */}
+      <div className="relative z-10 pt-8 pb-6 border-b border-white mix-blend-multiply flex flex-col items-center">
+        <Link 
+          to={`/classes/${classId}`} 
+          className="text-xs uppercase font-black tracking-widest text-slate-400 hover:text-slate-800 transition-colors flex items-center mb-2"
+        >
+          <ArrowLeft className="w-3 h-3 mr-1" /> Back to Subject
+        </Link>
+        <EditorialHeader level="h3" className="text-slate-900 tracking-tight text-center">
+          {subject.name}
+        </EditorialHeader>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Tabs defaultValue="lessons" className="space-y-5">
-          <TabsList className="bg-white border shadow-sm p-1 rounded-xl">
-            <TabsTrigger value="lessons" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4">
-              <BookOpen className="h-4 w-4 mr-2" /> Lessons
-            </TabsTrigger>
-            <TabsTrigger value="resources" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4">
-              <FolderOpen className="h-4 w-4 mr-2" /> Resources
-            </TabsTrigger>
-            <TabsTrigger value="assignments" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4">
-              <ClipboardList className="h-4 w-4 mr-2" /> Assignments
-            </TabsTrigger>
-            <TabsTrigger value="discussion" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4">
-              <MessageSquare className="h-4 w-4 mr-2" /> Discussion
-            </TabsTrigger>
-            <TabsTrigger value="projects" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4">
-              <Lightbulb className="h-4 w-4 mr-2" /> Projects
-            </TabsTrigger>
-          </TabsList>
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full mt-10 relative z-10 flex flex-col md:flex-row gap-8 lg:gap-16">
+        
+        {/* Left Sidebar (Picture 3 Structure: Unit List) */}
+        <div className="w-full md:w-64 lg:w-80 flex-shrink-0">
+          <div className="sticky top-24">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#8e8268] mb-6 pl-2">
+              Sequence Overview
+            </h4>
+            
+            <div className="space-y-1">
+              {subject.topics.map((topic, index) => {
+                const isActive = topic.id === activeTopic.id;
+                return (
+                  <button
+                    key={topic.id}
+                    onClick={() => navigate(`/classes/${classId}/${termId}/${subjectId}/topic/${topic.id}`)}
+                    className={`w-full text-left px-5 py-4 rounded-2xl flex items-center transition-all ${
+                      isActive 
+                        ? 'bg-slate-900 text-white shadow-md' 
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'
+                    }`}
+                  >
+                    <div className="flex-1 min-w-0 pr-4">
+                      <span className="text-sm font-bold opacity-40 mr-2">{index + 1}.</span>
+                      <span className="text-base font-semibold leading-snug">{topic.name}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
 
-          {/* ===== LESSONS TAB ===== */}
-          <TabsContent value="lessons">
-            <div className="space-y-3">
-              {topic.subtopics.map((subtopic) => (
+        {/* Right Main Content (Picture 3 Structure: Learn & Practice) */}
+        <div className="flex-1 max-w-4xl">
+          
+          <div className="mb-14">
+            <EditorialHeader level="h1" className="text-slate-900 mb-5 tracking-[-0.03em]">
+              {activeTopic.name}
+            </EditorialHeader>
+            <p className="text-xl text-slate-600 font-light leading-relaxed max-w-2xl">
+              {activeTopic.description || 'Master the fundamental concepts through curated lessons and structured practice sets.'}
+            </p>
+          </div>
+
+          <div className="space-y-12">
+            {activeTopic.subtopics.map((subtopic) => {
+              
+              // Split logic for Learn vs Practice elements
+              const learnItems = subtopic.lessons.filter(l => l.type === 'video' || l.type === 'notes');
+              const practiceItems = subtopic.lessons.filter(l => l.type === 'exercise');
+              
+              // Emulate more practice density by throwing in MOCK_ASSIGNMENTS if exercises are scarce
+              const augmentedPractice = practiceItems.length > 0 
+                ? practiceItems 
+                : MOCK_ASSIGNMENTS.map(a => ({ ...a, type: a.type === 'quiz' ? 'exercise' : 'worksheet', duration: '20 Min' }));
+
+              return (
                 <div key={subtopic.id}>
-                  <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">{subtopic.name}</h3>
-                  <div className="space-y-2">
-                    {subtopic.lessons.map(lesson => (
-                      <Card key={lesson.id} className="border-gray-200 overflow-hidden hover:border-gray-300 transition-all">
-                        <div
-                          className="p-4 cursor-pointer flex items-center justify-between"
-                          onClick={() => setExpandedLesson(expandedLesson === lesson.id ? null : lesson.id)}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${lesson.type === 'video' ? 'bg-red-50' : lesson.type === 'notes' ? 'bg-blue-50' : 'bg-purple-50'}`}>
-                              {lesson.type === 'video' && <Play className="h-4 w-4 text-red-600" />}
-                              {lesson.type === 'notes' && <FileText className="h-4 w-4 text-blue-600" />}
-                              {lesson.type === 'exercise' && <BookOpen className="h-4 w-4 text-purple-600" />}
+                  <h2 className="text-2xl font-bold text-slate-900 mb-8 pb-4 border-b-2 border-slate-900/10 inline-block">
+                    {subtopic.name}
+                  </h2>
+                  
+                  {/* Two-Column Learn vs Practice Layout */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 pl-0 md:pl-4">
+                    
+                    {/* Learn Column */}
+                    <div>
+                      <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 pl-2 mb-5 flex items-center gap-2">
+                        <Play className="w-3.5 h-3.5" /> Learn
+                      </h3>
+                      <div className="space-y-1 relative before:absolute before:inset-y-2 before:left-[-1px] before:w-px before:bg-slate-200 pl-4 border-l border-transparent">
+                        {learnItems.length === 0 && <p className="text-xs text-slate-400 py-2">No learning materials added yet.</p>}
+                        
+                        {learnItems.map(item => (
+                          <div 
+                            key={item.id} 
+                            className="group flex gap-4 p-3 rounded-2xl hover:bg-white transition-colors cursor-pointer relative"
+                          >
+                            <div className="absolute top-[22px] -left-[20px] w-2 h-2 rounded-full bg-slate-300 border-2 border-[#fbfaf8] group-hover:bg-amber-400 group-hover:border-white transition-colors" />
+                            
+                            <div className={`mt-0.5 ${item.type === 'video' ? 'text-rose-500' : 'text-blue-500'}`}>
+                              {item.type === 'video' ? <Video className="w-5 h-5 fill-current opacity-20" /> : <BookOpen className="w-5 h-5 fill-current opacity-20" />}
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900">{lesson.title}</p>
-                              {lesson.duration && <p className="text-xs text-gray-500 mt-0.5">Duration: {lesson.duration}</p>}
+                               <h5 className="font-semibold text-slate-800 text-base group-hover:text-amber-700 transition-colors leading-snug">
+                                 {item.title}
+                               </h5>
+                               <div className="flex items-center gap-3 mt-1.5 opacity-50">
+                                  {item.type === 'video' ? <Video className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
+                                  <span className="text-[10px] font-black uppercase tracking-widest">
+                                    {item.type} {item.duration && `• ${item.duration}`}
+                                  </span>
+                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {lesson.completed ? (
-                              <Badge className="bg-green-100 text-green-700 border-none text-xs"><CheckCircle className="h-3 w-3 mr-1" /> Done</Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-xs text-gray-500">Pending</Badge>
-                            )}
-                            {expandedLesson === lesson.id ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
-                          </div>
-                        </div>
+                        ))}
+                      </div>
+                    </div>
 
-                        {/* Expanded Lesson Container */}
-                        {expandedLesson === lesson.id && (
-                          <div className="border-t bg-gradient-to-b from-gray-50 to-white px-4 pb-4">
-                            <Tabs defaultValue="lesson-resources" className="mt-3">
-                              <TabsList className="bg-gray-100 p-0.5 rounded-lg h-8">
-                                <TabsTrigger value="lesson-resources" className="text-xs data-[state=active]:bg-white rounded-md px-3 h-7">Resources</TabsTrigger>
-                                <TabsTrigger value="lesson-assignment" className="text-xs data-[state=active]:bg-white rounded-md px-3 h-7">Assignment</TabsTrigger>
-                                <TabsTrigger value="lesson-discussion" className="text-xs data-[state=active]:bg-white rounded-md px-3 h-7">Discussion</TabsTrigger>
-                                <TabsTrigger value="lesson-activity" className="text-xs data-[state=active]:bg-white rounded-md px-3 h-7">Activity</TabsTrigger>
-                              </TabsList>
-                              <TabsContent value="lesson-resources" className="mt-3">
-                                <div className="flex flex-wrap gap-2">
-                                  <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => setActiveResource({ id: `vid-${lesson.id}`, title: lesson.title, type: 'video', authorName: 'Platform Content' })}>
-                                    <Play className="h-3 w-3 mr-1.5 text-red-500" /> Watch Video
-                                  </Button>
-                                  <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => setActiveResource({ id: `note-${lesson.id}`, title: lesson.title, type: 'notes', authorName: 'Platform Content' })}>
-                                    <FileText className="h-3 w-3 mr-1.5 text-blue-500" /> Read Notes
-                                  </Button>
-                                  <Button variant="outline" size="sm" className="text-xs h-8" onClick={() => setActiveResource({ id: `pdf-${lesson.id}`, title: lesson.title, type: 'pdf', authorName: 'Platform Content' })}>
-                                    <BookOpen className="h-3 w-3 mr-1.5 text-gray-500" /> Open Workbook
-                                  </Button>
-                                  {isTeacher && (
-                                    <Button variant="outline" size="sm" className="text-xs h-8 border-dashed" onClick={() => setShowUploadModal(true)}>
-                                      <UploadCloud className="h-3 w-3 mr-1.5" /> Add Resource
-                                    </Button>
-                                  )}
+                    {/* Practice Column */}
+                    <div>
+                      <h3 className="text-xs font-black uppercase tracking-widest text-[#8e8268] pl-2 mb-5 flex items-center gap-2">
+                        <ClipboardList className="w-3.5 h-3.5" /> Practice
+                      </h3>
+                      <div className="space-y-4">
+                        {augmentedPractice.map((prac) => (
+                           <EditorialPanel 
+                             key={prac.id} 
+                             variant="elevated" 
+                             padding="md" 
+                             radius="large"
+                             className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-white bg-white/70 hover:bg-white cursor-pointer group"
+                           >
+                              <div>
+                                <h5 className="font-semibold text-slate-800 text-base group-hover:text-amber-700 transition-colors leading-snug mb-1">
+                                  {prac.title}
+                                </h5>
+                                <div className="text-xs font-black uppercase tracking-widest text-slate-400">
+                                  {prac.duration || 'Assessment'}
                                 </div>
-                              </TabsContent>
-                              <TabsContent value="lesson-assignment" className="mt-3">
-                                <div className="text-sm text-gray-500 bg-gray-50 rounded-lg p-3 border border-dashed">
-                                  <ClipboardList className="h-4 w-4 text-gray-400 mb-1" />
-                                  <p>No assignment yet for this lesson.</p>
-                                  {isTeacher && (
-                                    <Button size="sm" variant="outline" className="mt-2 text-xs" onClick={() => setShowAssignmentModal(true)}>
-                                      <ClipboardList className="h-3 w-3 mr-1" /> Create
-                                    </Button>
-                                  )}
-                                </div>
-                              </TabsContent>
-                              <TabsContent value="lesson-discussion" className="mt-3">
-                                <DiscussionThread contextType="lesson" contextId={lesson.id} contextName={lesson.title} />
-                              </TabsContent>
-                              <TabsContent value="lesson-activity" className="mt-3">
-                                <ProjectActivityPanel contextType="lesson" contextId={lesson.id} contextName={lesson.title} />
-                              </TabsContent>
-                            </Tabs>
-                          </div>
-                        )}
-                      </Card>
-                    ))}
+                              </div>
+                              <EditorialPill variant="secondary" className="border-none bg-slate-50 text-slate-600 px-4 group-hover:bg-amber-50 group-hover:text-amber-700 w-full sm:w-auto justify-center">
+                                Start
+                              </EditorialPill>
+                           </EditorialPanel>
+                        ))}
+                      </div>
+                    </div>
+
                   </div>
                 </div>
-              ))}
-            </div>
-          </TabsContent>
+              );
+            })}
+          </div>
 
-          {/* ===== RESOURCES TAB (Topic-Level) ===== */}
-          <TabsContent value="resources">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">Broader support materials for this topic</p>
-                {isTeacher && (
-                  <Button size="sm" onClick={() => setShowUploadModal(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                    <UploadCloud className="h-4 w-4 mr-2" /> Upload Resource
-                  </Button>
-                )}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {MOCK_TOPIC_RESOURCES.map(res => {
-                  const cfg = RESOURCE_TYPE_CONFIG[res.type] || RESOURCE_TYPE_CONFIG.notes;
-                  const Icon = cfg.icon;
-                  return (
-                    <Card key={res.id} className="hover:shadow-md transition-all cursor-pointer overflow-hidden group">
-                      <div className={`h-1 w-full ${cfg.color.split(' ')[1]?.replace('bg-', 'bg-') || 'bg-gray-200'}`} />
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-3">
-                          <div className={`p-2 rounded-lg ${cfg.color} flex-shrink-0`}>
-                            <Icon className="h-5 w-5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-gray-900 group-hover:text-indigo-700 transition-colors">{res.title}</h4>
-                            <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
-                              <span>{res.authorName}</span>
-                            </div>
-                          </div>
-                          <Button size="sm" variant="outline" className="flex-shrink-0 text-xs h-8" onClick={() => setActiveResource(res)}>
-                            <BookOpen className="h-3 w-3 mr-1" /> Open
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* ===== ASSIGNMENTS TAB ===== */}
-          <TabsContent value="assignments">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">Assignments and assessments for this topic</p>
-                {isTeacher && (
-                  <Button size="sm" onClick={() => setShowAssignmentModal(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                    <ClipboardList className="h-4 w-4 mr-2" /> Create Assignment
-                  </Button>
-                )}
-              </div>
-              <div className="space-y-3">
-                {MOCK_ASSIGNMENTS.map(asgn => (
-                  <Card key={asgn.id} className="hover:shadow-md transition-all">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold text-gray-900">{asgn.title}</h4>
-                            <Badge variant="outline" className="text-[10px]">{asgn.type}</Badge>
-                            {asgn.targeting && (
-                              <Badge className="bg-red-100 text-red-700 border-none text-[10px]">At-Risk Only</Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
-                            <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Due: {asgn.dueDate}</span>
-                            <span>Max: {asgn.maxScore} marks</span>
-                            <span>{asgn.submissions}/{asgn.totalStudents} submitted</span>
-                          </div>
-                        </div>
-                        <Badge className={`${
-                          asgn.status === 'active'
-                            ? 'bg-blue-100 text-blue-700 border-none'
-                            : 'bg-green-100 text-green-700 border-none'
-                        } text-xs`}>
-                          {asgn.status === 'active' ? 'Active' : 'Completed'}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* ===== DISCUSSION TAB (Topic-Level) ===== */}
-          <TabsContent value="discussion">
-            <DiscussionThread contextType="topic" contextId={topic.id} contextName={topic.name} />
-          </TabsContent>
-
-          {/* ===== PROJECTS TAB ===== */}
-          <TabsContent value="projects">
-            <ProjectActivityPanel contextType="topic" contextId={topic.id} contextName={topic.name} />
-          </TabsContent>
-        </Tabs>
+        </div>
       </div>
-
-      {/* Modals */}
-      <ResourceUploadModal
-        isOpen={showUploadModal}
-        onClose={() => setShowUploadModal(false)}
-        defaultSubject={subject.name}
-        defaultClass={className}
-        defaultTopic={topic.name}
-      />
-      <AssignmentCreateModal
-        isOpen={showAssignmentModal}
-        onClose={() => setShowAssignmentModal(false)}
-        contextType="topic"
-        contextName={topic.name}
-        subjectName={subject.name}
-        className={className}
-      />
-      {activeResource && (
-        <ResourceViewer
-          resource={activeResource}
-          studentId={user?.id || 'anonymous'}
-          onClose={(snapshot) => {
-            console.log("Mock engagement saved:", snapshot);
-            setActiveResource(null);
-          }}
-        />
-      )}
     </div>
   );
 };

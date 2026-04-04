@@ -11,11 +11,16 @@ import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { GlobalInstitutionComparison } from '../components/admin/GlobalInstitutionComparison';
 import { AlumniOutcomesTracker } from '../components/admin/AlumniOutcomesTracker';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
+import { PlatformAnalyticsTabs } from '../components/admin/PlatformAnalyticsTabs';
+import { GlobalCurriculumHealth } from '../components/admin/GlobalCurriculumHealth';
+import { CurriculumDistributionMap } from '../components/admin/CurriculumDistributionMap';
 
 export const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<any>(null);
+  const [isMapOpen, setIsMapOpen] = useState(false);
+  const [mapTopic, setMapTopic] = useState('S3 Chemistry: Mole Concept');
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -28,24 +33,24 @@ export const AdminDashboard: React.FC = () => {
           intelligence: [
             {
               title: 'Fastest Growing',
-              value: '12 Orgs',
+              value: '12 Institutions',
               trendValue: 24,
               trendLabel: 'new signups',
               trendDirection: 'up',
               riskLevel: 'healthy',
-              alertText: 'Above monthly target',
+              alertText: 'Tracks B2B SaaS growth. New school onboardings are 24% above target.',
               actionLabel: 'View growth metrics',
               actionLink: '/admin/institutions'
             },
             {
               title: 'High-Churn Risk',
-              value: '3 Orgs',
+              value: '3 Institutions',
               trendValue: 2,
               trendLabel: 'newly flagged',
               trendDirection: 'up',
               trendIsGood: false,
               riskLevel: 'critical',
-              alertText: 'Low activation thresholds',
+              alertText: 'Platform AI flagged 3 schools with dormant usage, signaling high risk of license cancellation.',
               actionLabel: 'Intervene',
               actionLink: '/admin/analytics',
               drillDownText: 'View raw logs',
@@ -58,7 +63,7 @@ export const AdminDashboard: React.FC = () => {
               trendLabel: 'this quarter',
               trendDirection: 'up',
               riskLevel: 'healthy',
-              alertText: 'Finance Hub rolling out well',
+              alertText: 'Measures feature rollout success. The new Finance Hub is seeing excellent daily active usage.',
               actionLabel: 'View adoption map',
               actionLink: '/admin/modules'
             },
@@ -69,21 +74,9 @@ export const AdminDashboard: React.FC = () => {
               trendLabel: 'revenue jump',
               trendDirection: 'up',
               riskLevel: 'healthy',
-              alertText: 'Marketplace top earner',
+              alertText: 'Identifies the most profitable B2C marketplace sector. Test Prep is currently the top earner.',
               actionLabel: 'Promote bundle',
               actionLink: '/admin/marketplace'
-            },
-            {
-              title: 'System Weak Topic',
-              value: 'S3 Chem',
-              trendValue: 8,
-              trendLabel: 'failure rate',
-              trendDirection: 'up',
-              trendIsGood: false,
-              riskLevel: 'warning',
-              alertText: 'Mole Concept dropping across 12 orgs',
-              actionLabel: 'Adjust curriculum',
-              actionLink: '/admin/content'
             }
           ],
           kpis: {
@@ -113,9 +106,21 @@ export const AdminDashboard: React.FC = () => {
             responseTime: '850ms'
           },
           institutionPerformance: [
-             { name: 'Kampala Model High', status: 'Active', students: 1240, activation: 92, attendance: 89, avgPerformance: 68, readiness: 71, revenue: 'UGX 1.2M', risk: 0 },
-             { name: 'Lakeside College', status: 'Active', students: 850, activation: 88, attendance: 91, avgPerformance: 72, readiness: 75, revenue: 'UGX 900K', risk: 0 },
-             { name: 'City High School', status: 'Warning', students: 2100, activation: 45, attendance: 65, avgPerformance: 55, readiness: 60, revenue: 'UGX 450K', risk: 3 }
+             { name: 'Kampala Model High School', status: 'Active', students: 2480, activation: 96, attendance: 93, avgPerformance: 78, readiness: 82, revenue: 'UGX 4.8M', risk: 0 },
+             { name: 'Makerere College School', status: 'Active', students: 1890, activation: 94, attendance: 91, avgPerformance: 81, readiness: 85, revenue: 'UGX 3.6M', risk: 0 },
+             { name: 'Lakeside Secondary School', status: 'Active', students: 1240, activation: 88, attendance: 87, avgPerformance: 72, readiness: 75, revenue: 'UGX 2.1M', risk: 1 },
+             { name: 'Gulu Core Institute', status: 'Warning', students: 980, activation: 52, attendance: 58, avgPerformance: 48, readiness: 42, revenue: 'UGX 890K', risk: 5 },
+             { name: 'Mbale Progressive Academy', status: 'Active', students: 1560, activation: 91, attendance: 89, avgPerformance: 74, readiness: 77, revenue: 'UGX 2.8M', risk: 0 },
+             { name: 'Fort Portal Heritage College', status: 'Active', students: 720, activation: 85, attendance: 82, avgPerformance: 69, readiness: 71, revenue: 'UGX 1.4M', risk: 2 },
+             { name: 'Jinja Nile View High School', status: 'Active', students: 1100, activation: 87, attendance: 84, avgPerformance: 66, readiness: 68, revenue: 'UGX 1.9M', risk: 1 },
+             { name: 'Mbarara Western Institute', status: 'Active', students: 850, activation: 79, attendance: 76, avgPerformance: 62, readiness: 64, revenue: 'UGX 1.1M', risk: 3 },
+             { name: 'Soroti Technical Academy', status: 'Warning', students: 420, activation: 44, attendance: 51, avgPerformance: 43, readiness: 38, revenue: 'UGX 340K', risk: 7 },
+             { name: 'Lira Community Day School', status: 'Active', students: 680, activation: 72, attendance: 74, avgPerformance: 58, readiness: 55, revenue: 'UGX 780K', risk: 4 },
+             { name: 'Arua Border Heights Academy', status: 'Payment Due', students: 510, activation: 38, attendance: 45, avgPerformance: 41, readiness: 35, revenue: 'UGX 0', risk: 9 },
+             { name: 'Kabale Highlands Prep School', status: 'Active', students: 340, activation: 92, attendance: 90, avgPerformance: 76, readiness: 79, revenue: 'UGX 620K', risk: 0 },
+             { name: 'Masaka Southern College', status: 'Active', students: 920, activation: 83, attendance: 80, avgPerformance: 65, readiness: 67, revenue: 'UGX 1.5M', risk: 2 },
+             { name: 'Hoima Petroleum City School', status: 'Active', students: 1340, activation: 76, attendance: 78, avgPerformance: 60, readiness: 58, revenue: 'UGX 1.8M', risk: 3 },
+             { name: 'Kasese Mountain View Academy', status: 'Suspended', students: 280, activation: 12, attendance: 18, avgPerformance: 32, readiness: 25, revenue: 'UGX 0', risk: 12 }
           ]
         });
       } finally {
@@ -132,16 +137,23 @@ export const AdminDashboard: React.FC = () => {
   const { kpis, institutionPerformance, platformHealth, aiOps } = dashboardData;
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="w-full bg-transparent">
+      {/* Distribution Map Modal */}
+      <CurriculumDistributionMap 
+        isOpen={isMapOpen} 
+        onClose={() => setIsMapOpen(false)} 
+        topicName={mapTopic} 
+      />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Platform Intelligence Center</h1>
             <p className="text-gray-600 mt-1">Global EMIS Operations & Infrastructure Telemetry</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex justify-center gap-3 w-full md:w-auto">
              <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50"><ServerCrash className="w-4 h-4 mr-2" /> View Error Logs</Button>
              <Button className="shadow-sm"><Database className="w-4 h-4 mr-2" /> Sync Data</Button>
           </div>
@@ -156,6 +168,16 @@ export const AdminDashboard: React.FC = () => {
                 </div>
              </div>
           ))}
+        </div>
+
+        {/* Global Curriculum Health Layer */}
+        <div className="pt-2">
+           <GlobalCurriculumHealth 
+             onOpenMap={(topic) => {
+               setMapTopic(topic);
+               setIsMapOpen(true);
+             }}
+           />
         </div>
 
         {/* Phase 4: Gamification KPIs */}
@@ -236,7 +258,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Row 2: Platform Growth + System Health + AI Ops */}
         <div className="flex flex-wrap gap-6">
-           <Card className="flex-[1_1_300px] shadow-sm">
+           <Card className="w-full lg:flex-[1] shadow-sm">
               <CardHeader className="pb-3 border-b border-gray-100">
                  <CardTitle className="text-md flex items-center gap-2">
                    <Activity className="w-4 h-4 text-gray-500" /> Platform Infrastructure Health
@@ -270,7 +292,7 @@ export const AdminDashboard: React.FC = () => {
               </CardContent>
            </Card>
 
-           <Card className="flex-[1_1_300px] shadow-sm border-indigo-100 bg-gradient-to-br from-indigo-50 to-white">
+           <Card className="w-full lg:flex-[1] shadow-sm border-indigo-100 bg-gradient-to-br from-indigo-50 to-white">
               <CardHeader className="pb-3 border-b border-indigo-50">
                  <CardTitle className="text-md font-semibold text-indigo-900 flex items-center">
                    <Cpu className="w-4 h-4 mr-2 text-indigo-600" /> AI Operations Telemetry
@@ -300,7 +322,7 @@ export const AdminDashboard: React.FC = () => {
               </CardContent>
            </Card>
 
-           <Card className="flex-[1_1_300px] shadow-sm">
+           <Card className="w-full lg:flex-[1] shadow-sm">
               <CardHeader className="pb-3 border-b border-gray-100">
                  <CardTitle className="text-md flex items-center gap-2">
                    <ShieldCheck className="w-4 h-4 text-gray-500" /> Academic Quality Monitor
@@ -324,74 +346,92 @@ export const AdminDashboard: React.FC = () => {
                    </div>
                  </div>
                  <div className="pt-3 border-t">
-                   <Button variant="outline" className="w-full text-xs h-8">View Master Distribution Map</Button>
+                   <Button variant="outline" className="w-full text-xs h-8" onClick={() => {
+                     setMapTopic('National UCE Readiness Distribution');
+                     setIsMapOpen(true);
+                   }}>
+                     View Master Distribution Map
+                   </Button>
                  </div>
               </CardContent>
            </Card>
         </div>
 
         {/* Row 3: Institution Leaderboard */}
-        <Card className="shadow-sm">
-          <CardHeader className="border-b bg-gray-50/50 pb-4">
-             <div className="flex justify-between items-center">
-               <CardTitle className="text-lg">Institution Diagnostic Leaderboard</CardTitle>
-               <div className="flex gap-2">
-                 <Button variant="outline" size="sm">Export CSV</Button>
+        <div className="max-w-6xl mx-auto w-full">
+          <Card className="shadow-sm">
+            <CardHeader className="border-b bg-gray-50/50 pb-4">
+               <div className="flex justify-between items-center">
+                 <CardTitle className="text-lg">Institution Diagnostic Leaderboard</CardTitle>
+                 <div className="flex gap-2">
+                   <Button variant="outline" size="sm">Export CSV</Button>
+                 </div>
                </div>
-             </div>
-          </CardHeader>
-          <CardContent className="p-0">
-             <div className="overflow-x-auto">
-               <table className="w-full text-sm text-left border-collapse">
-                 <thead className="bg-gray-50 text-gray-500 border-b">
-                   <tr>
-                     <th className="font-bold p-4 uppercase text-xs">Institution Name</th>
-                     <th className="font-bold p-4 uppercase text-xs text-center">Status</th>
-                     <th className="font-bold p-4 uppercase text-xs text-center">Students</th>
-                     <th className="font-bold p-4 uppercase text-xs text-center">Activation</th>
-                     <th className="font-bold p-4 uppercase text-xs text-center">Attendance</th>
-                     <th className="font-bold p-4 uppercase text-xs text-center">Avg Score</th>
-                     <th className="font-bold p-4 uppercase text-xs text-center">Readiness</th>
-                     <th className="font-bold p-4 uppercase text-xs text-right">Revenue</th>
-                     <th className="font-bold p-4 uppercase text-xs text-right">Sys Flags</th>
-                   </tr>
-                 </thead>
-                 <tbody className="divide-y">
-                   {institutionPerformance.map((inst, index) => (
-                     <tr key={index} className="hover:bg-gray-50 transition-colors">
-                        <td className="p-4 font-bold text-gray-900">{inst.name}</td>
-                        <td className="p-4 text-center">
-                          <Badge variant="outline" className={inst.status === 'Active' ? "bg-green-50 text-green-700 border-green-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"}>
-                            {inst.status}
-                          </Badge>
-                        </td>
-                        <td className="p-4 text-center font-medium text-gray-600">{inst.students}</td>
-                        <td className="p-4 text-center">
-                          <Progress value={inst.activation} className="w-12 h-1.5 mx-auto mb-1" />
-                          <span className="text-xs text-gray-500">{inst.activation}%</span>
-                        </td>
-                        <td className="p-4 text-center">
-                          <span className={inst.attendance < 70 ? "text-red-600 font-bold" : "text-gray-900 font-bold"}>{inst.attendance}%</span>
-                        </td>
-                        <td className="p-4 text-center font-bold text-gray-700">{inst.avgPerformance}%</td>
-                        <td className="p-4 text-center font-bold text-blue-600">{inst.readiness}</td>
-                        <td className="p-4 text-right font-medium text-gray-900">{inst.revenue}</td>
-                        <td className="p-4 text-right">
-                          {inst.risk > 0 ? (
-                            <span className="inline-flex items-center justify-center bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">
-                              {inst.risk} <AlertTriangle className="w-3 h-3 ml-1"/>
-                            </span>
-                          ) : (
-                            <span className="text-gray-400 font-medium text-xs">-</span>
-                          )}
-                        </td>
+            </CardHeader>
+            <CardContent className="p-0">
+               <div className="overflow-x-auto">
+                 <table className="w-full text-sm text-left border-collapse">
+                   <thead className="bg-gray-50 text-gray-500 border-b">
+                     <tr>
+                       <th className="font-bold p-4 uppercase text-xs">Institution Name</th>
+                       <th className="font-bold p-4 uppercase text-xs text-center">Status</th>
+                       <th className="font-bold p-4 uppercase text-xs text-center">Students</th>
+                       <th className="font-bold p-4 uppercase text-xs text-center">Activation</th>
+                       <th className="font-bold p-4 uppercase text-xs text-center">Attendance</th>
+                       <th className="font-bold p-4 uppercase text-xs text-center">Avg Score</th>
+                       <th className="font-bold p-4 uppercase text-xs text-center">Readiness</th>
+                       <th className="font-bold p-4 uppercase text-xs text-right">Revenue</th>
+                       <th className="font-bold p-4 uppercase text-xs text-right">Sys Flags</th>
                      </tr>
-                   ))}
-                 </tbody>
-               </table>
-             </div>
-          </CardContent>
-        </Card>
+                   </thead>
+                   <tbody className="divide-y">
+                     {institutionPerformance.map((inst: any, index: number) => (
+                       <tr key={index} className="hover:bg-gray-50 transition-colors">
+                          <td className="p-4 font-bold text-gray-900">{inst.name}</td>
+                          <td className="p-4 text-center">
+                            <Badge variant="outline" className={
+                              inst.status === 'Active' ? "bg-green-50 text-green-700 border-green-200" :
+                              inst.status === 'Warning' ? "bg-yellow-50 text-yellow-700 border-yellow-200" :
+                              inst.status === 'Payment Due' ? "bg-orange-50 text-orange-700 border-orange-200" :
+                              inst.status === 'Suspended' ? "bg-red-50 text-red-700 border-red-200" :
+                              "bg-gray-50 text-gray-700 border-gray-200"
+                            }>
+                              {inst.status}
+                            </Badge>
+                          </td>
+                          <td className="p-4 text-center font-medium text-gray-600">{inst.students}</td>
+                          <td className="p-4 text-center">
+                            <Progress value={inst.activation} className="w-12 h-1.5 mx-auto mb-1" />
+                            <span className="text-xs text-gray-500">{inst.activation}%</span>
+                          </td>
+                          <td className="p-4 text-center">
+                            <span className={inst.attendance < 70 ? "text-red-600 font-bold" : "text-gray-900 font-bold"}>{inst.attendance}%</span>
+                          </td>
+                          <td className="p-4 text-center font-bold text-gray-700">{inst.avgPerformance}%</td>
+                          <td className="p-4 text-center font-bold text-blue-600">{inst.readiness}</td>
+                          <td className="p-4 text-right font-medium text-gray-900">{inst.revenue}</td>
+                          <td className="p-4 text-right">
+                            {inst.risk > 0 ? (
+                              <span className="inline-flex items-center justify-center bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-bold">
+                                {inst.risk} <AlertTriangle className="w-3 h-3 ml-1"/>
+                              </span>
+                            ) : (
+                              <span className="text-gray-400 font-medium text-xs">-</span>
+                            )}
+                          </td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+               </div>
+            </CardContent>
+          </Card>
+         </div>
+
+         {/* Phase 6: Extended Platform Analytics */}
+         <div className="max-w-7xl mx-auto w-full pt-8 border-t border-gray-200 mt-8">
+           <PlatformAnalyticsTabs />
+         </div>
 
       </div>
     </div>

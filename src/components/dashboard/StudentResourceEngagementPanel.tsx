@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 const MOCK_ASSIGNED_RESOURCES = [
   {
     id: 'res-1',
-    title: 'Calculus: Limits summary',
+    title: 'Calculus: Limits & Continuity Summary',
     type: 'notes',
     subject: 'Mathematics',
     completionPercentage: 45,
@@ -16,11 +16,43 @@ const MOCK_ASSIGNED_RESOURCES = [
   },
   {
     id: 'vid-2',
-    title: 'Biology Practical: Dissection',
+    title: 'Biology Practical: Dissection Techniques',
     type: 'video',
     subject: 'Biology',
     completionPercentage: 10,
     dueDate: '2026-04-12'
+  },
+  {
+    id: 'res-3',
+    title: 'Physics: Kinematics Problem Set with Worked Solutions',
+    type: 'notes',
+    subject: 'Physics',
+    completionPercentage: 82,
+    dueDate: '2026-04-08'
+  },
+  {
+    id: 'vid-4',
+    title: 'Chemistry: Mole Concept Visual Explainer',
+    type: 'video',
+    subject: 'Chemistry',
+    completionPercentage: 0,
+    dueDate: '2026-04-15'
+  },
+  {
+    id: 'res-5',
+    title: 'Geography: Map Skills & Topographic Interpretation',
+    type: 'notes',
+    subject: 'Geography',
+    completionPercentage: 95,
+    dueDate: '2026-04-06'
+  },
+  {
+    id: 'vid-6',
+    title: 'Entrepreneurship: Business Plan Writing Masterclass',
+    type: 'video',
+    subject: 'Entrepreneurship',
+    completionPercentage: 33,
+    dueDate: '2026-04-14'
   }
 ];
 
@@ -28,10 +60,10 @@ export const StudentResourceEngagementPanel: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <Card className="mb-8 border-indigo-100 shadow-sm bg-gradient-to-br from-indigo-50 to-white">
+    <Card className="mb-8 shadow-sm">
       <CardHeader className="pb-4">
         <CardTitle className="text-xl font-bold flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-indigo-600" />
+          <BookOpen className="w-5 h-5 text-blue-500" />
           Continue Learning
         </CardTitle>
         <p className="text-sm text-slate-500">Pick up where you left off on your assigned reading and video materials.</p>
@@ -39,7 +71,7 @@ export const StudentResourceEngagementPanel: React.FC = () => {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {MOCK_ASSIGNED_RESOURCES.map((resource, idx) => (
-            <div key={idx} className="bg-white border rounded-xl p-4 shadow-sm hover:border-indigo-300 transition-colors flex flex-col justify-between">
+            <div key={idx} className="bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-4 shadow-sm hover:border-indigo-300 dark:hover:border-blue-400 transition-colors flex flex-col justify-between">
               <div>
                 <div className="flex items-start justify-between mb-2">
                   <div className={`p-2 rounded-lg shrink-0 ${resource.type === 'video' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>

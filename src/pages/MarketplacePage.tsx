@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BookOpen, Search, Filter, Globe2 } from 'lucide-react';
+import { EditorialPanel } from '@/components/ui/editorial/EditorialPanel';
+import { EditorialPill } from '@/components/ui/editorial/EditorialPill';
+import { EditorialHeader } from '@/components/ui/editorial/EditorialHeader';
+import { Search, Filter, Globe2, BookOpen, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/lib/api';
 
@@ -13,7 +12,7 @@ interface DjangoSubject {
   id: number;
   name: string;
   code: string;
-  category?: string; // We will map this dynamically for now
+  category?: string;
   classLevels?: string[];
 }
 
@@ -21,7 +20,6 @@ const MarketplacePage: React.FC = () => {
   const { currentContext } = useAuth();
   const navigate = useNavigate();
   
-  // By default, match the user's current context, but allow them to browse other regions
   const [selectedCountry, setSelectedCountry] = useState(currentContext || 'uganda');
   const [searchTerm, setSearchTerm] = useState('');
   const [apiStatus, setApiStatus] = useState<string>('disconnected');
@@ -32,10 +30,9 @@ const MarketplacePage: React.FC = () => {
     // Phase 2/3: Live Database Feed
     apiClient.get('/curriculum/subjects/')
       .then(res => {
-         // Map to mock categories visually until Phase 4 Backend Extensions
          const mapped = res.data.map((subject: any) => ({
              ...subject,
-             category: 'Core Syllabus' // Default mock flag
+             category: 'Core Syllabus'
          }));
          setSubjects(mapped);
          setApiStatus('connected');
@@ -49,124 +46,142 @@ const MarketplacePage: React.FC = () => {
   }, []);
   
   const filteredSubjects = subjects.filter(subject => {
-    const matchesCountry = true; // We will expand Django models later to handle multi-country
+    const matchesCountry = true;
     const matchesSearch = subject.name.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCountry && matchesSearch;
   });
 
   const handleSubjectClick = (subjectId: number | string) => {
-    // Navigate strictly matching the new Subject -> Class hierarchy
     navigate(`/marketplace/${selectedCountry}/${subjectId}`);
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Academic Marketplace</h1>
-        <p className="text-lg text-gray-600">
-          Discover curriculum-aligned resources, lesson materials, and expert tutors.
-        </p>
-      </div>
+    <div className="min-h-screen bg-[#fbfaf8] font-sans pb-24 relative">
+      <div 
+        className="fixed inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
+        style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
+      />
+      <div className="fixed inset-0 bg-white/60 backdrop-blur-[2px] pointer-events-none" />
 
-      {/* Search and Filters */}
-      <div className="mb-8">
-        <Card className="shadow-sm border-gray-100">
-          <CardHeader className="pb-4 border-b border-gray-100">
-            <CardTitle className="text-lg font-medium flex items-center gap-2 text-gray-700">
-              <Filter className="h-4 w-4" />
-              Resource Discovery
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search subjects..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-11"
-                />
-              </div>
-              
-              <div className="relative">
-                <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                  <SelectTrigger className="pl-10 h-11">
-                    <Globe2 className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
-                    <SelectValue placeholder="Region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="uganda">Uganda (NCDC Curriculum)</SelectItem>
-                    <SelectItem value="kenya">Kenya (CBC / 8-4-4)</SelectItem>
-                    <SelectItem value="rwanda">Rwanda (CBC)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+      {/* Header Area */}
+      <div className="relative z-10 pt-16 pb-8 border-b border-white mix-blend-multiply">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col justify-between items-start gap-4 mb-4">
+            <div className="inline-flex items-center gap-2 bg-white/60 backdrop-blur px-4 py-2 rounded-full border border-white">
+              <Globe2 className="h-4 w-4 text-emerald-700" />
+              <span className="text-xs font-bold tracking-widest text-emerald-800 uppercase">National Repository</span>
             </div>
-          </CardContent>
-        </Card>
+            
+            <EditorialHeader level="h1" className="text-slate-800">
+               Academic Marketplace_
+            </EditorialHeader>
+            <p className="text-lg text-slate-500 font-light max-w-xl leading-relaxed">
+               Discover curriculum-aligned resources, lesson materials, and premium study aids.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="mb-6 flex items-center justify-between">
-         <h2 className="text-xl font-semibold text-gray-800">
-            Subjects in {selectedCountry.charAt(0).toUpperCase() + selectedCountry.slice(1)}
-         </h2>
-         <Badge variant="secondary" className="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100">
-            {filteredSubjects.length} Subjects Available
-         </Badge>
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 relative z-10">
+        
+        {/* Soft Filter Bar */}
+        <EditorialPanel variant="glass" radius="xl" padding="sm" className="mb-12 border border-white shadow-sm max-w-4xl">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4 p-2">
+            
+            {/* Pill Search */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 pointer-events-none" />
+              <input
+                placeholder="Search subjects..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-[#fbfaf8]/80 border-none rounded-full py-4 pl-12 pr-6 text-sm outline-none focus:ring-2 focus:ring-slate-200 transition-all font-medium text-slate-800 placeholder:text-slate-400"
+              />
+            </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {loading ? (
-          <div className="col-span-full py-12 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
-             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-             <p className="text-gray-500">Loading curriculum data from Django cluster...</p>
+            <div className="hidden lg:block w-px h-8 bg-slate-200" />
+
+            {/* Region Filter */}
+            <div className="flex items-center gap-3 bg-[#fbfaf8]/80 rounded-full px-4 py-2 flex-grow sm:flex-grow-0">
+              <Globe2 className="h-4 w-4 text-slate-400 flex-shrink-0" />
+              <select
+                value={selectedCountry}
+                onChange={(e) => setSelectedCountry(e.target.value)}
+                className="bg-transparent border-none text-sm font-medium text-slate-700 outline-none cursor-pointer pr-4 appearance-none focus:ring-0 w-full"
+              >
+                <option value="uganda">Uganda (NCDC)</option>
+                <option value="kenya">Kenya (CBC / 8-4-4)</option>
+                <option value="rwanda">Rwanda (CBC)</option>
+              </select>
+            </div>
           </div>
-        ) : filteredSubjects.length === 0 ? (
-          <div className="col-span-full py-12 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
-            <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-gray-900">No subjects found</h3>
-            <p className="text-gray-500">We couldn't find any subjects matching your current filters.</p>
-          </div>
-        ) : (
-          filteredSubjects.map((subject) => (
-            <Card 
-              key={subject.id} 
-              className="group cursor-pointer hover:shadow-lg transition-all border-gray-100 overflow-hidden hover:border-blue-200"
-              onClick={() => handleSubjectClick(subject.id)}
-            >
-              <div className="h-32 bg-gradient-to-br from-indigo-500 to-purple-600 relative overflow-hidden flex items-center justify-center">
-                {/* Abstract pattern overlay */}
-                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '20px 20px' }} />
+        </EditorialPanel>
+
+        <div className="mb-8 px-2 flex justify-between items-end border-b border-white pb-4 mix-blend-multiply">
+           <h2 className="text-xl font-medium text-slate-800">
+              Disciplines in {selectedCountry.charAt(0).toUpperCase() + selectedCountry.slice(1)}
+           </h2>
+           <span className="text-[10px] font-black uppercase tracking-widest text-[#8e8268] bg-[#f4efe2] px-3 py-1.5 rounded-full border border-white">
+              {filteredSubjects.length} Curated
+           </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {loading ? (
+            <div className="col-span-full py-24 text-center">
+               <div className="animate-pulse flex items-center justify-center space-x-4">
+                 <div className="w-12 h-12 bg-[#f4efe2] rounded-full"></div>
+                 <div className="text-slate-400 font-medium tracking-widest uppercase text-sm">Syncing Records...</div>
+               </div>
+            </div>
+          ) : filteredSubjects.length === 0 ? (
+            <EditorialPanel variant="flat" className="col-span-full py-24 text-center border-none">
+              <BookOpen className="h-12 w-12 text-slate-300 mx-auto mb-6" />
+              <EditorialHeader level="h4" className="text-slate-800 font-light mb-2">No disciplines found</EditorialHeader>
+              <p className="text-slate-500 text-sm">Check back later or adjust your regional filters.</p>
+            </EditorialPanel>
+          ) : (
+            filteredSubjects.map((subject) => (
+              <EditorialPanel 
+                key={subject.id} 
+                variant="elevated"
+                radius="large"
+                padding="none"
+                className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full border border-slate-100"
+                onClick={() => handleSubjectClick(subject.id)}
+              >
+                <div className="h-40 bg-[#fbfaf8] relative overflow-hidden flex flex-col justify-end p-6 border-b border-slate-100">
+                  {/* Soft Background Accent */}
+                  <div className="absolute top-[-50%] right-[-20%] w-64 h-64 bg-rose-100/50 rounded-full blur-3xl pointer-events-none group-hover:bg-rose-200/50 transition-colors" />
+                  
+                  <h3 className="text-2xl font-bold text-slate-900 relative z-10 group-hover:text-amber-700 transition-colors leading-tight mb-2">
+                    {subject.name}
+                  </h3>
+                  
+                  <span className="absolute top-4 left-4 text-[9px] font-black tracking-widest uppercase bg-white border border-slate-100 text-slate-500 px-3 py-1.5 rounded-full shadow-sm">
+                    {subject.category}
+                  </span>
+                </div>
                 
-                <h3 className="text-2xl font-bold text-white relative z-10 shadow-sm">{subject.name}</h3>
-                
-                <Badge className="absolute top-3 left-3 bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-md">
-                  {subject.category}
-                </Badge>
-              </div>
-              
-              <CardHeader className="pb-3 pt-4">
-                 <div className="flex justify-between items-start mb-1">
-                    <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
-                      {subject.name} Resources
-                    </CardTitle>
-                 </div>
-                 <CardDescription className="line-clamp-2">
-                    Browse verified academic materials mapped strictly to the S1-S6 {subject.name} syllabus.
-                 </CardDescription>
-              </CardHeader>
-              <CardContent className="pt-0 pb-4">
-                 <div className="flex flex-wrap gap-2 text-xs text-gray-500 font-medium">
-                    <span className="bg-gray-100 px-2 py-1 rounded-md">Topics</span>
-                    <span className="bg-gray-100 px-2 py-1 rounded-md">Video Lessons</span>
-                    <span className="bg-gray-100 px-2 py-1 rounded-md">Revision Papers</span>
-                 </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
+                <div className="p-6 flex flex-col flex-grow">
+                   <p className="text-sm font-light text-slate-500 leading-relaxed mb-6 flex-grow">
+                      Examine verified academic materials mapped strictly to the S1-S6 {subject.name} path.
+                   </p>
+                   
+                   <div className="flex flex-wrap gap-2 mb-8">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-1 rounded-sm">Topics</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-1 rounded-sm">Masterclass</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-1 rounded-sm">Papers</span>
+                   </div>
+
+                   <EditorialPill variant="primary" className="w-full justify-between mt-auto">
+                     Enter Archive <ArrowRight className="h-4 w-4 opacity-70" />
+                   </EditorialPill>
+                </div>
+              </EditorialPanel>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import { TeacherDashboard } from './pages/TeacherDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ForumPage } from './pages/ForumPage';
 import { TopicDetailPage } from './pages/TopicDetailPage';
+import { SubjectTopicsPage } from './pages/SubjectTopicsPage';
 import { LiveSessionsPage } from './pages/LiveSessionsPage';
 import { PaymentPage } from './pages/PaymentPage';
 import LearningPathPage from './pages/LearningPathPage';
@@ -25,7 +26,6 @@ import { InstitutionManagementPage } from './pages/InstitutionManagementPage';
 import { InstitutionTimetableStudio } from './pages/InstitutionTimetableStudio';
 import { AcademicLibraryPage } from './pages/AcademicLibraryPage';
 import ExamRegistrationPage from './pages/ExamRegistrationPage';
-import PlatformAnalyticsPage from './pages/PlatformAnalyticsPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ParentDashboard } from './pages/ParentDashboard';
 import { TeacherLessonStudio } from './pages/TeacherLessonStudio';
@@ -39,6 +39,7 @@ import { AITeacherCopilotWidget } from './components/copilot/AITeacherCopilotWid
 import { DashboardRouter } from './components/DashboardRouter';
 import { AICopilotProvider } from './contexts/AICopilotContext';
 import { MissedSessionRecoveryPage } from './pages/MissedSessionRecoveryPage';
+import { GlassDashboardLayout } from './components/dashboard/layout/GlassDashboardLayout';
 
 function App() {
   return (
@@ -54,11 +55,12 @@ function App() {
           <Route path="classes" element={<CourseCatalog />} />
           <Route path="classes/:classId" element={<ClassSyllabusPage />} />
           <Route path="classes/:gradeId/:termId/:subjectId" element={<CourseDetail />} />
+          <Route path="classes/:classId/subject/:subjectId" element={<SubjectTopicsPage />} />
           <Route path="classes/:classId/:termId/:subjectId/topic/:topicId" element={<TopicDetailPage />} />
           <Route path="forum/*" element={<ForumPage />} />
           <Route path="live-sessions" element={<LiveSessionsPage />} />
           <Route path="library" element={
-            <ProtectedRoute allowedRoles={['student', 'parent', 'institution_teacher', 'universal_teacher', 'institution_admin', 'platform_admin']}>
+            <ProtectedRoute allowedRoles={['student', 'parent', 'institution_teacher', 'universal_teacher', 'teacher', 'independent_teacher', 'institution_admin', 'platform_admin']}>
               <AcademicLibraryPage />
             </ProtectedRoute>
           } />
@@ -81,11 +83,7 @@ function App() {
               <InstitutionManagementPage />
             </ProtectedRoute>
           } />
-          <Route path="platform-analytics" element={
-            <ProtectedRoute allowedRoles={['platform_admin']}>
-              <PlatformAnalyticsPage />
-            </ProtectedRoute>
-          } />
+
           
           {/* AI-Powered Features */}
           <Route path="learning-path" element={
@@ -102,58 +100,62 @@ function App() {
           } />
           
           {/* Dashboard Routes */}
-          <Route path="dashboard" element={<DashboardRouter />} />
-          <Route path="dashboard/student" element={
+        </Route>
+        
+        {/* Year 2090 Premium Dashboard Routes */}
+        <Route path="/dashboard" element={<GlassDashboardLayout />}>
+          <Route index element={<DashboardRouter />} />
+          <Route path="student" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student']}>
               <StudentDashboard />
             </ProtectedRoute>
           } />
-          <Route path="dashboard/sessions/recover/:sessionId" element={
+          <Route path="sessions/recover/:sessionId" element={
             <ProtectedRoute allowedRoles={['universal_student', 'parent', 'independent_teacher', 'institution_admin', 'institution_teacher']}>
               <MissedSessionRecoveryPage />
             </ProtectedRoute>
           } />
-          <Route path="dashboard/teacher" element={
+          <Route path="teacher" element={
             <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
               <TeacherDashboard />
             </ProtectedRoute>
           } />
-          <Route path="dashboard/teacher/class/:classId" element={
+          <Route path="teacher/class/:classId" element={
             <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
               <TeacherLessonStudio />
             </ProtectedRoute>
           } />
-          <Route path="dashboard/teacher/attendance" element={
+          <Route path="teacher/attendance" element={
             <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
               <AttendanceRegisterPage />
             </ProtectedRoute>
           } />
-          <Route path="dashboard/teacher/marks-upload" element={
+          <Route path="teacher/marks-upload" element={
             <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
               <TeacherMarksUpload />
             </ProtectedRoute>
           } />
-          <Route path="dashboard/teacher/targeting" element={
+          <Route path="teacher/targeting" element={
             <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
               <AssignmentTargetingStudio />
             </ProtectedRoute>
           } />
-          <Route path="dashboard/admin" element={
+          <Route path="admin" element={
             <ProtectedRoute allowedRoles={['platform_admin']}>
               <AdminDashboard />
             </ProtectedRoute>
           } />
-          <Route path="dashboard/parent" element={
+          <Route path="parent" element={
             <ProtectedRoute allowedRoles={['parent']}>
               <ParentDashboard />
             </ProtectedRoute>
           } />
-          <Route path="dashboard/institution" element={
+          <Route path="institution" element={
             <ProtectedRoute allowedRoles={['institution_admin']}>
               <InstitutionManagementPage />
             </ProtectedRoute>
           } />
-          <Route path="dashboard/institution/timetable" element={
+          <Route path="institution/timetable" element={
             <ProtectedRoute allowedRoles={['institution_admin']}>
               <InstitutionTimetableStudio />
             </ProtectedRoute>

@@ -15,6 +15,8 @@ import { apiClient } from '@/lib/api';
 import { BulkInviteModal } from '@/components/dashboard/BulkInviteModal';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { TeacherRedAlertsPanel } from '../components/dashboard/TeacherRedAlertsPanel';
+import { PremiumEmptyState } from '../components/ui/PremiumEmptyState';
+import { PremiumLockState } from '../components/ui/PremiumLockState';
 import { InstitutionIntelligenceHub } from '../components/dashboard/InstitutionIntelligenceHub';
 import { PastoralTimeline } from '../components/pastoral/PastoralTimeline';
 import { TeacherAssignmentManager } from '../components/dashboard/TeacherAssignmentManager';
@@ -141,7 +143,7 @@ export const InstitutionManagementPage: React.FC = () => {
 
   if (error || !dashboardData) {
      return (
-      <div className="min-h-screen flex items-center justify-center p-8">
+      <div className="w-full bg-transparent p-6 md:p-8 space-y-6">
         <div className="text-center bg-red-50 p-8 rounded-lg max-w-md border border-red-200">
           <AlertTriangle className="h-12 w-12 text-red-600 mx-auto mb-4" />
           <h2 className="text-lg font-bold text-red-900 mb-2">Dashboard Error</h2>
@@ -156,7 +158,7 @@ export const InstitutionManagementPage: React.FC = () => {
   const isSetup = activationStatus === 'setup';
 
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="w-full bg-transparent">
       <div className="max-w-7xl mx-auto py-8 px-4 space-y-8">
       
       {/* Header */}
@@ -387,20 +389,26 @@ export const InstitutionManagementPage: React.FC = () => {
                <CardTitle>Student Interventions & Risk Radar</CardTitle>
                <CardDescription>Track students slipping across multiple subjects and intercept with support.</CardDescription>
              </CardHeader>
-             <CardContent className="py-16 text-center text-gray-500">
-               <AlertTriangle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-               <p className="font-medium">No elevated student risks currently flagged within network.</p>
+             <CardContent className="p-10">
+               <PremiumEmptyState 
+                 icon={AlertTriangle} 
+                 title="No Elevated Risks" 
+                 description="Excellent! Your automated diagnostic radar has not flagged any critical student behavioral or academic risks within the past 48 hours." 
+                 actionLabel="View Historical Radar Logs"
+                 onAction={() => {}}
+               />
              </CardContent>
            </Card>
         </TabsContent>
 
         <TabsContent value="timetable" className="space-y-6">
            {isSetup ? (
-             <Card className="shadow-sm border-dashed border-2 border-gray-300 text-center py-16">
-               <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-               <h3 className="text-lg font-bold text-gray-900 mb-2">Timetable Studio Locked</h3>
-               <p className="font-medium text-gray-500">Please complete institution activation to access the Timetable Studio.</p>
-             </Card>
+             <div className="max-w-5xl mx-auto pt-6">
+                <PremiumLockState 
+                  title="Unlock the Timetable Studio" 
+                  description="Optimize your institution's schedule, prevent collisions, and instantly assign cover-teachers with the AI-driven Timetable Studio. Available immediately upon completing your institution's onboarding activation."
+                />
+             </div>
            ) : (
              <Card className="shadow-sm text-center py-8">
                 <Calendar className="w-12 h-12 text-indigo-600 mx-auto mb-4"/>
@@ -453,20 +461,27 @@ export const InstitutionManagementPage: React.FC = () => {
                <CardTitle>Parent Engagement & Responsiveness</CardTitle>
                <CardDescription>Monitor parent portal sign-ins and intervention acknowledgment rates.</CardDescription>
              </CardHeader>
-             <CardContent className="py-16 text-center text-gray-500">
-               <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-               <p className="font-medium">No parent engagement metrics generated for the current term.</p>
+             <CardContent className="p-10">
+               <PremiumEmptyState 
+                 icon={Users}
+                 title="Awaiting Parent Integrations"
+                 description="Once parents onboard and link to their student portfolios, engagement metrics and responsiveness data will securely surface here."
+                 actionLabel="Generate Parent Invites"
+                 onAction={() => {}}
+               />
              </CardContent>
            </Card>
         </TabsContent>
 
         <TabsContent value="finance" className="space-y-6">
            {isSetup ? (
-             <Card className="shadow-sm border-dashed border-2 border-gray-300 text-center py-16">
-               <DollarSign className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-               <h3 className="text-lg font-bold text-gray-900 mb-2">Finance Hub Locked</h3>
-               <p className="font-medium text-gray-500">Please complete institution activation to access finance operations.</p>
-             </Card>
+             <div className="max-w-5xl mx-auto pt-6">
+                <PremiumLockState 
+                  title="Access the Finance Hub" 
+                  description="Manage fee structures, fully automate billing, and instantly provision student licenses through our compliant financial clearinghouse. Complete your institution setup to unlock operations."
+                  actionLabel="Complete Activation"
+                />
+             </div>
            ) : (
              <InstitutionFinanceHub />
            )}

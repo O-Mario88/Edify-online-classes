@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { GraduationCap, Eye, EyeOff } from 'lucide-react';
+import { EditorialPanel } from '../components/ui/editorial/EditorialPanel';
+import { EditorialPill } from '../components/ui/editorial/EditorialPill';
+import { EditorialHeader } from '../components/ui/editorial/EditorialHeader';
+import { KeyRound, Mail, ArrowRight, User, Globe, Briefcase } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [countryCode, setCountryCode] = useState('');
-  const [role, setRole] = useState('');
+  const [countryCode, setCountryCode] = useState('uganda');
+  const [role, setRole] = useState('student');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +30,6 @@ export const RegisterPage: React.FC = () => {
     const success = await register(email, fullName, countryCode, password, role);
     
     if (success) {
-      // Redirect based on user role - this will be handled by the auth context
       navigate('/');
     } else {
       setError('Failed to create an account. Email may already be in use.');
@@ -41,133 +39,152 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
-            <GraduationCap className="h-12 w-12 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">Maple Online School</span>
-          </Link>
-          <h2 className="text-center text-3xl font-bold text-gray-900">
-            Create an account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Join the premier learning platform in East Africa
-          </p>
+    <div className="min-h-screen bg-[#fafaeb] flex items-center justify-center p-4 relative overflow-hidden font-sans py-12">
+      
+      {/* Editorial aesthetic background layer */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center opacity-[0.85]"
+        style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
+      />
+      <div className="fixed inset-0 bg-white/40 backdrop-blur-[2px]" />
+
+      {/* Main Register Card */}
+      <EditorialPanel 
+        variant="frosted-rose" 
+        radius="xl"
+        className="max-w-[460px] w-full p-8 md:p-10 shadow-2xl shadow-rose-900/10 relative z-10"
+      >
+        <div className="flex justify-between items-center mb-8">
+           <span className="text-slate-500 font-medium tracking-wide">Edify_</span>
+           <Link to="/login" className="text-sm font-semibold text-slate-800 hover:text-slate-600 transition-colors">Log in</Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-8 space-y-6">
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                name="fullName"
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="mt-1"
-                placeholder="Ex. Grace Nakato"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="country">Country</Label>
-              <Select value={countryCode} onValueChange={setCountryCode} required>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select Country" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="uganda">Uganda</SelectItem>
-                  <SelectItem value="kenya">Kenya</SelectItem>
-                  <SelectItem value="rwanda">Rwanda</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <EditorialHeader level="h3" weight="light" className="mb-2">
+          Create account
+        </EditorialHeader>
+        <p className="text-sm text-slate-500 font-medium mb-8">Join the premier learning platform.</p>
 
-            <div>
-              <Label htmlFor="role">Platform Role</Label>
-              <Select value={role} onValueChange={setRole} required>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="I am a..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="student">Student</SelectItem>
-                  <SelectItem value="teacher">Teacher</SelectItem>
-                  <SelectItem value="admin">Administrator</SelectItem>
-                  <SelectItem value="institution">Institution / School</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1"
-                placeholder="Enter your email"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <div className="relative mt-1">
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Create a password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
-                {error}
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full mt-4"
-              disabled={isLoading || !countryCode || !role}
-            >
-              {isLoading ? 'Creating account...' : 'Create account'}
-            </Button>
-          </form>
-
-          <div className="text-center pt-2">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-                Log in here
-              </Link>
-            </p>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          
+          <div className="relative">
+             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
+                 <User className="h-3.5 w-3.5 text-slate-400" />
+               </div>
+             </div>
+             <input
+               id="fullName"
+               type="text"
+               required
+               value={fullName}
+               onChange={(e) => setFullName(e.target.value)}
+               className="w-full bg-white/50 border border-white focus:border-slate-300 focus:bg-white rounded-full py-3.5 pl-14 pr-6 text-sm outline-none transition-all placeholder:text-slate-400"
+               placeholder="full name"
+             />
           </div>
-        </div>
-      </div>
+
+          <div className="relative">
+             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
+                 <Globe className="h-3.5 w-3.5 text-slate-400" />
+               </div>
+             </div>
+             <select
+               value={countryCode}
+               onChange={(e) => setCountryCode(e.target.value)}
+               required
+               className="w-full bg-white/50 border border-white focus:border-slate-300 focus:bg-white rounded-full py-3.5 pl-14 pr-6 text-sm outline-none transition-all text-slate-700 appearance-none cursor-pointer"
+             >
+               <option value="uganda">Uganda</option>
+               <option value="kenya">Kenya</option>
+               <option value="rwanda">Rwanda</option>
+             </select>
+          </div>
+
+          <div className="relative">
+             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
+                 <Briefcase className="h-3.5 w-3.5 text-slate-400" />
+               </div>
+             </div>
+             <select
+               value={role}
+               onChange={(e) => setRole(e.target.value)}
+               required
+               className="w-full bg-white/50 border border-white focus:border-slate-300 focus:bg-white rounded-full py-3.5 pl-14 pr-6 text-sm outline-none transition-all text-slate-700 appearance-none cursor-pointer"
+             >
+               <option value="student">Student</option>
+               <option value="teacher">Teacher</option>
+               <option value="admin">Administrator</option>
+               <option value="institution">Institution / School</option>
+             </select>
+          </div>
+
+          <div className="relative">
+             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
+                 <Mail className="h-3.5 w-3.5 text-slate-400" />
+               </div>
+             </div>
+             <input
+               id="email"
+               type="email"
+               required
+               value={email}
+               onChange={(e) => setEmail(e.target.value)}
+               className="w-full bg-white/50 border border-white focus:border-slate-300 focus:bg-white rounded-full py-3.5 pl-14 pr-6 text-sm outline-none transition-all placeholder:text-slate-400"
+               placeholder="e-mail address"
+             />
+          </div>
+
+          <div className="relative">
+             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
+                 <KeyRound className="h-3.5 w-3.5 text-slate-400" />
+               </div>
+             </div>
+             <input
+               id="password"
+               type={showPassword ? 'text' : 'password'}
+               required
+               value={password}
+               onChange={(e) => setPassword(e.target.value)}
+               className="w-full bg-white/50 border border-white focus:border-slate-300 focus:bg-white rounded-full py-3.5 pl-14 pr-16 text-sm outline-none transition-all placeholder:text-slate-400"
+               placeholder="create a password"
+             />
+             <button
+               type="button"
+               className="absolute inset-y-0 right-4 flex items-center"
+               onClick={() => setShowPassword(!showPassword)}
+               tabIndex={-1}
+             >
+                <div className="bg-white px-3 py-1.5 rounded-full text-[10px] font-bold text-slate-600 shadow-sm hover:bg-slate-50 transition-colors tracking-wide uppercase">
+                  {showPassword ? 'Hide' : 'Show'}
+                </div>
+             </button>
+          </div>
+
+          {error && (
+            <div className="bg-red-50/80 backdrop-blur-sm border border-red-200/50 text-red-700 px-4 py-3 rounded-2xl text-xs text-center font-medium my-2">
+              {error}
+            </div>
+          )}
+
+          <div className="pt-6 flex justify-between items-center text-[10px] text-slate-500 font-medium">
+             <div className="max-w-[200px] leading-relaxed">
+               By continuing, you agree to our Terms of Service and Privacy Policy.
+             </div>
+             <button 
+               type="submit" 
+               disabled={isLoading || !countryCode || !role}
+               className="w-16 h-10 rounded-full bg-slate-900 flex items-center justify-center text-white hover:bg-slate-800 transition-colors shadow-lg disabled:opacity-50"
+             >
+               {isLoading ? <span className="animate-pulse flex gap-1"><span className="w-1 h-1 bg-white rounded-full"/><span className="w-1 h-1 bg-white rounded-full"/><span className="w-1 h-1 bg-white rounded-full"/></span> : <ArrowRight className="w-5 h-5" />}
+             </button>
+          </div>
+        </form>
+
+      </EditorialPanel>
     </div>
   );
 };

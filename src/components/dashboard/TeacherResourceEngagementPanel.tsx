@@ -92,16 +92,18 @@ export const TeacherResourceEngagementPanel: React.FC = () => {
                     </div>
 
                     {analytics.missingStudents.length > 0 ? (
-                      <div className="bg-orange-50 text-orange-800 p-2 text-xs rounded border border-orange-100 flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-orange-600" />
+                      <div className="bg-amber-500/20 text-amber-100 p-3 text-sm rounded-lg border border-amber-400/40 border-l-4 border-l-amber-400 flex items-start gap-3 shadow-sm">
+                        <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-amber-400" />
                         <div>
-                          <span className="font-bold">{analytics.missingStudents.length} students</span> have not opened this yet (e.g. {analytics.missingStudents[0]}).
+                          <span className="font-extrabold text-amber-200">{analytics.missingStudents.length} students</span>{' '}
+                          <span className="font-medium">have not opened this yet</span>{' '}
+                          <span className="text-amber-300/80">(e.g. {analytics.missingStudents[0]})</span>
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-green-50 text-green-800 p-2 text-xs rounded border border-green-100 flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 shrink-0 text-green-600" />
-                        <div>All students have accessed this resource!</div>
+                      <div className="bg-emerald-500/20 text-emerald-100 p-3 text-sm rounded-lg border border-emerald-400/40 border-l-4 border-l-emerald-400 flex items-center gap-3 shadow-sm">
+                        <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
+                        <div className="font-bold text-emerald-200">✨ All students have accessed this resource!</div>
                       </div>
                     )}
                  </div>

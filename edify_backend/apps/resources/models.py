@@ -69,3 +69,34 @@ class ResourceLessonLink(models.Model):
 
     def __str__(self):
         return f"{self.resource.title} attached to {self.lesson.title} ({self.purpose})"
+
+
+class ResourceEngagementRecord(models.Model):
+    """
+    Persists time-on-task and completion data from the frontend useResourceEngagement hook.
+    Each row = one student's engagement session with one resource.
+    Updated incrementally as the student progresses.
+    """
+    ASSIGNED_BY_CHOICES = [
+        ('teacher', 'Teacher Assigned'),
+        ('intervention', 'Intervention System'),
+        ('self', 'Self-Selected'),
+        ('system', 'System Recommended'),
+    ]
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='resource_engagements')
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name='engagement_records')
+    assigned_by = models.CharField(max_length=20, choices=ASSIGNED_BY_CHOICES, default='self')
+    
+    total_active_time_mins = models.IntegerField(default=0, help_text="Cumulative active minutes tracked by frontend hook")
+    completion_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    last_position = models.IntegerField(default=0, help_text="Scroll position or video timestamp in seconds")
+    is_completed = models.BooleanField(default=False)
+    
+    first_opened = models.DateTimeField(auto_now_add=True)
+    last_accessed = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('student', 'resource')
+
+    def __str__(self):
+        return f"{self.student.email} on {self.resource.title} - {self.completion_percentage}%"

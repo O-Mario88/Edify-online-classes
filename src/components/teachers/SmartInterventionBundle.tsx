@@ -51,7 +51,7 @@ export const SmartInterventionBuilder: React.FC<{ data: InterventionBuilderData 
   };
 
   return (
-    <Card className="shadow-sm border border-slate-200 bg-white">
+    <Card className="h-full flex flex-col shadow-sm border border-slate-200 bg-white">
        <CardHeader className="pb-3 border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white">
           <div className="flex justify-between items-start">
              <div>
@@ -66,7 +66,7 @@ export const SmartInterventionBuilder: React.FC<{ data: InterventionBuilderData 
              </Badge>
           </div>
        </CardHeader>
-       <CardContent className="p-4 space-y-4">
+       <CardContent className="p-4 flex-1 flex flex-col justify-between">
           <div>
              <div className="flex justify-between items-center mb-2">
                 <h4 className="text-sm font-bold text-slate-900">Topic: {data.topicName}</h4>

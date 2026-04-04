@@ -9,7 +9,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-2xl border border-slate-100 bg-white text-slate-950 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05),0_10px_20px_-10px_rgba(0,0,0,0.02)] transition-all duration-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50",
+      "edify-card rounded-[1.8rem] border-0 bg-white text-slate-950 shadow-[0_12px_40px_-12px_rgba(30,60,110,0.08),0_4px_16px_-4px_rgba(30,60,110,0.04)] transition-all duration-300 dark:bg-white/10 dark:backdrop-blur-xl dark:border dark:border-white/20 dark:text-slate-50 dark:shadow-2xl",
       className
     )}
     {...props}
@@ -23,7 +23,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    className={cn("edify-card-header flex flex-col space-y-1.5 p-6", className)}
     {...props}
   />
 ))

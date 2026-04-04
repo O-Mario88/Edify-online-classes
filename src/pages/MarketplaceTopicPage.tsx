@@ -97,7 +97,7 @@ const MarketplaceTopicPage: React.FC = () => {
     );
   }
 
-  const formatPrice = (price: string | number) => new Intl.NumberFormat('en-UG', { style: 'currency', currency: 'UGX', minimumFractionDigits: 0 }).format(Number(price));
+  const formatPrice = (price: string | number) => `UGX ${Number(price).toLocaleString('en-US', { minimumFractionDigits: 0 })}`;
 
   const renderResourceCard = (item: Listing) => (
      <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow border-gray-100 group">

@@ -29,42 +29,56 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Helper: synchronously read and fix user from localStorage
+function restoreUserFromStorage(): User | null {
+  try {
+    const raw = localStorage.getItem('maple-auth-user');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+
+    // Ensure role always exists
+    if (!parsed.role && parsed.user_type) {
+      parsed.role = parsed.user_type;
+    } else if (!parsed.role) {
+      const lowerEmail = (parsed.email || '').toLowerCase();
+      if (lowerEmail.includes('teacher') || lowerEmail.includes('nakamya')) parsed.role = 'independent_teacher';
+      else if (lowerEmail.includes('admin') || lowerEmail.includes('namaganda')) parsed.role = 'platform_admin';
+      else if (lowerEmail.includes('parent')) parsed.role = 'parent';
+      else parsed.role = 'universal_student';
+    }
+    return parsed;
+  } catch {
+    localStorage.removeItem('maple-auth-user');
+    return null;
+  }
+}
+
+function restoreProfileFromStorage(): any {
+  try {
+    const raw = localStorage.getItem('maple-auth-profile');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    localStorage.removeItem('maple-auth-profile');
+    return null;
+  }
+}
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UniversalStudent | IndependentTeacher | Institution | ParentUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentContext, setCurrentContext] = useState<'independent' | 'institutional' | 'mixed'>('mixed');
-  const [countryCode, setCountryCodeState] = useState<string>('uganda');
+  // Synchronous initialization from localStorage — prevents the null-user race condition on refresh
+  const [user, setUser] = useState<User | null>(() => restoreUserFromStorage());
+  const [userProfile, setUserProfile] = useState<UniversalStudent | IndependentTeacher | Institution | ParentUser | null>(() => restoreProfileFromStorage());
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentContext, setCurrentContext] = useState<'independent' | 'institutional' | 'mixed'>(() => {
+    return (localStorage.getItem('maple-auth-context') as 'independent' | 'institutional' | 'mixed') || 'mixed';
+  });
+  const [countryCode, setCountryCodeState] = useState<string>(() => {
+    return localStorage.getItem('maple-auth-country') || 'uganda';
+  });
 
   const setCountryCode = (code: string) => {
     setCountryCodeState(code);
     localStorage.setItem('maple-auth-country', code);
   };
-
-  useEffect(() => {
-    // Check for stored auth state
-    const storedUser = localStorage.getItem('maple-auth-user');
-    const storedProfile = localStorage.getItem('maple-auth-profile');
-    const storedContext = localStorage.getItem('maple-auth-context');
-    const storedCountry = localStorage.getItem('maple-auth-country');
-    
-    if (storedCountry) {
-      setCountryCodeState(storedCountry);
-    }
-
-    if (storedUser && storedProfile) {
-      try {
-        setUser(JSON.parse(storedUser));
-        setUserProfile(JSON.parse(storedProfile));
-        setCurrentContext(storedContext as 'independent' | 'institutional' | 'mixed' || 'mixed');
-      } catch (error) {
-        localStorage.removeItem('maple-auth-user');
-        localStorage.removeItem('maple-auth-profile');
-        localStorage.removeItem('maple-auth-context');
-      }
-    }
-    setIsLoading(false);
-  }, []);
 
   const login = async (email: string, password: string, overrideRole?: string): Promise<boolean> => {
     setIsLoading(true);
@@ -151,20 +165,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (user?.role === 'universal_student') {
       const student = user as UniversalStudent;
       
+      let newContext: 'independent' | 'institutional' | 'mixed' = currentContext;
       if (!institutionId) {
-        // Switch to independent context
-        setCurrentContext('independent');
+        newContext = 'independent';
       } else {
-        // Switch to specific institution context
-        const hasInstitution = student.student_statuses.institutional.some(
+        const hasInstitution = student.student_statuses?.institutional?.some(
           inst => inst.institution_id === institutionId
         );
         if (hasInstitution) {
-          setCurrentContext('institutional');
+          newContext = 'institutional';
         }
       }
       
-      localStorage.setItem('maple-auth-context', currentContext);
+      setCurrentContext(newContext);
+      localStorage.setItem('maple-auth-context', newContext);
     }
   };
 

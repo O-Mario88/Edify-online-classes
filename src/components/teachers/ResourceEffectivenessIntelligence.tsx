@@ -41,7 +41,7 @@ export const ResourceEffectivenessIntelligence: React.FC<ResourceEffectivenessIn
   };
 
   return (
-    <Card className="shadow-sm border-slate-200">
+    <Card className="h-full flex flex-col justify-between shadow-sm border-slate-200">
       <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-3">
         <div className="flex justify-between items-start">
           <div>
@@ -53,10 +53,10 @@ export const ResourceEffectivenessIntelligence: React.FC<ResourceEffectivenessIn
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="divide-y divide-slate-100">
+      <CardContent className="p-0 flex-1 flex flex-col">
+        <div className="divide-y divide-slate-100 flex-1 flex flex-col">
           {resources.map(res => (
-            <div key={res.id} className="p-4 hover:bg-slate-50 transition-colors flex items-center justify-between">
+            <div key={res.id} className="flex-1 p-4 hover:bg-slate-50 transition-colors flex items-center justify-between">
               <div className="flex items-start gap-3">
                 <div className="mt-1 bg-white p-2 rounded-lg shadow-sm border border-slate-100">
                   {getIcon(res.type)}

@@ -19,9 +19,14 @@ import { ParentCommunicationCopilot } from '../components/teachers/ParentCommuni
 import { AITeachingPartner } from '../components/teachers/AITeachingPartner';
 import { TeacherPerformanceStory } from '../components/teachers/TeacherPerformanceStory';
 import { TeacherGrowthPassport } from '../components/teachers/TeacherGrowthPassport';
-import { InstitutionTeacherWellness } from '../components/teachers/InstitutionTeacherWellness';
-import { TeacherCollabHub } from '../components/teachers/TeacherCollabHub';
 import { IndependentEarningsIntelligence } from '../components/teachers/IndependentEarningsIntelligence';
+import { TeacherCompetitionLeaderboards } from '../components/teachers/TeacherCompetitionLeaderboards';
+import { TeacherPayoutStatusCard } from '../components/teachers/TeacherPayoutStatusCard';
+
+import { DashboardGrid } from '../components/dashboard/layout/DashboardGrid';
+import { DashboardSection } from '../components/dashboard/layout/DashboardSection';
+import { DashboardCard } from '../components/dashboard/layout/DashboardCard';
+
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -197,6 +202,50 @@ export const TeacherDashboard: React.FC = () => {
         
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+        // Provide mock fallback data to prevent the UI from getting permanently stuck on loading skeleton
+        setStats({
+          totalStudents: 142,
+          activeClasses: 4,
+          totalEarnings: 845000,
+          monthlyEarnings: 125000,
+          pendingPayouts: 34000,
+          completedSessions: 84,
+          avgRating: 4.8,
+          totalContent: 32,
+          intelligence: [
+            {
+              title: 'Class Declining',
+              value: 'S3 Physics',
+              trendValue: 12,
+              trendLabel: 'avg score drop',
+              trendDirection: 'down',
+              riskLevel: 'critical',
+              alertText: 'Kinematics failing',
+              actionLabel: 'Assign revision',
+              actionLink: '/dashboard/library',
+              drillDownText: 'View topic analysis',
+              drillDownLink: '/dashboard/analytics'
+            },
+            {
+              title: 'Need Intervention',
+              value: '8 Students',
+              trendValue: 3,
+              trendLabel: 'new at risk',
+              trendDirection: 'up',
+              trendIsGood: false,
+              riskLevel: 'warning',
+              alertText: 'Check attendance drops',
+              actionLabel: 'Message parents',
+              actionLink: '/dashboard/students',
+              drillDownText: 'View risk roster',
+              drillDownLink: '/dashboard/interventions'
+            }
+          ]
+        });
+        setClasses([
+          { id: '1', name: 'Senior 4', level: 'O-Level', subject: 'Physics', enrolledStudents: 45, completionRate: 78, lastActive: '2 hours ago' },
+          { id: '2', name: 'Senior 5', level: 'A-Level', subject: 'Mathematics', enrolledStudents: 32, completionRate: 85, lastActive: '1 day ago' },
+        ]);
       } finally {
         setLoading(false);
       }
@@ -249,134 +298,139 @@ export const TeacherDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="w-full bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Signature Page Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-               <h1 className="text-3xl font-bold tracking-tight text-slate-900">Teaching Command Center</h1>
-               <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 mt-1">Uganda Curriculum</Badge>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 pb-6 border-b border-white/10">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-3">
+               <h1 className="text-3xl font-extrabold tracking-tight text-white">Teaching Command Center</h1>
+               <Badge className="bg-blue-900/50 text-blue-200 hover:bg-blue-900/80 border-blue-500/30 backdrop-blur-sm">Uganda Curriculum</Badge>
             </div>
-            <p className="text-slate-500 font-medium">Welcome back, {teacher.name}. Here is your command center.</p>
+            <p className="text-slate-300 font-medium text-sm md:text-base">Welcome back, {teacher.name}. Here is your command center.</p>
           </div>
-          <div className="flex gap-3">
-             <Button onClick={() => navigate('/dashboard/teacher/marks-upload')} size="lg" className="bg-indigo-600 hover:bg-indigo-700 shadow-sm font-bold tracking-wide">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+             <Button variant="outline" className="hidden md:flex shadow-sm bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 text-white"><Calendar className="w-4 h-4 mr-2 text-slate-300" /> My Calendar</Button>
+             <Button onClick={() => navigate('/dashboard/teacher/marks-upload')} size="lg" className="w-full md:w-auto shadow-lg shadow-blue-900/50 bg-blue-600 hover:bg-blue-500 font-semibold tracking-wide border border-blue-400/50">
                 Upload Target Grades
              </Button>
           </div>
         </div>
 
+        {/* Phase 0: Payout & Earnings Priority */}
+        <DashboardSection title="Earnings & Payouts Tracking">
+           <DashboardGrid className="!items-stretch">
+             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={6} variant="glass">
+                <TeacherPayoutStatusCard />
+             </DashboardCard>
+             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={6} variant="glass">
+                <IndependentEarningsIntelligence />
+             </DashboardCard>
+           </DashboardGrid>
+        </DashboardSection>
+
         {/* Intelligence System Block (Hero Strip) */}
-        <div className="flex flex-wrap gap-4 mb-8">
-          {stats?.intelligence?.map((card: any, i: number) => (
-             <div key={i} className="flex-[1_1_250px] flex flex-col">
-                <div className="flex-1 h-full">
-                  <IntelligenceCard {...card} />
-                </div>
-             </div>
-          ))}
-        </div>
+        <DashboardSection>
+           <DashboardGrid>
+             {stats?.intelligence?.map((card: any, i: number) => (
+                <DashboardCard key={i} colSpan={1} mdColSpan={3} lgColSpan={3} variant="glass">
+                   <IntelligenceCard {...card} />
+                </DashboardCard>
+             ))}
+           </DashboardGrid>
+        </DashboardSection>
 
-        {/* Teacher Personal Planner */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 mt-6">
-           <div className="lg:col-span-2">
-              <SmartStudyPlanner 
-                 mode="interactive" 
-                 titleOverride="My Teaching Planner" 
-                 descriptionOverride="Track your lesson prep, grading, and administrative tasks"
-                 dailyPlan={[
-                 {
-                   dayOfWeek: "Monday",
-                   date: "Today",
-                   tasks: [
-                     { id: "t-1", title: "Grade Senior 4 Exams", type: "deadline", subject: "Maths", durationMinutes: 120, isCompleted: false },
-                     { id: "t-2", title: "Prep Term 2 Topic Outline", type: "custom", subject: "Physics", durationMinutes: 60, isCompleted: true }
-                   ]
-                 }
-               ]} />
-           </div>
-        </div>
+        {/* Teacher Personal Planner & Resource Effectiveness */}
+        <DashboardSection title="Planning & Resource Impact">
+           <DashboardGrid className="!items-stretch">
+             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={7} variant="glass">
+                <SmartStudyPlanner 
+                   mode="interactive" 
+                   titleOverride="My Teaching Planner" 
+                   descriptionOverride="Track your lesson prep, grading, and administrative tasks"
+                   dailyPlan={[
+                   {
+                     dayOfWeek: "Monday",
+                     date: "Today",
+                     tasks: [
+                       { id: "t-1", title: "Grade Senior 4 Exams", type: "deadline", subject: "Maths", durationMinutes: 120, isCompleted: false },
+                       { id: "t-2", title: "Prep Term 2 Topic Outline", type: "custom", subject: "Physics", durationMinutes: 60, isCompleted: true }
+                     ]
+                   }
+                 ]} />
+             </DashboardCard>
+             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={5} variant="glass">
+               <ResourceEffectivenessIntelligence 
+                 subjectContext="Senior 4 Mathematics"
+                 resources={[
+                   { id: 'r1', title: 'Calculus Crash Course', type: 'video', views: 340, avgCompletionRate: 88, impactScore: 14, status: 'highly_effective' },
+                   { id: 'r2', title: 'Functions Practice Sheet', type: 'note', views: 45, avgCompletionRate: 30, impactScore: -2, status: 'needs_revision' },
+                 ]}
+               />
+             </DashboardCard>
+           </DashboardGrid>
+        </DashboardSection>
 
-        {/* Phase 2: Interventions & Resource Intelligence */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-           <div className="lg:col-span-1">
-             <SmartInterventionBuilder data={{
-               topicName: 'Algebraic Formulations',
-               targetStudentsCount: 14,
-               availableResources: [
-                 { id: '1', type: 'video', title: 'Solving for X - Core Demo' },
-                 { id: '2', type: 'quiz', title: '5-Question Diagnostic' },
-                 { id: '3', type: 'note', title: 'Algebra Rule Set PDF' },
-                 { id: '4', type: 'peer_support', title: 'Peer Study Group (Top Improver Mentor)' },
-                 { id: '5', type: 'parent_note', title: 'Parent Intervention Notice' }
-               ]
-             }} />
-           </div>
-           <div className="lg:col-span-1">
-             <ResourceEffectivenessIntelligence 
-               subjectContext="Senior 4 Mathematics"
-               resources={[
-                 { id: 'r1', title: 'Calculus Crash Course', type: 'video', views: 340, avgCompletionRate: 88, impactScore: 14, status: 'highly_effective' },
-                 { id: 'r2', title: 'Functions Practice Sheet', type: 'note', views: 45, avgCompletionRate: 30, impactScore: -2, status: 'needs_revision' },
-                 { id: 'r3', title: 'Algebra Introduction', type: 'video', views: 12, avgCompletionRate: 15, impactScore: 0, status: 'ignored' }
-               ]}
-             />
-           </div>
-           <div className="lg:col-span-1">
-             <ParentCommunicationCopilot />
-           </div>
-           <div className="lg:col-span-1 flex flex-col gap-6">
-             <TeacherReflectionAssistant />
-             <VoiceNoteWidget />
-           </div>
-        </div>
+        {/* Phase 2: Interventions & Rapid Actions */}
+        <DashboardSection title="Support Operations">
+           <DashboardGrid className="!items-stretch">
+             <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={5} variant="glass">
+               <SmartInterventionBuilder data={{
+                 topicName: 'Algebraic Formulations',
+                 targetStudentsCount: 14,
+                 availableResources: [
+                   { id: '1', type: 'video', title: 'Solving for X - Core Demo' },
+                   { id: '2', type: 'quiz', title: '5-Question Diagnostic' },
+                   { id: '3', type: 'note', title: 'Algebra Rule Set PDF' },
+                   { id: '4', type: 'peer_support', title: 'Peer Mentor' }
+                 ]
+               }} />
+             </DashboardCard>
+             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={4} variant="glass" orientation="vertical">
+               <ParentCommunicationCopilot />
+             </DashboardCard>
+             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={3} variant="glass">
+               <TeacherReflectionAssistant />
+             </DashboardCard>
+           </DashboardGrid>
+        </DashboardSection>
 
         {/* Phase 3: AI Partner & Reputation */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-           <div className="lg:col-span-1">
-              <AITeachingPartner />
-           </div>
-           <div className="lg:col-span-1 flex flex-col gap-6">
-              <TeacherPerformanceStory />
-              {/* Keeping the detailed legacy metric score as well */}
-              <TeacherQualityScore metrics={{
-                 overallScore: 88,
-                 deliveryConsistency: 92,
-                 studentEngagement: 84,
-                 studentImprovement: 78,
-                 markingTurnaroundDays: 2,
-                 punctuality: 98,
-                 nextImprovementGoal: 'Decrease turnaround on essay assignments'
-               }} />
-           </div>
-           <div className="lg:col-span-1">
-              <TeacherGrowthPassport />
-           </div>
-        </div>
+        <DashboardSection title="Professional Growth Hub">
+           <DashboardGrid>
+             <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={7} variant="glass">
+                 <TeacherPerformanceStory />
+             </DashboardCard>
+             <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={5} variant="glass">
+                <TeacherQualityScore metrics={{
+                   overallScore: 88,
+                   deliveryConsistency: 92,
+                   studentEngagement: 84,
+                   studentImprovement: 78,
+                   markingTurnaroundDays: 2,
+                   punctuality: 98,
+                   nextImprovementGoal: 'Decrease turnaround on essay assignments'
+                 }} />
+             </DashboardCard>
+             <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12} variant="glass">
+                <AITeachingPartner />
+             </DashboardCard>
+             <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12} variant="glass">
+                <TeacherGrowthPassport />
+             </DashboardCard>
+           </DashboardGrid>
+        </DashboardSection>
 
-        {/* Phase 4: Business & Institutional Tooling */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-           {teacher.institutionId ? (
-              <>
-                <div className="md:col-span-1">
-                   <InstitutionTeacherWellness />
-                </div>
-                <div className="md:col-span-1">
-                   <TeacherCollabHub />
-                </div>
-              </>
-           ) : (
-              <div className="md:col-span-2 lg:col-span-1">
-                 <IndependentEarningsIntelligence />
-              </div>
-           )}
-        </div>
+        {/* Teacher Competition Leaderboards */}
+        <DashboardSection title="Platform Leaderboard">
+           <TeacherCompetitionLeaderboards />
+        </DashboardSection>
+
 
         {/* Phase 6: Student Follow Up View (Readonly/Assign Planner) */}
         <div className="grid grid-cols-1 mb-8">
            <div className="lg:col-span-1">
-              <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <h3 className="text-xl font-bold text-slate-100 mb-3 flex items-center gap-2">
                  Student Spotlight: At-Risk Learner (Joan Doe)
               </h3>
               <SmartStudyPlanner mode="assign" titleOverride="Joan's Active Study Plan" descriptionOverride="Assign manual intervention tasks directly to this student" dailyPlan={[
@@ -400,11 +454,13 @@ export const TeacherDashboard: React.FC = () => {
         <TeacherResourceEngagementPanel />
 
         {/* Phase 8 Resource & Intervention Support */}
-        <TeacherInterventionPanel />
+        <div className="mt-6">
+          <TeacherInterventionPanel />
+        </div>
 
         {/* Phase 2 Competition Engine: Teacher View */}
         <div className="flex flex-wrap gap-6 mb-8 mt-8">
-           <div className="flex-[2_2_600px] flex flex-col">
+           <div className="w-full lg:flex-[2] flex flex-col">
               <Leaderboards 
                 currentStudentId="none"
                 boards={[
@@ -431,7 +487,7 @@ export const TeacherDashboard: React.FC = () => {
                 ]} 
               />
            </div>
-           <div className="flex-[1_1_300px] flex flex-col">
+           <div className="w-full lg:flex-[1] flex flex-col">
               <HouseStandingsCard 
                 institutionName="Kampala High"
                 houses={[
@@ -528,62 +584,23 @@ export const TeacherDashboard: React.FC = () => {
             <TabsTrigger value="earnings">Earnings</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview">
-            <div className="flex flex-wrap gap-6 items-start">
-              {/* Main Content Area */}
-              <div className="flex-[2_2_600px] flex flex-col space-y-6">
+          <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex flex-wrap gap-6 items-stretch mb-6">
+              {/* Main Content Area — narrower */}
+              <div className="flex-[3_3_400px] flex flex-col space-y-6">
                 
                 {/* 1. Next Best Action Queue */}
                 <NextBestActionQueue actions={[
-                   { id: 'a1', title: 'Grade Senior 4 Exams', description: '24 exams pending grading. Expected turnaround is 2 days.', type: 'grading_blocker', priority: 'high', actionLabel: 'Go to Grading' },
-                   { id: 'a2', title: 'Intervene: Joan Doe', description: 'Joan has failed 3 consecutive Physics assignments.', type: 'urgent_academic', priority: 'high', actionLabel: 'Launch Intervention' },
-                   { id: 'a3', title: 'Follow-up with Parents (S2)', description: '5 students missed yesterday’s live session.', type: 'attendance_risk', priority: 'medium', actionLabel: 'Message Parents' },
+                   { id: 'a1', title: 'Grade Senior 4 Calculus Mid-Term Papers', description: '24 exams pending grading. Expected turnaround is 2 days.', type: 'grading_blocker', priority: 'high', actionLabel: 'Go to Grading' },
+                   { id: 'a2', title: 'Intervene: Joan Doe & 3 others', description: 'Joan has failed 3 consecutive Physics assignments. Immediate intervention needed.', type: 'urgent_academic', priority: 'high', actionLabel: 'Launch Intervention' },
+                   { id: 'a3', title: 'Follow-up with Parents (S2)', description: '5 students missed yesterday\'s live session.', type: 'attendance_risk', priority: 'medium', actionLabel: 'Message Parents' },
                    { id: 'a4', title: 'Claim Pending Payout', description: 'You have UGX 450,000 cleared for withdrawal.', type: 'payout_blocker', priority: 'low', actionLabel: 'Withdraw Funds', isIndependentContext: true }
                 ]} />
 
-                {/* 2. Instant Class Health Cards */}
-                <div>
-                   <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                     <Users className="w-5 h-5 text-blue-600" />
-                     Class Health Monitor
-                   </h3>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <ClassHealthCard 
-                        id="c1"
-                        className="Senior 3 Physics"
-                        subject="Physics"
-                        attendancePct={94}
-                        avgPerformance={72}
-                        redAlertStudents={0}
-                        weakestTopic="Kinematics"
-                        improvementTrend="up"
-                     />
-                     <ClassHealthCard 
-                        id="c2"
-                        className="Senior 4 Mathematics"
-                        subject="Mathematics"
-                        attendancePct={78}
-                        avgPerformance={48}
-                        redAlertStudents={5}
-                        weakestTopic="Vectors"
-                        improvementTrend="down"
-                     />
-                     <ClassHealthCard 
-                        id="c3"
-                        className="Senior 2 Science"
-                        subject="Chemistry"
-                        attendancePct={98}
-                        avgPerformance={81}
-                        redAlertStudents={0}
-                        weakestTopic="Atomic Structure"
-                        improvementTrend="flat"
-                     />
-                   </div>
-                </div>
-             </div>
+              </div>
 
-              {/* Sidebar Area */}
-              <div className="flex-[1_1_300px] flex flex-col space-y-6">
+              {/* Sidebar Area — wider */}
+              <div className="w-full lg:flex-[2] flex flex-col space-y-6">
                  {/* 3. Teaching Wins Timeline */}
                  <TeachingWinsTimeline wins={[
                     { id: 'w1', timestamp: 'Today, 10:00 AM', title: 'S3 Physics recovered', description: 'Class average jumped by 12% after your recent intervention block.', impactType: 'score_jump' },
@@ -593,9 +610,50 @@ export const TeacherDashboard: React.FC = () => {
                  ]} />
               </div>
             </div>
+
+            {/* 2. Instant Class Health Cards (Full Width) */}
+            <div className="bg-white/10 backdrop-blur-xl rounded-[1.8rem] p-6 shadow-2xl border border-white/20 relative overflow-hidden">
+               <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-400 to-indigo-400"></div>
+               <h3 className="text-xl font-extrabold text-white mb-5 flex items-center gap-2 tracking-tight">
+                 <Users className="w-6 h-6 text-blue-300 p-1 bg-blue-900/50 rounded-md" />
+                 Class Health Monitor
+               </h3>
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                 <ClassHealthCard 
+                    id="c1"
+                    className="Senior 3 Honors Advanced Thermonuclear Astrophysics Sub-group B"
+                    subject="Physics"
+                    attendancePct={94}
+                    avgPerformance={72}
+                    redAlertStudents={45000}
+                    weakestTopic="Multi-dimensional String Theory and Quantum Chromodynamics"
+                    improvementTrend="up"
+                 />
+                 <ClassHealthCard 
+                    id="c2"
+                    className="Senior 4 Mathematics"
+                    subject="Mathematics"
+                    attendancePct={78}
+                    avgPerformance={48}
+                    redAlertStudents={5}
+                    weakestTopic="Vectors"
+                    improvementTrend="down"
+                 />
+                 <ClassHealthCard 
+                    id="c3"
+                    className="Senior 2 Science"
+                    subject="Chemistry"
+                    attendancePct={98}
+                    avgPerformance={81}
+                    redAlertStudents={0}
+                    weakestTopic="Atomic Structure"
+                    improvementTrend="flat"
+                 />
+               </div>
+            </div>
           </TabsContent>
 
-          <TabsContent value="classes">
+          <TabsContent value="classes" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Card>
               <CardHeader>
                 <CardTitle>All My Classes</CardTitle>
@@ -604,7 +662,7 @@ export const TeacherDashboard: React.FC = () => {
               <CardContent>
                 <div className="flex flex-wrap gap-6">
                   {classes.map((classItem) => (
-                    <Card key={classItem.id} className="hover:shadow-md transition-shadow flex-[1_1_300px] flex flex-col justify-between">
+                    <Card key={classItem.id} className="hover:shadow-md transition-shadow w-full lg:w-[calc(33.333%-1rem)] flex flex-col justify-between">
                       <CardHeader>
                         <div className="flex justify-between items-start">
                           <Badge variant={classItem.level === 'O\'level' ? 'default' : 'secondary'}>
@@ -644,7 +702,7 @@ export const TeacherDashboard: React.FC = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="content">
+          <TabsContent value="content" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="space-y-6">
               {/* Upload New Content */}
               <Card>
@@ -707,92 +765,125 @@ export const TeacherDashboard: React.FC = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="sessions">
-            <div className="space-y-6">
-              {/* Schedule New Session */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Schedule New Live Session</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Subject</label>
-                      <select className="w-full border border-gray-300 rounded-md px-3 py-2">
-                        <option>Select subject...</option>
-                        {teacher.subjects?.map(subject => (
-                          <option key={subject} value={subject}>{subject}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Class</label>
-                      <select className="w-full border border-gray-300 rounded-md px-3 py-2">
-                        <option>Select class...</option>
-                        {teacher.classes?.map(cls => (
-                          <option key={cls} value={cls}>{cls}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Date</label>
-                      <input type="date" className="w-full border border-gray-300 rounded-md px-3 py-2" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Time</label>
-                      <input type="time" className="w-full border border-gray-300 rounded-md px-3 py-2" />
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium mb-2">Session Title</label>
-                    <input 
-                      type="text" 
-                      placeholder="e.g., Senior 2 Mathematics - Quadratic Equations Review"
-                      className="w-full border border-gray-300 rounded-md px-3 py-2" 
-                    />
-                  </div>
-                  <div className="mt-6">
-                    <Button>
-                      <Calendar className="mr-2 h-4 w-4" />
-                      Schedule Session
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Upcoming Sessions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Upcoming Sessions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+          <TabsContent value="sessions" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="grid md:grid-cols-2 gap-8">
+              
+              {/* Upcoming Premium Sessions Layout */}
+              <div>
+                 <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-bold text-slate-800 tracking-tight">Upcoming Sessions</h3>
+                    <Button variant="ghost" className="text-primary hover:bg-primary/5 rounded-full px-4 h-9">See all</Button>
+                 </div>
+                 
+                 <div className="space-y-6">
                     {upcomingSessions.map((session) => (
-                      <div key={session.id} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-3">
+                      <div key={session.id} className="relative bg-primary rounded-[2rem] p-6 text-white shadow-[0_16px_40px_-16px_rgba(30,60,110,0.4)] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_50px_-16px_rgba(30,60,110,0.5)] hover:-translate-y-1">
+                        
+                        {/* Decorative background shape */}
+                        <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                        <div className="flex justify-between items-start mb-6">
                           <div>
-                            <h4 className="font-semibold text-gray-900">{session.title}</h4>
-                            <p className="text-sm text-gray-600">{session.date} at {session.time} • {session.duration} minutes</p>
+                            <p className="text-white/70 text-sm font-medium mb-1 tracking-wide uppercase flex items-center gap-2">
+                               <Video className="w-3.5 h-3.5" /> {session.duration} min Live
+                            </p>
+                            <h4 className="font-bold text-2xl leading-tight line-clamp-2 max-w-[80%]">{session.title}</h4>
                           </div>
-                          <Badge variant="outline">{session.students} registered</Badge>
+                          
+                          <div className="bg-white/20 backdrop-blur-md rounded-full p-2 h-12 w-12 flex items-center justify-center shrink-0 border border-white/10">
+                            <Users className="w-5 h-5 text-white" />
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button size="sm">
-                            <Play className="mr-2 h-4 w-4" />
+
+                        {/* Inner Floating Detail Card */}
+                        <div className="bg-white/[0.08] backdrop-blur-md border border-white/10 rounded-[1.5rem] p-4 mb-6">
+                           <div className="flex flex-col gap-3">
+                              <div className="flex items-center text-white/90 text-sm font-medium gap-3">
+                                 <Calendar className="w-4 h-4 text-white/70" />
+                                 {new Date(session.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric'})}
+                              </div>
+                              <div className="flex items-center text-white/90 text-sm font-medium gap-3">
+                                 <Clock className="w-4 h-4 text-white/70" />
+                                 {session.time} ({session.students} students registered)
+                              </div>
+                           </div>
+                        </div>
+                        
+                        {/* Pill Controls */}
+                        <div className="flex gap-3">
+                          <Button className="flex-1 bg-white/[0.15] hover:bg-white/25 text-white rounded-full border-0 backdrop-blur-md h-12" variant="outline">
+                            Cancel
+                          </Button>
+                          <Button 
+                            className="flex-1 bg-white text-primary hover:bg-slate-50 rounded-full shadow-lg h-12 text-sm font-bold tracking-wide"
+                            onClick={() => window.open('https://meet.google.com/new', '_blank')}
+                          >
                             Start Session
                           </Button>
-                          <Button size="sm" variant="outline">Edit</Button>
-                          <Button size="sm" variant="outline">Cancel</Button>
                         </div>
                       </div>
                     ))}
-                  </div>
-                </CardContent>
-              </Card>
+                 </div>
+                 
+                 {/* Secondary Segmented Chips (Like Tab filters under Appointment) */}
+                 <div className="mt-8 flex gap-3 overflow-x-auto pb-4 hide-scrollbar">
+                    <Button className="rounded-full bg-primary text-white shadow-md w-auto h-10 px-6 shrink-0 border-0">All</Button>
+                    <Button variant="outline" className="rounded-full bg-white text-slate-600 border-none shadow-sm h-10 px-6 hover:bg-slate-50 shrink-0">Mathematics</Button>
+                    <Button variant="outline" className="rounded-full bg-white text-slate-600 border-none shadow-sm h-10 px-6 hover:bg-slate-50 shrink-0">Physics</Button>
+                 </div>
+              </div>
+
+              {/* Schedule New Session (Right Panel) */}
+              <div>
+                 <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-bold text-slate-800 tracking-tight">Schedule Session</h3>
+                 </div>
+                 <div className="bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                   <div className="space-y-5">
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">Subject</label>
+                        <select className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                          <option>Select subject...</option>
+                          {teacher.subjects?.map(subject => (
+                            <option key={subject} value={subject}>{subject}</option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">Date</label>
+                          <input type="date" className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-700 mb-2">Time</label>
+                          <input type="time" className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none" />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">Session Title</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g., Senior 2 Mathematics - Quadratic Equations"
+                          className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-400" 
+                        />
+                      </div>
+                      
+                      <div className="pt-4">
+                        <Button className="w-full rounded-full h-14 text-base shadow-lg hover:-translate-y-0.5 transition-all">
+                          <Calendar className="mr-2 h-5 w-5" />
+                          Confirm Schedule
+                        </Button>
+                      </div>
+                   </div>
+                 </div>
+              </div>
+
             </div>
           </TabsContent>
 
-          <TabsContent value="earnings">
+          <TabsContent value="earnings" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <TeacherMonetizationDashboard />
           </TabsContent>
         </Tabs>

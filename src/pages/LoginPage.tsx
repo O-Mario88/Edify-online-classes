@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { GraduationCap, Eye, EyeOff } from 'lucide-react';
+import { EditorialPanel } from '../components/ui/editorial/EditorialPanel';
+import { EditorialPill } from '../components/ui/editorial/EditorialPill';
+import { EditorialHeader } from '../components/ui/editorial/EditorialHeader';
+import { Eye, EyeOff, KeyRound, Mail, ArrowRight } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -32,119 +32,123 @@ export const LoginPage: React.FC = () => {
   };
 
   const demoAccounts = [
-    { email: 'grace.nakato@email.com', role: 'Student (Senior 2)' },
-    { email: 'sarah.nakamya@maplesch.com', role: 'Teacher (Mathematics)' },
+    { email: 'grace.nakato@email.com', role: 'Student' },
+    { email: 'sarah.nakamya@maplesch.com', role: 'Teacher' },
     { email: 'christine.namaganda@maplesch.com', role: 'Administrator' },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
-            <GraduationCap className="h-12 w-12 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">Maple Online School</span>
-          </Link>
-          <h2 className="text-center text-3xl font-bold text-gray-900">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Welcome back to your learning journey
-          </p>
+    <div className="min-h-screen bg-[#fafaeb] flex items-center justify-center p-4 relative overflow-hidden font-sans">
+      
+      {/* Editorial aesthetic background layer */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-[0.85]"
+        style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
+      />
+      <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" />
+
+      {/* Main Login Card - Refactored to match Pinterest reference */}
+      <EditorialPanel 
+        variant="frosted-rose" 
+        radius="xl"
+        className="max-w-[420px] w-full p-8 md:p-10 shadow-2xl shadow-rose-900/10 relative z-10"
+      >
+        <div className="flex justify-between items-center mb-10">
+           <span className="text-slate-500 font-medium tracking-wide">Edify_</span>
+           <Link to="/register" className="text-sm font-semibold text-slate-800 hover:text-slate-600 transition-colors">Sign up</Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-8 space-y-6">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1"
-                placeholder="Enter your email"
-              />
-            </div>
+        <EditorialHeader level="h2" weight="light" className="mb-8">
+          Log in
+        </EditorialHeader>
 
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <div className="relative mt-1">
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
-                {error}
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </Button>
-          </form>
-
-          {/* Demo Accounts */}
-          <div className="border-t pt-6">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Demo Accounts</h3>
-            <div className="space-y-2">
-              {demoAccounts.map((account, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    setEmail(account.email);
-                    setPassword('demo123');
-                  }}
-                  className="w-full text-left px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"
-                >
-                  <div className="font-medium text-gray-900">{account.role}</div>
-                  <div className="text-gray-600">{account.email}</div>
-                </button>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-gray-500">
-              Click any demo account to auto-fill credentials (password: demo123)
-            </p>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          
+          <div className="relative">
+             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
+                 <Mail className="h-3.5 w-3.5 text-slate-400" />
+               </div>
+             </div>
+             <input
+               id="email"
+               type="email"
+               required
+               value={email}
+               onChange={(e) => setEmail(e.target.value)}
+               className="w-full bg-white/50 border border-white focus:border-slate-300 focus:bg-white rounded-full py-4 pl-14 pr-6 text-sm outline-none transition-all placeholder:text-slate-500"
+               placeholder="e-mail address"
+             />
           </div>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
-                Sign up here
-              </Link>
-            </p>
+          <div className="relative">
+             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
+                 <KeyRound className="h-3.5 w-3.5 text-slate-400" />
+               </div>
+             </div>
+             <input
+               id="password"
+               type={showPassword ? 'text' : 'password'}
+               required
+               value={password}
+               onChange={(e) => setPassword(e.target.value)}
+               className="w-full bg-white/50 border border-white focus:border-slate-300 focus:bg-white rounded-full py-4 pl-14 pr-16 text-sm outline-none transition-all placeholder:text-slate-500"
+               placeholder="password"
+             />
+             <button
+               type="button"
+               className="absolute inset-y-0 right-4 flex items-center"
+               onClick={() => setShowPassword(!showPassword)}
+               tabIndex={-1}
+             >
+                <div className="bg-white px-3 py-1.5 rounded-full text-[10px] font-bold text-slate-600 shadow-sm hover:bg-slate-50 transition-colors tracking-wide uppercase">
+                  {showPassword ? 'Hide' : 'Forgot?'}
+                </div>
+             </button>
+          </div>
+
+          {error && (
+            <div className="bg-red-50/80 backdrop-blur-sm border border-red-200/50 text-red-700 px-4 py-3 rounded-2xl text-xs text-center font-medium">
+              {error}
+            </div>
+          )}
+
+          <div className="pt-6 flex justify-between items-center text-[10px] text-slate-500 font-medium">
+             <div className="max-w-[200px] leading-relaxed">
+               Secure access to Edify premium platform. Ensure you are on the official domain.
+             </div>
+             <button 
+               type="submit" 
+               disabled={isLoading}
+               className="w-16 h-10 rounded-full bg-slate-900 flex items-center justify-center text-white hover:bg-slate-800 transition-colors shadow-lg disabled:opacity-50"
+             >
+               {isLoading ? <span className="animate-pulse flex gap-1"><span className="w-1 h-1 bg-white rounded-full"/><span className="w-1 h-1 bg-white rounded-full"/><span className="w-1 h-1 bg-white rounded-full"/></span> : <ArrowRight className="w-5 h-5" />}
+             </button>
+          </div>
+        </form>
+
+        {/* Demo Accounts (Refitted for editorial feel) */}
+        <div className="mt-12 pt-6 border-t border-slate-300/30">
+          <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest mb-4">Demo Access</p>
+          <div className="space-y-2">
+            {demoAccounts.map((account, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setEmail(account.email);
+                  setPassword('demo123');
+                }}
+                className="w-full flex items-center justify-between px-4 py-3 bg-white/40 hover:bg-white/70 rounded-2xl transition-all text-left group"
+              >
+                <span className="text-xs font-semibold text-slate-700 group-hover:text-slate-900">{account.role}</span>
+                <span className="text-[10px] text-slate-500 truncate ml-2">{account.email}</span>
+              </button>
+            ))}
           </div>
         </div>
-      </div>
+
+      </EditorialPanel>
     </div>
   );
 };
