@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AICopilotMessage } from '../types';
 import { useAuth } from './AuthContext';
-import { apiClient } from '@/lib/api';
+import apiClient from '@/lib/apiClient';
 
 interface AICopilotContextType {
   isOpen: boolean;
@@ -67,7 +67,7 @@ export const AICopilotProvider: React.FC<{ children: ReactNode }> = ({ children 
     setIsLoading(true);
 
     try {
-       const res = await apiClient.post('/ai/copilot/ask/', { content });
+       const res = await apiClient.post<{ job_id: number; reply: string }>('/ai/copilot/ask/', { content });
        const aiResponse: AICopilotMessage = {
           id: res.data.job_id.toString(),
           role: 'assistant',

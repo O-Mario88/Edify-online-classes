@@ -98,3 +98,27 @@ class ResourceQualityReview(models.Model):
 
     def __str__(self):
         return f"Review [{self.status}] for {self.target_resource_ref}"
+
+class Term(models.Model):
+    class_level = models.ForeignKey(ClassLevel, on_delete=models.CASCADE, related_name='terms')
+    name = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return f"{self.class_level.name} - {self.name}"
+
+class Subtopic(models.Model):
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='subtopics')
+    name = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return f"{self.topic.name} -> {self.name}"
+
+class TemplateLesson(models.Model):
+    subtopic = models.ForeignKey(Subtopic, on_delete=models.CASCADE, related_name='template_lessons')
+    remote_id = models.CharField(max_length=100, blank=True, null=True)
+    title = models.CharField(max_length=255)
+    lesson_type = models.CharField(max_length=50) # 'video', 'notes', 'exercise', 'project'
+    duration = models.CharField(max_length=100, blank=True, null=True)
+    
+    def __str__(self):
+        return self.title

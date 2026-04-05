@@ -24,7 +24,7 @@ export const CourseCatalog: React.FC = () => {
     const fetchData = async () => {
       try {
         const [coursesResponse, usersResponse] = await Promise.all([
-          fetch(`/data/courses.json?t=${new Date().getTime()}`),
+          fetch('http://localhost:8000/api/v1/curriculum/full-tree/'),
           fetch(`/data/users.json?t=${new Date().getTime()}`)
         ]);
         
@@ -110,8 +110,8 @@ export const CourseCatalog: React.FC = () => {
                    onClick={() => setSelectedCategory(category.toLowerCase())}
                    className={`whitespace-nowrap px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 border ${
                      active 
-                       ? 'bg-slate-900 text-white border-slate-900 shadow-md' 
-                       : 'bg-white text-slate-400 border-white shadow-sm hover:text-slate-600'
+                       ? 'bg-blue-600 text-white border-blue-600 shadow-md' 
+                       : 'bg-white text-slate-400 border-white shadow-sm hover:text-blue-600'
                    }`}
                  >
                    {category}
@@ -168,7 +168,7 @@ export const CourseCatalog: React.FC = () => {
                       </div>
                     </div>
 
-                    <h3 className="text-2xl font-bold text-slate-900 mb-3 leading-tight group-hover:text-amber-700 transition-colors line-clamp-2">
+                    <h3 className="text-2xl font-bold text-slate-900 mb-3 leading-tight group-hover:text-blue-600 transition-colors line-clamp-2">
                       {ugandaClass.name}
                     </h3>
                     

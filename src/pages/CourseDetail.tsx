@@ -20,6 +20,7 @@ import {
   Calendar,
   TrendingUp,
   ChevronRight,
+  ArrowRight,
   Download,
   WifiOff
 } from 'lucide-react';
@@ -308,7 +309,7 @@ export const CourseDetail: React.FC = () => {
                           <div className="flex items-center gap-4">
                             <Link
                               to={`/classes/${classId}/${currentClass.terms[0]?.id || 'term-1'}/${subjectId}/topic/${topic.id}`}
-                              className="text-[10px] font-bold uppercase tracking-widest text-[#8e8268] hover:text-amber-700 hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="text-[10px] font-bold uppercase tracking-widest text-[#8e8268] hover:text-blue-600 hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
                               onClick={(e) => e.stopPropagation()}
                             >
                               Enter Space <ArrowRight className="h-3 w-3" />
@@ -520,7 +521,7 @@ export const CourseDetail: React.FC = () => {
                               <resource.icon className="h-5 w-5" />
                             </div>
                             <div>
-                              <h4 className="font-bold text-slate-800 mb-1 group-hover:text-amber-700 transition-colors line-clamp-1">{resource.name}</h4>
+                              <h4 className="font-bold text-slate-800 mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">{resource.name}</h4>
                               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{resource.type} • {resource.size}</p>
                             </div>
                           </div>
@@ -598,7 +599,7 @@ export const CourseDetail: React.FC = () => {
                         to={`/classes/${classId}/${currentClass.terms[0].id}/${subject.id}`}
                         className="block p-4 border border-white rounded-2xl bg-white/60 hover:bg-white hover:shadow-md transition-all group"
                       >
-                        <h5 className="font-bold text-slate-800 group-hover:text-amber-700 transition-colors mb-1">{subject.name}</h5>
+                        <h5 className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors mb-1">{subject.name}</h5>
                         <p className="text-xs text-slate-500 font-light line-clamp-1">{subject.description}</p>
                       </Link>
                     ))}

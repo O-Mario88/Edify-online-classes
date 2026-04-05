@@ -33,11 +33,10 @@ interface ClassCard {
 }
 
 export const HomePage: React.FC = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('O-Level');
-  const [popularClasses, setPopularClasses] = useState<ClassCard[]>([]);
-
-  // Default mock data as fallback
+  
+  // Default mock data as fallback - moved before state
   const DEFAULT_CLASSES: ClassCard[] = [
     {
       id: 1, weeks: '12 WEEKS', title: 'O-Level Mathematics: Algebra Mastery',
@@ -68,14 +67,24 @@ export const HomePage: React.FC = () => {
       rating: 5.0, priceStatus: 'PREMIUM'
     }
   ];
+  
+  const [popularClasses, setPopularClasses] = useState<ClassCard[]>(DEFAULT_CLASSES);
 
   useEffect(() => {
     const fetchListings = async () => {
       try {
         setLoading(true);
         
-        // Fetch marketplace listings
-        const response = await apiGet<{ results: Listing[] }>(API_ENDPOINTS.LISTINGS);
+        // Set a 5-second timeout for the API call
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('API timeout')), 5000)
+        );
+        
+        // Fetch marketplace listings with timeout
+        const response = await Promise.race([
+          fetch('http://localhost:8000/api/v1/curriculum/full-tree/').then(res => res.json()),
+          timeoutPromise as any
+        ]);
         
         if (response.data?.results && response.data.results.length > 0) {
           // Transform API listings to ClassCard format

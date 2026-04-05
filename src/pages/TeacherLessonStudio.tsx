@@ -5,8 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   BookOpen, Video, FileText, UploadCloud, PlusCircle, Clock, 
-  CheckCircle, Paperclip, ChevronLeft, Calendar as CalendarIcon, MessageSquare
+  CheckCircle, Paperclip, ChevronLeft, Calendar as CalendarIcon, MessageSquare, AlertCircle
 } from 'lucide-react';
+import { apiClient } from '@/lib/apiClient';
+import { toast } from 'sonner';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export const TeacherLessonStudio: React.FC = () => {
   const { classId } = useParams();
@@ -27,16 +30,30 @@ export const TeacherLessonStudio: React.FC = () => {
   const provisionWebinar = async () => {
     setIsProvisioning(true);
     try {
-        // Normally we use apiClient, using fetch for the mock test to avoid import errors
-        // const res = await apiClient.post('/live-sessions/provision-webinar/', { title: targetClass.title });
-        alert("Simulating API Call to /api/v1/live-sessions/provision-webinar/...");
-        setTimeout(() => {
-          alert('Backend Proxy Success! Meeting Allocated: https://meet.google.com/abc-xzyq-pqr');
-          setIsProvisioning(false);
-        }, 1000);
-    } catch(err) {
-        setIsProvisioning(false);
-        alert('Failed to provision: User must belong to active institution.');
+      const res = await apiClient.post('/live-sessions/provision-webinar/', { 
+        title: targetClass.title,
+        class_id: classId
+      });
+      
+      const meetingUrl = res.meeting_url || res.url || 'https://meet.google.com/placeholder';
+      toast.success(`Live session provisioned! Access: ${meetingUrl}`);
+      
+      // Optional: Copy URL to clipboard
+      navigator.clipboard.writeText(meetingUrl).catch(() => {});
+      
+      setIsProvisioning(false);
+    } catch(err: any) {
+      console.error('Webinar provisioning error:', err);
+      setIsProvisioning(false);
+      
+      // Check if it's an auth error
+      if (err.response?.status === 403) {
+        toast.error('You must belong to an active institution to provision live sessions.');
+      } else if (err.response?.status === 400) {
+        toast.error('Invalid request. Check that the class ID is valid.');
+      } else {
+        toast.error('Failed to provision webinar. Please try again.');
+      }
     }
   };
 

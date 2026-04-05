@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChevronRight, ArrowLeft, PlayCircle, FileText, HelpCircle, Star, Users, Clock, Download, Video } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/apiClient';
 
 interface DjangoTopic {
   id: number;
@@ -81,7 +81,7 @@ const MarketplaceTopicPage: React.FC = () => {
   if (loading) {
     return (
       <div className="container mx-auto py-12 px-4 text-center">
-         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
          <p className="text-gray-500">Loading Topic Learning Profile and Live Resources...</p>
       </div>
     );
@@ -103,7 +103,7 @@ const MarketplaceTopicPage: React.FC = () => {
      <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow border-gray-100 group">
        <div className={`aspect-video relative flex items-center justify-center ${
           item.content_type === 'video' ? 'bg-gradient-to-r from-red-400 to-rose-600' : 
-          item.content_type === 'notes' ? 'bg-gradient-to-r from-blue-400 to-indigo-600' :
+          item.content_type === 'notes' ? 'bg-gradient-to-r from-blue-400 to-blue-600' :
           'bg-gradient-to-r from-emerald-400 to-teal-600'
        }`}>
           <div className="absolute inset-0 flex items-center justify-center">
@@ -165,7 +165,7 @@ const MarketplaceTopicPage: React.FC = () => {
             Complete resource tree mapping directly to the {['Senior 5', 'Senior 6', 'S5', 'S6'].includes(classId) || ['Senior 5', 'Senior 6'].includes(topic?.class_level?.name) ? 'Advanced Level UNEB syllabus' : 'NCDC Competency-Based syllabus'} for {topic.name}. Learn from vetted institutional educators through rigorous video guides, printable notes, and diagnostic assessments.
           </p>
           <div className="flex flex-wrap items-center gap-3">
-             <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 py-1 px-3">Topic {topic.order || 0}</Badge>
+             <Badge variant="secondary" className="bg-blue-50 text-blue-700 py-1 px-3">Topic {topic.order || 0}</Badge>
              <Badge variant="outline" className="border-gray-200 text-gray-600 py-1 px-3 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5"/> ~4 Lesson Periods</Badge>
           </div>
         </div>

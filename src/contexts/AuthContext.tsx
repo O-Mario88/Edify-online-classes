@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UniversalStudent, IndependentTeacher, Institution, ParentUser } from '../types';
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/apiClient';
 
 interface AuthContextType {
   user: User | null;

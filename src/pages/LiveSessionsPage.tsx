@@ -20,7 +20,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { WebinarSession } from '../types';
 import { toast } from 'sonner';
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/apiClient';
 import { isFuture, isPast, addMinutes } from 'date-fns';
 import { LiveSessionCTA } from '../components/dashboard/LiveSessionCTA';
 

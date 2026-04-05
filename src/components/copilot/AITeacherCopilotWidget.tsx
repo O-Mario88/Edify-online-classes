@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Bot, X, Send, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/apiClient';
 
 export const AITeacherCopilotWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);

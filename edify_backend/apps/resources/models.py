@@ -29,6 +29,13 @@ class Resource(models.Model):
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='uploaded_resources')
     
     title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True, help_text="Detailed description of the resource content")
+    author = models.CharField(max_length=255, blank=True, null=True, help_text="Resource author name (optional, defaults to uploader name)")
+    category = models.CharField(max_length=100, blank=True, null=True, help_text="Resource type: Textbook, Notes, Guide, Workbook, etc.")
+    price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, help_text="Price for marketplace sales (0 = free)")
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=4.0, help_text="Average rating from 0-5")
+    is_featured = models.BooleanField(default=False, help_text="Flag for homepage/carousel feature")
+    
     file_path = models.FileField(upload_to='resources/', null=True, blank=True)
     external_url = models.URLField(max_length=500, null=True, blank=True)
     vimeo_upload_status = models.CharField(max_length=20, choices=VIMEO_STATUS_CHOICES, default='none')

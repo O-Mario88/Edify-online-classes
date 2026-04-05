@@ -5,7 +5,7 @@ import { EditorialPill } from '@/components/ui/editorial/EditorialPill';
 import { EditorialHeader } from '@/components/ui/editorial/EditorialHeader';
 import { Search, Filter, Globe2, BookOpen, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/apiClient';
 
 // We define our local API type
 interface DjangoSubject {

@@ -34,7 +34,7 @@ export const SubjectTopicsPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resp = await fetch(`/data/courses.json?t=${new Date().getTime()}`);
+        const resp = await fetch('http://localhost:8000/api/v1/curriculum/full-tree/');
         const data = await resp.json();
 
         for (const level of data.levels) {
@@ -175,7 +175,7 @@ export const SubjectTopicsPage: React.FC = () => {
                       >
                         <div className="flex items-center gap-6 p-6 sm:p-8">
                           {/* Number */}
-                          <div className="w-14 h-14 rounded-2xl bg-[#f4efe2] flex items-center justify-center flex-shrink-0 group-hover:bg-slate-900 transition-colors duration-300">
+                          <div className="w-14 h-14 rounded-2xl bg-[#f4efe2] flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 transition-colors duration-300">
                             <span className="text-xl font-black text-[#8e8268] group-hover:text-white transition-colors duration-300 leading-none">
                               {topic.globalIndex}
                             </span>
@@ -183,7 +183,7 @@ export const SubjectTopicsPage: React.FC = () => {
 
                           {/* Content */}
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-xl font-bold text-slate-900 group-hover:text-amber-700 transition-colors leading-snug mb-2">
+                            <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mb-2">
                               {topic.name}
                             </h3>
                             {topic.description && (
@@ -214,8 +214,7 @@ export const SubjectTopicsPage: React.FC = () => {
                             </div>
                           </div>
 
-                          {/* Arrow */}
-                          <ChevronRight className="w-6 h-6 text-slate-300 group-hover:text-amber-500 group-hover:translate-x-1 transition-all flex-shrink-0" />
+                          <ChevronRight className="w-6 h-6 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
                         </div>
                       </EditorialPanel>
                     </button>

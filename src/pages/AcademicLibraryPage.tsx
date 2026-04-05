@@ -1,105 +1,109 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { EditorialPanel } from '../components/ui/editorial/EditorialPanel';
 import { EditorialPill } from '../components/ui/editorial/EditorialPill';
 import { EditorialHeader } from '../components/ui/editorial/EditorialHeader';
-import { Search, Star, BookOpen, ChevronDown, ChevronLeft, ChevronRight, User } from 'lucide-react';
+import { Search, Star, BookOpen, ChevronDown, ChevronLeft, ChevronRight, User, AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ResourceViewer } from '../components/academic/ResourceViewer';
+import { apiClient, API_ENDPOINTS } from '../lib/apiClient';
+import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Button } from '../components/ui/button';
 
-// Realistic Academic Mock Data
-const MOCK_RESOURCES = [
+// Fallback mock data for when API is unavailable
+const DEFAULT_MOCK_RESOURCES = [
   {
-    id: 'res-1', title: "Senior 4 Mathematics Revision Notes", authorName: "Sarah Nakamya", subject: "Mathematics", category: "Notes",
-    coverURL: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80", rating: 4.8, ratingsCount: "1.2k", pages: 120,
+    id: 'res-1', title: "Senior 4 Mathematics Revision Notes", author: "Sarah Nakamya", subject: "Mathematics", category: "Notes",
+    file_url: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=80", rating: 4.8, price: 9.99, pages: 120,
     description: "Complete coverage of O-level geometry, algebra, and statistics with practice problems.",
-    format: "pdf", isFeatured: true, color: "from-rose-400 to-rose-300"
+    format: "pdf", is_featured: true
   },
   {
-    id: 'res-2', title: "Biology: Human Circulatory System", authorName: "Michael Okello", subject: "Biology", category: "Textbook",
-    coverURL: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=600&q=80", rating: 4.9, ratingsCount: "2.1k", pages: 85,
+    id: 'res-2', title: "Biology: Human Circulatory System", author: "Michael Okello", subject: "Biology", category: "Textbook",
+    file_url: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=600&q=80", rating: 4.9, price: 12.99, pages: 85,
     description: "Visual exploration of the heart, blood vessels, and circulatory pathways.",
-    format: "pdf", isFeatured: true, color: "from-blue-400 to-blue-300"
+    format: "pdf", is_featured: true
   },
   {
-    id: 'res-3', title: "English Language Comprehension", authorName: "Edify Board", subject: "English", category: "Workbook",
-    coverURL: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=80", rating: 4.7, ratingsCount: "845", pages: 45,
+    id: 'res-3', title: "English Language Comprehension", author: "Edify Board", subject: "English", category: "Workbook",
+    file_url: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=80", rating: 4.7, price: 8.99, pages: 45,
     description: "Master techniques for summary writing, passage analysis, and critical reading.",
-    format: "pdf", isFeatured: true, color: "from-emerald-400 to-emerald-300"
+    format: "pdf", is_featured: true
   },
   {
-    id: 'res-4', title: "Physics Practical Guide", authorName: "Dr. Kaggwa", subject: "Physics", category: "Notes",
-    coverURL: "https://images.unsplash.com/photo-1603126852811-0421213038ce?w=600&q=80", rating: 4.5, ratingsCount: "320", pages: 60,
-    description: "Step-by-step guides for mechanics, optics, and electricity experiments.", format: "pdf"
+    id: 'res-4', title: "Physics Practical Guide", author: "Dr. Kaggwa", subject: "Physics", category: "Notes",
+    file_url: "https://images.unsplash.com/photo-1603126852811-0421213038ce?w=600&q=80", rating: 4.5, price: 10.99, pages: 60,
+    description: "Step-by-step guides for mechanics, optics, and electricity experiments.", format: "pdf", is_featured: false
   },
   {
-    id: 'res-5', title: "Geography Atlas Companion", authorName: "Jane Doe", subject: "Geography", category: "Textbook",
-    coverURL: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600&q=80", rating: 4.6, ratingsCount: "560", pages: 140,
-    description: "Detailed maps and analytical notes on East African physical geography.", format: "pdf"
+    id: 'res-5', title: "Geography Atlas Companion", author: "Jane Doe", subject: "Geography", category: "Textbook",
+    file_url: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600&q=80", rating: 4.6, price: 14.99, pages: 140,
+    description: "Detailed maps and analytical notes on East African physical geography.", format: "pdf", is_featured: false
   },
   {
-    id: 'res-6', title: "General Paper Reading Pack", authorName: "Edify Arts Team", subject: "General Paper", category: "Notes",
-    coverURL: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80", rating: 4.8, ratingsCount: "1.5k", pages: 200,
-    description: "Curated essays and critical thinking prompts for A-level preparation.", format: "pdf"
+    id: 'res-6', title: "General Paper Reading Pack", author: "Edify Arts Team", subject: "General Paper", category: "Notes",
+    file_url: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&q=80", rating: 4.8, price: 15.99, pages: 200,
+    description: "Curated essays and critical thinking prompts for A-level preparation.", format: "pdf", is_featured: false
   },
   {
-    id: 'res-7', title: "Chemistry: Organic Compounds", authorName: "Dr. Asiimwe", subject: "Chemistry", category: "Textbook",
-    coverURL: "https://images.unsplash.com/photo-1628863353691-0071c8c1874c?w=600&q=80", rating: 4.7, ratingsCount: "980", pages: 110,
-    description: "In-depth coverage of hydrocarbons, alcohols, and carbonyl compounds for A-level.", format: "pdf"
+    id: 'res-7', title: "Chemistry: Organic Compounds", author: "Dr. Asiimwe", subject: "Chemistry", category: "Textbook",
+    file_url: "https://images.unsplash.com/photo-1628863353691-0071c8c1874c?w=600&q=80", rating: 4.7, price: 13.99, pages: 110,
+    description: "In-depth coverage of hydrocarbons, alcohols, and carbonyl compounds for A-level.", format: "pdf", is_featured: false
   },
   {
-    id: 'res-8', title: "History: Colonial Africa", authorName: "Prof. Wamala", subject: "History", category: "Notes",
-    coverURL: "https://images.unsplash.com/photo-1568667256549-094345857637?w=600&q=80", rating: 4.6, ratingsCount: "740", pages: 95,
-    description: "A comprehensive guide to the scramble, partition, and colonial resistance in Africa.", format: "pdf"
+    id: 'res-8', title: "History: Colonial Africa", author: "Prof. Wamala", subject: "History", category: "Notes",
+    file_url: "https://images.unsplash.com/photo-1568667256549-094345857637?w=600&q=80", rating: 4.6, price: 11.99, pages: 95,
+    description: "A comprehensive guide to the scramble, partition, and colonial resistance in Africa.", format: "pdf", is_featured: false
   },
   {
-    id: 'res-9', title: "Economics: Demand & Supply", authorName: "Edify Economics Dept", subject: "Economics", category: "Notes",
-    coverURL: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=80", rating: 4.5, ratingsCount: "610", pages: 78,
-    description: "Structured notes on price theory, elasticity, and consumer behaviour.", format: "pdf"
+    id: 'res-9', title: "Economics: Demand & Supply", author: "Edify Economics Dept", subject: "Economics", category: "Notes",
+    file_url: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=80", rating: 4.5, price: 9.99, pages: 78,
+    description: "Structured notes on price theory, elasticity, and consumer behaviour.", format: "pdf", is_featured: false
   },
   {
-    id: 'res-10', title: "Literature: Hamlet Study Guide", authorName: "Ruth Achieng", subject: "Literature", category: "Workbook",
-    coverURL: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&q=80", rating: 4.9, ratingsCount: "2.4k", pages: 65,
-    description: "Scene-by-scene analysis, themes, and essay guides for Shakespeare's Hamlet.", format: "pdf"
+    id: 'res-10', title: "Literature: Hamlet Study Guide", author: "Ruth Achieng", subject: "Literature", category: "Workbook",
+    file_url: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&q=80", rating: 4.9, price: 10.99, pages: 65,
+    description: "Scene-by-scene analysis, themes, and essay guides for Shakespeare's Hamlet.", format: "pdf", is_featured: true
   },
   {
-    id: 'res-11', title: "Agriculture: Crop Production", authorName: "Mr. Byabagambi", subject: "Agriculture", category: "Textbook",
-    coverURL: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=600&q=80", rating: 4.4, ratingsCount: "290", pages: 130,
-    description: "NCDC-aligned notes on soil science, planting, and crop protection methods.", format: "pdf"
+    id: 'res-11', title: "Agriculture: Crop Production", author: "Mr. Byabagambi", subject: "Agriculture", category: "Textbook",
+    file_url: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=600&q=80", rating: 4.4, price: 12.99, pages: 130,
+    description: "NCDC-aligned notes on soil science, planting, and crop protection methods.", format: "pdf", is_featured: false
   },
   {
-    id: 'res-12', title: "ICT: Databases and Networking", authorName: "Tech Dept Edify", subject: "ICT", category: "Notes",
-    coverURL: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=80", rating: 4.6, ratingsCount: "430", pages: 88,
-    description: "Covers relational databases, SQL basics, and networking fundamentals for A-level.", format: "pdf"
+    id: 'res-12', title: "ICT: Databases and Networking", author: "Tech Dept Edify", subject: "ICT", category: "Notes",
+    file_url: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&q=80", rating: 4.6, price: 11.99, pages: 88,
+    description: "Covers relational databases, SQL basics, and networking fundamentals for A-level.", format: "pdf", is_featured: false
   },
   {
-    id: 'res-13', title: "CRE: Old Testament Prophets", authorName: "Sister Nalubega", subject: "CRE", category: "Notes",
-    coverURL: "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=600&q=80", rating: 4.7, ratingsCount: "510", pages: 72,
-    description: "Teachings of Amos, Isaiah, and Jeremiah mapped to contemporary social justice.", format: "pdf"
+    id: 'res-13', title: "CRE: Old Testament Prophets", author: "Sister Nalubega", subject: "CRE", category: "Notes",
+    file_url: "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=600&q=80", rating: 4.7, price: 9.99, pages: 72,
+    description: "Teachings of Amos, Isaiah, and Jeremiah mapped to contemporary social justice.", format: "pdf", is_featured: false
   },
   {
-    id: 'res-14', title: "Sub-Mathematics: Linear Programming", authorName: "Moses Tumusiime", subject: "Sub-Mathematics", category: "Workbook",
-    coverURL: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&q=80", rating: 4.5, ratingsCount: "385", pages: 55,
-    description: "Graphical and algebraic approaches to linear programming with worked examples.", format: "pdf"
+    id: 'res-14', title: "Sub-Mathematics: Linear Programming", author: "Moses Tumusiime", subject: "Sub-Mathematics", category: "Workbook",
+    file_url: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&q=80", rating: 4.5, price: 8.99, pages: 55,
+    description: "Graphical and algebraic approaches to linear programming with worked examples.", format: "pdf", is_featured: false
   },
   {
-    id: 'res-15', title: "Biology: Ecology & Environment", authorName: "Dr. Nassali", subject: "Biology", category: "Textbook",
-    coverURL: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80", rating: 4.8, ratingsCount: "1.1k", pages: 100,
-    description: "Ecosystems, food chains, nutrient cycles, and conservation strategies.", format: "pdf"
+    id: 'res-15', title: "Biology: Ecology & Environment", author: "Dr. Nassali", subject: "Biology", category: "Textbook",
+    file_url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80", rating: 4.8, price: 13.99, pages: 100,
+    description: "Ecosystems, food chains, nutrient cycles, and conservation strategies.", format: "pdf", is_featured: false
   },
   {
-    id: 'res-16', title: "Mathematics: Integration Techniques", authorName: "Paul Ssekibuule", subject: "Mathematics", category: "Notes",
-    coverURL: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80", rating: 4.9, ratingsCount: "1.8k", pages: 90,
-    description: "Comprehensive coverage of integration by parts, substitution, and partial fractions.", format: "pdf"
+    id: 'res-16', title: "Mathematics: Integration Techniques", author: "Paul Ssekibuule", subject: "Mathematics", category: "Notes",
+    file_url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80", rating: 4.9, price: 10.99, pages: 90,
+    description: "Comprehensive coverage of integration by parts, substitution, and partial fractions.", format: "pdf", is_featured: true
   },
   {
-    id: 'res-17', title: "Physics: Electromagnetism", authorName: "Dr. Mugisha", subject: "Physics", category: "Textbook",
-    coverURL: "https://images.unsplash.com/photo-1495592822108-9e6261896da8?w=600&q=80", rating: 4.6, ratingsCount: "670", pages: 115,
-    description: "Faraday's law, Lenz's law, motors, generators and electromagnetic induction.", format: "pdf"
+    id: 'res-17', title: "Physics: Electromagnetism", author: "Dr. Mugisha", subject: "Physics", category: "Textbook",
+    file_url: "https://images.unsplash.com/photo-1495592822108-9e6261896da8?w=600&q=80", rating: 4.6, price: 14.99, pages: 115,
+    description: "Faraday's law, Lenz's law, motors, generators and electromagnetic induction.", format: "pdf", is_featured: false
   },
   {
-    id: 'res-18', title: "Entrepreneurship: Business Plans", authorName: "Edify Commerce Team", subject: "Entrepreneurship", category: "Workbook",
-    coverURL: "https://images.unsplash.com/photo-1664575602554-2087b04935a5?w=600&q=80", rating: 4.5, ratingsCount: "520", pages: 80,
-    description: "Step-by-step workbook for drafting, pitching, and refining a business plan.", format: "pdf"
+    id: 'res-18', title: "Entrepreneurship: Business Plans", author: "Edify Commerce Team", subject: "Entrepreneurship", category: "Workbook",
+    file_url: "https://images.unsplash.com/photo-1664575602554-2087b04935a5?w=600&q=80", rating: 4.5, price: 11.99, pages: 80,
+    description: "Step-by-step workbook for drafting, pitching, and refining a business plan.", format: "pdf", is_featured: false
   }
 ];
 
@@ -118,14 +122,88 @@ export function AcademicLibraryPage() {
   const [activeResource, setActiveResource] = useState<any>(null);
   const [activeSubject, setActiveSubject] = useState("All Subjects");
   const [searchQuery, setSearchQuery] = useState("");
+  const [resources, setResources] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
-  const filteredResources = MOCK_RESOURCES.filter(res => {
+  // Fetch resources from API
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await apiClient.get('/resources/');
+        setResources(Array.isArray(data) ? data : data.results || []);
+      } catch (err) {
+        console.error('Error fetching resources:', err);
+        setError('Failed to load resources. Using offline data.');
+        setResources(DEFAULT_MOCK_RESOURCES);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResources();
+  }, [retryCount]);
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+  };
+
+  // Show loading state
+  if (loading && resources.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
+        <DashboardSkeleton />
+      </div>
+    );
+  }
+
+  // Show error state with retry option
+  if (error && resources.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center p-4">
+        <EmptyState
+          icon={AlertCircle}
+          title="Unable to Load Resources"
+          description={error}
+          action={
+            <Button onClick={handleRetry} className="gap-2">
+              <RefreshCw className="w-4 h-4" />
+              Try Again
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
+
+  // Show empty state
+  if (!loading && resources.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center p-4">
+        <EmptyState
+          icon={BookOpen}
+          title="No Academic Resources Available"
+          description="Resources will appear here once they are uploaded by educators."
+          action={
+            <Button onClick={handleRetry} variant="outline">
+              Refresh
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
+
+  const filteredResources = resources.filter(res => {
     if (activeSubject !== "All Subjects" && res.subject !== activeSubject && !(activeSubject === 'Science' && ['Physics', 'Biology', 'Chemistry'].includes(res.subject)) && !(activeSubject === 'Humanities' && ['History', 'Geography'].includes(res.subject)) && !(activeSubject === 'Languages' && ['English'].includes(res.subject))) return false;
     if (searchQuery && !res.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     return true;
   });
 
-  const featuredResources = MOCK_RESOURCES.filter(r => r.isFeatured).slice(0, 3);
+  const featuredResources = resources.filter(r => r.is_featured).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-[#fbfaf8] font-sans pb-24 relative">
@@ -171,7 +249,7 @@ export function AcademicLibraryPage() {
         {/* 2. Featured Top Carousel / Shelf */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-0 rounded-3xl overflow-hidden shadow-sm border border-white mb-12">
           {featuredResources.map((book, idx) => (
-             <div key={book.id} className={`relative p-8 md:p-12 overflow-hidden flex flex-col items-center text-center group bg-gradient-to-br ${book.color}`}>
+             <div key={book.id} className={`relative p-8 md:p-12 overflow-hidden flex flex-col items-center text-center group bg-gradient-to-br from-blue-400 to-blue-300`}>
                 {/* Background noise and abstract shapes */}
                 <div className="absolute inset-0 bg-noise opacity-[0.05] mix-blend-overlay pointer-events-none" />
                 <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/20 blur-3xl rounded-full pointer-events-none" />
@@ -181,18 +259,23 @@ export function AcademicLibraryPage() {
                 {idx === 2 && <button className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-slate-600 shadow-lg hover:bg-white transition-colors z-20"><ChevronRight className="w-5 h-5" /></button>}
                 
                 {/* Content */}
-                <h3 className="text-white font-bold text-2xl mb-1 drop-shadow-md relative z-10">{book.title.split(':')[0]}</h3>
-                <p className="text-white/80 text-sm font-medium mb-4 drop-shadow-sm relative z-10">by {book.authorName}</p>
+                <h3 className="text-white font-bold text-2xl mb-1 drop-shadow-md relative z-10 line-clamp-2">{book.title}</h3>
+                <p className="text-white/80 text-sm font-medium mb-4 drop-shadow-sm relative z-10">by {book.author || 'Edify'}</p>
                 
                 <div className="flex gap-1 mb-6 relative z-10">
-                   {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 ${s <= Math.floor(book.rating) ? 'text-white fill-white' : 'text-white/30 fill-white/30'}`} />)}
+                   {[1,2,3,4,5].map(s => <Star key={s} className={`w-3.5 h-3.5 ${s <= Math.floor(book.rating || 4) ? 'text-white fill-white' : 'text-white/30 fill-white/30'}`} />)}
                 </div>
 
-                <div className="relative w-40 h-56 mb-8 group-hover:-translate-y-2 transition-transform duration-500 z-10 shadow-2xl">
-                   <img src={book.coverURL} alt="cover" className="w-full h-full object-cover rounded-md border border-white/20" />
+                <div className="relative w-40 h-56 mb-8 group-hover:-translate-y-2 transition-transform duration-500 z-10 shadow-2xl bg-white rounded-md">
+                   <div className="w-full h-full flex items-center justify-center">
+                     <div className="text-center">
+                       <BookOpen className="w-16 h-16 text-slate-300 mx-auto mb-2" />
+                       <p className="text-xs text-slate-400 font-medium">{book.type}</p>
+                     </div>
+                   </div>
                 </div>
 
-                <EditorialPill variant="primary" className="bg-white text-slate-800 hover:bg-slate-50 border-none shadow-xl px-8 relative z-10" onClick={() => setActiveResource(book)}>
+                <EditorialPill variant="primary" className="bg-white text-slate-800 hover:bg-slate-50 border-none shadow-xl px-8 relative z-10 cursor-pointer" onClick={() => setActiveResource(book)}>
                   Open Material
                 </EditorialPill>
              </div>
@@ -225,20 +308,20 @@ export function AcademicLibraryPage() {
             <div>
               <h4 className="text-lg font-bold text-slate-800 mb-6">Top Materials</h4>
               <div className="space-y-5 max-h-[600px] overflow-y-auto pr-1 hide-scrollbar">
-                {MOCK_RESOURCES.map((book, idx) => (
+                {resources.slice(0, 10).map((book, idx) => (
                   <div key={book.id} className="flex items-start gap-3 group cursor-pointer" onClick={() => setActiveResource(book)}>
                     <span className="text-[10px] font-black text-slate-300 w-4 flex-shrink-0 mt-1">#{idx + 1}</span>
                     <div className="w-12 h-16 rounded-lg shadow-sm overflow-hidden flex-shrink-0">
-                      <img src={book.coverURL} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={book.file_url || 'https://via.placeholder.com/50x70?text=Resource'} alt={book.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                     <div className="min-w-0">
                       <h5 className="font-semibold text-slate-700 text-sm leading-snug group-hover:text-amber-700 transition-colors line-clamp-2 mb-0.5">{book.title}</h5>
-                      <p className="text-[10px] text-slate-400 font-medium">by {book.authorName}</p>
+                      <p className="text-[10px] text-slate-400 font-medium">by {book.author || 'Unknown'}</p>
                       <div className="flex items-center gap-1 mt-1">
                         <div className="flex gap-0.5">
-                          {[1,2,3,4,5].map(s => <Star key={s} className={`w-2 h-2 ${s <= Math.floor(book.rating) ? 'text-amber-400 fill-amber-400' : 'text-slate-200 fill-slate-200'}`} />)}
+                          {[1,2,3,4,5].map(s => <Star key={s} className={`w-2 h-2 ${s <= Math.floor(book.rating || 4) ? 'text-amber-400 fill-amber-400' : 'text-slate-200 fill-slate-200'}`} />)}
                         </div>
-                        <span className="text-[9px] text-slate-400">{book.ratingsCount}</span>
+                        <span className="text-[9px] text-slate-400">{book.rating?.toFixed(1) || '4.5'}</span>
                       </div>
                     </div>
                   </div>
@@ -284,14 +367,12 @@ export function AcademicLibraryPage() {
                  >
                    {/* Cover Image (tall, fills top) */}
                    <div className="relative overflow-hidden bg-slate-100 aspect-[3/4] w-full flex-shrink-0">
-                     <img
-                       src={book.coverURL}
-                       alt={book.title}
-                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                     />
+                     <div className="w-full h-full flex items-center justify-center">
+                       <BookOpen className="w-16 h-16 text-slate-300" />
+                     </div>
                      {/* Category badge */}
                      <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm text-[9px] font-black uppercase tracking-widest text-[#8e8268]">
-                       {book.category}
+                       {book.category || 'General'}
                      </div>
                    </div>
 
@@ -300,7 +381,7 @@ export function AcademicLibraryPage() {
                      <h4 className="text-xs font-bold text-slate-900 group-hover:text-amber-700 transition-colors leading-snug line-clamp-2 mb-1">
                        {book.title}
                      </h4>
-                     <p className="text-[10px] font-medium text-slate-400 mb-2">by {book.authorName}</p>
+                     <p className="text-[10px] font-medium text-slate-400 mb-2">by {book.author || 'Edify'}</p>
 
                      <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed font-light mb-3 flex-1">
                        {book.description}
@@ -322,10 +403,10 @@ export function AcademicLibraryPage() {
                      <div className="flex items-center gap-1">
                        <div className="flex gap-0.5">
                          {[1,2,3,4,5].map(s => (
-                           <Star key={s} className={`w-2.5 h-2.5 ${s <= Math.floor(book.rating) ? 'text-amber-400 fill-amber-400' : 'text-slate-200 fill-slate-200'}`} />
+                           <Star key={s} className={`w-2.5 h-2.5 ${s <= Math.floor(book.rating || 4) ? 'text-amber-400 fill-amber-400' : 'text-slate-200 fill-slate-200'}`} />
                          ))}
                        </div>
-                       <span className="text-[9px] font-semibold text-slate-400">{book.ratingsCount} ratings</span>
+                       <span className="text-[9px] font-semibold text-slate-400">{(book.rating || 4).toFixed(1)} / 5</span>
                      </div>
                    </div>
                  </div>

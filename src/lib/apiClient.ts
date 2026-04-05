@@ -142,6 +142,15 @@ export const apiRequest = async <T = unknown>(
   try {
     const { accessToken } = getStoredTokens();
     
+    // Ensure URL has the full API v1 path
+    let fullUrl = url;
+    if (!url.startsWith('http') && !url.startsWith('/api')) {
+      fullUrl = `/api/v1${url.startsWith('/') ? url : '/' + url}`;
+    } else if (!url.startsWith('http') && url.startsWith('/api') && !url.includes('/v1')) {
+      // If it has /api but not /v1, add it
+      fullUrl = url.replace('/api/', '/api/v1/');
+    }
+    
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -151,7 +160,7 @@ export const apiRequest = async <T = unknown>(
       headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
-    const response = await fetch(url, {
+    const response = await fetch(fullUrl, {
       ...options,
       headers,
     });
@@ -162,7 +171,7 @@ export const apiRequest = async <T = unknown>(
       if (newToken) {
         // Retry request with new token
         headers['Authorization'] = `Bearer ${newToken}`;
-        const retryResponse = await fetch(url, {
+        const retryResponse = await fetch(fullUrl, {
           ...options,
           headers,
         });
@@ -332,7 +341,7 @@ export const fetchAllPaginated = async <T = unknown>(
   return results;
 };
 
-export default {
+export const apiClient = {
   get: apiGet,
   post: apiPost,
   put: apiPut,
@@ -348,3 +357,5 @@ export default {
   refreshAccessToken,
   endpoints: API_ENDPOINTS,
 };
+
+export default apiClient;

@@ -53,3 +53,97 @@ class ResourceQualityReviewViewSet(viewsets.ModelViewSet):
         review.reviewer_notes = request.data.get('notes', 'Passes Quality Assurance.')
         review.save()
         return Response({'status': 'approved'})
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .models import EducationLevel
+
+class CurriculumTreeView(APIView):
+    """
+    Returns the exact JSON shape of the legacy courses.json by querying the database.
+    """
+    permission_classes = [] # Public wrapper for the catalog
+
+    def get(self, request, *args, **kwargs):
+        data = {
+            "version": "3.0-NCDC (DB Seeded)",
+            "updatedAt": "2026-04-05",
+            "levels": []
+        }
+        
+        levels = EducationLevel.objects.prefetch_related(
+            'class_levels__topics__subject',
+            'class_levels__topics__subtopics__template_lessons'
+        ).all()
+        
+        for level in levels:
+            level_dict = {
+                "id": str(level.id),
+                "name": level.name,
+                "description": "",
+                "classes": []
+            }
+            
+            for cls in level.class_levels.all():
+                class_dict = {
+                    "id": str(cls.name).lower().replace(' ', '-'),
+                    "name": cls.name,
+                    "level": level.name,
+                    "description": "",
+                    "isExamYear": False,
+                    "examType": None,
+                    "terms": []
+                }
+                
+                term_dict = {
+                    "id": "term-1",
+                    "name": "Term 1",
+                    "subjects": []
+                }
+                
+                unique_subjects = {}
+                for topic in cls.topics.all():
+                    subj_name = topic.subject.name
+                    if subj_name not in unique_subjects:
+                        unique_subjects[subj_name] = {
+                            "id": str(topic.subject.id),
+                            "name": topic.subject.name,
+                            "teacherId": "sys-auto",
+                            "description": "",
+                            "topics": []
+                        }
+                    
+                    topic_dict = {
+                        "id": str(topic.id),
+                        "name": topic.name,
+                        "description": "",
+                        "subtopics": []
+                    }
+                    
+                    for sub in topic.subtopics.all():
+                        sub_dict = {
+                            "id": str(sub.id),
+                            "name": sub.name,
+                            "lessons": []
+                        }
+                        
+                        for lesson in sub.template_lessons.all():
+                            sub_dict["lessons"].append({
+                                "id": lesson.remote_id,
+                                "title": lesson.title,
+                                "type": lesson.lesson_type,
+                                "duration": lesson.duration,
+                                "completed": False
+                            })
+                        topic_dict["subtopics"].append(sub_dict)
+                    unique_subjects[subj_name]["topics"].append(topic_dict)
+                
+                for s in unique_subjects.values():
+                    term_dict["subjects"].append(s)
+                
+                class_dict["terms"].append(term_dict)
+                level_dict["classes"].append(class_dict)
+            data["levels"].append(level_dict)
+            
+        return Response(data)
+

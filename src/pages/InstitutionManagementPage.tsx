@@ -11,7 +11,7 @@ import {
   CheckCircle, Briefcase, Calendar, ShieldAlert, Settings2, Download, BellRing, TrendingDown, ArrowRight, ShieldCheck, UserX, Clock, Upload
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/apiClient';
 import { BulkInviteModal } from '@/components/dashboard/BulkInviteModal';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { TeacherRedAlertsPanel } from '../components/dashboard/TeacherRedAlertsPanel';

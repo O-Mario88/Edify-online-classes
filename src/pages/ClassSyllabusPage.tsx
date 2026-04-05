@@ -26,7 +26,7 @@ export const ClassSyllabusPage: React.FC = () => {
   useEffect(() => {
     const fetchClassData = async () => {
       try {
-        const response = await fetch(`/data/courses.json?t=${new Date().getTime()}`);
+        const response = await fetch('http://localhost:8000/api/v1/curriculum/full-tree/');
         const data = await response.json();
         let foundClass = null;
         for (const level of data.levels) {
@@ -109,8 +109,8 @@ export const ClassSyllabusPage: React.FC = () => {
                    onClick={() => setSelectedTermIndex(idx)}
                    className={`px-8 py-3 rounded-full text-xs uppercase font-black tracking-widest transition-all ${
                      selectedTermIndex === idx 
-                       ? 'bg-slate-900 text-white shadow-md'
-                       : 'text-slate-500 hover:text-slate-800'
+                       ? 'bg-blue-600 text-white shadow-md'
+                       : 'text-slate-500 hover:text-blue-600'
                    }`}
                  >
                     {term.name}
@@ -160,7 +160,7 @@ export const ClassSyllabusPage: React.FC = () => {
                                   onClick={() => navigate(`/classes/${classId}/${currentTerm.id}/${subject.id}/topic/${topic.id}`)}
                                 >
                                   <span className="text-sm font-black text-slate-300 mt-0.5 leading-none flex-shrink-0 w-6">{topicIdx + 1}.</span>
-                                  <span className="text-base font-semibold text-slate-700 group-hover/topic:text-amber-700 transition-colors leading-snug">
+                                  <span className="text-base font-semibold text-slate-700 group-hover/topic:text-blue-600 transition-colors leading-snug">
                                     {topic.name}
                                   </span>
                                 </button>
@@ -173,7 +173,7 @@ export const ClassSyllabusPage: React.FC = () => {
                        <div className="mt-8 pt-5 border-t border-slate-100">
                          <button 
                            onClick={() => navigate(`/classes/${classId}/subject/${subject.id}`)}
-                           className="text-sm font-bold text-[#8e8268] hover:text-amber-700 flex items-center gap-2 transition-colors"
+                           className="text-sm font-bold text-[#8e8268] hover:text-blue-600 flex items-center gap-2 transition-colors"
                          >
                            See all {subject.name} topics <ArrowRight className="w-4 h-4" />
                          </button>

@@ -44,6 +44,8 @@ router.register(r'curriculum/subjects', SubjectViewSet)
 router.register(r'curriculum/class-levels', ClassLevelViewSet)
 router.register(r'curriculum/topics', TopicViewSet)
 
+from curriculum.views import CurriculumTreeView
+
 # New Phase 1: NCDC Foundations
 from curriculum.views import TopicCompetencyViewSet, ResourceQualityReviewViewSet
 router.register(r'curriculum/topic-competencies', TopicCompetencyViewSet, basename='topic-competency')
@@ -93,7 +95,7 @@ router.register(r'lessons/lesson-recording', LessonRecordingViewSet, basename='l
 router.register(r'lessons/lesson-attendance', LessonAttendanceViewSet, basename='lessons-lesson-attendance')
 router.register(r'live-sessions/live-session', LiveSessionViewSet, basename='live_sessions-live-session')
 router.register(r'live-sessions/session-reminder', SessionReminderViewSet, basename='live_sessions-session-reminder')
-router.register(r'resources/resource', ResourceViewSet, basename='resources-resource')
+router.register(r'resources', ResourceViewSet, basename='resources-resource')
 router.register(r'resources/shared-resource-link', SharedResourceLinkViewSet, basename='resources-shared-resource-link')
 
 # Community & Extensions
@@ -141,6 +143,9 @@ urlpatterns = [
     
     # Institution Onboarding Phase 1-3
     path('api/v1/institutions/onboard-basic/', InstitutionOnboardingAPIView.as_view(), name='institution_onboard_basic'),
+
+    # Full Curriculum Tree Endpoint
+    path('api/v1/curriculum/full-tree/', CurriculumTreeView.as_view(), name='curriculum_full_tree'),
 
     path('api/v1/marketplace/onboard-teacher/', IndependentTeacherOnboardingView.as_view(), name='independent_teacher_onboard'),
     path('api/v1/marketplace/monetization-overview/', MonetizationOverviewView.as_view(), name='monetization_overview_api'),

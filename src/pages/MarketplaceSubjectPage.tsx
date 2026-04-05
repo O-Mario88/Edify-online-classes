@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronRight, ArrowLeft, BookOpen, Clock, Users, FileText, Video, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/apiClient';
 
 interface DjangoSubject {
   id: number;
@@ -114,7 +114,7 @@ const MarketplaceSubjectPage: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
              {rootSubject.name} 
-             <Badge className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 border-0">
+             <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-0">
                 Subject Hub
              </Badge>
           </h1>
@@ -169,7 +169,7 @@ const MarketplaceSubjectPage: React.FC = () => {
                     <div className="flex md:flex-row flex-col">
                       <div className="p-6 flex-1 flex flex-col justify-center">
                         <div className="flex items-start gap-4">
-                          <div className="h-10 w-10 bg-indigo-50 text-indigo-600 flex items-center justify-center rounded-lg font-bold shrink-0">
+                          <div className="h-10 w-10 bg-blue-50 text-blue-600 flex items-center justify-center rounded-lg font-bold shrink-0">
                             {topic.order}
                           </div>
                           <div>

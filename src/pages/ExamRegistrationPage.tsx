@@ -30,7 +30,7 @@ import {
   UNEB_ALEVEL_PRINCIPAL,
   UNEB_ALEVEL_SUBSIDIARY
 } from '@/lib/subjectConfig';
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/apiClient';
 
 interface ExamCenter {
   id: string;

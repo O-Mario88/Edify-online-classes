@@ -57,7 +57,7 @@ export const TopicDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resp = await fetch(`/data/courses.json?t=${new Date().getTime()}`);
+        const resp = await fetch('http://localhost:8000/api/v1/curriculum/full-tree/');
         const data = await resp.json();
         for (const level of data.levels) {
           for (const cls of level.classes) {
@@ -145,7 +145,7 @@ export const TopicDetailPage: React.FC = () => {
                     onClick={() => navigate(`/classes/${classId}/${termId}/${subjectId}/topic/${topic.id}`)}
                     className={`w-full text-left px-5 py-4 rounded-2xl flex items-center transition-all ${
                       isActive 
-                        ? 'bg-slate-900 text-white shadow-md' 
+                        ? 'bg-blue-600 text-white shadow-md' 
                         : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'
                     }`}
                   >
@@ -214,13 +214,13 @@ export const TopicDetailPage: React.FC = () => {
                             } as unknown as Resource)}
                             className="group flex gap-4 p-5 rounded-2xl border border-slate-200/60 shadow-sm bg-white/90 hover:bg-white hover:shadow-md transition-all cursor-pointer relative"
                           >
-                            <div className="absolute top-[28px] -left-[28px] w-3 h-3 rounded-full bg-slate-200 border-2 border-white group-hover:bg-indigo-400 group-hover:border-white transition-colors shadow-sm" />
+                            <div className="absolute top-[28px] -left-[28px] w-3 h-3 rounded-full bg-slate-200 border-2 border-white group-hover:bg-blue-600 group-hover:border-white transition-colors shadow-sm" />
                             
                             <div className={`mt-0.5 ${item.type === 'video' ? 'text-rose-500' : 'text-blue-500'}`}>
                               {item.type === 'video' ? <Video className="w-5 h-5 fill-current opacity-20" /> : <BookOpen className="w-5 h-5 fill-current opacity-20" />}
                             </div>
                             <div>
-                               <h5 className="font-semibold text-slate-900 text-[16px] group-hover:text-indigo-600 transition-colors leading-snug">
+                               <h5 className="font-semibold text-slate-900 text-[16px] group-hover:text-blue-600 transition-colors leading-snug">
                                  {item.title}
                                </h5>
                                <div className="flex items-center gap-2 mt-2">
@@ -250,7 +250,7 @@ export const TopicDetailPage: React.FC = () => {
                              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-slate-200/60 shadow-sm bg-white/90 hover:bg-white hover:shadow-md transition-all cursor-pointer group"
                            >
                               <div>
-                                <h5 className="font-semibold text-slate-900 text-[16px] group-hover:text-indigo-600 transition-colors leading-snug mb-1.5">
+                                <h5 className="font-semibold text-slate-900 text-[16px] group-hover:text-blue-600 transition-colors leading-snug mb-1.5">
                                   {prac.title}
                                 </h5>
                                 <div className="text-[12px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
@@ -258,7 +258,7 @@ export const TopicDetailPage: React.FC = () => {
                                   {prac.duration || 'Assessment'}
                                 </div>
                               </div>
-                              <button className="border border-slate-200 bg-white text-slate-800 px-6 py-2.5 rounded-full text-sm font-semibold shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-all w-full sm:w-auto text-center">
+                              <button className="border border-slate-200 bg-white text-slate-800 px-6 py-2.5 rounded-full text-sm font-semibold shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all w-full sm:w-auto text-center">
                                 Start
                               </button>
                            </EditorialPanel>

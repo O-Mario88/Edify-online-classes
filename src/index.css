@@ -15,8 +15,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* Elegant Primary Blue from Reference */
-    --primary: 221 83% 58%;
+    /* Elegant Primary Blue requested by user (#164c79) */
+    --primary: 207 69% 28%;
     --primary-foreground: 0 0% 100%;
 
     /* Soft Blue Secondary */
@@ -35,7 +35,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 58%;
+    --ring: 207 69% 28%;
 
     --radius: 1.5rem;
 
@@ -417,29 +417,36 @@ img {
 
 /* ═══════════════════════════════════════════════════════════════
  *  SYSTEM-WIDE BRAND COLOR OVERRIDE (EXCEPT DASHBOARDS)
- *  Forces #164c79 on public pages for links, buttons & highlights
+ *  Forces #164c79 on public pages for links, selection & generic buttons
  * ═══════════════════════════════════════════════════════════════ */
-body:not(.dark) [class*="text-blue-600"],
-body:not(.dark) [class*="text-blue-700"],
+
+body:not(.dark) a {
+  color: #164c79;
+  transition: all 0.2s;
+}
+
+body:not(.dark) a:hover,
 body:not(.dark) a.text-slate-900:hover,
-body:not(.dark) a.text-slate-800:hover,
-body:not(.dark) a:hover {
+body:not(.dark) a.text-slate-800:hover {
+  filter: brightness(1.2);
+  color: #103b5d;
+}
+
+body:not(.dark) ::selection {
+  background-color: #164c79 !important;
+  color: #ffffff !important;
+}
+
+body:not(.dark) .selection\:bg-primary\/20::selection {
+  background-color: rgba(22, 76, 121, 0.2) !important;
   color: #164c79 !important;
 }
 
-body:not(.dark) [class*="bg-blue-600"],
-body:not(.dark) [class*="bg-blue-700"],
-body:not(.dark) button[class*="bg-blue-600"],
-body:not(.dark) button[class*="bg-primary"] {
-  background-color: #164c79 !important;
+/* Ensure generic buttons without specific colors inherit the brand */
+body:not(.dark) button:not([class*="bg-"]):not([variant="outline"]):not([class*="text-"]) {
+  background-color: #164c79;
+  color: white;
 }
-
-body:not(.dark) [class*="hover\:bg-blue-700"]:hover,
-body:not(.dark) [class*="hover\:bg-blue-600"]:hover,
-body:not(.dark) button[class*="bg-blue-600"]:hover {
-  background-color: #103b5d !important;
-}
-
-body:not(.dark) [class*="border-blue-600"] {
-  border-color: #164c79 !important;
+body:not(.dark) button:not([class*="bg-"]):not([variant="outline"]):not([class*="text-"]):hover {
+  background-color: #103b5d;
 }

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, AlertCircle, Clock } from 'lucide-react';
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/apiClient';
 
 interface Question {
   id: string | number;
