@@ -414,3 +414,32 @@ table th, table td {
 img {
   object-position: top;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+ *  SYSTEM-WIDE BRAND COLOR OVERRIDE (EXCEPT DASHBOARDS)
+ *  Forces #164c79 on public pages for links, buttons & highlights
+ * ═══════════════════════════════════════════════════════════════ */
+body:not(.dark) [class*="text-blue-600"],
+body:not(.dark) [class*="text-blue-700"],
+body:not(.dark) a.text-slate-900:hover,
+body:not(.dark) a.text-slate-800:hover,
+body:not(.dark) a:hover {
+  color: #164c79 !important;
+}
+
+body:not(.dark) [class*="bg-blue-600"],
+body:not(.dark) [class*="bg-blue-700"],
+body:not(.dark) button[class*="bg-blue-600"],
+body:not(.dark) button[class*="bg-primary"] {
+  background-color: #164c79 !important;
+}
+
+body:not(.dark) [class*="hover\:bg-blue-700"]:hover,
+body:not(.dark) [class*="hover\:bg-blue-600"]:hover,
+body:not(.dark) button[class*="bg-blue-600"]:hover {
+  background-color: #103b5d !important;
+}
+
+body:not(.dark) [class*="border-blue-600"] {
+  border-color: #164c79 !important;
+}

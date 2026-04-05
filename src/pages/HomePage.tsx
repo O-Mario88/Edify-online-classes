@@ -213,7 +213,7 @@ export const HomePage: React.FC = () => {
                <div className="space-y-4">
                   <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">GET TO KNOW MAPLE OS</h4>
                   <h2 className="text-3xl lg:text-4xl font-semibold text-slate-900 leading-tight">
-                     Dive into our Online Classes<br/>and Ignite Your Learning!
+                     Explore Edify Online School and ignite your learning with structured classes, expert support, and real progress
                   </h2>
                   <p className="text-slate-600 font-light leading-relaxed text-lg pt-2">
                      Maple Online School simplifies and structures learning for students across East Africa. Through curriculum-aligned class pathways, verified dedicated educators, live academic support, and real-time parent oversight, the platform helps every learner stay on track and reach their full potential.

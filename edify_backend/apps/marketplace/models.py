@@ -73,7 +73,7 @@ class PayoutRequest(models.Model):
         ('reversed', 'Reversed'),
         ('cancelled', 'Cancelled'),
     ]
-    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='payout_requests')
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='payout_requests', null=True, blank=True)
     net_payable = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='requested')
     requested_at = models.DateTimeField(auto_now_add=True)
