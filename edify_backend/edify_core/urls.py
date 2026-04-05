@@ -120,6 +120,9 @@ router.register(r'finance/expense-categories', ExpenseCategoryViewSet, basename=
 router.register(r'finance/expenses', ExpenseRecordViewSet, basename='finance-expense')
 
 
+from institutions.views import InstitutionOnboardingAPIView
+from marketplace.views import IndependentTeacherOnboardingView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include(router.urls)),
@@ -135,6 +138,11 @@ urlpatterns = [
     path('api/v1/analytics/admin-dashboard/', AdminDashboardView.as_view(), name='admin_dashboard_api'),
     path('api/v1/analytics/institution-dashboard/', InstitutionDashboardView.as_view(), name='institution_dashboard_api'),
     path('api/v1/institutions/admin-pin-reset/', AdminPinResetView.as_view(), name='admin_pin_reset'),
+    
+    # Institution Onboarding Phase 1-3
+    path('api/v1/institutions/onboard-basic/', InstitutionOnboardingAPIView.as_view(), name='institution_onboard_basic'),
+
+    path('api/v1/marketplace/onboard-teacher/', IndependentTeacherOnboardingView.as_view(), name='independent_teacher_onboard'),
     path('api/v1/marketplace/monetization-overview/', MonetizationOverviewView.as_view(), name='monetization_overview_api'),
     
     # Billing / Subscriptions / Monetization

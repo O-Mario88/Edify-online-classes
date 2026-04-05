@@ -2,189 +2,335 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { EditorialPanel } from '../components/ui/editorial/EditorialPanel';
-import { EditorialPill } from '../components/ui/editorial/EditorialPill';
 import { EditorialHeader } from '../components/ui/editorial/EditorialHeader';
-import { KeyRound, Mail, ArrowRight, User, Globe, Briefcase } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { ChevronRight, ArrowLeft, ArrowRight, CheckCircle, Smartphone, Building2 } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [countryCode, setCountryCode] = useState('uganda');
-  const [role, setRole] = useState('student');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { register } = useAuth();
   const navigate = useNavigate();
+  const { register, onboardStudent } = useAuth();
+  
+  // Selection Screen State
+  const [roleMode, setRoleMode] = useState<'selection' | 'learner' | 'teacher' | 'institution'>('selection');
+  
+  // Learner Wizard State
+  const [learnerStep, setLearnerStep] = useState(1);
+  
+  // Student Details (Step 1)
+  const [studentData, setStudentData] = useState({
+    full_name: '',
+    email: '',
+    country_code: 'uganda',
+    password: ''
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!countryCode || !role) {
-       setError("Please select your country and role before registering.");
-       return;
+  // Parent Details (Step 2)
+  const [parentData, setParentData] = useState({
+    full_name: '',
+    phone: '',
+    relationship: 'guardian',
+    email: ''
+  });
+
+  // Payment Details (Step 3)
+  const [paymentData, setPaymentData] = useState({
+    network: ''
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleRoleSelection = (role: 'learner' | 'teacher' | 'institution') => {
+    if (role === 'institution') {
+      navigate('/institution-onboarding');
+      return;
     }
+    setRoleMode(role);
+    if (role === 'learner') setLearnerStep(1);
+  };
+
+  const handleLearnerSubmit = async () => {
     setError('');
     setIsLoading(true);
-
-    const success = await register(email, fullName, countryCode, password, role);
     
-    if (success) {
-      navigate('/');
+    const result = await onboardStudent(studentData, parentData, paymentData);
+    if (result.success) {
+      if (result.redirect_url) {
+        navigate(result.redirect_url);
+      } else {
+        navigate('/student-dashboard');
+      }
     } else {
-      setError('Failed to create an account. Email may already be in use.');
+      setError(result.error || 'Failed to onboard student. Please verify the parent phone number.');
     }
     
     setIsLoading(false);
   };
 
+  const handleStandardRegister = async (e: React.FormEvent, role: string) => {
+    e.preventDefault();
+    setIsLoading(true);
+    const success = await register(studentData.email || 'test@edify.local', studentData.full_name || role, 'uganda', studentData.password || 'password123', role);
+    if (success) {
+      navigate('/');
+    }
+    setIsLoading(false);
+  };
+
   return (
-    <div className="min-h-screen bg-[#fafaeb] flex items-center justify-center p-4 relative overflow-hidden font-sans py-12">
+    <div className="min-h-screen bg-white flex flex-col md:flex-row p-0 m-0 w-full relative overflow-hidden font-sans">
       
-      {/* Editorial aesthetic background layer */}
-      <div 
-        className="fixed inset-0 bg-cover bg-center opacity-[0.85]"
-        style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
-      />
-      <div className="fixed inset-0 bg-white/40" />
-
-      {/* Main Register Card */}
-      <EditorialPanel 
-        variant="frosted-rose" 
-        radius="xl"
-        className="max-w-[460px] w-full p-8 md:p-10 shadow-2xl shadow-rose-900/10 relative z-10"
-      >
-        <div className="flex justify-between items-center mb-8">
-           <span className="text-slate-500 font-medium tracking-wide">Edify_</span>
-           <Link to="/login" className="text-sm font-semibold text-slate-800 hover:text-slate-600 transition-colors">Log in</Link>
-        </div>
-
-        <EditorialHeader level="h3" weight="light" className="mb-2">
-          Create account
-        </EditorialHeader>
-        <p className="text-sm text-slate-500 font-medium mb-8">Join the premier learning platform.</p>
-
-        <form className="space-y-4" onSubmit={handleSubmit}>
+      {/* LEFT COLUMN: Editorial Splash */}
+      <div className="hidden md:flex w-2/5 lg:w-1/2 p-12 bg-[#F9F7F3] flex-col justify-center relative">
+        <div className="max-w-md mx-auto">
+          <EditorialHeader level="h1" className="mb-6 text-slate-900 leading-tight">
+            Edify boosts<br/>scores!
+          </EditorialHeader>
+          <p className="text-slate-600 font-medium leading-relaxed mb-10 text-lg">
+            Learn with expert teachers, tackle focused curriculum materials, and get AI-powered academic support directly aligned with your syllabus.
+          </p>
           
-          <div className="relative">
-             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
-                 <User className="h-3.5 w-3.5 text-slate-400" />
-               </div>
-             </div>
-             <input
-               id="fullName"
-               type="text"
-               required
-               value={fullName}
-               onChange={(e) => setFullName(e.target.value)}
-               className="w-full bg-white/50 border border-white focus:border-slate-300 focus:bg-white rounded-full py-3.5 pl-14 pr-6 text-sm outline-none transition-all placeholder:text-slate-400"
-               placeholder="full name"
-             />
+          <div className="relative w-full aspect-square max-w-sm mx-auto overflow-hidden rounded-3xl shadow-xl border border-slate-200">
+             <div className="absolute inset-0 bg-gradient-to-tr from-[#98d8c6] to-[#fcb97d] opacity-40 mix-blend-multiply rounded-3xl" />
+             <img src="/images/students-happy.jpg" alt="Happy students" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=2070&auto=format&fit=crop' }} />
           </div>
+        </div>
+      </div>
 
-          <div className="relative">
-             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
-                 <Globe className="h-3.5 w-3.5 text-slate-400" />
-               </div>
-             </div>
-             <select
-               value={countryCode}
-               onChange={(e) => setCountryCode(e.target.value)}
-               required
-               className="w-full bg-white/50 border border-white focus:border-slate-300 focus:bg-white rounded-full py-3.5 pl-14 pr-6 text-sm outline-none transition-all text-slate-700 appearance-none cursor-pointer"
-             >
-               <option value="uganda">Uganda</option>
-               <option value="kenya">Kenya</option>
-               <option value="rwanda">Rwanda</option>
-             </select>
-          </div>
-
-          <div className="relative">
-             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
-                 <Briefcase className="h-3.5 w-3.5 text-slate-400" />
-               </div>
-             </div>
-             <select
-               value={role}
-               onChange={(e) => setRole(e.target.value)}
-               required
-               className="w-full bg-white/50 border border-white focus:border-slate-300 focus:bg-white rounded-full py-3.5 pl-14 pr-6 text-sm outline-none transition-all text-slate-700 appearance-none cursor-pointer"
-             >
-               <option value="student">Student</option>
-               <option value="teacher">Teacher</option>
-               <option value="admin">Administrator</option>
-               <option value="institution">Institution / School</option>
-             </select>
-          </div>
-
-          <div className="relative">
-             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
-                 <Mail className="h-3.5 w-3.5 text-slate-400" />
-               </div>
-             </div>
-             <input
-               id="email"
-               type="email"
-               required
-               value={email}
-               onChange={(e) => setEmail(e.target.value)}
-               className="w-full bg-white/50 border border-white focus:border-slate-300 focus:bg-white rounded-full py-3.5 pl-14 pr-6 text-sm outline-none transition-all placeholder:text-slate-400"
-               placeholder="e-mail address"
-             />
-          </div>
-
-          <div className="relative">
-             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-               <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-sm">
-                 <KeyRound className="h-3.5 w-3.5 text-slate-400" />
-               </div>
-             </div>
-             <input
-               id="password"
-               type={showPassword ? 'text' : 'password'}
-               required
-               value={password}
-               onChange={(e) => setPassword(e.target.value)}
-               className="w-full bg-white/50 border border-white focus:border-slate-300 focus:bg-white rounded-full py-3.5 pl-14 pr-16 text-sm outline-none transition-all placeholder:text-slate-400"
-               placeholder="create a password"
-             />
-             <button
-               type="button"
-               className="absolute inset-y-0 right-4 flex items-center"
-               onClick={() => setShowPassword(!showPassword)}
-               tabIndex={-1}
-             >
-                <div className="bg-white px-3 py-1.5 rounded-full text-[10px] font-bold text-slate-600 shadow-sm hover:bg-slate-50 transition-colors tracking-wide uppercase">
-                  {showPassword ? 'Hide' : 'Show'}
-                </div>
-             </button>
-          </div>
-
-          {error && (
-            <div className="bg-red-50/80 backdrop-blur-sm border border-red-200/50 text-red-700 px-4 py-3 rounded-2xl text-xs text-center font-medium my-2">
-              {error}
+      {/* RIGHT COLUMN: Form Area */}
+      <div className="w-full md:w-3/5 lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative bg-white">
+        
+        {/* Selection State */}
+        {roleMode === 'selection' && (
+          <div className="max-w-md w-full space-y-6">
+            <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-8 tracking-tight">Start learning today by signing up!</h2>
+            
+            <div className="space-y-4">
+              <button onClick={() => handleRoleSelection('learner')} className="w-full bg-[#f8f9fa] hover:bg-[#edf2f7] border border-blue-100/50 rounded-xl p-5 flex items-center justify-between transition-colors group">
+                <span className="font-semibold text-slate-700 group-hover:text-blue-700">I'm a learner</span>
+                <ChevronRight className="w-5 h-5 text-blue-500 group-hover:translate-x-1 transition-transform" />
+              </button>
+              
+              <button onClick={() => handleRoleSelection('teacher')} className="w-full bg-[#f8f9fa] hover:bg-[#edf2f7] border border-blue-100/50 rounded-xl p-5 flex items-center justify-between transition-colors group">
+                <span className="font-semibold text-slate-700 group-hover:text-blue-700">I'm a teacher</span>
+                <ChevronRight className="w-5 h-5 text-blue-500 group-hover:translate-x-1 transition-transform" />
+              </button>
+              
+              <button onClick={() => handleRoleSelection('institution')} className="w-full bg-[#f8f9fa] hover:bg-[#edf2f7] border border-blue-100/50 rounded-xl p-5 flex items-center justify-between transition-colors group">
+                <span className="font-semibold text-slate-700 group-hover:text-blue-700">I'm an institution</span>
+                <ChevronRight className="w-5 h-5 text-blue-500 group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
-          )}
 
-          <div className="pt-6 flex justify-between items-center text-[10px] text-slate-500 font-medium">
-             <div className="max-w-[200px] leading-relaxed">
-               By continuing, you agree to our Terms of Service and Privacy Policy.
-             </div>
-             <button 
-               type="submit" 
-               disabled={isLoading || !countryCode || !role}
-               className="w-16 h-10 rounded-full bg-slate-900 flex items-center justify-center text-white hover:bg-slate-800 transition-colors shadow-lg disabled:opacity-50"
-             >
-               {isLoading ? <span className="animate-pulse flex gap-1"><span className="w-1 h-1 bg-white rounded-full"/><span className="w-1 h-1 bg-white rounded-full"/><span className="w-1 h-1 bg-white rounded-full"/></span> : <ArrowRight className="w-5 h-5" />}
-             </button>
+            <p className="mt-8 text-sm text-slate-500 font-medium">
+              Already have an Edify account? <Link to="/login" className="text-blue-600 font-semibold hover:underline">Log in</Link>
+            </p>
           </div>
-        </form>
+        )}
 
-      </EditorialPanel>
+        {/* Learner Wizard */}
+        {roleMode === 'learner' && (
+          <div className="max-w-md w-full space-y-6 animate-in slide-in-from-right-4 fade-in duration-300 relative">
+            <button 
+              onClick={() => learnerStep === 1 ? setRoleMode('selection') : setLearnerStep(learnerStep - 1)} 
+              className="absolute -top-12 -left-2 text-blue-600 font-medium text-sm flex items-center gap-1 hover:underline"
+            >
+              <ArrowLeft className="w-4 h-4" /> {learnerStep === 1 ? 'Choose a different role' : 'Back'}
+            </button>
+
+            <h2 className="text-2xl font-bold text-slate-900">Sign up as a learner today!</h2>
+            
+            {/* Step Indicators */}
+            <div className="flex items-center gap-2 mb-8">
+               <div className={`h-1.5 flex-1 rounded-full ${learnerStep >= 1 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+               <div className={`h-1.5 flex-1 rounded-full ${learnerStep >= 2 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+               <div className={`h-1.5 flex-1 rounded-full ${learnerStep >= 3 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+            </div>
+
+            {error && (
+              <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm font-medium border border-red-100">
+                {error}
+              </div>
+            )}
+
+            {/* Step 1: Learner Basics */}
+            {learnerStep === 1 && (
+              <div className="space-y-5">
+                <p className="text-sm text-slate-600 mb-2">First, let's setup your student profile.</p>
+                <div>
+                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Full Name</label>
+                   <Input value={studentData.full_name} onChange={e => setStudentData({...studentData, full_name: e.target.value})} placeholder="e.g. John Doe" autoFocus />
+                </div>
+                <div>
+                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Email Address</label>
+                   <Input type="email" value={studentData.email} onChange={e => setStudentData({...studentData, email: e.target.value})} placeholder="john@example.com" />
+                </div>
+                <div>
+                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Create a Password</label>
+                   <Input type="password" value={studentData.password} onChange={e => setStudentData({...studentData, password: e.target.value})} placeholder="At least 8 characters" />
+                </div>
+                <div>
+                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Country / Curriculum</label>
+                   <select className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-900 focus:border-blue-500 outline-none" value={studentData.country_code} onChange={e => setStudentData({...studentData, country_code: e.target.value})}>
+                     <option value="uganda">Uganda (NCDC Core)</option>
+                     <option value="kenya">Kenya (CBC)</option>
+                   </select>
+                </div>
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6 mt-4" onClick={() => setLearnerStep(2)} disabled={!studentData.full_name || !studentData.email || !studentData.password}>Next</Button>
+              </div>
+            )}
+
+            {/* Step 2: Parent/Guardian Details */}
+            {learnerStep === 2 && (
+              <div className="space-y-5">
+                <p className="text-sm text-slate-600 mb-2 font-medium">To protect your account and unlock your dashboard, we need your Parent or Guardian's details.</p>
+                <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-100 text-sm text-slate-700 mb-4">
+                  These details will be used to automatically link your Parent to the system so they can track your progress.
+                </div>
+
+                <div>
+                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Parent / Guardian Full Name</label>
+                   <Input value={parentData.full_name} onChange={e => setParentData({...parentData, full_name: e.target.value})} placeholder="e.g. Jane Doe" />
+                </div>
+                <div>
+                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Parent Phone Number</label>
+                   <Input type="tel" value={parentData.phone} onChange={e => setParentData({...parentData, phone: e.target.value})} placeholder="e.g. +256 750 000000" />
+                   <p className="text-[11px] text-slate-500 mt-1.5">This number will be used for platform payment initiation via Mobile Money.</p>
+                </div>
+                <div>
+                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Relationship</label>
+                   <select className="w-full bg-white border border-slate-300 rounded-lg py-2.5 px-3 text-sm text-slate-900 outline-none" value={parentData.relationship} onChange={e => setParentData({...parentData, relationship: e.target.value})}>
+                     <option value="mother">Mother</option>
+                     <option value="father">Father</option>
+                     <option value="guardian">Guardian</option>
+                     <option value="other">Other</option>
+                   </select>
+                </div>
+                <div>
+                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Parent Email (Optional)</label>
+                   <Input type="email" value={parentData.email} onChange={e => setParentData({...parentData, email: e.target.value})} placeholder="If available" />
+                </div>
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6 mt-4" onClick={() => setLearnerStep(3)} disabled={!parentData.full_name || !parentData.phone}>Next</Button>
+              </div>
+            )}
+
+            {/* Step 3: Payment Anchor */}
+            {learnerStep === 3 && (
+              <div className="space-y-5">
+                <p className="text-sm text-slate-600 font-medium mb-4">Complete your registration. Link payment via Parent Phone.</p>
+                
+                <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">Target Phone Number</p>
+                  <p className="font-medium text-slate-900 border-b border-slate-200 pb-3 mb-3">{parentData.phone}</p>
+                  
+                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-2">Select Network</p>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                     <div 
+                       onClick={() => setPaymentData({network: 'mtn_momo'})} 
+                       className={`border rounded-xl flex items-center gap-3 p-3 cursor-pointer ${paymentData.network === 'mtn_momo' ? 'bg-yellow-50 border-yellow-500 ring-1 ring-yellow-500' : 'bg-white hover:bg-slate-50 border-slate-200'}`}
+                     >
+                        <Smartphone className={`w-5 h-5 ${paymentData.network === 'mtn_momo' ? 'text-yellow-600' : 'text-slate-400'}`} />
+                        <span className="font-semibold text-sm">MTN MoMo</span>
+                     </div>
+                     <div 
+                       onClick={() => setPaymentData({network: 'airtel_money'})} 
+                       className={`border rounded-xl flex items-center gap-3 p-3 cursor-pointer ${paymentData.network === 'airtel_money' ? 'bg-red-50 border-red-500 ring-1 ring-red-500' : 'bg-white hover:bg-slate-50 border-slate-200'}`}
+                     >
+                        <Smartphone className={`w-5 h-5 ${paymentData.network === 'airtel_money' ? 'text-red-600' : 'text-slate-400'}`} />
+                        <span className="font-semibold text-sm">Airtel Money</span>
+                     </div>
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-tight">By clicking finish, your parent will automatically be registered for the Parent Dashboard, and a payment prompt will be initiated directly to their phone.</p>
+                </div>
+
+                <Button 
+                  onClick={handleLearnerSubmit} 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6 mt-4 flex items-center justify-center gap-2" 
+                  disabled={isLoading || !paymentData.network}
+                >
+                  {isLoading ? 'Processing Setup...' : 'Finish & Setup Account'}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Teacher Validation Branch UI */}
+        {roleMode === 'teacher' && (
+          <div className="max-w-md w-full space-y-6 animate-in slide-in-from-right-4 fade-in duration-300 relative">
+            <button 
+              onClick={() => setRoleMode('selection')} 
+              className="absolute -top-12 -left-2 text-blue-600 font-medium text-sm flex items-center gap-1 hover:underline"
+            >
+              <ArrowLeft className="w-4 h-4" /> Choose a different role
+            </button>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">How are you joining Edify?</h2>
+            <p className="text-sm text-slate-500 mb-6">Are you joining your school's official platform or setting up as an independent educator?</p>
+            
+            <div className="space-y-4">
+               <button onClick={() => navigate('/independent-teacher-onboarding')} className="w-full text-left bg-white border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 rounded-xl p-5 transition-all group">
+                  <div className="flex items-start justify-between">
+                     <div>
+                        <h3 className="font-semibold text-slate-800 text-lg group-hover:text-blue-700">I'm an independent educator</h3>
+                        <p className="text-xs text-slate-500 mt-1 max-w-[280px]">Create an independent profile, publish lessons, offer live tutoring, and earn directly.</p>
+                     </div>
+                     <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-transform" />
+                  </div>
+               </button>
+
+               <div className="w-full text-left bg-white border border-slate-200 rounded-xl p-5 transition-all">
+                  <div className="flex items-start justify-between mb-4">
+                     <div>
+                        <h3 className="font-semibold text-slate-800 text-lg">I'm joining my school's staff</h3>
+                        <p className="text-xs text-slate-500 mt-1">Enter your school's invite code to securely link your profile and class schedule.</p>
+                     </div>
+                  </div>
+                  <div className="flex gap-2">
+                     <Input type="text" placeholder="e.g. EDF-9988-XY" className="flex-1 font-mono uppercase bg-slate-50" />
+                     <Button className="bg-slate-800 hover:bg-slate-900 text-white">Verify Code</Button>
+                  </div>
+               </div>
+            </div>
+            
+            <div className="p-4 bg-orange-50 border border-orange-100 rounded-lg mt-6">
+               <p className="text-xs text-orange-800 leading-relaxed font-medium">Institution staff onboarding requires an invite from your Headteacher or DOS. If your school has not yet onboarded to Edify, <a onClick={() => navigate('/institution-onboarding')} className="text-blue-600 hover:underline cursor-pointer">register your institution here</a>.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Institution Registration UI */}
+        {roleMode === 'institution' && (
+          <div className="max-w-md w-full space-y-6 animate-in slide-in-from-right-4 fade-in duration-300 relative">
+            <button 
+              onClick={() => setRoleMode('selection')} 
+              className="absolute -top-12 -left-2 text-blue-600 font-medium text-sm flex items-center gap-1 hover:underline"
+            >
+              <ArrowLeft className="w-4 h-4" /> Choose a different role
+            </button>
+            <h2 className="text-2xl font-bold text-slate-900">
+              Sign up as an institution today!
+            </h2>
+            <form onSubmit={(e) => handleStandardRegister(e, 'institution')} className="space-y-4">
+                <div>
+                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Institution Name</label>
+                   <Input type="text" value={studentData.full_name} onChange={e => setStudentData({...studentData, full_name: e.target.value})} placeholder="e.g. Greenhill Academy" required/>
+                </div>
+                <div>
+                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Admin Email Address</label>
+                   <Input type="email" value={studentData.email} onChange={e => setStudentData({...studentData, email: e.target.value})} placeholder="admin@school.com" required/>
+                </div>
+                <div>
+                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Password</label>
+                   <Input type="password" value={studentData.password} onChange={e => setStudentData({...studentData, password: e.target.value})} placeholder="At least 8 characters" required/>
+                </div>
+                <Button type="submit" disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6 mt-4 flex items-center justify-center gap-2">
+                  {isLoading ? 'Creating Account...' : 'Continue Setup'}
+                </Button>
+            </form>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

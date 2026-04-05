@@ -162,3 +162,56 @@ class MonetizationOverviewView(views.APIView):
             'last_net_payout': last_net_payout
         })
 
+from rest_framework.permissions import AllowAny
+from django.db import transaction
+from django.contrib.auth import get_user_model
+
+class IndependentTeacherOnboardingView(views.APIView):
+    """
+    Handles the 4-phase independent educator onboarding mapping directly.
+    """
+    permission_classes = [AllowAny]
+
+    @transaction.atomic
+    def post(self, request):
+        data = request.data
+        
+        email = data.get('email', '').strip().lower()
+        if not email:
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        User = get_user_model()
+        if User.objects.filter(email=email).exists():
+            return Response({'error': 'Email is already registered'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 1. Identity
+        teacher = User.objects.create_user(
+            email=email,
+            full_name=data.get('full_name', 'Educator'),
+            phone=data.get('phone', ''),
+            country_code=data.get('country', 'uganda'),
+            role='independent_teacher'
+        )
+        teacher.set_password(data.get('password', 'secure_password'))
+        teacher.save()
+        
+        # We can store bio/experience inside the User model profile metadata ideally,
+        # but for the minimum viability we construct the monetization identity immediately.
+
+        # 2. Payout Setup
+        TeacherPayoutProfile.objects.create(
+            teacher=teacher,
+            payout_network=data.get('payout_network', 'mtn_momo'),
+            account_name=data.get('account_name', ''),
+            mobile_money_number=data.get('payout_phone', ''),
+            accepted_marketplace_terms=True
+        )
+
+        # 3. Monetization Liability (UGX 300,000 threshold mapping)
+        TeacherAccessFeeAccount.objects.get_or_create(teacher=teacher)
+
+        return Response({
+            'message': 'Independent Educator onboarding Phase 1-4 Complete',
+            'teacher_id': teacher.id
+        }, status=status.HTTP_201_CREATED)
+

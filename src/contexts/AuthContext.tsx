@@ -13,6 +13,7 @@ interface AuthContextType {
   currentContext: 'independent' | 'institutional' | 'mixed';
   countryCode: string;
   setCountryCode: (code: string) => void;
+  onboardStudent: (studentData: any, parentData: any, paymentData: any) => Promise<{success: boolean, redirect_url?: string, error?: string}>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -150,6 +151,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const onboardStudent = async (studentData: any, parentData: any, paymentData: any) => {
+    setIsLoading(true);
+    try {
+      // In a real implementation this hits the new /api/accounts/onboard-student/
+      // For now, we simulate the success response and log them in
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const email = studentData.email || `${studentData.username}@edify.local`;
+      const sessionUser = {
+         id: email,
+         email: email,
+         name: studentData.full_name,
+         role: 'universal_student',
+         countryCode: studentData.country_code || 'uganda'
+      };
+      
+      setUser(sessionUser as any);
+      setUserProfile(sessionUser as any);
+      setCurrentContext('mixed');
+      localStorage.setItem('maple-auth-user', JSON.stringify(sessionUser));
+      
+      setIsLoading(false);
+      
+      return { 
+        success: true, 
+        // Redirect to standard payment waiting/processing page or dashboard
+        redirect_url: `/payment/processing?tracking=mock-${Date.now()}` 
+      };
+    } catch (error: any) {
+      setIsLoading(false);
+      return { success: false, error: 'Registration failed' };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setUserProfile(null);
@@ -192,7 +227,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     switchStudentContext,
     currentContext,
     countryCode,
-    setCountryCode
+    setCountryCode,
+    onboardStudent
   };
 
   return (

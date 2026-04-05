@@ -1,205 +1,358 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { EditorialPanel } from '../components/ui/editorial/EditorialPanel';
-import { EditorialPill } from '../components/ui/editorial/EditorialPill';
-import { EditorialHeader } from '../components/ui/editorial/EditorialHeader';
-import { Badge } from '../components/ui/badge';
 import { 
-  ArrowRight,
-  Target,
-  Users,
-  Lightbulb,
-  MessageSquare,
-  BarChart3,
-  BookOpen
+  ArrowRight, Video, CheckCircle2, ShieldCheck, 
+  MapPin, Clock, BookOpen, Users, Star, StarHalf, MonitorPlay, Sparkles
 } from 'lucide-react';
+import { Button } from '../components/ui/button';
 
 export const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('O-Level');
 
-  // We keep the loading block brief
   useEffect(() => {
-    // Simulate short load to ensure smooth entry
     const timer = setTimeout(() => setLoading(false), 400);
     return () => clearTimeout(timer);
   }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fafaeb] flex items-center justify-center">
-        <div className="animate-pulse w-12 h-12 rounded-full bg-[#e6dac3]"></div>
+      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
+        <div className="animate-pulse w-12 h-12 rounded-full bg-blue-100"></div>
       </div>
     );
   }
 
+  // Mock data for class cards
+  const popularClasses = [
+    {
+      id: 1, weeks: '12 WEEKS', title: 'O-Level Mathematics: Algebra Mastery',
+      lessons: '24', students: '1.2k', level: 'O-Level',
+      teacher: 'Sarah K.', teacherImg: 'https://ui-avatars.com/api/?name=Sarah+K&background=0D8ABC&color=fff',
+      image: 'https://images.unsplash.com/photo-1635317711438-e6fd425bfce3?q=80&w=2670&auto=format&fit=crop',
+      rating: 4.8, priceStatus: 'FREE'
+    },
+    {
+      id: 2, weeks: '08 WEEKS', title: 'A-Level Physics: Quantum & Mechanics',
+      lessons: '16', students: '850', level: 'A-Level',
+      teacher: 'David J.', teacherImg: 'https://ui-avatars.com/api/?name=David+J&background=10B981&color=fff',
+      image: 'https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?q=80&w=2574&auto=format&fit=crop',
+      rating: 4.9, priceStatus: 'PREMIUM'
+    },
+    {
+      id: 3, weeks: '04 WEEKS', title: 'Literature in English: African Writers',
+      lessons: '8', students: '2.1k', level: 'O-Level',
+      teacher: 'Aisha M.', teacherImg: 'https://ui-avatars.com/api/?name=Aisha+M&background=F59E0B&color=fff',
+      image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=2546&auto=format&fit=crop',
+      rating: 4.7, priceStatus: 'FREE'
+    },
+    {
+      id: 4, weeks: '16 WEEKS', title: 'Advanced Chemistry: Organic Synthesis',
+      lessons: '32', students: '540', level: 'A-Level',
+      teacher: 'Dr. Okello', teacherImg: 'https://ui-avatars.com/api/?name=Dr.+Okello&background=6366f1&color=fff',
+      image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=2670&auto=format&fit=crop',
+      rating: 5.0, priceStatus: 'PREMIUM'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-[#fbfaf8] text-slate-900 font-sans selection:bg-[#ecd9c6] selection:text-slate-900">
+    <div className="bg-[#fbfaf8] text-slate-800 font-sans overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 pb-20">
       
-      {/* Editorial Hero Section */}
-      <section className="relative px-4 sm:px-6 lg:px-8 pt-8 pb-20 max-w-[1600px] mx-auto min-h-[90vh] flex flex-col justify-center">
-        
-        {/* Background Image wrapper - soft rounded massive canvas */}
-        <div className="absolute inset-0 m-4 sm:m-8 lg:m-12 rounded-[2.5rem] overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] ease-out hover:scale-105"
-            style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
-          />
-          {/* Soft overlay to ensure readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/60 via-white/40 to-transparent backdrop-blur-[2px]" />
-        </div>
+      {/* =========================================
+          SECTION 1: HERO (Structure based on reference)
+          ========================================= */}
+      <section className="relative pt-16 pb-24 lg:pt-24 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto z-10">
+         
+         {/* Subtle background motif */}
+         <div className="absolute top-0 right-0 -z-10 translate-x-1/3 -translate-y-1/4 opacity-40 mix-blend-multiply pointer-events-none">
+            <svg width="600" height="600" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#e0f2fe" d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,81.1,-46.3C90.3,-33.4,95.8,-17.8,96.6,-2C97.4,13.8,93.4,29.9,84.5,43.4C75.6,56.9,61.7,67.8,46.8,75.1C31.8,82.4,15.9,86.1,1.1,84.1C-13.6,82.2,-27.3,74.7,-40.4,66.1C-53.5,57.5,-66,47.8,-75,34.9C-84,22,-89.5,5.9,-87.3,-9.4C-85.1,-24.8,-75.2,-39.4,-63,-50.2C-50.8,-61,-36.3,-68.1,-22.4,-73.4C-8.4,-78.7,4.9,-82.2,18.7,-81.1C32.4,-80,46.6,-74.3,44.7,-76.4Z" transform="translate(100 100)" />
+            </svg>
+         </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          {/* Main Hero Typography Block */}
-          <div className="col-span-1 lg:col-span-7 space-y-10">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-3">
-                 <span className="h-[1px] w-12 bg-slate-900 block" />
-                 <span className="uppercase tracking-[0.2em] text-sm font-semibold">Premium Education</span>
-              </div>
-              
-              <EditorialHeader level="h1" className="leading-[1.1] font-medium tracking-tight">
-                Quiet Focus.<br/>
-                <span className="text-slate-500 italic">Profound Results.</span>
-              </EditorialHeader>
-
-              <p className="text-xl md:text-2xl text-slate-700 font-light max-w-xl leading-relaxed">
-                A serene, highly intentional digital campus designed for Uganda's most ambitious O'level and A'level students.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center pt-4">
-              <Link to="/register">
-                <EditorialPill variant="primary" size="xl">
-                  Begin Your Journey <ArrowRight className="w-5 h-5 ml-2" />
-                </EditorialPill>
-              </Link>
-              <Link to="/classes">
-                <EditorialPill variant="ghost" size="xl" className="bg-white/40 backdrop-blur-md">
-                  Explore Curriculums
-                </EditorialPill>
-              </Link>
-            </div>
-          </div>
-
-          {/* Floating Editorial Panels (Pinterest Reference Style) */}
-          <div className="col-span-1 lg:col-span-5 relative h-[500px] hidden md:block">
+         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             
-            {/* Soft pink/peach floating card */}
-            <EditorialPanel 
-              variant="frosted-rose" 
-              className="absolute top-10 right-0 w-[300px] z-20 shadow-xl shadow-rose-900/5 rotate-3 hover:rotate-0 transition-transform duration-500"
-            >
-              <div className="flex items-center justify-between mb-8">
-                <span className="text-sm font-semibold tracking-wide text-slate-800">Next Session</span>
-                <Badge variant="outline" className="border-rose-300 text-rose-800 bg-rose-50/50">Live</Badge>
-              </div>
-              <h3 className="text-4xl font-light text-slate-900 mb-2">10:00</h3>
-              <p className="text-slate-600 mb-6 font-medium">A-Level Organic Chemistry</p>
-              
-              <EditorialPill variant="primary" className="w-full justify-between pr-2">
-                Join Studio
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </EditorialPill>
-            </EditorialPanel>
+            {/* Hero Left Content */}
+            <div className="space-y-8 relative z-10 max-w-2xl">
+               <div className="inline-flex items-center gap-2 bg-blue-50/80 backdrop-blur-sm border border-blue-100 rounded-full py-1.5 pl-2 pr-4 text-xs font-semibold tracking-wide text-blue-700">
+                  <span className="w-2 h-0.5 bg-blue-500 rounded-full" />
+                  PREMIUM SEC. EDUCATION
+               </div>
+               
+               <h1 className="text-[2.75rem] lg:text-[4rem] leading-[1.05] font-semibold text-slate-900 tracking-tight">
+                  Structure, Support,<br className="hidden md:block"/>
+                  And <span className="text-blue-600">Real Progress.</span>
+               </h1>
+               
+               <p className="text-lg lg:text-xl text-slate-600 font-light leading-relaxed max-w-lg">
+                 Learn with a modern online school that feels guided and personal. High-quality structured classes, active live sessions, and intelligent resources directly aligned with your syllabus.
+               </p>
+               
+               <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                  <Link to="/register">
+                    <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-14 px-8 text-base shadow-lg shadow-blue-600/20 font-medium">
+                      Begin Your Journey
+                    </Button>
+                  </Link>
+                  <Link to="/classes">
+                    <Button variant="outline" className="w-full sm:w-auto bg-white hover:bg-slate-50 border-slate-200 text-slate-800 rounded-xl h-14 px-8 text-base shadow-sm font-medium">
+                      Explore Classes
+                    </Button>
+                  </Link>
+               </div>
 
-            {/* Cream floating card underneath */}
-            <EditorialPanel 
-              variant="glass" 
-              className="absolute bottom-10 left-0 w-[280px] z-10 shadow-lg shadow-amber-900/5 -rotate-3 hover:rotate-0 transition-transform duration-500 delay-100"
-            >
-              <div className="flex gap-4 items-center mb-6">
-                <div className="w-12 h-12 rounded-full bg-[#e8e6d9] flex justify-center items-center">
-                  <Target className="w-5 h-5 text-slate-700" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900">Personalized</p>
-                  <p className="text-xs text-slate-600">Adaptive AI Path</p>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div className="h-2 w-full bg-slate-200/50 rounded-full overflow-hidden">
-                  <div className="h-full w-3/4 bg-slate-800 rounded-full" />
-                </div>
-                <div className="h-2 w-5/6 bg-slate-200/50 rounded-full" />
-              </div>
-            </EditorialPanel>
+               <div className="flex items-center gap-6 pt-4 text-sm font-medium text-slate-600">
+                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> NCDC Aligned</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Makerere Educators</div>
+               </div>
+            </div>
 
-          </div>
-        </div>
+            {/* Hero Right Visuals (Reference logic: central human + floating cards) */}
+            <div className="relative z-10 flex justify-center lg:justify-end mt-12 lg:mt-0 px-4 sm:px-0">
+               {/* Main Soft Blob / Image Holder */}
+               <div className="relative w-full max-w-[500px] aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl shadow-blue-900/10">
+                  <img 
+                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop" 
+                    alt="Students collaborating online"
+                    className="w-full h-full object-cover object-center"
+                  />
+                  <div className="absolute inset-0 bg-blue-900/5 mix-blend-overlay" />
+                  
+                  {/* Internal floating accent element - styled for premium editorial */}
+                  <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-white max-w-[220px]">
+                     <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                           <Video className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <div>
+                           <div className="text-xs font-bold text-slate-400 tracking-wider">LIVE NOW</div>
+                           <div className="text-sm font-semibold text-slate-800">Advanced Math</div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               {/* External floating stat card #1 (Bottom Left) */}
+               <div className="absolute -bottom-8 -left-4 sm:left-4 bg-white rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-100 flex items-center gap-4 z-20 animate-in slide-in-from-bottom-8 duration-700">
+                  <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+                     <Users className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                     <p className="text-xl font-bold text-slate-800 leading-none mb-1">16,500+</p>
+                     <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Active Learners</p>
+                  </div>
+               </div>
+
+               {/* External floating stat card #2 (Top Right) */}
+               <div className="absolute top-12 -right-4 sm:-right-8 bg-white rounded-2xl pb-4 px-4 pt-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-100 z-20 flex flex-col items-center">
+                  <div className="w-14 h-14 rounded-full bg-[#fde68a] flex items-center justify-center mb-2 shadow-inner border border-amber-200">
+                     <Sparkles className="w-7 h-7 text-amber-600" />
+                  </div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Quality Material</p>
+               </div>
+            </div>
+         </div>
       </section>
 
-      {/* Editorial Feature Section (Soft asymmetrical split) */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row gap-20 items-center">
-          
-          <div className="lg:w-5/12 space-y-8">
-            <EditorialHeader level="h2" weight="light" className="text-slate-800">
-              A calmer space <br/>to <span className="font-medium italic">think clearly.</span>
-            </EditorialHeader>
-            <p className="text-lg text-slate-600 font-light leading-relaxed">
-              We removed the noise. The Edify platform is stripped of visual clutter, offering a quiet, premium environment where absolute focus is the default state.
-            </p>
-            <ul className="space-y-4 pt-4">
+      {/* =========================================
+          SECTION 2: BENEFITS STRIP
+          ========================================= */}
+      <section className="relative z-20 -mt-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+         <div className="bg-white rounded-3xl shadow-[0_8px_40px_rgb(0,0,0,0.04)] border border-slate-100 py-8 px-6 lg:px-12">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-4 divide-slate-100 lg:divide-x-0">
+               
                {[
-                 { icon: Users, text: 'Makerere-certified educators' },
-                 { icon: Lightbulb, text: 'Ugandan national curriculum' },
-                 { icon: BookOpen, text: 'Immersive resource library' }
-               ].map((item, i) => (
-                 <li key={i} className="flex items-center gap-4 text-slate-700 font-medium">
-                   <div className="w-10 h-10 rounded-full bg-white shadow-sm flex justify-center items-center border border-slate-100">
-                     <item.icon className="w-4 h-4 text-slate-600" />
-                   </div>
-                   {item.text}
-                 </li>
+                 { icon: BookOpen, text: '20k+ Premium Resources' },
+                 { icon: MonitorPlay, text: 'Active Live Sessions' },
+                 { icon: ShieldCheck, text: 'Makerere Verified' },
+                 { icon: MapPin, text: 'Syllabus Aligned' },
+                 { icon: Users, text: 'Parent Visibility' }
+               ].map((item, idx) => (
+                  <div key={idx} className="flex flex-col lg:flex-row items-center lg:justify-center gap-3 text-center lg:text-left group cursor-default">
+                     <div className="w-12 h-12 shrink-0 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors flex items-center justify-center">
+                        <item.icon className="w-5 h-5 text-blue-600" />
+                     </div>
+                     <span className="font-semibold text-slate-700 text-sm">{item.text}</span>
+                  </div>
                ))}
-            </ul>
-          </div>
 
-          <div className="lg:w-7/12 grid grid-cols-2 gap-6 relative">
-            <div className="absolute inset-0 bg-[#f4efe2]/40 rounded-[3rem] -inset-6 -z-10" />
-            
-            <EditorialPanel className="bg-white border-none shadow-sm gap-4 flex flex-col p-8 col-span-2 md:col-span-1 md:translate-y-12">
-              <div className="w-12 h-12 rounded-full bg-[#f5eef1] flex items-center justify-center mb-4">
-                <MessageSquare className="w-5 h-5 text-rose-900" />
-              </div>
-              <h4 className="text-xl font-medium text-slate-900">Peer Tutoring</h4>
-              <p className="text-slate-500 text-sm leading-relaxed">Match with top students in safe, moderated study sessions to master complex subjects quickly.</p>
-            </EditorialPanel>
-            
-            <EditorialPanel className="bg-slate-900 text-white border-none shadow-xl gap-4 flex flex-col p-8 col-span-2 md:col-span-1">
-              <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-4">
-                <BarChart3 className="w-5 h-5 text-slate-300" />
-              </div>
-              <h4 className="text-xl font-medium text-white">AI Assistant</h4>
-              <p className="text-slate-400 text-sm leading-relaxed">Your personal AI mentor tracks your weak points and generates precise interventions.</p>
-            </EditorialPanel>
-            
-          </div>
-        </div>
+            </div>
+         </div>
       </section>
 
-      {/* Clean Call to Action */}
-      <section className="py-32 px-4">
-        <div className="max-w-4xl mx-auto text-center space-y-10">
-          <EditorialHeader level="h2" weight="light">
-            Ready to shape your future?
-          </EditorialHeader>
-          <p className="text-xl text-slate-500 font-light max-w-2xl mx-auto">
-            Join the platform that is redefining secondary education in Uganda. Elegance, intelligence, and proven results.
-          </p>
-          <div className="flex justify-center pt-6">
-            <Link to="/register">
-              <EditorialPill variant="primary" size="xl" className="px-12 bg-slate-900">
-                Enroll Now
-              </EditorialPill>
-            </Link>
-          </div>
-        </div>
+      {/* =========================================
+          SECTION 3: ABOUT / DIVE IN (2 Columns)
+          ========================================= */}
+      <section className="py-24 lg:py-32 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+         <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+            
+            {/* Visual Collage Left */}
+            <div className="w-full lg:w-1/2 relative">
+               <div className="relative rounded-[2.5rem] overflow-hidden aspect-[4/3] w-11/12 shadow-sm border border-slate-100">
+                  <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=2070&auto=format&fit=crop" alt="Students studying" className="w-full h-full object-cover" />
+               </div>
+               
+               <div className="absolute right-0 bottom-4 w-2/5 aspect-square rounded-3xl overflow-hidden shadow-2xl border-4 border-[#fbfaf8]">
+                  <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2622&auto=format&fit=crop" alt="Educator at desk" className="w-full h-full object-cover" />
+               </div>
+
+               {/* Experience Badge */}
+               <div className="absolute top-1/4 -right-6 w-32 h-32 rounded-full bg-white shadow-xl flex items-center justify-center border border-slate-50 rotate-12">
+                  <svg viewBox="0 0 100 100" className="w-full h-full absolute inset-0 text-blue-600 animate-[spin_30s_linear_infinite]">
+                    <path id="curve" d="M 50 15 A 35 35 0 1 1 49.99 15" fill="transparent" />
+                    <text className="text-[12px] font-bold tracking-[0.2em] font-sans fill-current uppercase">
+                      <textPath href="#curve">Makerere Certified</textPath>
+                    </text>
+                  </svg>
+                  <ShieldCheck className="w-8 h-8 text-blue-600" />
+               </div>
+            </div>
+
+            {/* Content Right */}
+            <div className="w-full lg:w-1/2 space-y-8">
+               <div className="space-y-4">
+                  <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">GET TO KNOW MAPLE OS</h4>
+                  <h2 className="text-3xl lg:text-4xl font-semibold text-slate-900 leading-tight">
+                     Dive into our Online Classes<br/>and Ignite Your Learning!
+                  </h2>
+                  <p className="text-slate-600 font-light leading-relaxed text-lg pt-2">
+                     Maple Online School simplifies and structures learning for students across East Africa. Through curriculum-aligned class pathways, verified dedicated educators, live academic support, and real-time parent oversight, the platform helps every learner stay on track and reach their full potential.
+                  </p>
+               </div>
+
+               <div className="space-y-4">
+                  {[
+                     'Structured class pathways aligned to national curricula such as NCDC, organized by Class → Subject → Topic → Lesson/Practice',
+                     'Interactive learning tools including mock exams, notes, video lessons, assignments, and guided interventions',
+                     'Real-time parent visibility into attendance, progress, performance, and support actions through the Parent Dashboard'
+                  ].map((text, idx) => (
+                     <div key={idx} className="flex items-start gap-4">
+                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
+                           <CheckCircle2 className="w-4 h-4 text-blue-700" />
+                        </div>
+                        <p className="text-slate-700 font-medium text-sm leading-relaxed">{text}</p>
+                     </div>
+                  ))}
+               </div>
+
+               <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 px-8 font-medium mt-4 shadow-sm">
+                  Learn More About Us <ArrowRight className="w-4 h-4 ml-2" />
+               </Button>
+            </div>
+         </div>
+      </section>
+
+      {/* =========================================
+          SECTION 4: POPULAR CLASSES / TABS / GRID
+          ========================================= */}
+      <section className="py-20 bg-white border-y border-slate-100">
+         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div className="text-center space-y-4 mb-16">
+               <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">POPULAR CLASSES</h4>
+               <h2 className="text-3xl lg:text-4xl font-semibold text-slate-900">Our Premium Offerings</h2>
+               
+               {/* Pill Tabs */}
+               <div className="flex flex-wrap items-center justify-center gap-3 pt-6">
+                  {['O-Level', 'A-Level', 'Sciences', 'Arts', 'Revision'].map(tab => (
+                     <button
+                       key={tab}
+                       onClick={() => setActiveTab(tab)}
+                       className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all border ${activeTab === tab ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-100'}`}
+                     >
+                        {tab}
+                     </button>
+                  ))}
+               </div>
+            </div>
+
+            {/* Class Cards Grid */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+               {popularClasses.map(cls => (
+                  <div key={cls.id} className="bg-[#fbfaf8] border border-slate-100 rounded-[1.5rem] overflow-hidden hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 group flex flex-col">
+                     {/* Image Frame */}
+                     <div className="relative aspect-[4/3] overflow-hidden">
+                        <img src={cls.image} alt={cls.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <div className="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-full shadow-sm">
+                           {cls.weeks}
+                        </div>
+                     </div>
+                     
+                     {/* Card Body */}
+                     <div className="p-6 flex-1 flex flex-col">
+                        <div className="flex items-center gap-1 mb-2">
+                           <Star className="w-3.5 h-3.5 text-amber-500 fill-current" />
+                           <Star className="w-3.5 h-3.5 text-amber-500 fill-current" />
+                           <Star className="w-3.5 h-3.5 text-amber-500 fill-current" />
+                           <Star className="w-3.5 h-3.5 text-amber-500 fill-current" />
+                           <StarHalf className="w-3.5 h-3.5 text-amber-500 fill-current" />
+                           <span className="text-xs text-slate-500 ml-1 font-semibold">({cls.rating})</span>
+                        </div>
+                        
+                        <h3 className="font-semibold text-lg text-slate-900 leading-tight mb-4 flex-1 group-hover:text-blue-600 transition-colors cursor-pointer">
+                           {cls.title}
+                        </h3>
+                        
+                        <div className="flex items-center gap-4 text-xs font-semibold text-slate-500 mb-6">
+                           <span className="flex items-center gap-1.5"><PlayIcon /> {cls.lessons} Lessons</span>
+                           <span className="flex items-center gap-1.5"><StudentIcon /> {cls.students} Students</span>
+                        </div>
+                        
+                        {/* Footer Rule & Metadata */}
+                        <div className="pt-4 border-t border-slate-200 flex items-center justify-between">
+                           <div className="flex items-center gap-2.5">
+                              <img src={cls.teacherImg} alt={cls.teacher} className="w-8 h-8 rounded-full border border-slate-200" />
+                              <span className="text-xs font-bold text-slate-700">{cls.teacher}</span>
+                           </div>
+                           <span className={`text-[11px] font-extrabold uppercase tracking-wider ${cls.priceStatus === 'FREE' ? 'text-emerald-600' : 'text-blue-600'}`}>
+                              {cls.priceStatus}
+                           </span>
+                        </div>
+                     </div>
+                  </div>
+               ))}
+            </div>
+
+            <div className="flex justify-center pt-16">
+               <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 px-8 font-medium shadow-sm">
+                  View All Classes <ArrowRight className="w-4 h-4 ml-2" />
+               </Button>
+            </div>
+         </div>
+      </section>
+
+      {/* =========================================
+          SECTION 5: BOTTOM CTA SECTION
+          ========================================= */}
+      <section className="pt-32 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto">
+         <div className="bg-blue-900 rounded-[3rem] p-12 lg:p-20 relative overflow-hidden shadow-2xl shadow-blue-900/20">
+            {/* Soft background shape */}
+            <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-600 rounded-full blur-3xl opacity-30" />
+            
+            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
+               <div className="max-w-2xl text-center lg:text-left">
+                  <h2 className="text-3xl lg:text-4xl font-semibold text-white mb-4">Ready to start learning online?</h2>
+                  <p className="text-blue-200 text-lg max-w-xl">Join thousands of students and teachers on Uganda's most advanced learning platform. Enroll now to accelerate your success.</p>
+               </div>
+               <div className="flex shrink-0">
+                  <Link to="/register">
+                    <Button size="lg" className="bg-white hover:bg-slate-50 text-slate-900 rounded-2xl h-14 px-10 text-base font-bold shadow-lg">
+                       Get Started Now
+                    </Button>
+                  </Link>
+               </div>
+            </div>
+         </div>
       </section>
 
     </div>
   );
 };
+
+// Tiny Helper Icons for the Class Cards
+const PlayIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+);
+const StudentIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+);

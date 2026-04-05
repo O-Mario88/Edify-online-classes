@@ -10,6 +10,8 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { ResourceViewer } from '../components/academic/ResourceViewer';
+import { Resource } from '../types';
 
 interface Lesson {
   id: string;
@@ -50,6 +52,7 @@ export const TopicDetailPage: React.FC = () => {
   const [className, setClassName] = useState('');
   const [subject, setSubject] = useState<SubjectData | null>(null);
   const [activeTopic, setActiveTopic] = useState<TopicData | null>(null);
+  const [activeResource, setActiveResource] = useState<Resource | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -106,10 +109,10 @@ export const TopicDetailPage: React.FC = () => {
     <div className="min-h-screen bg-[#fbfaf8] font-sans relative pb-24">
       {/* Soft Background */}
       <div 
-        className="fixed inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
         style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
       />
-      <div className="fixed inset-0 bg-white/40 pointer-events-none" />
+      <div className="absolute inset-0 bg-white/80 backdrop-blur-2xl pointer-events-none" />
 
       {/* Top Breadcrumb Context */}
       <div className="relative z-10 pt-8 pb-6 border-b border-white mix-blend-multiply flex flex-col items-center">
@@ -192,29 +195,37 @@ export const TopicDetailPage: React.FC = () => {
                     
                     {/* Learn Column */}
                     <div>
-                      <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 pl-2 mb-5 flex items-center gap-2">
-                        <Play className="w-3.5 h-3.5" /> Learn
+                      <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-400 pl-2 mb-5 flex items-center gap-2">
+                        <Play className="w-4 h-4" /> Learn
                       </h3>
-                      <div className="space-y-1 relative before:absolute before:inset-y-2 before:left-[-1px] before:w-px before:bg-slate-200 pl-4 border-l border-transparent">
+                      <div className="space-y-4 relative before:absolute before:inset-y-2 before:left-[1px] before:w-px before:bg-slate-200 pl-6 border-l border-transparent ml-[-8px]">
                         {learnItems.length === 0 && <p className="text-xs text-slate-400 py-2">No learning materials added yet.</p>}
                         
                         {learnItems.map(item => (
                           <div 
                             key={item.id} 
-                            className="group flex gap-4 p-3 rounded-2xl hover:bg-white transition-colors cursor-pointer relative"
+                            onClick={() => setActiveResource({
+                              id: item.id,
+                              title: item.title,
+                              type: item.type === 'video' ? 'video' : 'pdf',
+                              visibility: 'private',
+                              ownerType: 'platform',
+                              authorName: subject.name
+                            } as unknown as Resource)}
+                            className="group flex gap-4 p-5 rounded-2xl border border-slate-200/60 shadow-sm bg-white/90 hover:bg-white hover:shadow-md transition-all cursor-pointer relative"
                           >
-                            <div className="absolute top-[22px] -left-[20px] w-2 h-2 rounded-full bg-slate-300 border-2 border-[#fbfaf8] group-hover:bg-amber-400 group-hover:border-white transition-colors" />
+                            <div className="absolute top-[28px] -left-[28px] w-3 h-3 rounded-full bg-slate-200 border-2 border-white group-hover:bg-indigo-400 group-hover:border-white transition-colors shadow-sm" />
                             
                             <div className={`mt-0.5 ${item.type === 'video' ? 'text-rose-500' : 'text-blue-500'}`}>
                               {item.type === 'video' ? <Video className="w-5 h-5 fill-current opacity-20" /> : <BookOpen className="w-5 h-5 fill-current opacity-20" />}
                             </div>
                             <div>
-                               <h5 className="font-semibold text-slate-800 text-base group-hover:text-amber-700 transition-colors leading-snug">
+                               <h5 className="font-semibold text-slate-900 text-[16px] group-hover:text-indigo-600 transition-colors leading-snug">
                                  {item.title}
                                </h5>
-                               <div className="flex items-center gap-3 mt-1.5 opacity-50">
-                                  {item.type === 'video' ? <Video className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
-                                  <span className="text-[10px] font-black uppercase tracking-widest">
+                               <div className="flex items-center gap-2 mt-2">
+                                  {item.type === 'video' ? <Video className="w-3.5 h-3.5 text-slate-400" /> : <FileText className="w-3.5 h-3.5 text-slate-400" />}
+                                  <span className="text-[12px] font-bold uppercase tracking-widest text-slate-500">
                                     {item.type} {item.duration && `• ${item.duration}`}
                                   </span>
                                </div>
@@ -226,8 +237,8 @@ export const TopicDetailPage: React.FC = () => {
 
                     {/* Practice Column */}
                     <div>
-                      <h3 className="text-xs font-black uppercase tracking-widest text-[#8e8268] pl-2 mb-5 flex items-center gap-2">
-                        <ClipboardList className="w-3.5 h-3.5" /> Practice
+                      <h3 className="text-[13px] font-black uppercase tracking-widest text-[#8e8268] pl-2 mb-5 flex items-center gap-2">
+                        <ClipboardList className="w-4 h-4" /> Practice
                       </h3>
                       <div className="space-y-4">
                         {augmentedPractice.map((prac) => (
@@ -236,19 +247,20 @@ export const TopicDetailPage: React.FC = () => {
                              variant="elevated" 
                              padding="md" 
                              radius="large"
-                             className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-white bg-white/70 hover:bg-white cursor-pointer group"
+                             className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-slate-200/60 shadow-sm bg-white/90 hover:bg-white hover:shadow-md transition-all cursor-pointer group"
                            >
                               <div>
-                                <h5 className="font-semibold text-slate-800 text-base group-hover:text-amber-700 transition-colors leading-snug mb-1">
+                                <h5 className="font-semibold text-slate-900 text-[16px] group-hover:text-indigo-600 transition-colors leading-snug mb-1.5">
                                   {prac.title}
                                 </h5>
-                                <div className="text-xs font-black uppercase tracking-widest text-slate-400">
+                                <div className="text-[12px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-2">
+                                  <ClipboardList className="w-3.5 h-3.5" />
                                   {prac.duration || 'Assessment'}
                                 </div>
                               </div>
-                              <EditorialPill variant="secondary" className="border-none bg-slate-50 text-slate-600 px-4 group-hover:bg-amber-50 group-hover:text-amber-700 w-full sm:w-auto justify-center">
+                              <button className="border border-slate-200 bg-white text-slate-800 px-6 py-2.5 rounded-full text-sm font-semibold shadow-sm group-hover:bg-slate-900 group-hover:text-white transition-all w-full sm:w-auto text-center">
                                 Start
-                              </EditorialPill>
+                              </button>
                            </EditorialPanel>
                         ))}
                       </div>
@@ -262,6 +274,19 @@ export const TopicDetailPage: React.FC = () => {
 
         </div>
       </div>
+
+      {/* Resource Viewer Modal Overlay */}
+      {activeResource && (
+        <ResourceViewer
+          resource={activeResource}
+          studentId={user?.id || 'demo-student'}
+          onClose={(snapshot) => {
+            console.log('Engagement Logged:', snapshot);
+            setActiveResource(null);
+          }}
+        />
+      )}
+
     </div>
   );
 };

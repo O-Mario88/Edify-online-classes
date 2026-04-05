@@ -10,8 +10,12 @@ interface ResourceViewerProps {
   onClose: (engagementSnapshot: any) => void;
 }
 
+import { Sparkles, MessageCircle, Send } from 'lucide-react';
+
 export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studentId, onClose }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isAiTutorOpen, setIsAiTutorOpen] = useState(false);
+  const [chatMessage, setChatMessage] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -120,6 +124,19 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
             {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
           </button>
           
+          {resource.type !== 'video' && (
+            <button 
+              onClick={() => setIsAiTutorOpen(!isAiTutorOpen)}
+              className={`p-2 px-4 rounded-lg flex items-center gap-2 font-bold transition-all ${
+                isAiTutorOpen 
+                  ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
+                  : 'bg-slate-800 text-indigo-400 hover:bg-slate-700'
+              }`}
+            >
+              <Sparkles className="w-4 h-4" /> {isAiTutorOpen ? 'Close Tutor' : 'Ask AI Tutor'}
+            </button>
+          )}
+
           <div className="w-px h-6 bg-slate-800"></div>
           
           <button onClick={handleClose} className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors flex items-center gap-2 font-medium">
@@ -128,18 +145,21 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div 
-        ref={containerRef}
-        className="flex-1 bg-slate-950 overflow-hidden relative flex flex-col items-center justify-center"
-      >
-        {/* Progress Bar Top Edge */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-slate-800 z-10">
-          <div 
-            className={`h-full transition-all duration-300 ${isCompleted ? 'bg-green-500' : 'bg-indigo-500'}`}
-            style={{ width: `${completionPercentage}%` }}
-          />
-        </div>
+      {/* Main Content & Sidecar Container */}
+      <div className="flex-1 flex flex-row overflow-hidden relative">
+        
+        {/* Document/Video Container */}
+        <div 
+          ref={containerRef}
+          className={`flex-1 bg-slate-950 overflow-hidden relative flex flex-col items-center justify-center transition-all duration-300 ${isAiTutorOpen ? 'pr-0' : ''}`}
+        >
+          {/* Progress Bar Top Edge */}
+          <div className="absolute top-0 left-0 w-full h-1 bg-slate-800 z-10">
+            <div 
+              className={`h-full transition-all duration-300 ${isCompleted ? 'bg-green-500' : 'bg-indigo-500'}`}
+              style={{ width: `${completionPercentage}%` }}
+            />
+          </div>
 
         {resource.type === 'video' ? (
           <div className="w-full h-full max-w-6xl mx-auto flex flex-col items-center justify-center p-4">
@@ -224,6 +244,66 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
           </div>
         )}
       </div>
+
+      {/* AI Tutor Drawer */}
+      {isAiTutorOpen && (
+        <div className="w-[400px] bg-slate-900 border-l border-slate-800 flex flex-col shrink-0">
+           <div className="p-6 border-b border-slate-800 bg-slate-900/50">
+              <div className="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center mb-4 border border-indigo-500/30">
+                <Sparkles className="w-6 h-6 text-indigo-400" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Edify Contextual Tutor</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                I act as your personal tutor. Ask me to explain concepts, define terms, or provide examples specifically related to {resource.title}.
+              </p>
+              <div className="mt-4 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+                <p className="text-xs text-amber-500 font-medium flex gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  I am restricted to academic support and will not process off-topic requests.
+                </p>
+              </div>
+           </div>
+           
+           {/* Chat History Mock */}
+           <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              <div className="flex gap-4">
+                 <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
+                   <Sparkles className="w-4 h-4 text-indigo-400" />
+                 </div>
+                 <div className="bg-slate-800 rounded-2xl rounded-tl-sm p-4 text-sm text-slate-300">
+                   Hello! I'm reading along with you. What part of Content Section 1 would you like me to clarify?
+                 </div>
+              </div>
+           </div>
+
+           {/* Chat Input */}
+           <div className="p-4 border-t border-slate-800 bg-slate-900">
+              <div className="relative">
+                 <input
+                   type="text"
+                   value={chatMessage}
+                   onChange={(e) => setChatMessage(e.target.value)}
+                   placeholder="Ask about the document..."
+                   className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pl-4 pr-12 text-sm text-white placeholder:text-slate-500 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                   onKeyDown={(e) => {
+                     if (e.key === 'Enter') {
+                       setChatMessage('');
+                     }
+                   }}
+                 />
+                 <button 
+                   onClick={() => setChatMessage('')}
+                   className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-indigo-400 hover:bg-slate-800 rounded-lg transition-colors"
+                 >
+                   <Send className="w-4 h-4" />
+                 </button>
+              </div>
+           </div>
+        </div>
+      )}
+
+      </div>
+
     </div>
   );
 };

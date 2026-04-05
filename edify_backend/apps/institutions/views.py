@@ -283,3 +283,72 @@ class AdminPinResetView(APIView):
             is_used=True
         )
         return Response({'status': 'PIN Reset Successful'})
+
+from rest_framework.permissions import AllowAny
+from django.db import transaction
+
+class InstitutionOnboardingAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    @transaction.atomic
+    def post(self, request):
+        account_data = request.data.get('account', {})
+        brand_data = request.data.get('brand', {})
+        academic_data = request.data.get('academic', {})
+
+        if not account_data or not account_data.get('name') or not account_data.get('email'):
+            return Response({'error': 'Missing required account info.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        User = get_user_model()
+        
+        # Determine unique email constraint
+        if User.objects.filter(email=account_data.get('email', '').strip().lower()).exists():
+            return Response({'error': 'Admin email already exists. Please log in or use a different email.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 1. Create Core Institution & Branding
+        from .models import Institution
+        # We try to use the brand data immediately as well
+        new_inst = Institution.objects.create(
+            name=account_data.get('name', 'New Institution'),
+            primary_color=brand_data.get('primaryColor', '#000000'),
+            secondary_color=brand_data.get('secondaryColor', '#ffffff'),
+            country_code=account_data.get('country', 'uganda'),
+            subscription_plan='setup' # Important state for Onboarding logic
+        )
+
+        # 2. Setup Ledger
+        from .models import SubscriptionLedger
+        SubscriptionLedger.objects.create(
+            institution=new_inst,
+            plan_tier='setup',
+            outstanding_balance=0.00
+        )
+
+        # 3. Create Admin User
+        from django.utils.text import slugify
+        admin_email = account_data.get('email').strip().lower()
+        admin_user = User.objects.create_user(
+            email=admin_email,
+            full_name=account_data.get('adminName', 'School Administrator'),
+            country_code=account_data.get('country', 'uganda'),
+            role='institution_admin',
+            phone=account_data.get('phone', '')
+        )
+        admin_user.set_password(account_data.get('password', 'secure_password'))
+        admin_user.save()
+
+        # 4. Bind Roles
+        InstitutionMembership.objects.create(
+            user=admin_user,
+            institution=new_inst,
+            role='headteacher',
+            status='active'
+        )
+        
+        # (Optional) Future Phase 3 Academic setup storage depending on models. 
+        # For now, successfully instantiated.
+
+        return Response({
+            'message': 'Institution Phase 1-3 Successful.',
+            'institution_id': new_inst.id
+        }, status=status.HTTP_201_CREATED)

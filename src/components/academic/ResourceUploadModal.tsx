@@ -8,6 +8,7 @@ import {
   UploadCloud, FileText, Video, PlayCircle, BookOpen,
   Presentation, FileSpreadsheet, X, CheckCircle, FolderOpen
 } from 'lucide-react';
+import { apiClient } from '../../lib/api';
 
 interface ResourceUploadModalProps {
   isOpen: boolean;
@@ -47,21 +48,41 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
   const [visibility, setVisibility] = useState('platform');
   const [isUploading, setIsUploading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [externalUrl, setExternalUrl] = useState('');
 
   if (!isOpen) return null;
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     setIsUploading(true);
-    setTimeout(() => {
-      setIsUploading(false);
+    try {
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('visibility', visibility);
+      if (resourceType === 'video' && externalUrl) {
+         formData.append('external_url', externalUrl);
+      } else if (file) {
+         formData.append('file_path', file);
+      }
+      
+      await apiClient.post('/resources/resource/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
       setUploaded(true);
       setTimeout(() => {
         setUploaded(false);
         onClose();
         setTitle('');
         setDescription('');
-      }, 1500);
-    }, 1500);
+        setFile(null);
+        setExternalUrl('');
+      }, resourceType === 'video' && file ? 4000 : 1500);
+    } catch (error) {
+      console.error('Upload failed', error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -84,7 +105,11 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
             <div className="text-center py-12">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900">Resource Uploaded!</h3>
-              <p className="text-gray-500 mt-2">It's now linked to the selected topic/lesson.</p>
+              {resourceType === 'video' && file ? (
+                <p className="text-gray-500 mt-2">Your video is being securely uploaded to Vimeo in the background and will be available shortly.</p>
+              ) : (
+                <p className="text-gray-500 mt-2">It's now linked to the selected topic/lesson.</p>
+              )}
             </div>
           ) : (
             <>
@@ -181,12 +206,36 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
                 </div>
               </div>
 
-              {/* File Drop Zone */}
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all cursor-pointer">
-                <UploadCloud className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-                <p className="text-sm font-medium text-gray-600">Click to select files or drag and drop</p>
-                <p className="text-xs text-gray-400 mt-1">PDF, DOCX, MP4, PPTX, images up to 100MB</p>
-              </div>
+              {/* File Drop Zone / Link Input */}
+              {resourceType === 'video' ? (
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-sm font-semibold text-gray-700">Video Link (Vimeo / YouTube)</label>
+                    <Input
+                      placeholder="https://..."
+                      value={externalUrl}
+                      onChange={e => { setExternalUrl(e.target.value); setFile(null); }}
+                    />
+                  </div>
+                  <div className="text-center text-sm text-gray-500 font-medium">OR Upload MP4</div>
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all cursor-pointer relative">
+                    <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={e => { if (e.target.files?.length) { setFile(e.target.files[0]); setExternalUrl(''); } }} accept="video/mp4" />
+                    <UploadCloud className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                    <p className="text-sm font-medium text-gray-600">
+                      {file ? file.name : "Click to select video or drag and drop"}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all cursor-pointer relative">
+                  <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={e => { if (e.target.files?.length) setFile(e.target.files[0]); }} />
+                  <UploadCloud className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                  <p className="text-sm font-medium text-gray-600">
+                    {file ? file.name : "Click to select files or drag and drop"}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">PDF, DOCX, PPTX up to 100MB</p>
+                </div>
+              )}
 
               {/* Description */}
               <div className="space-y-1.5">
@@ -227,7 +276,7 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
               <div className="flex gap-3 pt-2">
                 <Button
                   onClick={handleUpload}
-                  disabled={isUploading || !title.trim() || !subject || !classLevel || !topic}
+                  disabled={isUploading || !title.trim() || (!file && !externalUrl)}
                   className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white h-11"
                 >
                   {isUploading ? 'Uploading...' : '📤 Upload Resource'}

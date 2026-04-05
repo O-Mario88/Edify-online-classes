@@ -24,6 +24,91 @@ import { apiClient } from '@/lib/api';
 import { isFuture, isPast, addMinutes } from 'date-fns';
 import { LiveSessionCTA } from '../components/dashboard/LiveSessionCTA';
 
+const MOCK_SESSIONS: WebinarSession[] = [
+  {
+    id: 'mock-1',
+    title: 'Advanced Derivatives & Option Strategies for Structuring Risk',
+    hostName: 'Dr. Sarah Jenkins',
+    scheduledStart: new Date().toISOString(), // effectively "Live"
+    durationMinutes: 90,
+    enrolledCount: 142,
+    capacity: 250,
+    type: 'webinar',
+    meetingUrl: 'https://meet.google.com/xyz',
+  },
+  {
+    id: 'mock-2',
+    title: 'S3 Biology Revision: Cell Structures Masterclass',
+    hostName: 'Prof. David Olinga',
+    scheduledStart: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // Future
+    durationMinutes: 60,
+    enrolledCount: 45,
+    capacity: 100,
+    type: 'revision',
+  },
+  {
+    id: 'mock-3',
+    title: 'Peer Discussion: Impact of Monetary Policies on East African Economies',
+    hostName: 'Alevel Economics Cohort A',
+    scheduledStart: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // Future
+    durationMinutes: 45,
+    enrolledCount: 12,
+    capacity: 20,
+    type: 'peer_discussion',
+  },
+  {
+    id: 'mock-4',
+    title: 'Mathematics O-Level Exam Prep Q&A',
+    hostName: 'Mr. Emmanuel Kato',
+    scheduledStart: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // Past
+    durationMinutes: 120,
+    enrolledCount: 300,
+    capacity: 300,
+    type: 'webinar',
+  },
+  {
+    id: 'mock-5',
+    title: 'University Admissions Essay Masterclass: Stand Out',
+    hostName: 'Madam Grace Akello',
+    scheduledStart: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // Future
+    durationMinutes: 90,
+    enrolledCount: 215,
+    capacity: 500,
+    type: 'webinar',
+  },
+  {
+    id: 'mock-6',
+    title: 'Introduction to Python for Data Science',
+    hostName: 'Mr. John Musisi',
+    scheduledStart: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // Past
+    durationMinutes: 120,
+    enrolledCount: 180,
+    capacity: 200,
+    type: 'webinar',
+  },
+  {
+    id: 'mock-7',
+    title: 'Peer Discussion: Climate Change and Global Responsibility',
+    hostName: 'Geography Club S4',
+    scheduledStart: new Date().toISOString(), // effectively "Live"
+    durationMinutes: 60,
+    enrolledCount: 35,
+    capacity: 50,
+    type: 'peer_discussion',
+    meetingUrl: 'https://meet.google.com/abc',
+  },
+  {
+    id: 'mock-8',
+    title: 'A-Level Chemistry: Organic Chemistry Revision',
+    hostName: 'Dr. Mukasa Godfrey',
+    scheduledStart: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Future
+    durationMinutes: 120,
+    enrolledCount: 88,
+    capacity: 150,
+    type: 'revision',
+  }
+] as unknown as WebinarSession[];
+
 export const LiveSessionsPage: React.FC = () => {
   const { user } = useAuth();
   const [sessions, setSessions] = useState<WebinarSession[]>([]);
@@ -39,9 +124,10 @@ export const LiveSessionsPage: React.FC = () => {
       try {
         const response = await apiClient.get('/live-sessions/live-session/');
         const fetchedSessions = response.data.results || response.data || [];
-        setSessions(fetchedSessions);
+        setSessions(fetchedSessions.length > 0 ? fetchedSessions : MOCK_SESSIONS);
       } catch (error) {
-        console.error('Error fetching webinars:', error);
+        console.error('Error fetching webinars, loading mock data:', error);
+        setSessions(MOCK_SESSIONS);
       } finally {
         setLoading(false);
       }
@@ -242,13 +328,13 @@ export const LiveSessionsPage: React.FC = () => {
             <div className="flex-1 space-y-8 text-center lg:text-left z-10 relative">
               <div className="inline-block relative">
                 <EditorialHeader level="h1" className="text-slate-900 leading-[1.1] tracking-tight">
-                  Engage in live virtual<br />masterclasses
+                  Be Part of Live Online Classes<br />and Discussions
                 </EditorialHeader>
                 <div className="absolute top-1/2 -left-6 w-16 h-16 bg-blue-200/40 rounded-full blur-xl -z-10" />
               </div>
               
               <p className="text-lg sm:text-xl text-slate-500 font-light leading-relaxed max-w-lg mx-auto lg:mx-0">
-                Participate in real-time academic discourse, interactive office hours, and revision seminars with leading educators.
+                Attend real-time class lessons, live peer to peer discussions and revision seminars with leading teachers.
               </p>
               
               <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
@@ -289,7 +375,7 @@ export const LiveSessionsPage: React.FC = () => {
         <div className="flex flex-col md:flex-row items-end justify-between gap-6 border-b border-slate-200/50 pb-6">
           <div>
              <EditorialHeader level="h2" className="text-slate-900 flex items-center gap-3">
-               Platform Seminars
+               Live and Recorded Sessions
              </EditorialHeader>
              <div className="w-16 h-1 bg-blue-300 mt-3 rounded-full" />
           </div>

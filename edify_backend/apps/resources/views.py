@@ -4,6 +4,7 @@ from .models import Resource, SharedResourceLink
 from .serializers import ResourceSerializer, SharedResourceLinkSerializer
 from institutions.models import InstitutionMembership
 from django.db.models import Q
+from .tasks import process_vimeo_upload
 
 class TenantFilterMixin:
     def get_user_institutions(self):
@@ -32,11 +33,16 @@ class ResourceViewSet(TenantFilterMixin, viewsets.ModelViewSet):
         if owner_institution and owner_institution.id not in self.get_user_institutions():
             raise exceptions.PermissionDenied("You cannot upload resources on behalf of an institution you do not belong to.")
             
-        serializer.save(
+        instance = serializer.save(
             uploaded_by=self.request.user,
             visibility=serializer.validated_data.get('visibility', 'private')
         )
-
+        
+        # Trigger Vimeo proxy upload if it's a video file
+        if instance.file_path and str(instance.file_path.name).lower().endswith(('.mp4', '.mov', '.avi', '.mkv')):
+            instance.vimeo_upload_status = 'pending'
+            instance.save(update_fields=['vimeo_upload_status'])
+            process_vimeo_upload.delay(instance.id)
 
 class SharedResourceLinkViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     serializer_class = SharedResourceLinkSerializer

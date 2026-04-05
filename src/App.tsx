@@ -24,6 +24,8 @@ import MarketplaceSubjectPage from './pages/MarketplaceSubjectPage';
 import MarketplaceTopicPage from './pages/MarketplaceTopicPage';
 import { InstitutionManagementPage } from './pages/InstitutionManagementPage';
 import { InstitutionTimetableStudio } from './pages/InstitutionTimetableStudio';
+import { InstitutionWizard } from './pages/InstitutionWizard';
+import { IndependentTeacherWizard } from './pages/IndependentTeacherWizard';
 import { AcademicLibraryPage } from './pages/AcademicLibraryPage';
 import ExamRegistrationPage from './pages/ExamRegistrationPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -50,6 +52,8 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/institution-onboarding" element={<InstitutionWizard />} />
+          <Route path="/independent-teacher-onboarding" element={<IndependentTeacherWizard />} />
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="classes" element={<CourseCatalog />} />

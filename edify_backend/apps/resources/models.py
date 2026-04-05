@@ -16,6 +16,13 @@ class Resource(models.Model):
         ('platform_shared', 'Platform Shared (OER)'),
         ('marketplace_public', 'Marketplace Public')
     ]
+    VIMEO_STATUS_CHOICES = [
+        ('none', 'Not Applicable'),
+        ('pending', 'Pending Upload'),
+        ('processing', 'Processing on Vimeo'),
+        ('completed', 'Completed'),
+        ('failed', 'Upload Failed')
+    ]
     
     owner_type = models.CharField(max_length=20, choices=OWNER_TYPE_CHOICES, default='teacher')
     owner_institution = models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True, blank=True, related_name='owned_resources')
@@ -24,6 +31,8 @@ class Resource(models.Model):
     title = models.CharField(max_length=255)
     file_path = models.FileField(upload_to='resources/', null=True, blank=True)
     external_url = models.URLField(max_length=500, null=True, blank=True)
+    vimeo_upload_status = models.CharField(max_length=20, choices=VIMEO_STATUS_CHOICES, default='none')
+    vimeo_video_id = models.CharField(max_length=50, null=True, blank=True)
     
     visibility = models.CharField(max_length=30, choices=VISIBILITY_CHOICES, default='private')
     

@@ -30,6 +30,7 @@ import { SchoolHealthScore } from '../components/institutions/SchoolHealthScore'
 import { ExamWarRoomMode } from '../components/institutions/ExamWarRoomMode';
 import { AIAdminReportAssistant } from '../components/institutions/AIAdminReportAssistant';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
+import { ResourceUploadModal } from '../components/academic/ResourceUploadModal';
 
 export const InstitutionManagementPage: React.FC = () => {
   const { user } = useAuth();
@@ -37,6 +38,7 @@ export const InstitutionManagementPage: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [showOnboardingForm, setShowOnboardingForm] = useState(false);
+  const [isLibraryUploadOpen, setIsLibraryUploadOpen] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -427,9 +429,14 @@ export const InstitutionManagementPage: React.FC = () => {
 
         <TabsContent value="resources" className="space-y-6">
            <Card className="shadow-sm border-indigo-200 bg-indigo-50/20">
-             <CardHeader className="pb-4 border-b bg-white">
-               <CardTitle>Academic Library & Intervention Metrics</CardTitle>
-               <CardDescription>Track how effectively your institution utilizes learning resources to recover failing students.</CardDescription>
+             <CardHeader className="pb-4 border-b bg-white flex flex-row items-center justify-between">
+               <div>
+                  <CardTitle>Academic Library & Intervention Metrics</CardTitle>
+                  <CardDescription>Track how effectively your institution utilizes learning resources to recover failing students.</CardDescription>
+               </div>
+               <Button onClick={() => setIsLibraryUploadOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 shadow-sm text-white border-0">
+                  <Upload className="w-4 h-4 mr-2" /> Upload Reference Material
+               </Button>
              </CardHeader>
              <CardContent className="pt-6">
                <div className="flex flex-wrap gap-6">
@@ -494,6 +501,10 @@ export const InstitutionManagementPage: React.FC = () => {
         onClose={() => setInviteModalOpen(false)} 
         institutionId={1} // Static mock ID mapping to backend for MVP
         onSuccess={() => console.log('Successfully invited roster')}
+      />
+      <ResourceUploadModal 
+         isOpen={isLibraryUploadOpen} 
+         onClose={() => setIsLibraryUploadOpen(false)} 
       />
     </div>
     </div>

@@ -4,9 +4,10 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Activity, Users, BookOpen, Clock, ShieldCheck, Download, AlertTriangle, ArrowRight, Database, ServerCrash, DollarSign, HelpCircle, UserX, UserPlus, CheckCircle, Flame, Trophy, Cpu, TrendingUp } from 'lucide-react';
+import { Activity, Users, BookOpen, Clock, ShieldCheck, Download, AlertTriangle, ArrowRight, Database, ServerCrash, DollarSign, HelpCircle, UserX, UserPlus, CheckCircle, Flame, Trophy, Cpu, TrendingUp, UploadCloud } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../lib/api';
+import { ResourceUploadModal } from '../components/academic/ResourceUploadModal';
 import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { GlobalInstitutionComparison } from '../components/admin/GlobalInstitutionComparison';
 import { AlumniOutcomesTracker } from '../components/admin/AlumniOutcomesTracker';
@@ -21,6 +22,7 @@ export const AdminDashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [mapTopic, setMapTopic] = useState('S3 Chemistry: Mole Concept');
+  const [isLibraryUploadOpen, setIsLibraryUploadOpen] = useState(false);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -156,6 +158,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex justify-center gap-3 w-full md:w-auto">
              <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50"><ServerCrash className="w-4 h-4 mr-2" /> View Error Logs</Button>
              <Button className="shadow-sm"><Database className="w-4 h-4 mr-2" /> Sync Data</Button>
+             <Button onClick={() => setIsLibraryUploadOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 shadow-sm text-white border-0"><UploadCloud className="w-4 h-4 mr-2" /> Upload Library Material</Button>
           </div>
         </div>
 
@@ -434,6 +437,10 @@ export const AdminDashboard: React.FC = () => {
          </div>
 
       </div>
+      <ResourceUploadModal 
+         isOpen={isLibraryUploadOpen} 
+         onClose={() => setIsLibraryUploadOpen(false)} 
+      />
     </div>
   );
 };

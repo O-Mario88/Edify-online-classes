@@ -1,13 +1,20 @@
 from django.db import models
 
 class ParentStudentLink(models.Model):
+    RELATIONSHIP_CHOICES = [
+        ('mother', 'Mother'),
+        ('father', 'Father'),
+        ('guardian', 'Guardian'),
+        ('other', 'Other'),
+    ]
     parent_profile = models.ForeignKey('accounts.ParentProfile', on_delete=models.CASCADE, related_name='student_links')
     student_profile = models.ForeignKey('accounts.StudentProfile', on_delete=models.CASCADE, related_name='parent_links')
+    relationship_type = models.CharField(max_length=20, choices=RELATIONSHIP_CHOICES, default='guardian')
     consent_status = models.CharField(max_length=50, default='pending')
     linked_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Link: {self.parent_profile.user.full_name} -> {self.student_profile.user.full_name}"
+        return f"Link: {self.parent_profile.user.full_name} ({self.get_relationship_type_display()}) -> {self.student_profile.user.full_name}"
 
 class WeeklySummary(models.Model):
     link = models.ForeignKey(ParentStudentLink, on_delete=models.CASCADE, related_name='summaries')
