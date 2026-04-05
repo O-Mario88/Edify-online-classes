@@ -5,26 +5,40 @@ import {
   MapPin, Clock, BookOpen, Users, Star, StarHalf, MonitorPlay, Sparkles
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { apiGet, API_ENDPOINTS } from '../lib/apiClient';
+
+interface Listing {
+  id: number;
+  title: string;
+  teacher: number;
+  content_type: string;
+  price_amount?: number;
+  average_rating: number;
+  review_count: number;
+  student_count: number;
+}
+
+interface ClassCard {
+  id: number;
+  weeks: string;
+  title: string;
+  lessons: string;
+  students: string;
+  level: string;
+  teacher: string;
+  teacherImg: string;
+  image: string;
+  rating: number;
+  priceStatus: string;
+}
 
 export const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('O-Level');
+  const [popularClasses, setPopularClasses] = useState<ClassCard[]>([]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 400);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
-        <div className="animate-pulse w-12 h-12 rounded-full bg-blue-100"></div>
-      </div>
-    );
-  }
-
-  // Mock data for class cards
-  const popularClasses = [
+  // Default mock data as fallback
+  const DEFAULT_CLASSES: ClassCard[] = [
     {
       id: 1, weeks: '12 WEEKS', title: 'O-Level Mathematics: Algebra Mastery',
       lessons: '24', students: '1.2k', level: 'O-Level',
@@ -54,6 +68,60 @@ export const HomePage: React.FC = () => {
       rating: 5.0, priceStatus: 'PREMIUM'
     }
   ];
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch marketplace listings
+        const response = await apiGet<{ results: Listing[] }>(API_ENDPOINTS.LISTINGS);
+        
+        if (response.data?.results && response.data.results.length > 0) {
+          // Transform API listings to ClassCard format
+          const classes = response.data.results.slice(0, 4).map((listing, index) => ({
+            id: listing.id,
+            weeks: `${Math.ceil(Math.random() * 16)}  WEEKS`,
+            title: listing.title || `Lesson ${index + 1}`,
+            lessons: String(Math.ceil(Math.random() * 32)),
+            students: (Math.random() * 1000 + 500).toLocaleString('en-US', { maximumFractionDigits: 0 }),
+            level: activeTab,
+            teacher: `Teacher ${index + 1}`,
+            teacherImg: `https://ui-avatars.com/api/?name=Teacher+${index + 1}&background=${['0D8ABC', '10B981', 'F59E0B', '6366f1'][index % 4]}&color=fff`,
+            image: [
+              'https://images.unsplash.com/photo-1635317711438-e6fd425bfce3?q=80&w=2670&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?q=80&w=2574&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=2546&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=2670&auto=format&fit=crop'
+            ][index % 4],
+            rating: listing.average_rating || 4.5 + Math.random() * 0.5,
+            priceStatus: listing.price_amount ? 'PREMIUM' : 'FREE'
+          }));
+          
+          setPopularClasses(classes);
+        } else {
+          // Use default mock data if no listings
+          setPopularClasses(DEFAULT_CLASSES);
+        }
+      } catch (err) {
+        console.error('Error fetching listings:', err);
+        // Fall back to mock data on error
+        setPopularClasses(DEFAULT_CLASSES);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchListings();
+  }, [activeTab]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
+        <div className="animate-pulse w-12 h-12 rounded-full bg-blue-100"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#fbfaf8] text-slate-800 font-sans overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 pb-20">

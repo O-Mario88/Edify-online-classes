@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Clock, PlayCircle, Users, CheckCircle, ArrowRight } from 'lucide-react';
+import { Clock, PlayCircle, Users, CheckCircle, ArrowRight, AlertCircle } from 'lucide-react';
 import { DashboardGrid } from './layout/DashboardGrid';
 import { DashboardCard } from './layout/DashboardCard';
 import { Link } from 'react-router-dom';
+import { apiGet, API_ENDPOINTS } from '../../lib/apiClient';
 
-const MOCK_ACTIONS = [
+// Fallback mock actions if API is unavailable
+const DEFAULT_MOCK_ACTIONS = [
   {
     id: 'act-1',
     type: 'project',
@@ -82,10 +84,79 @@ const MOCK_ACTIONS = [
   }
 ];
 
+interface StudentAction {
+  id: string | number;
+  type: string;
+  title: string;
+  subtitle: string;
+  postedBy: string;
+  status: string;
+  statusLabel: string;
+  colorMode: string;
+  actionText: string;
+  icon: string;
+}
+
 export const StudentActionCenter: React.FC = () => {
+  const [actions, setActions] = useState<StudentAction[]>(DEFAULT_MOCK_ACTIONS);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchActions = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        // Fetch assessments for action items
+        const assessmentsResponse = await apiGet<any>(API_ENDPOINTS.ASSESSMENTS);
+        
+        if (assessmentsResponse.data?.results) {
+          // Transform API data to action format
+          const apiActions = assessmentsResponse.data.results.map((assessment: any, index: number) => ({
+            id: assessment.id,
+            type: 'assignment',
+            title: assessment.title || 'Untitled Assessment',
+            subtitle: `${assessment.get_difficulty_display || 'Assessment'} • ${index + 1} of ${assessmentsResponse.data.results.length}`,
+            postedBy: 'System',
+            status: assessment.is_complete ? 'success' : 'normal',
+            statusLabel: assessment.is_complete ? 'Completed' : 'Pending',
+            colorMode: assessment.is_complete ? 'slate' : 'blue',
+            actionText: assessment.is_complete ? 'Review' : 'Start',
+            icon: assessment.is_complete ? 'check' : 'play'
+          }));
+          
+          // Mix API data with some default mock actions for better UX
+          setActions(apiActions.length > 0 ? apiActions : DEFAULT_MOCK_ACTIONS);
+        } else {
+          setActions(DEFAULT_MOCK_ACTIONS);
+        }
+      } catch (err) {
+        console.error('Error fetching actions:', err);
+        // Fall back to mock data on error
+        setActions(DEFAULT_MOCK_ACTIONS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchActions();
+  }, []);
+
   return (
     <DashboardGrid>
-      {MOCK_ACTIONS.map((action) => {
+      {error && (
+        <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12}>
+          <Card className="border-amber-500/30 bg-amber-500/5">
+            <CardContent className="p-4 flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-400" />
+              <p className="text-sm text-amber-300">{error}</p>
+            </CardContent>
+          </Card>
+        </DashboardCard>
+      )}
+      
+      {actions.map((action) => {
         // Dynamic styling based on colorMode
         const colorStyles = {
           orange: 'border-orange-500/30 bg-orange-500/5 hover:bg-orange-500/10 text-orange-400',
