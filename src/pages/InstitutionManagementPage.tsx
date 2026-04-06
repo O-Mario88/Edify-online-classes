@@ -45,7 +45,10 @@ export const InstitutionManagementPage: React.FC = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const { data } = await apiClient.get('/analytics/institution-dashboard/');
+        const { data, error: apiError } = await apiClient.get('/analytics/institution-dashboard/');
+        if (apiError || !data) {
+          throw new Error(apiError?.message || 'Data payload was empty from API');
+        }
         setDashboardData(data);
         setError(null);
       } catch (error: any) {

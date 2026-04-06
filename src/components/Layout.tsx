@@ -18,59 +18,69 @@ export const Layout: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <GraduationCap className="h-6 w-6 text-blue-400" />
-                <span className="text-lg font-semibold">Maple Online School</span>
+      <footer className="bg-[#0f2a45] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+          {/* Main Footer Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-8 md:gap-8">
+            
+            {/* Brand Column */}
+            <div className="col-span-2 md:col-span-4 lg:col-span-1 mb-2 lg:mb-0">
+              <div className="flex items-center space-x-2 mb-3">
+                <GraduationCap className="h-6 w-6 text-white" />
+                <span className="text-base md:text-lg font-bold text-white tracking-wide">Maple Online School</span>
               </div>
-              <p className="text-gray-400 text-sm">
+              <p className="text-white text-xs md:text-sm leading-relaxed max-w-sm">
                 Empowering students worldwide with quality online education.
               </p>
             </div>
             
+            {/* Links Columns */}
             <div>
-              <h4 className="font-semibold mb-4">Classes</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link to="/classes" className="hover:text-white">All Classes</Link></li>
-                <li><Link to="/classes" className="hover:text-white">Primary Level</Link></li>
-                <li><Link to="/classes" className="hover:text-white">Secondary Level</Link></li>
+              <h4 className="font-bold text-sm mb-4 text-white uppercase tracking-wider">Classes</h4>
+              <ul className="space-y-2.5 text-xs md:text-sm text-white">
+                <li><Link to="/classes" className="hover:text-white transition-colors">All Classes</Link></li>
+                <li><Link to="/classes" className="hover:text-white transition-colors">Primary Level</Link></li>
+                <li><Link to="/classes" className="hover:text-white transition-colors">Secondary Level</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">AI-Powered Learning</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link to="/learning-path" className="hover:text-white">Personal Learning Path</Link></li>
-                <li><Link to="/projects" className="hover:text-white">Collaborative Projects</Link></li>
-                <li><Link to="/peer-tutoring" className="hover:text-white">Peer Tutoring</Link></li>
-                <li><Link to="/ai-assistant" className="hover:text-white">AI Teaching Assistant</Link></li>
+              <h4 className="font-bold text-sm mb-4 text-white uppercase tracking-wider">AI Learning</h4>
+              <ul className="space-y-2.5 text-xs md:text-sm text-white">
+                <li><Link to="/learning-path" className="hover:text-white transition-colors">Personal Path</Link></li>
+                <li><Link to="/projects" className="hover:text-white transition-colors">Collaborative</Link></li>
+                <li><Link to="/peer-tutoring" className="hover:text-white transition-colors">Peer Tutoring</Link></li>
+                <li><Link to="/ai-assistant" className="hover:text-white transition-colors">AI Assistant</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Community</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link to="/library" className="hover:text-white">Resource Center</Link></li>
-                <li><Link to="/live-sessions" className="hover:text-white">Live Sessions</Link></li>
-                <li><Link to="/forum" className="hover:text-white">Community Forum</Link></li>
+              <h4 className="font-bold text-sm mb-4 text-white uppercase tracking-wider">Community</h4>
+              <ul className="space-y-2.5 text-xs md:text-sm text-white">
+                <li><Link to="/library" className="hover:text-white transition-colors">Resource Center</Link></li>
+                <li><Link to="/live-sessions" className="hover:text-white transition-colors">Live Sessions</Link></li>
+                <li><Link to="/forum" className="hover:text-white transition-colors">Community Forum</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white">Help Center</a></li>
-                <li><a href="#" className="hover:text-white">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
+              <h4 className="font-bold text-sm mb-4 text-white uppercase tracking-wider">Support</h4>
+              <ul className="space-y-2.5 text-xs md:text-sm text-white">
+                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
               </ul>
             </div>
           </div>
           
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2025 Maple Online School. All rights reserved.</p>
+          {/* Bottom Bar */}
+          <div className="border-t border-white/20 mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            <p className="text-xs md:text-sm text-white font-medium">&copy; 2025 Maple Online School. All rights reserved.</p>
+            <div className="flex justify-center md:justify-end gap-4 text-white text-xs font-medium">
+               <a href="#" className="hover:text-white transition-colors">Terms</a>
+               <a href="#" className="hover:text-white transition-colors">Privacy</a>
+               <a href="#" className="hover:text-white transition-colors">Cookies</a>
+            </div>
           </div>
         </div>
       </footer>

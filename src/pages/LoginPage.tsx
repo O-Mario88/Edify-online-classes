@@ -35,6 +35,7 @@ export const LoginPage: React.FC = () => {
     { email: 'grace.nakato@email.com', role: 'Student' },
     { email: 'sarah.nakamya@maplesch.com', role: 'Teacher' },
     { email: 'christine.namaganda@maplesch.com', role: 'Administrator' },
+    { email: 'admin@institution.com', role: 'Institution Admin' },
   ];
 
   return (

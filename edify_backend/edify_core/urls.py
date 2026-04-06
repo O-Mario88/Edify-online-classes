@@ -108,19 +108,6 @@ router.register(r'parent-portal/risk-alert', RiskAlertViewSet, basename='parent_
 router.register(r'tutoring/match-request', MatchRequestViewSet, basename='tutoring-match-request')
 router.register(r'tutoring/peer-points-ledger', PeerPointsLedgerViewSet, basename='tutoring-peer-points-ledger')
 
-# Finance Module Endpoints
-from finance.views import (
-    FeeItemViewSet, FeeTemplateViewSet, InvoiceViewSet, PaymentViewSet,
-    BursarySchemeViewSet, ExpenseCategoryViewSet, ExpenseRecordViewSet
-)
-router.register(r'finance/fee-items', FeeItemViewSet, basename='finance-fee-item')
-router.register(r'finance/fee-templates', FeeTemplateViewSet, basename='finance-fee-template')
-router.register(r'finance/invoices', InvoiceViewSet, basename='finance-invoice')
-router.register(r'finance/payments', PaymentViewSet, basename='finance-payment')
-router.register(r'finance/bursaries', BursarySchemeViewSet, basename='finance-bursary')
-router.register(r'finance/expense-categories', ExpenseCategoryViewSet, basename='finance-expense-category')
-router.register(r'finance/expenses', ExpenseRecordViewSet, basename='finance-expense')
-
 
 from institutions.views import InstitutionOnboardingAPIView
 from marketplace.views import IndependentTeacherOnboardingView
@@ -152,4 +139,10 @@ urlpatterns = [
     
     # Billing / Subscriptions / Monetization
     path('api/v1/billing/', include('billing.urls')),
+    
+    # Finance ERP Module - Institution Scoped (comprehensive financial system)
+    # All finance endpoints require institution_id in URL path
+    # Includes: billing, invoicing, payments, accounting, auditing, audit trails
+    # Only accessible to institution members - ensures data isolation and multi-tenancy
+    path('api/v1/institutions/<int:institution_id>/finance/', include('edify_backend.apps.finance.urls')),
 ]

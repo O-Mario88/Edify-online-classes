@@ -30,8 +30,8 @@ export const GlassDashboardLayout: React.FC = () => {
       </main>
 
       {/* Footer can be omitted for dashboards or replaced with a minimal version */}
-      <footer className="w-full border-t border-white/10 py-6 text-center text-sm text-slate-400 mt-auto bg-slate-900/60 backdrop-blur-md">
-        <p>&copy; 2026 Edify Online School. System Year: 2090.</p>
+      <footer className="w-full border-t border-white/10 py-6 text-center text-sm text-white mt-auto bg-[#0f2a45]">
+        <p>&copy; 2026 Maple Online School. All rights reserved.</p>
       </footer>
 
       {/* Copilots */}

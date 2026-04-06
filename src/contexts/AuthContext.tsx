@@ -101,6 +101,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           inferredRole = 'independent_teacher';
         } else if (lowerEmail.includes('student') || lowerEmail.includes('nakato')) {
           inferredRole = 'universal_student';
+        } else if (lowerEmail.includes('institution')) {
+          inferredRole = 'institution_admin';
         } else if (lowerEmail.includes('admin') || lowerEmail.includes('namaganda')) {
           inferredRole = 'platform_admin';
         } else {

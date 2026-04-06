@@ -84,8 +84,8 @@ export const RegisterPage: React.FC = () => {
       {/* LEFT COLUMN: Editorial Splash */}
       <div className="hidden md:flex w-2/5 lg:w-1/2 p-12 bg-[#F9F7F3] flex-col justify-center relative">
         <div className="max-w-md mx-auto">
-          <EditorialHeader level="h1" className="mb-6 text-slate-900 leading-tight">
-            Edify boosts<br/>scores!
+          <EditorialHeader level="h1" className="mb-6 text-slate-900 leading-tight text-4xl md:text-5xl">
+            Maple Online School<br/>guarantees learning from anywhere!
           </EditorialHeader>
           <p className="text-slate-600 font-medium leading-relaxed mb-10 text-lg">
             Learn with expert teachers, tackle focused curriculum materials, and get AI-powered academic support directly aligned with your syllabus.
@@ -93,7 +93,7 @@ export const RegisterPage: React.FC = () => {
           
           <div className="relative w-full aspect-square max-w-sm mx-auto overflow-hidden rounded-3xl shadow-xl border border-slate-200">
              <div className="absolute inset-0 bg-gradient-to-tr from-[#98d8c6] to-[#fcb97d] opacity-40 mix-blend-multiply rounded-3xl" />
-             <img src="/images/students-happy.jpg" alt="Happy students" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=2070&auto=format&fit=crop' }} />
+             <img src="/images/teenager_studying_at_home.png" alt="African teenager studying at home" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=2070&auto=format&fit=crop' }} />
           </div>
         </div>
       </div>

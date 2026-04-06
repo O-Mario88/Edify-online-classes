@@ -180,7 +180,7 @@ export const HomePage: React.FC = () => {
 
                <div className="flex items-center gap-6 pt-4 text-sm font-medium text-slate-600">
                   <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> NCDC Aligned</div>
-                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Makerere Educators</div>
+                  <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Educators From Top Institutions</div>
                </div>
             </div>
 
@@ -189,8 +189,8 @@ export const HomePage: React.FC = () => {
                {/* Main Soft Blob / Image Holder */}
                <div className="relative w-full max-w-[500px] aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl shadow-blue-900/10">
                   <img 
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2671&auto=format&fit=crop" 
-                    alt="Students collaborating online"
+                    src="/images/african_teacher_teaching_online.png" 
+                    alt="African teacher teaching online"
                     className="w-full h-full object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-blue-900/5 mix-blend-overlay" />
@@ -241,7 +241,7 @@ export const HomePage: React.FC = () => {
                {[
                  { icon: BookOpen, text: '20k+ Premium Resources' },
                  { icon: MonitorPlay, text: 'Active Live Sessions' },
-                 { icon: ShieldCheck, text: 'Makerere Verified' },
+                 { icon: ShieldCheck, text: 'Top Educators From Top Institutions' },
                  { icon: MapPin, text: 'Syllabus Aligned' },
                  { icon: Users, text: 'Parent Visibility' }
                ].map((item, idx) => (
@@ -266,19 +266,19 @@ export const HomePage: React.FC = () => {
             {/* Visual Collage Left */}
             <div className="w-full lg:w-1/2 relative">
                <div className="relative rounded-[2.5rem] overflow-hidden aspect-[4/3] w-11/12 shadow-sm border border-slate-100">
-                  <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=2070&auto=format&fit=crop" alt="Students studying" className="w-full h-full object-cover" />
+                  <img src="/images/african_students_computer_lab.png" alt="African students in computer lab" className="w-full h-full object-cover" />
                </div>
                
                <div className="absolute right-0 bottom-4 w-2/5 aspect-square rounded-3xl overflow-hidden shadow-2xl border-4 border-[#fbfaf8]">
-                  <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2622&auto=format&fit=crop" alt="Educator at desk" className="w-full h-full object-cover" />
+                  <img src="/images/african_child_learning_tablet.png" alt="African child learning on tablet" className="w-full h-full object-cover" />
                </div>
 
                {/* Experience Badge */}
                <div className="absolute top-1/4 -right-6 w-32 h-32 rounded-full bg-white shadow-xl flex items-center justify-center border border-slate-50 rotate-12">
                   <svg viewBox="0 0 100 100" className="w-full h-full absolute inset-0 text-blue-600 animate-[spin_30s_linear_infinite]">
                     <path id="curve" d="M 50 15 A 35 35 0 1 1 49.99 15" fill="transparent" />
-                    <text className="text-[12px] font-bold tracking-[0.2em] font-sans fill-current uppercase">
-                      <textPath href="#curve">Makerere Certified</textPath>
+                    <text className="text-[10px] font-bold tracking-[0.1em] font-sans fill-current uppercase">
+                      <textPath href="#curve">Trained & Certified Experts </textPath>
                     </text>
                   </svg>
                   <ShieldCheck className="w-8 h-8 text-blue-600" />
@@ -290,7 +290,7 @@ export const HomePage: React.FC = () => {
                <div className="space-y-4">
                   <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">GET TO KNOW MAPLE OS</h4>
                   <h2 className="text-3xl lg:text-4xl font-semibold text-slate-900 leading-tight">
-                     Explore Edify Online School and ignite your learning with structured classes, expert support, and real progress
+                     Explore Maple Online School and ignite your learning with structured classes, expert support
                   </h2>
                   <p className="text-slate-600 font-light leading-relaxed text-lg pt-2">
                      Maple Online School simplifies and structures learning for students across East Africa. Through curriculum-aligned class pathways, verified dedicated educators, live academic support, and real-time parent oversight, the platform helps every learner stay on track and reach their full potential.
@@ -402,7 +402,7 @@ export const HomePage: React.FC = () => {
           SECTION 5: BOTTOM CTA SECTION
           ========================================= */}
       <section className="pt-32 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto">
-         <div className="bg-blue-900 rounded-[3rem] p-12 lg:p-20 relative overflow-hidden shadow-2xl shadow-blue-900/20">
+         <div className="bg-[#0f2a45] rounded-[3rem] p-12 lg:p-20 relative overflow-hidden shadow-2xl shadow-[#0f2a45]/20">
             {/* Soft background shape */}
             <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-600 rounded-full blur-3xl opacity-30" />
             

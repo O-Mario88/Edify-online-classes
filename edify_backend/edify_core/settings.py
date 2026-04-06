@@ -69,7 +69,7 @@ INSTALLED_APPS = [
     'ai_services.apps.AiServicesConfig',
     'scheduling.apps.SchedulingConfig',
     'attendance.apps.AttendanceConfig',
-    'finance.apps.FinanceConfig',
+    'edify_backend.apps.finance.apps.FinanceConfig',  # Finance ERP System
     'billing.apps.BillingConfig',
 ]
 

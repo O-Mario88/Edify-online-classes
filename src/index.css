@@ -15,8 +15,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* Elegant Primary Blue requested by user (#164c79) */
-    --primary: 207 69% 28%;
+    /* Elegant Primary Blue requested by user (#0f2a45) */
+    --primary: 210 64.3% 16.5%;
     --primary-foreground: 0 0% 100%;
 
     /* Soft Blue Secondary */
@@ -35,7 +35,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 207 69% 28%;
+    --ring: 210 64.3% 16.5%;
 
     --radius: 1.5rem;
 
@@ -417,11 +417,11 @@ img {
 
 /* ═══════════════════════════════════════════════════════════════
  *  SYSTEM-WIDE BRAND COLOR OVERRIDE (EXCEPT DASHBOARDS)
- *  Forces #164c79 on public pages for links, selection & generic buttons
+ *  Forces #0f2a45 on public pages for links, selection & generic buttons
  * ═══════════════════════════════════════════════════════════════ */
 
 body:not(.dark) a {
-  color: #164c79;
+  color: #0f2a45;
   transition: all 0.2s;
 }
 
@@ -429,24 +429,24 @@ body:not(.dark) a:hover,
 body:not(.dark) a.text-slate-900:hover,
 body:not(.dark) a.text-slate-800:hover {
   filter: brightness(1.2);
-  color: #103b5d;
+  color: #0a1c2e;
 }
 
 body:not(.dark) ::selection {
-  background-color: #164c79 !important;
+  background-color: #0f2a45 !important;
   color: #ffffff !important;
 }
 
 body:not(.dark) .selection\:bg-primary\/20::selection {
-  background-color: rgba(22, 76, 121, 0.2) !important;
-  color: #164c79 !important;
+  background-color: rgba(15, 42, 69, 0.2) !important;
+  color: #0f2a45 !important;
 }
 
 /* Ensure generic buttons without specific colors inherit the brand */
 body:not(.dark) button:not([class*="bg-"]):not([variant="outline"]):not([class*="text-"]) {
-  background-color: #164c79;
+  background-color: #0f2a45;
   color: white;
 }
 body:not(.dark) button:not([class*="bg-"]):not([variant="outline"]):not([class*="text-"]):hover {
-  background-color: #103b5d;
+  background-color: #0a1c2e;
 }

@@ -32,7 +32,7 @@ module.exports = {
 					300: '#8bc2d6',
 					400: '#55a1bc',
 					500: '#23659c',
-					600: '#164c79', /* NEW SYSTEM-WIDE BRAND COLOR */
+					600: '#0f2a45', /* NEW SYSTEM-WIDE BRAND COLOR */
 					700: '#123e63',
 					800: '#103452',
 					900: '#0e2b45',

@@ -102,12 +102,12 @@ export const ClassSyllabusPage: React.FC = () => {
             </div>
             
             {/* Term Navigator (Requested to maintain) */}
-            <div className="flex flex-wrap gap-2 items-center bg-white p-2 rounded-full w-max shadow-sm border border-slate-100">
+            <div className="flex flex-nowrap gap-1 md:gap-2 items-center bg-white p-1.5 md:p-2 rounded-full w-full md:w-max max-w-full overflow-x-auto hide-scrollbar shadow-sm border border-slate-100">
               {classData.terms.map((term, idx) => (
                  <button
                    key={term.id}
                    onClick={() => setSelectedTermIndex(idx)}
-                   className={`px-8 py-3 rounded-full text-xs uppercase font-black tracking-widest transition-all ${
+                   className={`px-4 md:px-8 py-2 md:py-3 rounded-full text-[10px] md:text-xs uppercase font-black tracking-widest transition-all whitespace-nowrap ${
                      selectedTermIndex === idx 
                        ? 'bg-blue-600 text-white shadow-md'
                        : 'text-slate-500 hover:text-blue-600'

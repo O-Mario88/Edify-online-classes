@@ -174,6 +174,34 @@ export const TeacherDashboard: React.FC = () => {
               alertText: 'Highest impact',
               drillDownText: 'View engagement stats',
               drillDownLink: '/dashboard/resources'
+            },
+            {
+              title: 'Missed Learning Targets',
+              value: '5 Topics',
+              trendValue: 2,
+              trendLabel: 'topics behind schedule',
+              trendDirection: 'up',
+              trendIsGood: false,
+              riskLevel: 'warning',
+              alertText: 'Algebra II not covered',
+              actionLabel: 'Catch-up plan',
+              actionLink: '/dashboard/planner',
+              drillDownText: 'View topic calendar',
+              drillDownLink: '/dashboard/curriculum'
+            },
+            {
+              title: 'Skills Gap Identified',
+              value: '12 Students',
+              trendValue: 8,
+              trendLabel: 'lacking mastery',
+              trendDirection: 'up',
+              trendIsGood: false,
+              riskLevel: 'warning',
+              alertText: 'Core concepts weak',
+              actionLabel: 'Run diagnostics',
+              actionLink: '/dashboard/diagnostics',
+              drillDownText: 'View skills matrix',
+              drillDownLink: '/dashboard/skills-map'
             }
           ]
         };
@@ -241,6 +269,62 @@ export const TeacherDashboard: React.FC = () => {
               actionLink: '/dashboard/students',
               drillDownText: 'View risk roster',
               drillDownLink: '/dashboard/interventions'
+            },
+            {
+              title: 'Qualified Payouts',
+              value: '34.8k UGX',
+              trendValue: 5,
+              trendLabel: 'pending approval',
+              trendDirection: 'up',
+              trendIsGood: true,
+              riskLevel: 'positive',
+              alertText: 'Ready for next cycle',
+              actionLabel: 'Request payout',
+              actionLink: '/dashboard/earnings',
+              drillDownText: 'View earnings detail',
+              drillDownLink: '/dashboard/finance'
+            },
+            {
+              title: 'Effective Resources',
+              value: '8 Items',
+              trendValue: 3,
+              trendLabel: 'high engagement',
+              trendDirection: 'up',
+              trendIsGood: true,
+              riskLevel: 'positive',
+              alertText: '15% more uses this week',
+              actionLabel: 'Promote resource',
+              actionLink: '/dashboard/marketplace',
+              drillDownText: 'View marketplace stats',
+              drillDownLink: '/dashboard/analytics'
+            },
+            {
+              title: 'Missed Learning Targets',
+              value: '5 Topics',
+              trendValue: 2,
+              trendLabel: 'topics behind schedule',
+              trendDirection: 'up',
+              trendIsGood: false,
+              riskLevel: 'warning',
+              alertText: 'Algebra II not covered',
+              actionLabel: 'Catch-up plan',
+              actionLink: '/dashboard/planner',
+              drillDownText: 'View topic calendar',
+              drillDownLink: '/dashboard/curriculum'
+            },
+            {
+              title: 'Skills Gap Identified',
+              value: '12 Students',
+              trendValue: 8,
+              trendLabel: 'lacking mastery',
+              trendDirection: 'up',
+              trendIsGood: false,
+              riskLevel: 'warning',
+              alertText: 'Core concepts weak',
+              actionLabel: 'Run diagnostics',
+              actionLink: '/dashboard/diagnostics',
+              drillDownText: 'View skills matrix',
+              drillDownLink: '/dashboard/skills-map'
             }
           ]
         });
