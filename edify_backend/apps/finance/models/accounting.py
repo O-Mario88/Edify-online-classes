@@ -5,6 +5,7 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth import get_user_model
 from decimal import Decimal
+from institutions.models import Institution
 
 User = get_user_model()
 
@@ -24,6 +25,13 @@ class Account(models.Model):
     )
     
     id = models.BigAutoField(primary_key=True)
+    
+    institution = models.ForeignKey(
+        Institution, 
+        on_delete=models.CASCADE, 
+        related_name='gl_accounts',
+        null=True, blank=True
+    )
     
     # Account identification
     account_code = models.CharField(
@@ -270,6 +278,13 @@ class FinancialPeriod(models.Model):
     
     id = models.BigAutoField(primary_key=True)
     
+    institution = models.ForeignKey(
+        Institution, 
+        on_delete=models.CASCADE, 
+        related_name='financial_periods',
+        null=True, blank=True
+    )
+    
     period_name = models.CharField(
         max_length=50,
         help_text='Period name (e.g., "2024-01", "Q1 2024")'
@@ -290,9 +305,14 @@ class FinancialPeriod(models.Model):
         help_text='Period end date'
     )
     
+    is_soft_closed = models.BooleanField(
+        default=False,
+        help_text='Is this period soft closed (prevents standard users but allows admins)?'
+    )
+    
     is_closed = models.BooleanField(
         default=False,
-        help_text='Is this period closed for posting?'
+        help_text='Is this period completely hard closed?'
     )
     
     closed_at = models.DateTimeField(
@@ -354,6 +374,13 @@ class JournalEntry(models.Model):
     )
     
     id = models.BigAutoField(primary_key=True)
+    
+    institution = models.ForeignKey(
+        Institution, 
+        on_delete=models.CASCADE, 
+        related_name='journal_entries',
+        null=True, blank=True
+    )
     
     # Journal identification
     journal_number = models.CharField(
@@ -511,6 +538,29 @@ class JournalEntry(models.Model):
     def __str__(self):
         return f"{self.journal_number} - {self.description[:50]}"
 
+    def save(self, *args, **kwargs):
+        """
+        Enforce immutability on posted journals.
+        Once a journal is posted, its core financial properties cannot be modified.
+        Only metadata like reversed status can be updated.
+        """
+        if self.pk:
+            orig = JournalEntry.objects.get(pk=self.pk)
+            if orig.status == 'posted' and getattr(self, '_override_audit_lock', False) is False:
+                # Allow status change to reversed, but prevent other modifications
+                if self.status not in ['posted', 'reversed']:
+                    raise ValueError("Cannot un-post a posted journal. It must be explicitly reversed.")
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """
+        Prevent hard deletion of posted financial records.
+        """
+        if self.status == 'posted':
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied("Posted journals are immutable and cannot be deleted. Use reversals instead.")
+        super().delete(*args, **kwargs)
+
 
 class JournalLineItem(models.Model):
     """
@@ -560,13 +610,29 @@ class JournalLineItem(models.Model):
         help_text='Credit amount'
     )
     
-    # Cost center (optional)
+    # Cost center and entities (optional)
     cost_center = models.ForeignKey(
         'finance.CostCenter',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         help_text='Cost center allocation'
+    )
+    
+    department = models.ForeignKey(
+        'finance.Department',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text='Department specific allocation'
+    )
+    
+    campus = models.ForeignKey(
+        'finance.Campus',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text='Campus specific allocation'
     )
     
     # Cross-reference to source document
@@ -613,6 +679,13 @@ class GeneralLedger(models.Model):
     """
     
     id = models.BigAutoField(primary_key=True)
+    
+    institution = models.ForeignKey(
+        Institution, 
+        on_delete=models.CASCADE, 
+        related_name='general_ledger_entries',
+        null=True, blank=True
+    )
     
     account = models.ForeignKey(
         Account,
@@ -689,13 +762,29 @@ class GeneralLedger(models.Model):
         help_text='Transaction description'
     )
     
-    # Cost center (optional)
+    # Cost center and entities (optional)
     cost_center = models.ForeignKey(
         'finance.CostCenter',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         help_text='Cost center'
+    )
+    
+    department = models.ForeignKey(
+        'finance.Department',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text='Department specific allocation'
+    )
+    
+    campus = models.ForeignKey(
+        'finance.Campus',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text='Campus specific allocation'
     )
     
     # Reconciliation

@@ -112,11 +112,12 @@ class FeeTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = FeeTemplate
         fields = [
-            'id', 'academic_year', 'academic_year_name', 'term', 'term_name',
-            'grade', 'stream', 'section', 'day_or_boarding', 'student_category',
+            'id', 'template_code', 'name', 'description',
+            'academic_year', 'academic_year_name', 'term', 'term_name',
+            'fee_class', 'stream', 'section', 'day_or_boarding', 'student_category',
             'version', 'is_latest_version', 'status', 'status_display',
-            'total_amount', 'approved_by', 'approved_at', 'flexible_from',
-            'flexible_to', 'line_items', 'created_at', 'updated_at'
+            'total_amount', 'approved_by', 'approved_at', 'effective_from',
+            'effective_to', 'line_items', 'created_at', 'updated_at'
         ]
         read_only_fields = [
             'version', 'is_latest_version', 'total_amount',

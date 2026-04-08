@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   School, Users, DollarSign, TrendingUp, BookOpen, 
   UserCheck, AlertTriangle, Activity, MapPin, 
-  CheckCircle, Briefcase, Calendar, ShieldAlert, Settings2, Download, BellRing, TrendingDown, ArrowRight, ShieldCheck, UserX, Clock, Upload
+  CheckCircle, Briefcase, Calendar, ShieldAlert, Settings2, Download, BellRing, TrendingDown, ArrowRight, ShieldCheck, UserX, Clock, Upload, CreditCard
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/lib/apiClient';
@@ -20,7 +20,6 @@ import { PremiumLockState } from '../components/ui/PremiumLockState';
 import { InstitutionIntelligenceHub } from '../components/dashboard/InstitutionIntelligenceHub';
 import { PastoralTimeline } from '../components/pastoral/PastoralTimeline';
 import { TeacherAssignmentManager } from '../components/dashboard/TeacherAssignmentManager';
-import { InstitutionFinanceHub } from './InstitutionFinanceHub';
 import { InstitutionBillingPortal } from '../components/institutions/InstitutionBillingPortal';
 import { StudentOnboardingForm } from '../components/institutions/StudentOnboardingForm';
 import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
@@ -493,7 +492,16 @@ export const InstitutionManagementPage: React.FC = () => {
                 />
              </div>
            ) : (
-             <InstitutionFinanceHub />
+             <Card className="shadow-sm text-center py-12">
+                <div className="w-16 h-16 bg-green-100 flex justify-center items-center rounded-full mx-auto mb-4">
+                  <CreditCard className="w-8 h-8 text-green-600 "/>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Enterprise School Financial ERP</h3>
+                <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">Manage multi-tier workflows, fee collections, invoice reconciliation, and executive dashboards through our dedicated institutional financial hub.</p>
+                <Link to="/dashboard/finance">
+                  <Button className="bg-green-600 hover:bg-green-700 h-12 px-8 text-lg rounded-xl shadow-lg shadow-green-600/20">Launch Finance ERP</Button>
+                </Link>
+             </Card>
            )}
         </TabsContent>
 

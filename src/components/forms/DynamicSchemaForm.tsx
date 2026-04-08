@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { apiClient } from '@/lib/apiClient';
 
 export type FieldConfig = {
   name: string;
@@ -49,15 +50,17 @@ export function DynamicSchemaForm({ config, onSubmitSuccess }: DynamicSchemaForm
     setIsSubmitting(true);
     setError(null);
     try {
-      // Stub submission for MVP - this would use the apiClient
-      console.log('Would dispatch to:', config.endpoint, 'Payload:', data);
-      
-      // Simulate network request
-      await new Promise(resolve => setTimeout(resolve, 600));
-      
+      // For testing, mock endpoints might fail if backend lacks them;
+      // using the real apiClient will submit to the specified config.endpoint
+      const response = await apiClient.post(config.endpoint, data);
+
+      if (response.error) {
+        throw new Error(response.error.message || 'Submission failed');
+      }
+
       reset();
       if (onSubmitSuccess) {
-        onSubmitSuccess(data);
+        onSubmitSuccess(response.data || data);
       }
     } catch (err: any) {
       setError(err.message || 'Submission failed');

@@ -24,6 +24,7 @@ from .views import (
     # Support
     CostCenterViewSet, FiscalYearViewSet, DiscountRuleViewSet,
 )
+from .api.analytics import FinanceDashboardAnalyticsAPIView
 
 # Create router and register viewsets
 router = DefaultRouter()
@@ -68,4 +69,5 @@ router.register(r'discount-rules', DiscountRuleViewSet, basename='discountrule')
 # Include router URLs
 urlpatterns = [
     path('', include(router.urls)),
+    path('analytics/dashboard/', FinanceDashboardAnalyticsAPIView.as_view(), name='finance_dashboard_analytics'),
 ]

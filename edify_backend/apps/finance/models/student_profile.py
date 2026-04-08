@@ -32,18 +32,28 @@ class StudentFinancialProfile(models.Model):
     
     id = models.BigAutoField(primary_key=True)
     
+    # Structural Isolation
+    institution = models.ForeignKey(
+        'institutions.Institution',
+        on_delete=models.CASCADE,
+        related_name='student_financial_profiles',
+        help_text='Institution this profile operates under'
+    )
+    
     # Student relationship
-    student = models.OneToOneField(
+    student = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
-        related_name='financial_profile',
-        help_text='Link to student user account'
+        related_name='financial_profiles',
+        help_text='Link to student user account (can exist in multiple institutions)'
     )
     
     # Class and academic context
     academic_year = models.ForeignKey(
         'curriculum.AcademicYear',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         help_text='Current academic year'
     )
     
@@ -209,15 +219,15 @@ class StudentFinancialProfile(models.Model):
         db_table = 'finance_studentfinancialprofile'
         verbose_name = 'Student Financial Profile'
         verbose_name_plural = 'Student Financial Profiles'
-        ordering = ['student__last_name', 'student__first_name']
+        ordering = ['student__full_name']
         indexes = [
-            models.Index(fields=['student']),
-            models.Index(fields=['current_class']),
-            models.Index(fields=['financial_status']),
-            models.Index(fields=['arrears_balance']),
+            models.Index(fields=['institution', 'student']),
+            models.Index(fields=['institution', 'current_class']),
+            models.Index(fields=['institution', 'financial_status']),
+            models.Index(fields=['institution', 'arrears_balance']),
             models.Index(fields=['academic_year']),
         ]
-        unique_together = [['student', 'academic_year']]  # One profile per student per year
+        unique_together = [['institution', 'student', 'academic_year']]  # One profile per student per school per year
     
     def __str__(self):
         return f"{self.student.get_full_name()} - {self.get_financial_status_display()}"

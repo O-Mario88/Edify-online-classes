@@ -1,31 +1,54 @@
 import * as z from 'zod';
 import { FormSchemaConfig } from '@/components/forms/DynamicSchemaForm';
 
+/**
+ * Finance Schema Configurations
+ * 
+ * All endpoints are institution-scoped:
+ *   /api/v1/institutions/{institution_id}/finance/...
+ * 
+ * The DynamicSchemaForm will interpolate `institutionId` into the endpoint
+ * at submission time via the `buildEndpoint` helper.
+ */
+
+// Helper: build institution-scoped endpoint
+export function buildFinanceEndpoint(institutionId: string | number, path: string): string {
+  return `/api/v1/institutions/${institutionId}/finance/${path}`;
+}
+
 // 1. Fee Structure Item Creator
 export const FeeItemConfig: FormSchemaConfig = {
   id: 'fee-item',
   title: 'Create Fee Item',
   description: 'Add a new billable item into the institution directory.',
-  endpoint: '/api/v1/finance/fee-items/',
+  endpoint: '/api/v1/institutions/{institutionId}/finance/fee-categories/',
   zodSchema: z.object({
+    code: z.string().min(2, "Code must be at least 2 characters").max(50, "Code too long"),
     name: z.string().min(2, "Name must be at least 2 characters"),
-    amount: z.number().min(0, "Amount must be a positive number"),
-    frequency: z.enum(['one_time', 'per_term', 'annual']),
+    category_type: z.enum(['tuition', 'boarding', 'transport', 'examination', 'uniform', 'books', 'activity', 'ict', 'medical', 'other']),
+    is_mandatory: z.boolean().optional(),
     description: z.string().optional(),
   }),
   fields: [
+    { name: 'code', label: 'Fee Code', type: 'text', placeholder: 'e.g. TUI-001, UNEB-REG' },
     { name: 'name', label: 'Fee Item Name', type: 'text', placeholder: 'e.g. Tuition Fee, UNEB Registration' },
-    { name: 'amount', label: 'Amount (UGX)', type: 'number', placeholder: '0' },
     { 
-      name: 'frequency', 
-      label: 'Billing Frequency', 
+      name: 'category_type', 
+      label: 'Category Type', 
       type: 'select', 
       options: [
-        { label: 'One-Time', value: 'one_time' },
-        { label: 'Per Term', value: 'per_term' },
-        { label: 'Annual', value: 'annual' },
+        { label: 'Tuition', value: 'tuition' },
+        { label: 'Boarding', value: 'boarding' },
+        { label: 'Transport', value: 'transport' },
+        { label: 'Examination', value: 'examination' },
+        { label: 'Uniform & Kit', value: 'uniform' },
+        { label: 'Books & Stationery', value: 'books' },
+        { label: 'Co-curricular Activity', value: 'activity' },
+        { label: 'ICT & Lab', value: 'ict' },
+        { label: 'Medical', value: 'medical' },
+        { label: 'Other', value: 'other' },
       ],
-      placeholder: 'Select frequency'
+      placeholder: 'Select category type'
     },
     { name: 'description', label: 'Description', type: 'textarea', placeholder: 'Optional internal notes' }
   ]
@@ -36,19 +59,19 @@ export const OfflinePOSReceiptConfig: FormSchemaConfig = {
   id: 'offline-pos-receipt',
   title: 'Offline POS Receipt',
   description: 'Log a cash, cheque, or bank transfer payment received physically.',
-  endpoint: '/api/v1/finance/payments/',
+  endpoint: '/api/v1/institutions/{institutionId}/finance/payments/',
   zodSchema: z.object({
-    studentId: z.string().min(1, "Student is required").max(100, "Student ID too long"),
+    student: z.coerce.number().min(1, "Student is required"),
     amount: z.coerce.number().min(1, "Amount must be greater than zero").max(50000000, "Amount exceeds limits (50M max)"),
-    paymentMethod: z.enum(['cash', 'mobile_money', 'bank_transfer', 'cheque']),
+    payment_method: z.enum(['cash', 'mobile_money', 'bank_transfer', 'cheque']),
     reference: z.string().max(255, "Reference too long").optional(),
-    paymentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Must be in YYYY-MM-DD format"),
+    payment_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Must be in YYYY-MM-DD format"),
   }),
   fields: [
-    { name: 'studentId', label: 'Student ID', type: 'text', placeholder: 'Search student name or ID...' },
+    { name: 'student', label: 'Student Profile ID', type: 'number', placeholder: 'Enter student financial profile ID' },
     { name: 'amount', label: 'Amount Received (UGX)', type: 'number', placeholder: '0' },
     { 
-      name: 'paymentMethod', 
+      name: 'payment_method', 
       label: 'Payment Medium', 
       type: 'select', 
       options: [
@@ -58,7 +81,7 @@ export const OfflinePOSReceiptConfig: FormSchemaConfig = {
         { label: 'Cheque', value: 'cheque' },
       ]
     },
-    { name: 'paymentDate', label: 'Payment Date', type: 'date' },
+    { name: 'payment_date', label: 'Payment Date', type: 'date' },
     { name: 'reference', label: 'Slip / Reference Number', type: 'text', placeholder: 'e.g. TXN998244' }
   ]
 };
@@ -67,25 +90,16 @@ export const OfflinePOSReceiptConfig: FormSchemaConfig = {
 export const ExpenseRecordConfig: FormSchemaConfig = {
   id: 'expense-record',
   title: 'Log Outward Expense',
-  description: 'Record an expense incurred by the institution against the general ledger.',
-  endpoint: '/api/v1/finance/expenses/',
+  description: 'Record a journal entry for an expense incurred by the institution.',
+  endpoint: '/api/v1/institutions/{institutionId}/finance/journal-entries/',
   zodSchema: z.object({
-    categoryId: z.string().min(1, "Category is required"),
-    amount: z.coerce.number().min(1, "Amount must be greater than zero").max(100000000, "Amount exceeds practical limits"),
-    payee: z.string().min(2, "Payee name is required").max(100, "Payee name too long"),
     description: z.string().min(5, "Please provide a valid description").max(1000, "Description exceeds 1000 characters"),
-    dateIncurred: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Must be in YYYY-MM-DD format"),
+    entry_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Must be in YYYY-MM-DD format"),
+    narration: z.string().min(2, "Payee name is required").max(255, "Narration too long"),
   }),
   fields: [
-    { name: 'categoryId', label: 'Expense Category', type: 'select', options: [
-      { label: 'Utilities', value: 'cat1' },
-      { label: 'Salaries', value: 'cat2' },
-      { label: 'Supplies', value: 'cat3' },
-      { label: 'Infrastructure', value: 'cat4' },
-    ], placeholder: 'Select Expense Category' },
-    { name: 'amount', label: 'Amount (UGX)', type: 'number', placeholder: '0' },
-    { name: 'payee', label: 'Payee / Vendor Name', type: 'text', placeholder: 'e.g. National Water Corp' },
-    { name: 'dateIncurred', label: 'Date', type: 'date' },
-    { name: 'description', label: 'Justification / Description', type: 'textarea', placeholder: 'Monthly bore hole maintenance' }
+    { name: 'description', label: 'Expense Description', type: 'text', placeholder: 'e.g. Monthly water bill' },
+    { name: 'narration', label: 'Payee / Vendor Name', type: 'text', placeholder: 'e.g. National Water Corp' },
+    { name: 'entry_date', label: 'Date Incurred', type: 'date' },
   ]
 };

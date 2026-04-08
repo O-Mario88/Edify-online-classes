@@ -1,5 +1,46 @@
 from django.db import models
 
+
+class AcademicYear(models.Model):
+    """
+    Represents a school academic year (e.g. 2024, 2024/2025).
+    Used by the Finance ERP for scoping fee templates, invoices,
+    and student financial profiles.
+    """
+    year_label = models.CharField(
+        max_length=20,
+        unique=True,
+        help_text='e.g. "2024" or "2024/2025"'
+    )
+    start_date = models.DateField(
+        null=True, blank=True,
+        help_text='First day of the academic year'
+    )
+    end_date = models.DateField(
+        null=True, blank=True,
+        help_text='Last day of the academic year'
+    )
+    is_current = models.BooleanField(
+        default=False,
+        help_text='Mark the currently active academic year'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-year_label']
+        verbose_name = 'Academic Year'
+        verbose_name_plural = 'Academic Years'
+
+    def __str__(self):
+        return self.year_label
+
+    def save(self, *args, **kwargs):
+        """Ensure only one year is marked current at a time."""
+        if self.is_current:
+            AcademicYear.objects.exclude(pk=self.pk).update(is_current=False)
+        super().save(*args, **kwargs)
+
+
 class Country(models.Model):
     code = models.CharField(max_length=10, unique=True) # UG, KE, RW
     name = models.CharField(max_length=100)

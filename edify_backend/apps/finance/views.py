@@ -2,6 +2,7 @@
 Django REST Framework ViewSets for Finance ERP System.
 
 Provides comprehensive REST API endpoints for all finance operations.
+All ViewSets are institution-scoped using InstitutionScopedViewSetMixin.
 """
 
 from rest_framework import viewsets, status
@@ -14,6 +15,15 @@ from django.utils import timezone
 from django.db.models import Sum, Q
 from decimal import Decimal
 
+from .mixins import InstitutionScopedViewSetMixin, StudentProfileScopedViewSetMixin
+from .permissions import (
+    IsInstitutionMember,
+    IsInstitutionAdminOrFinanceOfficer,
+    IsInstitutionAdmin,
+    CanViewOwnFinancialData,
+    IsFinanceModuleEnabled,
+)
+
 from .models import (
     StudentFinancialProfile, FinancialStatusHistory,
     FeeCategory, FeeTemplate, FeeTemplateLineItem, StudentFeeAssignment,
@@ -24,6 +34,7 @@ from .models import (
     AuditLog, Exception as FinanceException,
     CostCenter, FiscalYear, DiscountRule
 )
+from .services.approvals import ApprovalService
 from .serializers import (
     StudentFinancialProfileSerializer, FinancialStatusHistorySerializer,
     FeeCategorySerializer, FeeTemplateSerializer, FeeTemplateLineItemSerializer, StudentFeeAssignmentSerializer,
@@ -40,7 +51,7 @@ from .serializers import (
 # STUDENT FINANCIAL PROFILE VIEWSETS
 # ============================================================================
 
-class StudentFinancialProfileViewSet(viewsets.ModelViewSet):
+class StudentFinancialProfileViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """
     ViewSet for managing student financial profiles.
     
@@ -53,7 +64,7 @@ class StudentFinancialProfileViewSet(viewsets.ModelViewSet):
     """
     queryset = StudentFinancialProfile.objects.all()
     serializer_class = StudentFinancialProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionMember, CanViewOwnFinancialData]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['academic_year', 'current_class', 'financial_status', 'day_or_boarding']
     search_fields = ['student__first_name', 'student__last_name', 'student__email']
@@ -110,11 +121,11 @@ class StudentFinancialProfileViewSet(viewsets.ModelViewSet):
         return Response({'status': 'Balance recalculated', 'balance': str(profile.current_balance)})
 
 
-class FinancialStatusHistoryViewSet(viewsets.ReadOnlyModelViewSet):
+class FinancialStatusHistoryViewSet(InstitutionScopedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     """Read-only ViewSet for financial status history (audit trail)."""
     queryset = FinancialStatusHistory.objects.all()
     serializer_class = FinancialStatusHistorySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionMember]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ['student_profile', 'new_status']
     ordering_fields = ['changed_at']
@@ -125,27 +136,27 @@ class FinancialStatusHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 # FEE MANAGEMENT VIEWSETS
 # ============================================================================
 
-class FeeCategoryViewSet(viewsets.ModelViewSet):
+class FeeCategoryViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for managing fee categories."""
     queryset = FeeCategory.objects.filter(active=True)
     serializer_class = FeeCategorySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['code', 'name', 'category_type']
     ordering_fields = ['code', 'name']
     ordering = ['code']
 
 
-class FeeTemplateLineItemViewSet(viewsets.ModelViewSet):
+class FeeTemplateLineItemViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for managing fee template line items."""
     queryset = FeeTemplateLineItem.objects.all()
     serializer_class = FeeTemplateLineItemSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['fee_template']
 
 
-class FeeTemplateViewSet(viewsets.ModelViewSet):
+class FeeTemplateViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """
     ViewSet for managing fee templates.
     
@@ -157,9 +168,9 @@ class FeeTemplateViewSet(viewsets.ModelViewSet):
     """
     queryset = FeeTemplate.objects.all()
     serializer_class = FeeTemplateSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['academic_year', 'term', 'grade', 'status']
+    filterset_fields = ['academic_year', 'term', 'fee_class', 'status']
     ordering_fields = ['academic_year', 'term', 'created_at']
     ordering = ['-created_at']
     
@@ -167,15 +178,7 @@ class FeeTemplateViewSet(viewsets.ModelViewSet):
     def approve(self, request, pk=None):
         """Approve a fee template for use."""
         template = self.get_object()
-        if template.status != 'draft':
-            return Response(
-                {'error': 'Only draft templates can be approved'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        template.status = 'approved'
-        template.approved_by = request.user
-        template.approved_at = timezone.now()
-        template.save()
+        ApprovalService.approve_fee_template(template, request.user)
         return Response({'status': 'Template approved', 'template': FeeTemplateSerializer(template).data})
     
     @action(detail=True, methods=['POST'])
@@ -192,11 +195,11 @@ class FeeTemplateViewSet(viewsets.ModelViewSet):
         return Response({'status': 'Template activated'})
 
 
-class StudentFeeAssignmentViewSet(viewsets.ModelViewSet):
+class StudentFeeAssignmentViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for assigning fee templates to students."""
     queryset = StudentFeeAssignment.objects.all()
     serializer_class = StudentFeeAssignmentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['student', 'academic_year', 'term']
 
@@ -205,16 +208,16 @@ class StudentFeeAssignmentViewSet(viewsets.ModelViewSet):
 # INVOICING VIEWSETS
 # ============================================================================
 
-class InvoiceLineItemViewSet(viewsets.ModelViewSet):
+class InvoiceLineItemViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for invoice line items."""
     queryset = InvoiceLineItem.objects.all()
     serializer_class = InvoiceLineItemSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['invoice']
 
 
-class InvoiceViewSet(viewsets.ModelViewSet):
+class InvoiceViewSet(StudentProfileScopedViewSetMixin, viewsets.ModelViewSet):
     """
     ViewSet for managing invoices.
     
@@ -227,7 +230,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     """
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['student', 'status', 'academic_year', 'term', 'is_overdue']
     search_fields = ['invoice_number', 'student__first_name', 'student__last_name']
@@ -300,11 +303,11 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class CreditNoteViewSet(viewsets.ModelViewSet):
+class CreditNoteViewSet(StudentProfileScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for managing credit notes (debt reduction)."""
     queryset = CreditNote.objects.all()
     serializer_class = CreditNoteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ['student', 'status']
     ordering_fields = ['credit_date']
@@ -314,15 +317,7 @@ class CreditNoteViewSet(viewsets.ModelViewSet):
     def approve(self, request, pk=None):
         """Approve a credit note."""
         credit_note = self.get_object()
-        if credit_note.status != 'draft':
-            return Response(
-                {'error': 'Only draft credit notes can be approved'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        credit_note.status = 'approved'
-        credit_note.approved_by = request.user
-        credit_note.approved_at = timezone.now()
-        credit_note.save()
+        ApprovalService.approve_credit_note(credit_note, request.user)
         return Response({'status': 'Credit note approved'})
 
 
@@ -330,20 +325,20 @@ class CreditNoteViewSet(viewsets.ModelViewSet):
 # PAYMENT VIEWSETS
 # ============================================================================
 
-class PaymentAllocationViewSet(viewsets.ModelViewSet):
+class PaymentAllocationViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for payment allocations."""
     queryset = PaymentAllocation.objects.all()
     serializer_class = PaymentAllocationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['payment', 'invoice']
 
 
-class ReceiptViewSet(viewsets.ModelViewSet):
+class ReceiptViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for receipt management."""
     queryset = Receipt.objects.all()
     serializer_class = ReceiptSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['receipt_number']
     ordering_fields = ['receipt_date']
@@ -364,7 +359,7 @@ class ReceiptViewSet(viewsets.ModelViewSet):
         })
 
 
-class PaymentViewSet(viewsets.ModelViewSet):
+class PaymentViewSet(StudentProfileScopedViewSetMixin, viewsets.ModelViewSet):
     """
     ViewSet for managing payments.
     
@@ -377,7 +372,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
     """
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['student', 'status', 'payment_method', 'allocation_status']
     search_fields = ['payment_number', 'receipt_number', 'student__first_name', 'student__last_name']
@@ -457,7 +452,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
 # ACCOUNTING VIEWSETS
 # ============================================================================
 
-class AccountViewSet(viewsets.ModelViewSet):
+class AccountViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """
     ViewSet for Chart of Accounts.
     
@@ -469,7 +464,7 @@ class AccountViewSet(viewsets.ModelViewSet):
     """
     queryset = Account.objects.filter(active=True)
     serializer_class = AccountSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['account_code', 'account_name']
     ordering_fields = ['account_code', 'account_name']
@@ -488,11 +483,11 @@ class AccountViewSet(viewsets.ModelViewSet):
         })
 
 
-class BankAccountViewSet(viewsets.ModelViewSet):
+class BankAccountViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for bank account management."""
     queryset = BankAccount.objects.filter(active=True)
     serializer_class = BankAccountSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdmin]
     filter_backends = [SearchFilter]
     search_fields = ['account_number', 'bank_name']
     
@@ -519,11 +514,11 @@ class BankAccountViewSet(viewsets.ModelViewSet):
         })
 
 
-class FinancialPeriodViewSet(viewsets.ModelViewSet):
+class FinancialPeriodViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for financial period management."""
     queryset = FinancialPeriod.objects.all()
     serializer_class = FinancialPeriodSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, IsInstitutionAdmin]
     filter_backends = [OrderingFilter]
     ordering_fields = ['start_date']
     ordering = ['-start_date']
@@ -544,16 +539,16 @@ class FinancialPeriodViewSet(viewsets.ModelViewSet):
         return Response({'status': 'Period closed'})
 
 
-class JournalLineItemViewSet(viewsets.ModelViewSet):
+class JournalLineItemViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for journal entry line items."""
     queryset = JournalLineItem.objects.all()
     serializer_class = JournalLineItemSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['journal_entry']
 
 
-class JournalEntryViewSet(viewsets.ModelViewSet):
+class JournalEntryViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """
     ViewSet for manual journal entries.
     
@@ -565,7 +560,7 @@ class JournalEntryViewSet(viewsets.ModelViewSet):
     """
     queryset = JournalEntry.objects.all()
     serializer_class = JournalEntrySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ['status', 'financial_period', 'approval_required_level']
     ordering_fields = ['entry_date']
@@ -590,15 +585,7 @@ class JournalEntryViewSet(viewsets.ModelViewSet):
     def approve(self, request, pk=None):
         """Approve a submitted journal entry."""
         journal = self.get_object()
-        if journal.status != 'submitted':
-            return Response(
-                {'error': 'Only submitted entries can be approved'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        journal.status = 'approved'
-        journal.approved_by = request.user
-        journal.approved_at = timezone.now()
-        journal.save()
+        ApprovalService.approve_journal(journal, request.user)
         return Response({'status': 'Journal entry approved'})
     
     @action(detail=True, methods=['POST'])
@@ -633,7 +620,7 @@ class JournalEntryViewSet(viewsets.ModelViewSet):
         return Response({'status': 'Reversal journal created'})
 
 
-class GeneralLedgerViewSet(viewsets.ReadOnlyModelViewSet):
+class GeneralLedgerViewSet(InstitutionScopedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     """
     Read-only ViewSet for General Ledger.
     
@@ -645,7 +632,7 @@ class GeneralLedgerViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = GeneralLedger.objects.all()
     serializer_class = GeneralLedgerSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['account', 'financial_period', 'reference_type', 'is_reconciled']
     search_fields = ['reference_number', 'description']
@@ -657,7 +644,7 @@ class GeneralLedgerViewSet(viewsets.ReadOnlyModelViewSet):
 # AUDIT & COMPLIANCE VIEWSETS
 # ============================================================================
 
-class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
+class AuditLogViewSet(InstitutionScopedViewSetMixin, viewsets.ReadOnlyModelViewSet):
     """
     Read-only ViewSet for audit logs.
     
@@ -669,7 +656,7 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = AuditLog.objects.all()
     serializer_class = AuditLogSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdmin]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['action', 'module', 'user', 'status']
     search_fields = ['affected_record_display', 'changes_summary']
@@ -677,15 +664,15 @@ class AuditLogViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ['-timestamp']
 
 
-class FinanceExceptionViewSet(viewsets.ModelViewSet):
+class FinanceExceptionViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for financial exception monitoring and investigation."""
     queryset = FinanceException.objects.all()
     serializer_class = FinanceExceptionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdmin]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ['exception_type', 'severity', 'status']
-    ordering_fields = ['detected_at', 'severity']
-    ordering = ['-detected_at']
+    ordering_fields = ['created_at', 'severity']
+    ordering = ['-created_at']
     
     @action(detail=True, methods=['POST'])
     def resolve(self, request, pk=None):
@@ -712,28 +699,28 @@ class FinanceExceptionViewSet(viewsets.ModelViewSet):
 # SUPPORT VIEWSETS
 # ============================================================================
 
-class CostCenterViewSet(viewsets.ModelViewSet):
+class CostCenterViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for cost center (department) management."""
     queryset = CostCenter.objects.filter(active=True)
     serializer_class = CostCenterSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [SearchFilter]
     search_fields = ['code', 'name']
 
 
-class FiscalYearViewSet(viewsets.ModelViewSet):
+class FiscalYearViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for fiscal year management."""
     queryset = FiscalYear.objects.all()
     serializer_class = FiscalYearSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, IsInstitutionAdmin]
     ordering_fields = ['fiscal_year_start_date']
     ordering = ['-fiscal_year_start_date']
 
 
-class DiscountRuleViewSet(viewsets.ModelViewSet):
+class DiscountRuleViewSet(InstitutionScopedViewSetMixin, viewsets.ModelViewSet):
     """ViewSet for discount rule management."""
     queryset = DiscountRule.objects.filter(active=True)
     serializer_class = DiscountRuleSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInstitutionAdminOrFinanceOfficer]
     filter_backends = [SearchFilter]
     search_fields = ['rule_code', 'rule_name']

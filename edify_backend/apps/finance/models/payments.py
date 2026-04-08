@@ -42,10 +42,17 @@ class Payment(models.Model):
     
     id = models.BigAutoField(primary_key=True)
     
+    # Structural Isolation
+    institution = models.ForeignKey(
+        'institutions.Institution',
+        on_delete=models.CASCADE,
+        related_name='payments',
+        help_text='Institution receiving the payment'
+    )
+    
     # Payment numbering
     payment_number = models.CharField(
         max_length=50,
-        unique=True,
         db_index=True,
         help_text='Unique payment number (e.g., PMT-2024-00001)'
     )
@@ -185,13 +192,14 @@ class Payment(models.Model):
         verbose_name_plural = 'Payments'
         ordering = ['-payment_date', '-created_at']
         indexes = [
-            models.Index(fields=['payment_number']),
-            models.Index(fields=['receipt_number']),
-            models.Index(fields=['student']),
-            models.Index(fields=['payment_date']),
-            models.Index(fields=['status']),
-            models.Index(fields=['allocation_status']),
+            models.Index(fields=['institution', 'payment_number']),
+            models.Index(fields=['institution', 'receipt_number']),
+            models.Index(fields=['institution', 'student']),
+            models.Index(fields=['institution', 'payment_date']),
+            models.Index(fields=['institution', 'status']),
+            models.Index(fields=['institution', 'allocation_status']),
         ]
+        unique_together = [['institution', 'payment_number']]
     
     def __str__(self):
         return f"{self.payment_number} - {self.student.get_full_name()} ({self.amount})"
@@ -229,6 +237,14 @@ class PaymentAllocation(models.Model):
     )
     
     id = models.BigAutoField(primary_key=True)
+    
+    # Structural Isolation
+    institution = models.ForeignKey(
+        'institutions.Institution',
+        on_delete=models.CASCADE,
+        related_name='payment_allocations',
+        help_text='Institution context'
+    )
     
     payment = models.ForeignKey(
         Payment,
@@ -291,12 +307,10 @@ class PaymentAllocation(models.Model):
             models.Index(fields=['payment']),
             models.Index(fields=['invoice']),
         ]
+        unique_together = [['payment', 'invoice']]  # One allocation per payment-invoice pair
     
     def __str__(self):
         return f"{self.payment.payment_number} → {self.invoice.invoice_number} ({self.amount_allocated})"
-    
-    class Meta:
-        unique_together = [['payment', 'invoice']]  # One allocation per payment-invoice pair
 
 
 class Receipt(models.Model):
@@ -314,9 +328,16 @@ class Receipt(models.Model):
     
     id = models.BigAutoField(primary_key=True)
     
+    # Structural Isolation
+    institution = models.ForeignKey(
+        'institutions.Institution',
+        on_delete=models.CASCADE,
+        related_name='receipts',
+        help_text='Institution issuing receipt'
+    )
+    
     receipt_number = models.CharField(
         max_length=50,
-        unique=True,
         db_index=True,
         help_text='Receipt number'
     )
@@ -380,10 +401,11 @@ class Receipt(models.Model):
         verbose_name_plural = 'Receipts'
         ordering = ['-receipt_date']
         indexes = [
-            models.Index(fields=['receipt_number']),
-            models.Index(fields=['payment']),
-            models.Index(fields=['receipt_date']),
+            models.Index(fields=['institution', 'receipt_number']),
+            models.Index(fields=['institution', 'payment']),
+            models.Index(fields=['institution', 'receipt_date']),
         ]
+        unique_together = [['institution', 'receipt_number']]
     
     def __str__(self):
         return f"Receipt {self.receipt_number}"

@@ -30,9 +30,16 @@ class FeeCategory(models.Model):
     
     id = models.BigAutoField(primary_key=True)
     
+    # Structural Isolation
+    institution = models.ForeignKey(
+        'institutions.Institution',
+        on_delete=models.CASCADE,
+        related_name='fee_categories',
+        help_text='Institution this fee category belongs to'
+    )
+    
     code = models.CharField(
         max_length=50,
-        unique=True,
         db_index=True,
         help_text='Unique code for this fee category'
     )
@@ -110,10 +117,11 @@ class FeeCategory(models.Model):
         verbose_name_plural = 'Fee Categories'
         ordering = ['name']
         indexes = [
-            models.Index(fields=['code']),
-            models.Index(fields=['active']),
+            models.Index(fields=['institution', 'code']),
+            models.Index(fields=['institution', 'active']),
             models.Index(fields=['category_type']),
         ]
+        unique_together = [['institution', 'code']]
     
     def __str__(self):
         return f"{self.code} - {self.name}"
@@ -140,9 +148,16 @@ class FeeTemplate(models.Model):
     
     id = models.BigAutoField(primary_key=True)
     
+    # Structural Isolation
+    institution = models.ForeignKey(
+        'institutions.Institution',
+        on_delete=models.CASCADE,
+        related_name='fee_templates',
+        help_text='Institution this fee template belongs to'
+    )
+    
     template_code = models.CharField(
         max_length=100,
-        unique=True,
         db_index=True,
         help_text='Unique code for this template'
     )
@@ -161,7 +176,9 @@ class FeeTemplate(models.Model):
     # Scope of this template
     academic_year = models.ForeignKey(
         'curriculum.AcademicYear',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         help_text='Academic year this template applies to'
     )
     
@@ -277,11 +294,12 @@ class FeeTemplate(models.Model):
         verbose_name_plural = 'Fee Templates'
         ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['template_code']),
-            models.Index(fields=['academic_year']),
-            models.Index(fields=['fee_class']),
+            models.Index(fields=['institution', 'template_code']),
+            models.Index(fields=['institution', 'academic_year']),
+            models.Index(fields=['institution', 'fee_class']),
             models.Index(fields=['status']),
         ]
+        unique_together = [['institution', 'template_code']]
     
     def __str__(self):
         return f"{self.template_code} - {self.name} (v{self.version})"
@@ -441,7 +459,9 @@ class StudentFeeAssignment(models.Model):
     
     academic_year = models.ForeignKey(
         'curriculum.AcademicYear',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         help_text='Academic year'
     )
     

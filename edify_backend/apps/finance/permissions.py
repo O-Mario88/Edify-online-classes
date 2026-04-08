@@ -9,7 +9,7 @@ from rest_framework import permissions
 from rest_framework.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
-from edify_backend.apps.institutions.models import Institution, InstitutionMembership
+from institutions.models import Institution, InstitutionMembership
 
 
 class IsInstitutionMember(permissions.BasePermission):

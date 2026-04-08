@@ -5,8 +5,57 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.contrib.auth import get_user_model
 from decimal import Decimal
+from institutions.models import Institution
 
 User = get_user_model()
+
+
+class Campus(models.Model):
+    """
+    Physical or logical campus for multi-campus institutions.
+    Allows consolidated or split financial reporting.
+    """
+    id = models.BigAutoField(primary_key=True)
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='campuses')
+    code = models.CharField(max_length=50, help_text='Campus code (e.g., MAIN, NORTH)')
+    name = models.CharField(max_length=255, help_text='Campus name')
+    is_headquarters = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'finance_campus'
+        verbose_name = 'Campus'
+        verbose_name_plural = 'Campuses'
+        unique_together = [['institution', 'code']]
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+
+
+class Department(models.Model):
+    """
+    Departments for accounting classification.
+    E.g., Administration, Sciences, Sports.
+    """
+    id = models.BigAutoField(primary_key=True)
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='departments')
+    code = models.CharField(max_length=50, help_text='Department code')
+    name = models.CharField(max_length=255, help_text='Department name')
+    head_of_department = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'finance_department'
+        verbose_name = 'Department'
+        verbose_name_plural = 'Departments'
+        unique_together = [['institution', 'code']]
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
 
 
 class CostCenter(models.Model):
@@ -16,6 +65,14 @@ class CostCenter(models.Model):
     """
     
     id = models.BigAutoField(primary_key=True)
+    
+    institution = models.ForeignKey(
+        Institution, 
+        on_delete=models.CASCADE, 
+        related_name='cost_centers',
+        null=True,
+        blank=True
+    )
     
     code = models.CharField(
         max_length=50,
@@ -84,6 +141,14 @@ class FiscalYear(models.Model):
     
     id = models.BigAutoField(primary_key=True)
     
+    institution = models.ForeignKey(
+        Institution, 
+        on_delete=models.CASCADE, 
+        related_name='fiscal_years',
+        null=True,
+        blank=True
+    )
+    
     fiscal_year_name = models.CharField(
         max_length=50,
         unique=True,
@@ -142,6 +207,14 @@ class DiscountRule(models.Model):
     )
     
     id = models.BigAutoField(primary_key=True)
+    
+    institution = models.ForeignKey(
+        Institution, 
+        on_delete=models.CASCADE, 
+        related_name='discount_rules',
+        null=True,
+        blank=True
+    )
     
     rule_code = models.CharField(
         max_length=50,

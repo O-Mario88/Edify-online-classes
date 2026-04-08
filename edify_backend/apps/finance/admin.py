@@ -46,7 +46,7 @@ class PaymentAllocationInline(ReadOnlyInline):
 class FeeTemplateLineItemInline(admin.TabularInline):
     model = FeeTemplateLineItem
     extra = 1
-    fields = ['fee_category', 'amount', 'mandatory', 'optional', 'one_time', 'charge_frequency', 'display_order']
+    fields = ['fee_category', 'amount', 'is_mandatory', 'is_optional', 'is_one_time', 'charge_frequency', 'display_order']
 
 
 @admin.register(StudentFinancialProfile)
@@ -305,7 +305,7 @@ class FeeTemplateAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Template Details', {
-            'fields': ('academic_year', 'term', 'grade', 'stream', 'section', 'day_or_boarding', 'student_category')
+            'fields': ('template_code', 'name', 'academic_year', 'term', 'fee_class', 'stream', 'section', 'day_or_boarding', 'student_category')
         }),
         ('Fee Rules', {
             'fields': ('version', 'is_latest_version')
@@ -314,12 +314,13 @@ class FeeTemplateAdmin(admin.ModelAdmin):
             'fields': ('status', 'approved_by', 'approved_at')
         }),
         ('Dates', {
-            'fields': ('flexible_from', 'flexible_to')
+            'fields': ('effective_from', 'effective_to')
         }),
     )
     
     def display_name(self, obj):
-        return f"{obj.academic_year} - {obj.term.name} - Grade {obj.grade}"
+        term_name = obj.term.name if obj.term else 'All Terms'
+        return f"{obj.academic_year} - {term_name} - {obj.fee_class}"
     display_name.short_description = 'Template'
     
     def total_amount_display(self, obj):
@@ -395,7 +396,7 @@ class GeneralLedgerAdmin(admin.ModelAdmin):
     list_display = ('account_display', 'transaction_date', 'debit_display', 'credit_display', 'reference_display')
     list_filter = ('account__account_type', 'financial_period', 'transaction_date')
     search_fields = ('account__account_code', 'account__account_name', 'reference_number')
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('posted_at',)
     
     fieldsets = (
         ('GL Entry', {
@@ -408,7 +409,7 @@ class GeneralLedgerAdmin(admin.ModelAdmin):
             'fields': ('description', 'reference_type', 'reference_number')
         }),
         ('Metadata', {
-            'fields': ('created_at', 'updated_at'),
+            'fields': ('posted_at',),
             'classes': ('collapse',)
         }),
     )
@@ -479,7 +480,7 @@ class FinancialPeriodAdmin(admin.ModelAdmin):
     list_display = ('period_name', 'period_type_display', 'start_date', 'end_date', 'is_closed_display')
     list_filter = ('period_type', 'is_closed')
     search_fields = ('period_name',)
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at',)
     
     def period_type_display(self, obj):
         return obj.get_period_type_display()
@@ -501,6 +502,22 @@ class FeeCategoryAdmin(admin.ModelAdmin):
     list_display = ('code', 'name', 'category_type_display', 'mandatory_display', 'active_display')
     list_filter = ('category_type', 'is_mandatory', 'active')
     search_fields = ('code', 'name')
+    
+    def category_type_display(self, obj):
+        return obj.get_category_type_display()
+    category_type_display.short_description = 'Type'
+    
+    def mandatory_display(self, obj):
+        color = 'green' if obj.is_mandatory else 'gray'
+        status = '✓ Required' if obj.is_mandatory else 'Optional'
+        return format_html('<span style="color: {};">{}</span>', color, status)
+    mandatory_display.short_description = 'Mandatory'
+    
+    def active_display(self, obj):
+        color = 'green' if obj.active else 'red'
+        status = '✓ Active' if obj.active else '✗ Inactive'
+        return format_html('<span style="color: {};">{}</span>', color, status)
+    active_display.short_description = 'Status'
 
 
 @admin.register(CostCenter)
@@ -508,6 +525,12 @@ class CostCenterAdmin(admin.ModelAdmin):
     list_display = ('code', 'name', 'manager', 'active_display')
     list_filter = ('active',)
     search_fields = ('code', 'name')
+    
+    def active_display(self, obj):
+        color = 'green' if obj.active else 'red'
+        status = '✓ Active' if obj.active else '✗ Inactive'
+        return format_html('<span style="color: {};">{}</span>', color, status)
+    active_display.short_description = 'Status'
 
 
 @admin.register(FiscalYear)

@@ -37,10 +37,17 @@ class Invoice(models.Model):
     
     id = models.BigAutoField(primary_key=True)
     
+    # Structural Isolation
+    institution = models.ForeignKey(
+        'institutions.Institution',
+        on_delete=models.CASCADE,
+        related_name='invoices',
+        help_text='Institution this invoice belongs to'
+    )
+    
     # Invoice numbering
     invoice_number = models.CharField(
         max_length=50,
-        unique=True,
         db_index=True,
         help_text='Unique invoice number (e.g., INV-2024-00001)'
     )
@@ -63,7 +70,9 @@ class Invoice(models.Model):
     # Period context
     academic_year = models.ForeignKey(
         'curriculum.AcademicYear',
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         help_text='Academic year'
     )
     
@@ -201,14 +210,15 @@ class Invoice(models.Model):
         verbose_name_plural = 'Invoices'
         ordering = ['-issue_date', '-created_at']
         indexes = [
-            models.Index(fields=['invoice_number']),
-            models.Index(fields=['student']),
-            models.Index(fields=['status']),
-            models.Index(fields=['issue_date']),
+            models.Index(fields=['institution', 'invoice_number']),
+            models.Index(fields=['institution', 'student']),
+            models.Index(fields=['institution', 'status']),
+            models.Index(fields=['institution', 'issue_date']),
             models.Index(fields=['due_date']),
             models.Index(fields=['amount_outstanding']),
             models.Index(fields=['academic_year']),
         ]
+        unique_together = [['institution', 'invoice_number']]
     
     def __str__(self):
         return f"{self.invoice_number} - {self.student.get_full_name()}"
@@ -237,10 +247,12 @@ class Invoice(models.Model):
                 self.is_overdue = False
                 self.days_overdue = 0
     
-    def issue(self):
+    def issue(self, issued_by=None):
         """Change status to issued and notify parent."""
         self.status = 'issued'
-        self.save(update_fields=['status', 'updated_at', 'updated_by'])
+        if issued_by:
+            self.updated_by = issued_by
+        self.save(update_fields=['status', 'updated_by', 'updated_at'])
         # TODO: Send notification to parent
 
 
@@ -372,9 +384,16 @@ class CreditNote(models.Model):
     
     id = models.BigAutoField(primary_key=True)
     
+    # Structural Isolation
+    institution = models.ForeignKey(
+        'institutions.Institution',
+        on_delete=models.CASCADE,
+        related_name='credit_notes',
+        help_text='Institution issuing credit'
+    )
+    
     credit_note_number = models.CharField(
         max_length=50,
-        unique=True,
         db_index=True,
         help_text='Unique credit note number'
     )
@@ -449,10 +468,11 @@ class CreditNote(models.Model):
         verbose_name_plural = 'Credit Notes'
         ordering = ['-credit_date']
         indexes = [
-            models.Index(fields=['credit_note_number']),
-            models.Index(fields=['student']),
-            models.Index(fields=['invoice']),
+            models.Index(fields=['institution', 'credit_note_number']),
+            models.Index(fields=['institution', 'student']),
+            models.Index(fields=['institution', 'invoice']),
         ]
+        unique_together = [['institution', 'credit_note_number']]
     
     def __str__(self):
         return f"{self.credit_note_number}"

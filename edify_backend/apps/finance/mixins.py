@@ -7,7 +7,7 @@ Ensures data isolation and multi-tenant support.
 
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
-from edify_backend.apps.institutions.models import Institution
+from institutions.models import Institution
 
 
 class InstitutionScopedViewSetMixin:

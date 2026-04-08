@@ -43,6 +43,12 @@ import { AICopilotProvider } from './contexts/AICopilotContext';
 import { MissedSessionRecoveryPage } from './pages/MissedSessionRecoveryPage';
 import { GlassDashboardLayout } from './components/dashboard/layout/GlassDashboardLayout';
 
+// New Enterprise Finance ERP Core
+import { FinanceERPLayout } from './apps/finance/layout/FinanceERPLayout';
+import { FinanceDashboard } from './apps/finance/pages/FinanceDashboard';
+import { InvoiceDashboardPage } from './apps/finance/pages/InvoiceDashboardPage';
+import { FeeCollectionDashboardPage } from './apps/finance/pages/FeeCollectionDashboardPage';
+
 function App() {
   return (
     <AuthProvider>
@@ -165,6 +171,20 @@ function App() {
             </ProtectedRoute>
           } />
         </Route>
+
+        {/* 🚀 New Enterprise Financial ERP 🚀 */}
+        <Route path="/dashboard/finance" element={
+          <ProtectedRoute allowedRoles={['institution_admin', 'bursar']}>
+            <FinanceERPLayout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<FinanceDashboard />} />
+          <Route path="accounting" element={<div className="p-8 text-white"><h1 className="text-2xl font-bold">General Ledger</h1><p className="text-slate-400 mt-2">Chart of accounts mapping goes here.</p></div>} />
+          <Route path="invoices" element={<InvoiceDashboardPage />} />
+          <Route path="collection" element={<FeeCollectionDashboardPage />} />
+          {/* Add more nested routes for the ERP modules later */}
+        </Route>
+
       </Routes>
       </AICopilotProvider>
     </AuthProvider>
