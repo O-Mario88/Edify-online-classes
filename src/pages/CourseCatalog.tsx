@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { UgandaLevel, UgandaClass, Teacher } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { apiClient } from '@/lib/apiClient';
 
 export const CourseCatalog: React.FC = () => {
   const [levels, setLevels] = useState<UgandaLevel[]>([]);
@@ -24,17 +25,18 @@ export const CourseCatalog: React.FC = () => {
     const fetchData = async () => {
       try {
         const [coursesResponse, usersResponse] = await Promise.all([
-          fetch('http://localhost:8000/api/v1/curriculum/full-tree/'),
-          fetch(`/data/users.json?t=${new Date().getTime()}`)
+          apiClient.get('/curriculum/full-tree/'),
+          fetch(`/data/users.json?t=${new Date().getTime()}`).then(r => r.json()).catch(() => ({ teachers: [] }))
         ]);
         
-        const coursesData = await coursesResponse.json();
-        const usersData = await usersResponse.json();
+        const coursesData = coursesResponse.data || { levels: [] };
+        const usersData = usersResponse;
         
-        setLevels(coursesData.levels);
-        setTeachers(usersData.teachers);
+        setLevels(coursesData.levels || []);
+        setTeachers(usersData.teachers || []);
       } catch (error) {
         console.error('Error fetching data:', error);
+        // Fallback or empty state management happens via empty arrays
       } finally {
         setLoading(false);
       }
@@ -67,7 +69,7 @@ export const CourseCatalog: React.FC = () => {
     });
   };
 
-  const categories = ['ALL', "O'LEVEL", "A'LEVEL", 'SCIENCES', 'ARTS'];
+  const categories = ['ALL', 'PRIMARY', "O'LEVEL", "A'LEVEL", 'SCIENCES', 'ARTS'];
 
   if (loading) {
     return (
@@ -168,8 +170,10 @@ export const CourseCatalog: React.FC = () => {
                       </div>
                     </div>
 
-                    <h3 className="text-2xl font-bold text-slate-900 mb-3 leading-tight group-hover:text-blue-600 transition-colors line-clamp-2">
-                      {ugandaClass.name}
+                    <h3 className="text-2xl font-bold text-slate-900 mb-3 leading-tight line-clamp-2">
+                      <span className="bg-gradient-to-r from-slate-900 to-slate-900 bg-[length:0%_2px] bg-no-repeat bg-left-bottom group-hover:bg-[length:100%_2px] transition-all duration-300 ease-out pb-1">
+                        {ugandaClass.name}
+                      </span>
                     </h3>
                     
                     {/* Metadata Line */}

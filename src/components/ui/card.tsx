@@ -9,7 +9,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "edify-card rounded-[1.8rem] border-0 bg-white text-slate-950 shadow-[0_12px_40px_-12px_rgba(30,60,110,0.08),0_4px_16px_-4px_rgba(30,60,110,0.04)] transition-all duration-300 dark:bg-white/10 dark:backdrop-blur-xl dark:border dark:border-white/20 dark:text-slate-50 dark:shadow-2xl",
+      "edify-card rounded-[1.8rem] border-0 bg-white text-slate-950 shadow-[0_12px_40px_-12px_rgba(30,60,110,0.08),0_4px_16px_-4px_rgba(30,60,110,0.04)] transition-all duration-300 dark:bg-white/5 dark:backdrop-blur-xl dark:border dark:border-white/20 dark:text-slate-50 dark:shadow-2xl",
       className
     )}
     {...props}

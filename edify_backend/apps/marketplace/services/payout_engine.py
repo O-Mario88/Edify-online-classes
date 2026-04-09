@@ -7,7 +7,6 @@ from django.db.models import Sum
 from lessons.models import Lesson, LessonQualificationRecord, LessonAttendance
 from live_sessions.models import LiveSession
 from resources.models import ResourceLessonLink
-from billing.models import TeacherAccessFeeAccount, TeacherFeeInstallment
 from marketplace.models import TeacherPayoutBatch
 
 logger = logging.getLogger(__name__)
@@ -127,33 +126,7 @@ class PayoutEngine:
             status='calculated'
         )
 
-        # Evaluate Teacher Access Fee Deductions
-        fee_account, _ = TeacherAccessFeeAccount.objects.get_or_create(teacher=teacher)
         deduction_amount = Decimal('0.00')
-
-        if fee_account.remaining_balance > 0:
-            target_deduction = cls.STANDARD_DEDUCTION
-            
-            # Can we deduct the full 60k?
-            amount_to_deduct = min(target_deduction, fee_account.remaining_balance)
-            
-            # Can the earnings cover the deduction?
-            if gross_earnings >= amount_to_deduct:
-                deduction_amount = amount_to_deduct
-            else:
-                deduction_amount = gross_earnings # Deduct whatever is available
-
-            if deduction_amount > 0:
-                fee_account.recovered_amount += deduction_amount
-                if fee_account.recovered_amount >= fee_account.total_obligation:
-                    fee_account.is_recovered = True
-                fee_account.save()
-                
-                TeacherFeeInstallment.objects.create(
-                    account=fee_account,
-                    payout_batch=batch,
-                    amount_deducted=deduction_amount
-                )
 
         # Finalize Batch
         batch.deduction_amount = deduction_amount

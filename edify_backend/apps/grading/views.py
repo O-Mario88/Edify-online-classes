@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions, exceptions
 from .models import GradeRecord, SubjectGrade, ReportCard
 from .serializers import GradeRecordSerializer, SubjectGradeSerializer, ReportCardSerializer
 from institutions.models import InstitutionMembership
-from edify_core.permissions import SCHOOL_ADMIN_ROLES, ACADEMIC_LEADER_ROLES, FINANCE_ROLES, TEACHER_ROLES
+from edify_core.permissions import SCHOOL_ADMIN_ROLES, ACADEMIC_LEADER_ROLES, TEACHER_ROLES
 from django.utils import timezone
 
 class GradeRecordViewSet(viewsets.ModelViewSet):

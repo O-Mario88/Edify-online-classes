@@ -27,6 +27,7 @@ import {
 import { UgandaLevel, UgandaClass, Subject, Teacher, Topic, Student } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { OfflineSyncEngine } from '../lib/offlineSync';
+import { apiClient } from '@/lib/apiClient';
 
 export const CourseDetail: React.FC = () => {
   const { classId, termId, subjectId } = useParams();
@@ -45,15 +46,15 @@ export const CourseDetail: React.FC = () => {
     const fetchData = async () => {
       try {
         const [coursesResponse, usersResponse] = await Promise.all([
-          fetch('/data/courses.json?t=' + new Date().getTime()),
-          fetch('/data/users.json?t=' + new Date().getTime())
+          apiClient.get('/curriculum/full-tree/').catch(() => ({ data: { levels: [] } })),
+          fetch(`/data/users.json?t=${new Date().getTime()}`).then(r => r.json()).catch(() => ({ teachers: [] }))
         ]);
         
-        const coursesData = await coursesResponse.json();
-        const usersData = await usersResponse.json();
+        const coursesData = coursesResponse.data || { levels: [] };
+        const usersData = usersResponse;
         
-        setLevels(coursesData.levels);
-        setTeachers(usersData.teachers);
+        setLevels(coursesData.levels || []);
+        setTeachers(usersData.teachers || []);
 
         // Find the specific class and subject
         let found = false;
@@ -64,9 +65,10 @@ export const CourseDetail: React.FC = () => {
             if (ugandaClass.id === classId) {
               setCurrentClass(ugandaClass);
               
-              // Find the subject across all terms
-              for (const term of ugandaClass.terms) {
-                const subject = term.subjects.find((s: Subject) => s.id === subjectId);
+              // Find the subject for the specific term in the URL
+              const specificTerm = ugandaClass.terms.find((t: any) => t.id === termId) || ugandaClass.terms[0];
+              if (specificTerm) {
+                const subject = specificTerm.subjects.find((s: Subject) => s.id === subjectId);
                 if (subject) {
                   setCurrentSubject(subject);
                   
@@ -76,7 +78,6 @@ export const CourseDetail: React.FC = () => {
                     setCurrentTeacher(teacher);
                   }
                   found = true;
-                  break;
                 }
               }
             }

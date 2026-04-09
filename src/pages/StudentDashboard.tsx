@@ -11,7 +11,7 @@ import {
   AlertCircle, AlertTriangle, BarChart3, Flame, Activity, User, Users, FileText, Video
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { apiClient } from '../lib/api';
+import { apiClient } from '../lib/apiClient';
 import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 import { CareerGuidanceWidget } from '../components/dashboard/CareerGuidanceWidget';
@@ -35,97 +35,108 @@ export const StudentDashboard: React.FC = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const { data } = await apiClient.get('/analytics/student-dashboard/');
-        setDashboardData(data);
+        const response = await apiClient.get('/analytics/student-dashboard/');
+        
+        if (response.data) {
+          setDashboardData(response.data);
+        } else {
+          // Fallback to mock data if API call fails
+          console.error('Failed to fetch dashboard data:', response.error);
+          setDashboardData(getMockDashboardData());
+        }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
-        // Provide fallback data so the dashboard doesn't hang forever on the skeleton
-        setDashboardData({
-          kpis: {
-             overallProgress: 68,
-             progressTrend: "+4",
-             attendance: 82,
-             attendanceTrend: "-5",
-             assessmentsCompleted: 14,
-             readinessScore: 71,
-             overdueTasks: 3,
-             liveSessionsAttended: 12
-          },
-          subjectPerformance: [
-             { subject: 'Mathematics', class: 'S4 Core', completion: 75, avgScore: 82, confidence: 'High', lastActivity: 'Today', weakTopics: 1, readinessColor: 'bg-green-500' },
-             { subject: 'Physics', class: 'S4 Core', completion: 60, avgScore: 55, confidence: 'Low', lastActivity: '2 days ago', weakTopics: 3, readinessColor: 'bg-red-500' },
-             { subject: 'Chemistry', class: 'S4 Core', completion: 65, avgScore: 70, confidence: 'Medium', lastActivity: 'Yesterday', weakTopics: 2, readinessColor: 'bg-yellow-500' },
-             { subject: 'Biology', class: 'S4 Core', completion: 80, avgScore: 88, confidence: 'High', lastActivity: '3 hrs ago', weakTopics: 0, readinessColor: 'bg-green-500' },
-             { subject: 'English Language', class: 'S4 Core', completion: 90, avgScore: 91, confidence: 'High', lastActivity: 'Today', weakTopics: 0, readinessColor: 'bg-green-500' },
-             { subject: 'Geography', class: 'S4 Core', completion: 42, avgScore: 48, confidence: 'Low', lastActivity: '5 days ago', weakTopics: 4, readinessColor: 'bg-red-500' },
-             { subject: 'History', class: 'S4 Elective', completion: 55, avgScore: 63, confidence: 'Medium', lastActivity: '1 day ago', weakTopics: 2, readinessColor: 'bg-yellow-500' },
-             { subject: 'Computer Studies', class: 'S4 Elective', completion: 88, avgScore: 94, confidence: 'High', lastActivity: 'Today', weakTopics: 0, readinessColor: 'bg-green-500' },
-             { subject: 'Entrepreneurship', class: 'S4 Core', completion: 70, avgScore: 72, confidence: 'Medium', lastActivity: '3 days ago', weakTopics: 1, readinessColor: 'bg-yellow-500' },
-             { subject: 'Religious Education', class: 'S4 Elective', completion: 78, avgScore: 80, confidence: 'High', lastActivity: 'Yesterday', weakTopics: 0, readinessColor: 'bg-green-500' },
-          ],
-          nextSession: {
-             subject: 'Physics',
-             topic: 'Kinematics Equations',
-             tutor: 'Mr. Omondi',
-             time: 'Today, 4:00 PM',
-             countdown: '2 hours',
-             streak: 4,
-             readinessState: 'Needs Notes'
-          },
-          intelligence: [
-            { 
-              id: 1, 
-              title: "Academic Win", 
-              alertText: "You've crushed 3 Physics modules this week. Your streak is growing!", 
-              value: "4-Day Streak", 
-              actionLabel: "Keep Going", 
-              riskLevel: 'healthy',
-              trendDirection: 'up',
-              trendValue: 4
-            },
-            { 
-              id: 2, 
-              title: "Early Warning Alert", 
-              alertText: "Your Geography score is critically below passing threshold. Immediate revision needed.", 
-              value: "Review Required", 
-              actionLabel: "See Details", 
-              riskLevel: 'critical',
-              trendDirection: 'down',
-              trendValue: 18
-            },
-            { 
-              id: 3, 
-              title: "AI Suggestion", 
-              alertText: "To master 'Atomic Structure', we compiled a visually interactive guide.", 
-              value: "New Material", 
-              actionLabel: "Start Module", 
-              riskLevel: 'healthy'
-            },
-            { 
-              id: 4, 
-              title: "Peer Network", 
-              alertText: "Sarah N. from S4 West needs help with Geography. You have an A grade in Computer Studies.", 
-              value: "+10 XP Bounty", 
-              actionLabel: "Offer Help", 
-              riskLevel: 'neutral'
-            }
-          ],
-          assessmentSnapshot: [
-            { name: 'Physics Quiz 3: Kinematics', scored: 45, average: 65 },
-            { name: 'Math Mid-Term Exam', scored: 88, average: 70 },
-            { name: 'Chemistry Practical: Titration', scored: 72, average: 68 },
-            { name: 'Biology Paper 2: Genetics', scored: 91, average: 74 },
-            { name: 'English Comprehension Test', scored: 85, average: 72 },
-            { name: 'Geography Map Skills Quiz', scored: 38, average: 62 },
-            { name: 'Computer Studies Project', scored: 96, average: 78 },
-          ]
-        });
+        // Fallback to mock data
+        setDashboardData(getMockDashboardData());
       } finally {
         setLoading(false);
       }
     };
     fetchDashboard();
   }, []);
+
+  // Mock data fallback function
+  const getMockDashboardData = () => ({
+    kpis: {
+       overallProgress: 68,
+       progressTrend: "+4",
+       attendance: 82,
+       attendanceTrend: "-5",
+       assessmentsCompleted: 14,
+       readinessScore: 71,
+       overdueTasks: 3,
+       liveSessionsAttended: 12
+    },
+    subjectPerformance: [
+       { subject: 'Mathematics', class: 'S4 Core', completion: 75, avgScore: 82, confidence: 'High', lastActivity: 'Today', weakTopics: 1, readinessColor: 'bg-green-500' },
+       { subject: 'Physics', class: 'S4 Core', completion: 60, avgScore: 55, confidence: 'Low', lastActivity: '2 days ago', weakTopics: 3, readinessColor: 'bg-red-500' },
+       { subject: 'Chemistry', class: 'S4 Core', completion: 65, avgScore: 70, confidence: 'Medium', lastActivity: 'Yesterday', weakTopics: 2, readinessColor: 'bg-yellow-500' },
+       { subject: 'Biology', class: 'S4 Core', completion: 80, avgScore: 88, confidence: 'High', lastActivity: '3 hrs ago', weakTopics: 0, readinessColor: 'bg-green-500' },
+       { subject: 'English Language', class: 'S4 Core', completion: 90, avgScore: 91, confidence: 'High', lastActivity: 'Today', weakTopics: 0, readinessColor: 'bg-green-500' },
+       { subject: 'Geography', class: 'S4 Core', completion: 42, avgScore: 48, confidence: 'Low', lastActivity: '5 days ago', weakTopics: 4, readinessColor: 'bg-red-500' },
+       { subject: 'History', class: 'S4 Elective', completion: 55, avgScore: 63, confidence: 'Medium', lastActivity: '1 day ago', weakTopics: 2, readinessColor: 'bg-yellow-500' },
+       { subject: 'Computer Studies', class: 'S4 Elective', completion: 88, avgScore: 94, confidence: 'High', lastActivity: 'Today', weakTopics: 0, readinessColor: 'bg-green-500' },
+       { subject: 'Entrepreneurship', class: 'S4 Core', completion: 70, avgScore: 72, confidence: 'Medium', lastActivity: '3 days ago', weakTopics: 1, readinessColor: 'bg-yellow-500' },
+       { subject: 'Religious Education', class: 'S4 Elective', completion: 78, avgScore: 80, confidence: 'High', lastActivity: 'Yesterday', weakTopics: 0, readinessColor: 'bg-green-500' },
+    ],
+    nextSession: {
+       subject: 'Physics',
+       topic: 'Kinematics Equations',
+       tutor: 'Mr. Omondi',
+       time: 'Today, 4:00 PM',
+       countdown: '2 hours',
+       streak: 4,
+       readinessState: 'Needs Notes'
+    },
+    intelligence: [
+      { 
+        id: 1, 
+        title: "Academic Win", 
+        alertText: "You've crushed 3 Physics modules this week. Your streak is growing!", 
+        value: "4-Day Streak", 
+        actionLabel: "Keep Going", 
+        riskLevel: 'healthy',
+        trendDirection: 'up',
+        trendValue: 4
+      },
+      { 
+        id: 2, 
+        title: "Early Warning Alert", 
+        alertText: "Your Geography score is critically below passing threshold. Immediate revision needed.", 
+        value: "Review Required", 
+        actionLabel: "See Details", 
+        riskLevel: 'critical',
+        trendDirection: 'down',
+        trendValue: 18
+      },
+      { 
+        id: 3, 
+        title: "AI Suggestion", 
+        alertText: "To master 'Atomic Structure', we compiled a visually interactive guide.", 
+        value: "New Material", 
+        actionLabel: "Start Module", 
+        riskLevel: 'healthy'
+      },
+      { 
+        id: 4, 
+        title: "Peer Network", 
+        alertText: "Sarah N. from S4 West needs help with Geography. You have an A grade in Computer Studies.", 
+        value: "+10 XP Bounty", 
+        actionLabel: "Offer Help", 
+        riskLevel: 'neutral'
+      }
+    ],
+    assessmentSnapshot: [
+      { name: 'Physics Quiz 3: Kinematics', scored: 45, average: 65 },
+      { name: 'Math Mid-Term Exam', scored: 88, average: 70 },
+      { name: 'Chemistry Practical: Titration', scored: 72, average: 68 },
+      { name: 'Biology Paper 2: Genetics', scored: 91, average: 74 },
+      { name: 'English Comprehension Test', scored: 85, average: 72 },
+      { name: 'Geography Map Skills Quiz', scored: 38, average: 62 },
+      { name: 'Computer Studies Project', scored: 96, average: 78 },
+    ]
+  });
+
 
   if (loading || !dashboardData) {
     return <DashboardSkeleton type="student" />;

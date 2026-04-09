@@ -6,7 +6,7 @@ import { Progress } from '../components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Activity, Users, BookOpen, Clock, ShieldCheck, Download, AlertTriangle, ArrowRight, Database, ServerCrash, DollarSign, HelpCircle, UserX, UserPlus, CheckCircle, Flame, Trophy, Cpu, TrendingUp, UploadCloud } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { apiClient } from '../lib/api';
+import { apiClient } from '../lib/apiClient';
 import { ResourceUploadModal } from '../components/academic/ResourceUploadModal';
 import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { GlobalInstitutionComparison } from '../components/admin/GlobalInstitutionComparison';
@@ -27,11 +27,27 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const { data } = await apiClient.get('/analytics/admin-dashboard/');
-        setDashboardData(data);
+        const response = await apiClient.get('/analytics/admin-dashboard/');
+        
+        if (response.data) {
+          setDashboardData(response.data);
+        } else {
+          // Fallback to mock data
+          console.error('Failed to fetch admin dashboard data:', response.error);
+          setDashboardData(getMockAdminDashboardData());
+        }
       } catch (error) {
         console.error('Error fetching dashboard data, falling back to mock data:', error);
-        setDashboardData({
+        setDashboardData(getMockAdminDashboardData());
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  // Mock data fallback
+  const getMockAdminDashboardData = () => ({
           intelligence: [
             {
               title: 'Fastest Growing',
@@ -42,7 +58,7 @@ export const AdminDashboard: React.FC = () => {
               riskLevel: 'healthy',
               alertText: 'Tracks B2B SaaS growth. New school onboardings are 24% above target.',
               actionLabel: 'View growth metrics',
-              actionLink: '/admin/institutions'
+              actionLink: '/dashboard/admin/intelligence'
             },
             {
               title: 'High-Churn Risk',
@@ -54,9 +70,9 @@ export const AdminDashboard: React.FC = () => {
               riskLevel: 'critical',
               alertText: 'Platform AI flagged 3 schools with dormant usage, signaling high risk of license cancellation.',
               actionLabel: 'Intervene',
-              actionLink: '/admin/analytics',
+              actionLink: '/dashboard/admin/intelligence/risk',
               drillDownText: 'View raw logs',
-              drillDownLink: '/admin/logs'
+              drillDownLink: '/dashboard/admin/intelligence'
             },
             {
               title: 'Module Adoption',
@@ -65,9 +81,9 @@ export const AdminDashboard: React.FC = () => {
               trendLabel: 'this quarter',
               trendDirection: 'up',
               riskLevel: 'healthy',
-              alertText: 'Measures feature rollout success. The new Finance Hub is seeing excellent daily active usage.',
+              alertText: 'Measures feature rollout success. Module adoption is seeing excellent daily active usage.',
               actionLabel: 'View adoption map',
-              actionLink: '/admin/modules'
+              actionLink: '/dashboard/admin/intelligence'
             },
             {
               title: 'Highest Yield',
@@ -78,7 +94,7 @@ export const AdminDashboard: React.FC = () => {
               riskLevel: 'healthy',
               alertText: 'Identifies the most profitable B2C marketplace sector. Test Prep is currently the top earner.',
               actionLabel: 'Promote bundle',
-              actionLink: '/admin/marketplace'
+              actionLink: '/marketplace'
             }
           ],
           kpis: {
@@ -124,13 +140,7 @@ export const AdminDashboard: React.FC = () => {
              { name: 'Hoima Petroleum City School', status: 'Active', students: 1340, activation: 76, attendance: 78, avgPerformance: 60, readiness: 58, revenue: 'UGX 1.8M', risk: 3 },
              { name: 'Kasese Mountain View Academy', status: 'Suspended', students: 280, activation: 12, attendance: 18, avgPerformance: 32, readiness: 25, revenue: 'UGX 0', risk: 12 }
           ]
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboard();
-  }, []);
+  });
 
   if (loading || !dashboardData) {
     return <DashboardSkeleton type="admin" />;

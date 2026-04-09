@@ -6,7 +6,6 @@ from .rbac import PLATFORM_ROLE_MATRIX, INSTITUTIONAL_ROLE_MATRIX, has_platform_
 # Reusable Role Definition Matrices
 SCHOOL_ADMIN_ROLES = ['headteacher', 'deputy', 'ict_admin']
 ACADEMIC_LEADER_ROLES = ['headteacher', 'deputy', 'dos', 'exam_officer']
-FINANCE_ROLES = ['headteacher', 'bursar']
 TEACHER_ROLES = ['class_teacher', 'subject_teacher', 'librarian', 'counselor']
 
 class IsSchoolAdmin(permissions.BasePermission):
@@ -39,31 +38,16 @@ class IsAcademicDirector(permissions.BasePermission):
             status='active'
         ).exists()
 
-class IsSchoolFinanceManager(permissions.BasePermission):
-    """
-    Grants access to Billing, Invoices, and Payroll.
-    (Bursar, Headteacher).
-    """
-    def has_permission(self, request, view):
-        if not request.user.is_authenticated:
-            return False
-            
-        return InstitutionMembership.objects.filter(
-            user=request.user,
-            role__in=FINANCE_ROLES,
-            status='active'
-        ).exists()
-
 class IsSchoolStaff(permissions.BasePermission):
     """
     General catch-all for any internal employee.
-    (Admins + Academic Leaders + Finance + Teachers + Registrars).
+    (Admins + Academic Leaders + Teachers + Registrars).
     """
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
             
-        ALL_STAFF = SCHOOL_ADMIN_ROLES + ACADEMIC_LEADER_ROLES + FINANCE_ROLES + TEACHER_ROLES + ['registrar']
+        ALL_STAFF = SCHOOL_ADMIN_ROLES + ACADEMIC_LEADER_ROLES + TEACHER_ROLES + ['registrar']
         
         return InstitutionMembership.objects.filter(
             user=request.user,
@@ -139,7 +123,7 @@ def HasInstitutionPermission(required_permission):
 
 class IsActivatedInstitution(permissions.BasePermission):
     """
-    Blocks advanced operations if the institution is in 'setup' or 'suspended' billing state.
+    Since billing has been removed, this is a pass-through that simply ensures the institution id provided exists.
     """
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
@@ -155,47 +139,9 @@ class IsActivatedInstitution(permissions.BasePermission):
             
         from institutions.models import Institution
         try:
-            institution = Institution.objects.get(id=institution_id)
-            if not hasattr(institution, 'billing_profile'):
-                return True # no billing profile, fail open or closed? let's fail open if missing locally
-            return institution.billing_profile.activation_status == 'active'
+            Institution.objects.get(id=institution_id)
+            return True
         except Institution.DoesNotExist:
             return False
 
-class IsSubscribedOrFreeAllowed(permissions.BasePermission):
-    """
-    Freemium gated access to SubjectClass combinations for independent learners.
-    """
-    def has_object_permission(self, request, view, obj):
-        if not request.user.is_authenticated:
-            return False
-        
-        # If it's a teacher or admin, let them through
-        if request.user.role in ['teacher', 'admin']:
-            return True
-            
-        # Is the asset explicitly marked free? Assuming 'access_mode' exists on obj
-        if hasattr(obj, 'access_mode') and getattr(obj, 'access_mode', '') == 'free':
-            return True
-            
-        from billing.models import StudentSubscription
-        subject_id = None
-        class_level_id = None
-        
-        # Determine subject and class level from the object to check subscription...
-        if hasattr(obj, 'parent_class'):
-            class_level_id = obj.parent_class.class_level_id
-            if obj.parent_class.institution_subject:
-                subject_id = obj.parent_class.institution_subject.subject_id
-            
-        if subject_id and class_level_id:
-            has_sub = StudentSubscription.objects.filter(
-                student=request.user,
-                product__subject_id=subject_id,
-                product__class_level_id=class_level_id,
-                status__in=['active', 'grace_period']
-            ).exists()
-            if has_sub:
-                return True
-        
-        return False
+

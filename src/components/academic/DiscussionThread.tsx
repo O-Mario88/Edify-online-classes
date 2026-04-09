@@ -99,8 +99,9 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({ contextType,
       try {
         setLoading(true);
         setError(null);
-        const data = await apiClient.get('/discussions/thread/');
-        const threads = Array.isArray(data) ? data : data.results || [];
+        const response = await apiClient.get<{ results: any[] }>('/discussions/thread/');
+        const payload = response.data;
+        const threads = Array.isArray(payload) ? payload : payload?.results || [];
         
         // Transform API threads to component format
         const transformedThreads: DiscussionPost[] = threads.map((thread: any) => ({
@@ -208,143 +209,6 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({ contextType,
   };
 
   return (
-    <div className="space-y-4">
-      {error && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-amber-900">{error}</p>
-          </div>
-          <button onClick={() => { setError(null); setLoading(true); }} className="text-amber-700 hover:text-amber-800">
-            <RefreshCw className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
-      {loading && <DashboardSkeleton />}
-
-      {!loading && (
-        <>
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-teal-600" />
-                {contextType === 'topic' ? 'Topic' : 'Lesson'} Discussion
-              </h3>
-              <p className="text-sm text-gray-500 mt-1">
-                {contextType === 'topic'
-                  ? 'Broader questions, revision support, and peer help for this topic'
-                  : 'Questions and clarification specific to this lesson'}
-              </p>
-            </div>
-            <Button onClick={() => setShowNewPost(true)} size="sm" className="bg-teal-600 hover:bg-teal-700 text-white">
-              <MessageSquare className="h-4 w-4 mr-2" /> Ask Question
-            </Button>
-          </div>
-
-          {showNewPost && (
-            <Card className="border-teal-200 bg-teal-50/30">
-              <CardContent className="p-4 space-y-3">
-                <input
-                  type="text"
-                  placeholder="Question title..."
-                  value={newTitle}
-                  onChange={e => setNewTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-                <Textarea
-                  placeholder="Describe your question..."
-                  value={newContent}
-                  onChange={e => setNewContent(e.target.value)}
-                  rows={3}
-                />
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={handleCreatePost} className="bg-teal-600 hover:bg-teal-700 text-white">
-                    <Send className="h-3 w-3 mr-2" /> Post Question
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setShowNewPost(false)}>Cancel</Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {posts.length === 0 ? (
-            <EmptyState icon={MessageSquare} title="No discussions yet" description={`Be the first to ask a question about this ${contextType}!`} />
-          ) : (
-            <div className="space-y-3">
-              {posts.map(post => (
-                <div key={post.id} className="border border-gray-200 rounded-xl bg-white overflow-hidden hover:border-gray-300 transition-colors">
-                  <div
-                    className="p-4 cursor-pointer"
-                    onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          {post.isPinned && <Pin className="h-3.5 w-3.5 text-amber-500" />}
-                          {post.isSolved && <CheckCircle className="h-3.5 w-3.5 text-green-500" />}
-                          <h4 className="font-semibold text-gray-900">{post.title}</h4>
-                        </div>
-                        <p className="text-sm text-gray-600 line-clamp-1 mt-1">{post.content}</p>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                          <span className="flex items-center gap-1"><User className="h-3 w-3" /> {post.authorName}</span>
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">{post.authorRole}</Badge>
-                          <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {timeAgo(post.createdAt)}</span>
-                          <span className="flex items-center gap-1"><Reply className="h-3 w-3" /> {post.replies.length}</span>
-                          <span className="flex items-center gap-1"><Heart className="h-3 w-3" /> {post.likes}</span>
-                        </div>
-                      </div>
-                      {expandedPost === post.id ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
-                    </div>
-                  </div>
-
-                  {expandedPost === post.id && (
-                    <div className="border-t bg-gray-50/50 p-4 space-y-3">
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{post.content}</p>
-
-                      {post.replies.length > 0 && (
-                        <div className="space-y-2 pl-4 border-l-2 border-teal-100">
-                          {post.replies.map(reply => (
-                            <div key={reply.id} className="bg-white p-3 rounded-lg border border-gray-100">
-                              <div className="flex items-center gap-2 mb-1.5">
-                                <span className="text-sm font-medium text-gray-900">{reply.authorName}</span>
-                                <Badge variant="outline" className="text-[10px] px-1.5 py-0">{reply.authorRole}</Badge>
-                                {reply.isTeacherApproved && (
-                                  <Badge className="bg-green-100 text-green-700 border-none text-[10px] px-1.5 py-0">
-                                    <Star className="h-2.5 w-2.5 mr-0.5" /> Approved
-                                  </Badge>
-                                )}
-                                <span className="text-xs text-gray-400">{timeAgo(reply.createdAt)}</span>
-                              </div>
-                              <p className="text-sm text-gray-700">{reply.content}</p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="flex gap-2 pt-2">
-                        <Textarea
-                          placeholder="Write a reply..."
-                          value={replyText[post.id] || ''}
-                          onChange={e => setReplyText(prev => ({ ...prev, [post.id]: e.target.value }))}
-                          rows={2}
-                          className="flex-1 text-sm"
-                        />
-                        <Button size="sm" onClick={() => handleReply(post.id)} className="self-end bg-teal-600 hover:bg-teal-700 text-white">
-                          <Send className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-};
     <div className="space-y-4">
       {error && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">

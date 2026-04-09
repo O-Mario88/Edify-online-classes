@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Loader2, CheckCircle2, UserPlus, Phone, Lock, Save, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { apiClient } from '@/lib/apiClient';
 
 export function StudentOnboardingForm() {
   const { toast } = useToast();
@@ -30,7 +31,9 @@ export function StudentOnboardingForm() {
     username: ''
   });
 
-  const handleNext = () => {
+  const [registrationId, setRegistrationId] = useState<number | null>(null);
+
+  const handleNext = async () => {
     // Step 1 -> 2
     if (step === 1) {
       if (!formData.fullName || !formData.classLevel) {
@@ -39,7 +42,7 @@ export function StudentOnboardingForm() {
       }
       setStep(2);
     }
-    // Step 2 -> 3 (Payment Emulation)
+    // Step 2 -> 3 (Payment Emulation via API)
     else if (step === 2) {
       if (!formData.parentName || !formData.parentPhone) {
         toast({ title: 'Missing fields', description: 'Parent details are required.', variant: 'destructive' });
@@ -54,31 +57,60 @@ export function StudentOnboardingForm() {
 
       setIsProcessing(true);
       
-      // Simulating Payment dispatch loop
-      setTimeout(() => {
-        setIsProcessing(false);
+      try {
+        // Start Registration (Step 1 + 2 Data)
+        const startRes = await apiClient.post('/institutions/learner-registrations/start_registration/', {
+            institution_id: 1, // Current Mock Context ID
+            full_name: formData.fullName,
+            learner_id_number: formData.learnerId,
+            parent_name: formData.parentName,
+            parent_phone: formData.parentPhone,
+            parent_relationship: formData.parentRelationship
+        });
+        
+        const regId = startRes.data.registration_id;
+        setRegistrationId(regId);
+
+        // Auto-Verify Payment in background
+        await apiClient.post(`/institutions/learner-registrations/${regId}/verify_payment/`, {});
+        
         setStep(3);
         toast({ title: "Payment Verified", description: "MTN Mobile Money secured." });
-      }, 3000);
+      } catch (error: any) {
+        toast({ title: "Registration Failed", description: error?.response?.data?.detail || "Could not begin registration.", variant: "destructive" });
+      } finally {
+        setIsProcessing(false);
+      }
     }
   };
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
     if (formData.pin.length !== 4) {
       toast({ title: 'Invalid PIN', description: 'PIN must be exactly 4 digits.', variant: 'destructive' });
       return;
     }
+    if (!registrationId) {
+      toast({ title: 'Error', description: 'Registration sequence lost. Please start over.', variant: 'destructive' });
+      return;
+    }
     
     setIsProcessing(true);
-    setTimeout(() => {
-      setOutputs({
-        studentId: `EDU-UG-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-        username: `${formData.fullName.split(' ')[0].toLowerCase()}${Math.floor(100 + Math.random() * 900)}`
+    try {
+      const finalizeRes = await apiClient.post(`/institutions/learner-registrations/${registrationId}/finalize_account/`, {
+        pin: formData.pin
       });
-      setIsProcessing(false);
+
+      setOutputs({
+        studentId: finalizeRes.data.student_id,
+        username: finalizeRes.data.username
+      });
       setStep(4);
       toast({ title: "Account Active", description: "Student successfully onboarded to the institution." });
-    }, 1500);
+    } catch (error: any) {
+      toast({ title: "Activation Failed", description: error?.response?.data?.detail || "Could not finalize account.", variant: "destructive" });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (

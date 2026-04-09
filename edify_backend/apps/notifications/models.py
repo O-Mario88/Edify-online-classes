@@ -21,3 +21,13 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.channel} to {self.user.email} ({self.status})"
+
+class TeacherLessonNotification(models.Model):
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='lesson_notifications')
+    timetable_slot = models.ForeignKey('scheduling.TimetableSlot', on_delete=models.CASCADE)
+    dispatched_at = models.DateTimeField(auto_now_add=True)
+    acknowledged_at = models.DateTimeField(null=True, blank=True)
+    is_acknowledged = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"Reminder for {self.teacher.email} ({self.timetable_slot})"

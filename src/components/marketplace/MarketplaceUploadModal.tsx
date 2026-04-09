@@ -81,13 +81,27 @@ export const MarketplaceUploadModal: React.FC<MarketplaceUploadModalProps> = ({ 
   const handleNext = () => setStep(step + 1 as 1 | 2 | 3);
   const handleBack = () => setStep(step - 1 as 1 | 2 | 3);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsSubmitting(true);
-    // Simulate upload process to backend
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setStep(3); // Success step
-    }, 1500);
+    try {
+       await apiClient.post('/marketplace/listing/', {
+          subject_name: subjectName,
+          class_level: classLevel,
+          topic_id: topicId,
+          resource_type: resourceType,
+          title,
+          description,
+          price: parseFloat(price) || 0,
+          country
+       });
+       
+       setStep(3); // Success step
+    } catch (error) {
+       console.error('Failed to create marketplace listing', error);
+       alert('Failed to draft listing. Please check connectivity or try again.');
+    } finally {
+       setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {

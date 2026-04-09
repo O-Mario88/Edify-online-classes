@@ -8,8 +8,17 @@ class Institution(models.Model):
     primary_color = models.CharField(max_length=7, default='#000000') # Hex colors
     secondary_color = models.CharField(max_length=7, default='#ffffff')
     
+    SCHOOL_LEVEL_CHOICES = [
+        ('primary', 'Primary School'),
+        ('secondary', 'Secondary School'),
+        ('mixed', 'Mixed (Primary & Secondary)')
+    ]
+    
     country_code = models.CharField(max_length=10, default='uganda')
     curriculum_track = models.CharField(max_length=100, default='national')
+    
+    school_level = models.CharField(max_length=20, choices=SCHOOL_LEVEL_CHOICES, default='secondary')
+    grade_offerings = models.JSONField(default=list, help_text="List of internal_canonical_grades this institution offers e.g. [4, 5, 6, 7] for Primary")
     
     subscription_plan = models.CharField(max_length=100, default='free')
     is_active = models.BooleanField(default=True)
@@ -24,24 +33,11 @@ class Institution(models.Model):
     def __str__(self):
         return self.name
 
-class SubscriptionLedger(models.Model):
-    institution = models.OneToOneField(Institution, on_delete=models.CASCADE, related_name='ledger')
-    plan_tier = models.CharField(max_length=50, default='free') # free, essential, premium
-    monthly_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    outstanding_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
-    currency = models.CharField(max_length=10, default='UGX')
-    next_billing_date = models.DateField(null=True, blank=True)
-    is_suspended = models.BooleanField(default=False)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.institution.name} [{self.plan_tier}] - Balance: {self.outstanding_balance}"
 
 class InstitutionMembership(models.Model):
     ROLE_CHOICES = [
         ('headteacher', 'Headteacher'),
         ('deputy', 'Deputy Headteacher'),
-        ('bursar', 'Bursar / Finance'),
         ('registrar', 'Registrar / Admissions'),
         ('dos', 'Director of Studies'),
         ('class_teacher', 'Class Teacher'),

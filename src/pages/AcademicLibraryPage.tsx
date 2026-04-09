@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { EditorialPanel } from '../components/ui/editorial/EditorialPanel';
 import { EditorialPill } from '../components/ui/editorial/EditorialPill';
 import { EditorialHeader } from '../components/ui/editorial/EditorialHeader';
-import { Search, Star, BookOpen, ChevronDown, ChevronLeft, ChevronRight, User, AlertCircle, RefreshCw } from 'lucide-react';
+import { Search, Star, BookOpen, ChevronDown, ChevronLeft, ChevronRight, User, AlertCircle, RefreshCw, PlayCircle, Filter } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { ResourceViewer } from '../components/academic/ResourceViewer';
+import VideoPlayer from '../components/academic/VideoPlayer';
 import { apiClient, API_ENDPOINTS } from '../lib/apiClient';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Button } from '../components/ui/button';
+import { ResourceUploadModal } from '../components/academic/ResourceUploadModal';
 
 // Fallback mock data for when API is unavailable
 const DEFAULT_MOCK_RESOURCES = [
@@ -116,39 +118,72 @@ const TEACHERS_OF_WEEK = [
 ];
 
 const SUBJECTS = ["All Subjects", "Mathematics", "Science", "Arts", "Humanities", "Languages"];
+const CATEGORIES = ["All", "Notes", "Textbook", "Workbook", "Video", "Assignment", "Other"];
+const SORT_OPTIONS = [
+  { value: '-created_at', label: 'Newest' },
+  { value: '-rating', label: 'Top Rated' },
+  { value: 'price', label: 'Price: Low to High' },
+  { value: '-price', label: 'Price: High to Low' },
+];
 
 export function AcademicLibraryPage() {
   const { user } = useAuth();
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [activeResource, setActiveResource] = useState<any>(null);
   const [activeSubject, setActiveSubject] = useState("All Subjects");
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [sortBy, setSortBy] = useState('-created_at');
   const [searchQuery, setSearchQuery] = useState("");
   const [resources, setResources] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [videoPlayer, setVideoPlayer] = useState<{ vimeoId: string; title: string } | null>(null);
 
-  // Fetch resources from API
+  // Fetch resources from API with search, filter, and sort params
+  const fetchResources = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const params = new URLSearchParams();
+      if (searchQuery) params.append('search', searchQuery);
+      if (activeCategory !== 'All') params.append('category', activeCategory);
+      params.append('ordering', sortBy);
+
+      const qs = params.toString();
+      const url = `${API_ENDPOINTS.RESOURCES}${qs ? '?' + qs : ''}`;
+      const response = await apiClient.get<{ results: any[]; count: number }>(url);
+
+      const payload = response.data;
+      const results = Array.isArray(payload) ? payload : payload?.results ?? [];
+      setResources(results);
+      setTotalCount((payload as any)?.count ?? results.length);
+    } catch (err) {
+      console.error('Error fetching resources:', err);
+      setError('Failed to load resources. Using offline data.');
+      setResources(DEFAULT_MOCK_RESOURCES);
+      setTotalCount(DEFAULT_MOCK_RESOURCES.length);
+    } finally {
+      setLoading(false);
+    }
+  }, [searchQuery, activeCategory, sortBy, retryCount]);
+
   useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await apiClient.get('/resources/');
-        setResources(Array.isArray(data) ? data : data.results || []);
-      } catch (err) {
-        console.error('Error fetching resources:', err);
-        setError('Failed to load resources. Using offline data.');
-        setResources(DEFAULT_MOCK_RESOURCES);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchResources();
-  }, [retryCount]);
+  }, [fetchResources]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
+  };
+
+  const handleResourceClick = (resource: any) => {
+    if (resource.vimeo_video_id) {
+      setVideoPlayer({ vimeoId: resource.vimeo_video_id, title: resource.title });
+    } else {
+      setActiveResource(resource);
+    }
   };
 
   // Show loading state
@@ -168,12 +203,8 @@ export function AcademicLibraryPage() {
           icon={AlertCircle}
           title="Unable to Load Resources"
           description={error}
-          action={
-            <Button onClick={handleRetry} className="gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Try Again
-            </Button>
-          }
+          actionLabel="Try Again"
+          onAction={handleRetry}
         />
       </div>
     );
@@ -187,11 +218,8 @@ export function AcademicLibraryPage() {
           icon={BookOpen}
           title="No Academic Resources Available"
           description="Resources will appear here once they are uploaded by educators."
-          action={
-            <Button onClick={handleRetry} variant="outline">
-              Refresh
-            </Button>
-          }
+          actionLabel="Refresh"
+          onAction={handleRetry}
         />
       </div>
     );
@@ -228,6 +256,12 @@ export function AcademicLibraryPage() {
                  value={searchQuery}
                  onChange={(e) => setSearchQuery(e.target.value)}
                />
+             <Button
+               onClick={() => setShowUploadModal(true)}
+               className="bg-green-600 hover:bg-green-700 text-white whitespace-nowrap"
+             >
+               Upload Resource
+             </Button>
              </div>
            </div>
            
@@ -275,8 +309,8 @@ export function AcademicLibraryPage() {
                    </div>
                 </div>
 
-                <EditorialPill variant="primary" className="bg-white text-slate-800 hover:bg-slate-50 border-none shadow-xl px-8 relative z-10 cursor-pointer" onClick={() => setActiveResource(book)}>
-                  Open Material
+                <EditorialPill variant="primary" className="bg-white text-slate-800 hover:bg-slate-50 border-none shadow-xl px-8 relative z-10 cursor-pointer" onClick={() => handleResourceClick(book)}>
+                  {book.vimeo_video_id ? 'Watch Video' : 'Open Material'}
                 </EditorialPill>
              </div>
           ))}
@@ -335,25 +369,59 @@ export function AcademicLibraryPage() {
           <div className="flex-1">
              
              {/* 4. Category / subject tabs row */}
-             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-               <h3 className="text-xl font-bold text-slate-800">Popular by Subject</h3>
-               <div className="flex gap-2 overflow-x-auto hide-scrollbar mask-edges w-full md:w-auto pb-2 md:pb-0">
-                 {SUBJECTS.map((subject) => {
-                   const isActive = activeSubject === subject;
-                   return (
-                     <button 
-                       key={subject}
-                       onClick={() => setActiveSubject(subject)}
-                       className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all border whitespace-nowrap ${
-                         isActive 
-                           ? 'border-slate-800 text-slate-800 bg-transparent' 
-                           : 'border-transparent text-slate-400 hover:text-slate-600'
+             <div className="flex flex-col gap-4 mb-8">
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                 <h3 className="text-xl font-bold text-slate-800">Popular by Subject</h3>
+                 <div className="flex gap-2 overflow-x-auto hide-scrollbar mask-edges w-full md:w-auto pb-2 md:pb-0">
+                   {SUBJECTS.map((subject) => {
+                     const isActive = activeSubject === subject;
+                     return (
+                       <button 
+                         key={subject}
+                         onClick={() => setActiveSubject(subject)}
+                         className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all border whitespace-nowrap ${
+                           isActive 
+                             ? 'border-slate-800 text-slate-800 bg-transparent' 
+                             : 'border-transparent text-slate-400 hover:text-slate-600'
+                         }`}
+                       >
+                         {subject}
+                       </button>
+                     );
+                   })}
+                 </div>
+               </div>
+
+               {/* Category + Sort row */}
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                 <div className="flex gap-2 overflow-x-auto hide-scrollbar">
+                   {CATEGORIES.map((cat) => (
+                     <button
+                       key={cat}
+                       onClick={() => setActiveCategory(cat)}
+                       className={`px-3 py-1 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${
+                         activeCategory === cat
+                           ? 'bg-[#8e8268] text-white border-[#8e8268]'
+                           : 'border-slate-200 text-slate-500 hover:border-slate-400'
                        }`}
                      >
-                       {subject}
+                       {cat}
                      </button>
-                   );
-                 })}
+                   ))}
+                 </div>
+                 <div className="flex items-center gap-2">
+                   <Filter className="w-3.5 h-3.5 text-slate-400" />
+                   <select
+                     value={sortBy}
+                     onChange={(e) => setSortBy(e.target.value)}
+                     className="text-xs border border-slate-200 rounded-lg px-3 py-1.5 text-slate-600 bg-white focus:outline-none focus:border-slate-400"
+                   >
+                     {SORT_OPTIONS.map((opt) => (
+                       <option key={opt.value} value={opt.value}>{opt.label}</option>
+                     ))}
+                   </select>
+                   <span className="text-xs text-slate-400">{totalCount} resources</span>
+                 </div>
                </div>
              </div>
 
@@ -363,12 +431,19 @@ export function AcademicLibraryPage() {
                  <div
                    key={book.id}
                    className="group bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer hover:-translate-y-1 flex flex-col"
-                   onClick={() => setActiveResource(book)}
+                   onClick={() => handleResourceClick(book)}
                  >
                    {/* Cover Image (tall, fills top) */}
                    <div className="relative overflow-hidden bg-slate-100 aspect-[3/4] w-full flex-shrink-0">
                      <div className="w-full h-full flex items-center justify-center">
-                       <BookOpen className="w-16 h-16 text-slate-300" />
+                       {book.vimeo_video_id ? (
+                         <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-600">
+                           <PlayCircle className="w-12 h-12 text-white/80" />
+                           <span className="absolute bottom-2 left-2 text-[8px] font-bold text-white/70 uppercase tracking-wider">Video</span>
+                         </div>
+                       ) : (
+                         <BookOpen className="w-16 h-16 text-slate-300" />
+                       )}
                      </div>
                      {/* Category badge */}
                      <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm text-[9px] font-black uppercase tracking-widest text-[#8e8268]">
@@ -433,6 +508,23 @@ export function AcademicLibraryPage() {
           }}
         />
       )}
+
+      {videoPlayer && (
+        <VideoPlayer
+          isOpen={!!videoPlayer}
+          onClose={() => setVideoPlayer(null)}
+          vimeoVideoId={videoPlayer.vimeoId}
+          title={videoPlayer.title}
+        />
+      )}
+
+      <ResourceUploadModal
+        isOpen={showUploadModal}
+        onClose={() => {
+          setShowUploadModal(false);
+          fetchResources();
+        }}
+      />
 
       <style>{`
         .hide-scrollbar::-webkit-scrollbar {

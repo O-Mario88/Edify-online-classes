@@ -228,7 +228,7 @@ export const PaymentPage: React.FC = () => {
           <div className="flex items-center gap-4 mb-4">
             <Button 
               variant="outline" 
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/dashboard')}
               size="sm"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />

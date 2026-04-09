@@ -27,7 +27,7 @@ export default function PeerTutoringHub() {
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
         <div className="absolute bottom-0 left-20 w-40 h-40 bg-indigo-900/40 rounded-full blur-2xl -mb-10"></div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="text-white">
             <h1 className="text-4xl font-black mb-2 flex items-center gap-3">
               <Users className="w-8 h-8 opacity-80" /> Peer Tutoring Network

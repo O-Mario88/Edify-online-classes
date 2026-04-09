@@ -46,8 +46,14 @@ export const API_ENDPOINTS = {
   LESSON_RECORDINGS: `${API_BASE_URL}${API_V1}/lessons/lesson-recording/`,
   LESSON_ATTENDANCE: `${API_BASE_URL}${API_V1}/lessons/lesson-attendance/`,
   
+  // Attendance
+  DAILY_ATTENDANCE: `${API_BASE_URL}${API_V1}/attendance/daily/`,
+
+  // Scheduling
+  TIMETABLE_SLOTS: `${API_BASE_URL}${API_V1}/scheduling/timetable/`,
+
   // Resources
-  RESOURCES: `${API_BASE_URL}${API_V1}/resources/resource/`,
+  RESOURCES: `${API_BASE_URL}${API_V1}/resources/`,
   
   // Discussions
   THREADS: `${API_BASE_URL}${API_V1}/discussions/thread/`,
@@ -61,6 +67,27 @@ export const API_ENDPOINTS = {
   TEACHER_DASHBOARD: `${API_BASE_URL}${API_V1}/analytics/teacher-dashboard/`,
   PARENT_DASHBOARD: `${API_BASE_URL}${API_V1}/analytics/parent-dashboard/`,
   ADMIN_DASHBOARD: `${API_BASE_URL}${API_V1}/analytics/admin-dashboard/`,
+
+  // Intelligence Engine
+  INTELLIGENCE_ACTIONS: `${API_BASE_URL}${API_V1}/intelligence/actions/`,
+  INTELLIGENCE_INTERVENTION_PACKS: `${API_BASE_URL}${API_V1}/intelligence/intervention-packs/`,
+  INTELLIGENCE_INTERVENTION_ASSIGNMENTS: `${API_BASE_URL}${API_V1}/intelligence/intervention-assignments/`,
+  INTELLIGENCE_STUDY_PLANS: `${API_BASE_URL}${API_V1}/intelligence/study-plans/`,
+  INTELLIGENCE_STUDY_TASKS: `${API_BASE_URL}${API_V1}/intelligence/study-tasks/`,
+  INTELLIGENCE_PARENT_ACTIONS: `${API_BASE_URL}${API_V1}/intelligence/parent-actions/`,
+  INTELLIGENCE_POINTS: `${API_BASE_URL}${API_V1}/intelligence/points/`,
+  INTELLIGENCE_BADGES: `${API_BASE_URL}${API_V1}/intelligence/badges/`,
+  INTELLIGENCE_MY_BADGES: `${API_BASE_URL}${API_V1}/intelligence/my-badges/`,
+  INTELLIGENCE_CHALLENGES: `${API_BASE_URL}${API_V1}/intelligence/challenges/`,
+  INTELLIGENCE_HOUSES: `${API_BASE_URL}${API_V1}/intelligence/houses/`,
+  INTELLIGENCE_LEARNING_PROGRESS: `${API_BASE_URL}${API_V1}/intelligence/learning-progress/`,
+  INTELLIGENCE_NATIONAL_EXAMS: `${API_BASE_URL}${API_V1}/intelligence/national-exams/`,
+  INTELLIGENCE_STORY_CARDS: `${API_BASE_URL}${API_V1}/intelligence/story-cards/`,
+  INTELLIGENCE_HEALTH: `${API_BASE_URL}${API_V1}/intelligence/health/`,
+  INTELLIGENCE_HEALTH_HISTORY: `${API_BASE_URL}${API_V1}/intelligence/health-history/`,
+  INTELLIGENCE_IMPACT: `${API_BASE_URL}${API_V1}/intelligence/impact/`,
+  INTELLIGENCE_STUDENT_PASSPORT: `${API_BASE_URL}${API_V1}/intelligence/passport/student/`,
+  INTELLIGENCE_TEACHER_PASSPORT: `${API_BASE_URL}${API_V1}/intelligence/passport/teacher/`,
 };
 
 export interface ApiError {

@@ -105,7 +105,7 @@ class InstitutionMembershipViewSet(viewsets.ModelViewSet):
 
 class BillingStatusView(viewsets.ViewSet):
     """
-    Exposes the SaaS billing status and allows mock payment processing.
+    Exposes the SaaS subscription/billing status for institution admins.
     """
     permission_classes = [permissions.IsAuthenticated]
 
@@ -122,22 +122,16 @@ class BillingStatusView(viewsets.ViewSet):
             
         institution = active_admin_memberships.first().institution
         
-        # Auto-provision a free ledger if it somehow doesn't exist
-        from .models import SubscriptionLedger
-        ledger, created = SubscriptionLedger.objects.get_or_create(institution=institution)
-        
         return Response({
             "institution": institution.name,
-            "plan_tier": ledger.plan_tier,
-            "monthly_rate": ledger.monthly_rate,
-            "outstanding_balance": ledger.outstanding_balance,
-            "is_suspended": ledger.is_suspended,
-            "next_billing_date": ledger.next_billing_date
+            "plan_tier": institution.subscription_plan,
+            "active_students": institution.active_student_count,
+            "is_suspended": False,
         })
 
     @action(detail=False, methods=['post'])
     def pay(self, request):
-        amount = request.data.get('amount')
+        plan = request.data.get('plan')
         
         active_admin_memberships = InstitutionMembership.objects.filter(
             user=request.user, 
@@ -145,19 +139,14 @@ class BillingStatusView(viewsets.ViewSet):
             status='active'
         )
         
-        if not active_admin_memberships.exists() or not amount:
+        if not active_admin_memberships.exists() or not plan:
             return Response({"detail": "Invalid Request."}, status=status.HTTP_400_BAD_REQUEST)
             
         institution = active_admin_memberships.first().institution
-        from .models import SubscriptionLedger
-        ledger = SubscriptionLedger.objects.get(institution=institution)
+        institution.subscription_plan = plan
+        institution.save()
         
-        ledger.outstanding_balance = max(0, float(ledger.outstanding_balance) - float(amount))
-        if ledger.outstanding_balance == 0:
-            ledger.is_suspended = False
-        ledger.save()
-        
-        return Response({"detail": "Payment successful. Balance updated."}, status=status.HTTP_200_OK)
+        return Response({"detail": "Subscription updated successfully."}, status=status.HTTP_200_OK)
 
 import random
 
@@ -316,15 +305,7 @@ class InstitutionOnboardingAPIView(APIView):
             subscription_plan='setup' # Important state for Onboarding logic
         )
 
-        # 2. Setup Ledger
-        from .models import SubscriptionLedger
-        SubscriptionLedger.objects.create(
-            institution=new_inst,
-            plan_tier='setup',
-            outstanding_balance=0.00
-        )
-
-        # 3. Create Admin User
+        # 2. Create Admin User
         from django.utils.text import slugify
         admin_email = account_data.get('email').strip().lower()
         admin_user = User.objects.create_user(
@@ -337,7 +318,7 @@ class InstitutionOnboardingAPIView(APIView):
         admin_user.set_password(account_data.get('password', 'secure_password'))
         admin_user.save()
 
-        # 4. Bind Roles
+        # 3. Bind Roles
         InstitutionMembership.objects.create(
             user=admin_user,
             institution=new_inst,

@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Avg, Sum, Q, F
+from django.db.models import Count, Avg, Sum, Q, F, FloatField
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from datetime import timedelta
@@ -88,7 +88,7 @@ class StudentDashboardView(APIView):
             topic_name = sub.assessment.topic.name if sub.assessment.topic else sub.assessment.get_type_display()
             avg_score = Submission.objects.filter(
                 assessment=sub.assessment, status='graded'
-            ).aggregate(avg=Coalesce(Avg('total_score'), 0.0))['avg']
+            ).aggregate(avg=Coalesce(Avg('total_score', output_field=FloatField()), 0.0, output_field=FloatField()))['avg']
             assessment_snapshot.append({
                 "name": topic_name,
                 "scored": float(sub.total_score or 0),
@@ -216,7 +216,7 @@ class TeacherDashboardView(APIView):
         score_agg = Submission.objects.filter(
             status='graded',
             assessment__window__class_reference__teacher=request.user
-        ).aggregate(avg_score=Coalesce(Avg('total_score'), 0.0))
+        ).aggregate(avg_score=Coalesce(Avg('total_score', output_field=FloatField()), 0.0, output_field=FloatField()))
         avg_class_score = round(float(score_agg['avg_score']))
         
         # Wallet / Earnings
@@ -269,7 +269,7 @@ class TeacherDashboardView(APIView):
             cls_score = Submission.objects.filter(
                 status='graded',
                 assessment__window__class_reference=cls
-            ).aggregate(avg=Coalesce(Avg('total_score'), 0.0))
+            ).aggregate(avg=Coalesce(Avg('total_score', output_field=FloatField()), 0.0, output_field=FloatField()))
             
             at_risk = SubjectPerformanceSnapshot.objects.filter(
                 student__class_enrollments__enrolled_class=cls,
@@ -301,7 +301,7 @@ class TeacherDashboardView(APIView):
             from resources.models import ResourceEngagementRecord
             eng_agg = ResourceEngagementRecord.objects.filter(resource=res).aggregate(
                 views=Count('id'),
-                avg_completion=Coalesce(Avg('completion_percentage'), 0.0)
+                avg_completion=Coalesce(Avg('completion_percentage', output_field=FloatField()), 0.0, output_field=FloatField())
             )
             content_performance.append({
                 "title": res.title,
@@ -491,22 +491,18 @@ class AdminDashboardView(APIView):
             # Performance
             perf = SubjectPerformanceSnapshot.objects.filter(
                 institution=inst
-            ).aggregate(avg=Coalesce(Avg('average_score'), 0.0))
+            ).aggregate(avg=Coalesce(Avg('average_score', output_field=FloatField()), 0.0, output_field=FloatField()))
             
             readiness = SubjectPerformanceSnapshot.objects.filter(
                 institution=inst
-            ).aggregate(avg=Coalesce(Avg('exam_readiness_score'), 0.0))
+            ).aggregate(avg=Coalesce(Avg('exam_readiness_score', output_field=FloatField()), 0.0, output_field=FloatField()))
             
             risk_count = SubjectPerformanceSnapshot.objects.filter(
                 institution=inst, is_at_risk=True
             ).count()
             
-            # Billing status
             billing_status = 'Active'
-            revenue_str = '0'
-            if hasattr(inst, 'billing_profile'):
-                billing_status = inst.billing_profile.activation_status.title()
-                revenue_str = str(inst.billing_profile.total_revenue_generated or 0)
+            revenue_str = 'N/A'
             
             institution_performance.append({
                 "name": inst.name,
@@ -596,7 +592,7 @@ class InstitutionDashboardView(APIView):
         from institutions.models import InstitutionImplementationScorecard
         membership = InstitutionMembership.objects.filter(user=request.user, status='active').first()
         scorecard = None
-        activation_status = 'setup'
+        activation_status = 'active'
         unpaid_seats = 0
         total_students = 0
         total_teachers = 0
@@ -623,11 +619,7 @@ class InstitutionDashboardView(APIView):
             except Exception:
                 pass
             
-            if hasattr(institution, 'billing_profile'):
-                activation_status = institution.billing_profile.activation_status
-                unpaid_seats = max(0, total_students - institution.billing_profile.paid_seat_count)
-            else:
-                unpaid_seats = total_students
+
         
         is_setup = activation_status == 'setup'
         
@@ -649,7 +641,7 @@ class InstitutionDashboardView(APIView):
         if membership and not is_setup:
             perf_agg = SubjectPerformanceSnapshot.objects.filter(
                 institution=membership.institution
-            ).aggregate(avg=Coalesce(Avg('average_score'), 0.0))
+            ).aggregate(avg=Coalesce(Avg('average_score', output_field=FloatField()), 0.0, output_field=FloatField()))
             avg_perf = round(float(perf_agg['avg']))
             
             risk_alerts = SubjectPerformanceSnapshot.objects.filter(
@@ -683,7 +675,7 @@ class InstitutionDashboardView(APIView):
                     cls_score = Submission.objects.filter(
                         status='graded',
                         assessment__window__class_reference=cls
-                    ).aggregate(avg=Coalesce(Avg('total_score'), 0.0))
+                    ).aggregate(avg=Coalesce(Avg('total_score', output_field=FloatField()), 0.0, output_field=FloatField()))
                     
                     # Completion: % of published lessons that have attendances
                     total_lessons = Lesson.objects.filter(parent_class=cls, access_mode='published').count()

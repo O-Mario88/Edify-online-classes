@@ -18,10 +18,9 @@ export const GlassDashboardLayout: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen bg-slate-900 bg-cover bg-center bg-no-repeat bg-fixed text-slate-100 flex flex-col"
-      style={{ backgroundImage: "url('/images/bg-navy-curves.png')" }}
+      className="min-h-screen bg-[#0B1120] text-slate-200 flex flex-col relative overflow-x-hidden font-sans"
     >
-      {/* Top Navigation - Needs glassmorphism class injected later */}
+      {/* Top Navigation */}
       <TopNavbar isGlass={true} />
 
       {/* Main Content Area */}
@@ -30,7 +29,7 @@ export const GlassDashboardLayout: React.FC = () => {
       </main>
 
       {/* Footer can be omitted for dashboards or replaced with a minimal version */}
-      <footer className="w-full border-t border-white/10 py-6 text-center text-sm text-white mt-auto bg-[#0f2a45]">
+      <footer className="w-full border-t border-white/5 py-6 text-center text-sm text-slate-500 mt-auto bg-black/20 backdrop-blur-md">
         <p>&copy; 2026 Maple Online School. All rights reserved.</p>
       </footer>
 

@@ -27,6 +27,7 @@ import { InstitutionTimetableStudio } from './pages/InstitutionTimetableStudio';
 import { InstitutionWizard } from './pages/InstitutionWizard';
 import { IndependentTeacherWizard } from './pages/IndependentTeacherWizard';
 import { AcademicLibraryPage } from './pages/AcademicLibraryPage';
+import { ResourceDiscoveryPage } from './pages/ResourceDiscoveryPage';
 import ExamRegistrationPage from './pages/ExamRegistrationPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ParentDashboard } from './pages/ParentDashboard';
@@ -43,11 +44,16 @@ import { AICopilotProvider } from './contexts/AICopilotContext';
 import { MissedSessionRecoveryPage } from './pages/MissedSessionRecoveryPage';
 import { GlassDashboardLayout } from './components/dashboard/layout/GlassDashboardLayout';
 
-// New Enterprise Finance ERP Core
-import { FinanceERPLayout } from './apps/finance/layout/FinanceERPLayout';
-import { FinanceDashboard } from './apps/finance/pages/FinanceDashboard';
-import { InvoiceDashboardPage } from './apps/finance/pages/InvoiceDashboardPage';
-import { FeeCollectionDashboardPage } from './apps/finance/pages/FeeCollectionDashboardPage';
+// Maple Intelligence System
+import MapleIntelligenceHub from './pages/admin/intelligence/MapleIntelligenceHub';
+import InstitutionRiskMonitor from './pages/admin/intelligence/InstitutionRiskMonitor';
+import InstitutionHealthView from './pages/institution/dashboard/InstitutionHealthView';
+import OfflineResultUpload from './pages/institution/academics/OfflineResultUpload';
+
+// Analytics
+import { AnalyticsLayout } from './pages/analytics/AnalyticsLayout';
+import { PlatformCommandCenter } from './pages/analytics/PlatformCommandCenter';
+import { InstitutionIntelligence } from './pages/analytics/InstitutionIntelligence';
 
 function App() {
   return (
@@ -64,7 +70,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="classes" element={<CourseCatalog />} />
           <Route path="classes/:classId" element={<ClassSyllabusPage />} />
-          <Route path="classes/:gradeId/:termId/:subjectId" element={<CourseDetail />} />
+          <Route path="classes/:classId/:termId/:subjectId" element={<CourseDetail />} />
           <Route path="classes/:classId/subject/:subjectId" element={<SubjectTopicsPage />} />
           <Route path="classes/:classId/:termId/:subjectId/topic/:topicId" element={<TopicDetailPage />} />
           <Route path="forum/*" element={<ForumPage />} />
@@ -72,6 +78,11 @@ function App() {
           <Route path="library" element={
             <ProtectedRoute allowedRoles={['student', 'parent', 'institution_teacher', 'universal_teacher', 'teacher', 'independent_teacher', 'institution_admin', 'platform_admin']}>
               <AcademicLibraryPage />
+            </ProtectedRoute>
+          } />
+          <Route path="resources" element={
+            <ProtectedRoute allowedRoles={['student', 'parent', 'institution_teacher', 'universal_teacher', 'teacher', 'independent_teacher', 'institution_admin', 'platform_admin']}>
+              <ResourceDiscoveryPage />
             </ProtectedRoute>
           } />
           <Route path="payment" element={<PaymentPage />} />
@@ -155,6 +166,16 @@ function App() {
               <AdminDashboard />
             </ProtectedRoute>
           } />
+          <Route path="admin/intelligence" element={
+            <ProtectedRoute allowedRoles={['platform_admin']}>
+              <MapleIntelligenceHub />
+            </ProtectedRoute>
+          } />
+          <Route path="admin/intelligence/risk" element={
+            <ProtectedRoute allowedRoles={['platform_admin']}>
+              <InstitutionRiskMonitor />
+            </ProtectedRoute>
+          } />
           <Route path="parent" element={
             <ProtectedRoute allowedRoles={['parent']}>
               <ParentDashboard />
@@ -165,6 +186,16 @@ function App() {
               <InstitutionManagementPage />
             </ProtectedRoute>
           } />
+          <Route path="institution/health" element={
+            <ProtectedRoute allowedRoles={['institution_admin']}>
+              <InstitutionHealthView />
+            </ProtectedRoute>
+          } />
+          <Route path="institution/health/upload" element={
+            <ProtectedRoute allowedRoles={['institution_admin']}>
+              <OfflineResultUpload />
+            </ProtectedRoute>
+          } />
           <Route path="institution/timetable" element={
             <ProtectedRoute allowedRoles={['institution_admin']}>
               <InstitutionTimetableStudio />
@@ -172,17 +203,14 @@ function App() {
           } />
         </Route>
 
-        {/* 🚀 New Enterprise Financial ERP 🚀 */}
-        <Route path="/dashboard/finance" element={
-          <ProtectedRoute allowedRoles={['institution_admin', 'bursar']}>
-            <FinanceERPLayout />
+        {/* Analytics Routes */}
+        <Route path="/analytics" element={
+          <ProtectedRoute allowedRoles={['platform_admin', 'institution_admin']}>
+            <AnalyticsLayout />
           </ProtectedRoute>
         }>
-          <Route index element={<FinanceDashboard />} />
-          <Route path="accounting" element={<div className="p-8 text-white"><h1 className="text-2xl font-bold">General Ledger</h1><p className="text-slate-400 mt-2">Chart of accounts mapping goes here.</p></div>} />
-          <Route path="invoices" element={<InvoiceDashboardPage />} />
-          <Route path="collection" element={<FeeCollectionDashboardPage />} />
-          {/* Add more nested routes for the ERP modules later */}
+          <Route index element={<PlatformCommandCenter />} />
+          <Route path="institution" element={<InstitutionIntelligence />} />
         </Route>
 
       </Routes>

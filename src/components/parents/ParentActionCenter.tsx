@@ -1,44 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { CheckSquare, MessageSquare, BookOpen, AlertCircle, HeartCrack, Lightbulb } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
+import { apiClient, API_ENDPOINTS } from '../../lib/apiClient';
+
+interface ParentActionItem {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  homeHelp: string;
+  icon: React.ReactNode;
+}
+
+const TYPE_ICON_MAP: Record<string, React.ReactNode> = {
+  attendance_issue: <AlertCircle className="w-5 h-5 text-red-500" />,
+  alert_acknowledge: <AlertCircle className="w-5 h-5 text-red-500" />,
+  home_follow_up: <BookOpen className="w-5 h-5 text-orange-500" />,
+  view_tasks: <BookOpen className="w-5 h-5 text-blue-500" />,
+  teacher_contact: <MessageSquare className="w-5 h-5 text-indigo-500" />,
+  intervention_response: <HeartCrack className="w-5 h-5 text-purple-500" />,
+  celebration: <Lightbulb className="w-5 h-5 text-yellow-500" />,
+  payment: <BookOpen className="w-5 h-5 text-green-500" />,
+};
+
+const FALLBACK_ACTIONS: ParentActionItem[] = [
+  {
+    id: 'a1', type: 'alert', title: 'Dropped below attendance threshold',
+    description: 'Your child missed 3 live sessions this week.',
+    homeHelp: 'Please discuss the importance of showing up on time, and ensure their device is charged.',
+    icon: <AlertCircle className="w-5 h-5 text-red-500" />
+  },
+  {
+    id: 'a2', type: 'academic', title: 'Pending Mathematics Assignment',
+    description: 'The "Quadratic Equations" worksheet is overdue by 2 days.',
+    homeHelp: 'Sit with them for 30 minutes tonight while they complete the 5 required questions.',
+    icon: <BookOpen className="w-5 h-5 text-orange-500" />
+  },
+  {
+    id: 'a3', type: 'wellbeing', title: 'Peer Support Drop',
+    description: 'Your child has been less active in class discussions recently.',
+    homeHelp: 'Ask them if they are feeling overwhelmed and encourage them to ask one question tomorrow.',
+    icon: <HeartCrack className="w-5 h-5 text-purple-500" />
+  }
+];
 
 export const ParentActionCenter: React.FC = () => {
   const [acknowledged, setAcknowledged] = useState<string[]>([]);
+  const [actions, setActions] = useState<ParentActionItem[]>(FALLBACK_ACTIONS);
 
-  const handleAcknowledge = (id: string) => {
+  useEffect(() => {
+    const fetchActions = async () => {
+      try {
+        const response = await apiClient.get<{ results: any[] }>(API_ENDPOINTS.INTELLIGENCE_PARENT_ACTIONS);
+        const items = response.data?.results;
+        if (items && items.length > 0) {
+          setActions(items.map((a: any) => ({
+            id: String(a.id),
+            type: a.action_type,
+            title: a.title,
+            description: a.description || `Regarding ${a.child_name}`,
+            homeHelp: a.data_payload?.home_help || 'Follow up with your child about this item.',
+            icon: TYPE_ICON_MAP[a.action_type] || <AlertCircle className="w-5 h-5 text-slate-500" />,
+          })));
+        }
+      } catch {
+        // Use fallback data
+      }
+    };
+    fetchActions();
+  }, []);
+
+  const handleAcknowledge = async (id: string) => {
     if (!acknowledged.includes(id)) {
       setAcknowledged([...acknowledged, id]);
+      try {
+        await apiClient.post(`${API_ENDPOINTS.INTELLIGENCE_PARENT_ACTIONS}${id}/acknowledge/`, {});
+      } catch {
+        // Non-critical — UI already updated
+      }
     }
   };
-
-  const actions = [
-    {
-      id: 'a1',
-      type: 'alert',
-      title: 'Dropped below attendance threshold',
-      description: 'Your child missed 3 live sessions this week.',
-      homeHelp: 'Please discuss the importance of showing up on time, and ensure their device is charged.',
-      icon: <AlertCircle className="w-5 h-5 text-red-500" />
-    },
-    {
-      id: 'a2',
-      type: 'academic',
-      title: 'Pending Mathematics Assignment',
-      description: 'The "Quadratic Equations" worksheet is overdue by 2 days.',
-      homeHelp: 'Sit with them for 30 minutes tonight while they complete the 5 required questions.',
-      icon: <BookOpen className="w-5 h-5 text-orange-500" />
-    },
-    {
-      id: 'a3',
-      type: 'wellbeing',
-      title: 'Peer Support Drop',
-      description: 'Your child has been less active in class discussions recently.',
-      homeHelp: 'Ask them if they are feeling overwhelmed and encourage them to ask one question tomorrow.',
-      icon: <HeartCrack className="w-5 h-5 text-purple-500" />
-    }
-  ];
 
   return (
     <Card className="border border-indigo-100 shadow-sm bg-white">

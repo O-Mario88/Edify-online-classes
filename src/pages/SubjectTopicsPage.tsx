@@ -29,6 +29,7 @@ export const SubjectTopicsPage: React.FC = () => {
   const [classData, setClassData] = useState<UgandaClass | null>(null);
   const [subject, setSubject] = useState<Subject | null>(null);
   const [allTopics, setAllTopics] = useState<TopicWithMeta[]>([]);
+  const [selectedTermId, setSelectedTermId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,6 +60,9 @@ export const SubjectTopicsPage: React.FC = () => {
 
               setSubject(foundSubject);
               setAllTopics(topics);
+              if (cls.terms && cls.terms.length > 0) {
+                setSelectedTermId(cls.terms[0].id);
+              }
               return;
             }
           }
@@ -137,92 +141,112 @@ export const SubjectTopicsPage: React.FC = () => {
               {subject.name}
             </EditorialHeader>
             <p className="text-xl text-slate-500 font-light leading-relaxed max-w-2xl">
-              Complete topic sequence from introduction to final module — all three terms in one place.
+              Complete topic sequence from introduction to final module — switch between terms to view specific topics.
             </p>
+
+            {/* Term Navigator */}
+            <div className="flex flex-nowrap gap-2 items-center mt-4 overflow-x-auto hide-scrollbar">
+              {classData.terms.map((term) => (
+                 <button
+                   key={term.id}
+                   onClick={() => setSelectedTermId(term.id)}
+                   className={`px-5 py-2.5 rounded-full text-xs uppercase font-black tracking-widest transition-all whitespace-nowrap ${
+                     selectedTermId === term.id 
+                       ? 'bg-blue-600 text-white shadow-md'
+                       : 'bg-white text-slate-500 hover:text-blue-600 border border-slate-200'
+                   }`}
+                 >
+                    {term.name}
+                 </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
       {/* Topic Sequence */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="space-y-16">
-          {Object.entries(byTerm).map(([termId, topics]) => (
-            <div key={termId}>
-              {/* Term Section Divider */}
-              <div className="flex items-center gap-4 mb-8">
-                <span className="text-xs font-black uppercase tracking-widest text-[#8e8268] bg-[#f4efe2] px-4 py-2 rounded-full">
-                  {topics[0].termName}
-                </span>
-                <div className="flex-1 h-px bg-slate-200" />
-              </div>
-
-              {/* Topics in this term */}
-              <div className="space-y-4">
-                {topics.map((topic) => {
-                  const totalLessons = topic.subtopics.reduce((a, st) => a + st.lessons.length, 0);
-                  const lessonTypes = [...new Set(topic.subtopics.flatMap(st => st.lessons.map(l => l.type)))];
-
-                  return (
-                    <button
-                      key={topic.id}
-                      onClick={() => navigate(`/classes/${classId}/${termId}/${subjectId}/topic/${topic.id}`)}
-                      className="w-full text-left group"
-                    >
-                      <EditorialPanel
-                        variant="elevated"
-                        padding="none"
-                        className="border border-slate-100 bg-white hover:shadow-lg transition-all duration-300 overflow-hidden"
-                      >
-                        <div className="flex items-center gap-6 p-6 sm:p-8">
-                          {/* Number */}
-                          <div className="w-14 h-14 rounded-2xl bg-[#f4efe2] flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 transition-colors duration-300">
-                            <span className="text-xl font-black text-[#8e8268] group-hover:text-white transition-colors duration-300 leading-none">
-                              {topic.globalIndex}
-                            </span>
-                          </div>
-
-                          {/* Content */}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mb-2">
-                              {topic.name}
-                            </h3>
-                            {topic.description && (
-                              <p className="text-base text-slate-500 font-light leading-relaxed line-clamp-1 mb-3">
-                                {topic.description}
-                              </p>
-                            )}
-
-                            {/* Lesson type chips */}
-                            <div className="flex items-center gap-3 flex-wrap">
-                              {lessonTypes.map(type => (
-                                <span
-                                  key={type}
-                                  className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${
-                                    type === 'video'    ? 'bg-rose-50 text-rose-600' :
-                                    type === 'notes'    ? 'bg-blue-50 text-blue-600' :
-                                    type === 'exercise' ? 'bg-[#f4efe2] text-[#8e8268]' :
-                                    type === 'project'  ? 'bg-emerald-50 text-emerald-600' :
-                                    'bg-slate-100 text-slate-500'
-                                  }`}
-                                >
-                                  {lessonTypeIcon(type)} {type}
-                                </span>
-                              ))}
-                              <span className="text-xs font-semibold text-slate-400">
-                                {totalLessons} resources
-                              </span>
-                            </div>
-                          </div>
-
-                          <ChevronRight className="w-6 h-6 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
-                        </div>
-                      </EditorialPanel>
-                    </button>
-                  );
-                })}
-              </div>
+        <div className="space-y-4">
+          {!selectedTermId ? null : (byTerm[selectedTermId as string] || []).length === 0 ? (
+            <div className="text-center py-20 bg-white/50 rounded-3xl border border-white">
+              <FolderOpen className="h-10 w-10 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 font-medium">No topics available for this term yet.</p>
             </div>
-          ))}
+          ) : (
+            (byTerm[selectedTermId as string] || []).map((topic) => {
+              const totalLessons = topic.subtopics.reduce((a, st) => a + st.lessons.length, 0);
+              const lessonTypes = [...new Set(topic.subtopics.flatMap(st => st.lessons.map(l => l.type)))];
+
+              return (
+                <button
+                  key={topic.id}
+                  onClick={() => navigate(`/classes/${classId}/${selectedTermId}/${subjectId}/topic/${topic.id}`)}
+                  className="w-full text-left group"
+                >
+                  <EditorialPanel
+                    variant="elevated"
+                    padding="none"
+                    className="border border-slate-100 bg-white hover:shadow-lg transition-all duration-300 overflow-hidden"
+                  >
+                    <div className="flex items-center gap-6 p-6 sm:p-8">
+                      {/* Number */}
+                      <div className="w-14 h-14 rounded-2xl bg-[#f4efe2] flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 transition-colors duration-300">
+                        <span className="text-xl font-black text-[#8e8268] group-hover:text-white transition-colors duration-300 leading-none">
+                          {topic.globalIndex}
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-xl font-bold text-slate-900 leading-snug mb-2 inline-block flex-shrink-0">
+                          <span className="bg-gradient-to-r from-slate-900 to-slate-900 bg-[length:0%_2px] bg-no-repeat bg-left-bottom group-hover:bg-[length:100%_2px] transition-all duration-300 ease-out pb-0.5">
+                            {topic.name}
+                          </span>
+                        </h3>
+                        {topic.description && (
+                          <p className="text-base text-slate-500 font-light leading-relaxed line-clamp-1 mb-3">
+                            {topic.description}
+                          </p>
+                        )}
+
+                        {/* Lesson type chips */}
+                        <div className="flex items-center gap-3 flex-wrap">
+                          {lessonTypes.map(type => (
+                            <span
+                              key={type}
+                              className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${
+                                type === 'video'    ? 'bg-rose-50 text-rose-600' :
+                                type === 'notes'    ? 'bg-blue-50 text-blue-600' :
+                                type === 'exercise' ? 'bg-[#f4efe2] text-[#8e8268]' :
+                                type === 'project'  ? 'bg-emerald-50 text-emerald-600' :
+                                'bg-slate-100 text-slate-500'
+                              }`}
+                            >
+                              {lessonTypeIcon(type)} {type}
+                            </span>
+                          ))}
+                          <span className="text-xs font-semibold text-slate-400">
+                            {totalLessons} resources
+                          </span>
+                        </div>
+                      </div>
+
+                      <ChevronRight className="w-6 h-6 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
+                    </div>
+                  </EditorialPanel>
+                </button>
+              );
+            })
+          )}
         </div>
       </div>
     </div>

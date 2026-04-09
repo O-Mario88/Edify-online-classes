@@ -59,7 +59,7 @@ export const RegisterPage: React.FC = () => {
       if (result.redirect_url) {
         navigate(result.redirect_url);
       } else {
-        navigate('/student-dashboard');
+        navigate('/dashboard/student');
       }
     } else {
       setError(result.error || 'Failed to onboard student. Please verify the parent phone number.');
@@ -82,24 +82,33 @@ export const RegisterPage: React.FC = () => {
     <div className="min-h-screen bg-white flex flex-col md:flex-row p-0 m-0 w-full relative overflow-hidden font-sans">
       
       {/* LEFT COLUMN: Editorial Splash */}
-      <div className="hidden md:flex w-2/5 lg:w-1/2 p-12 bg-[#F9F7F3] flex-col justify-center relative">
-        <div className="max-w-md mx-auto">
-          <EditorialHeader level="h1" className="mb-6 text-slate-900 leading-tight text-4xl md:text-5xl">
-            Maple Online School<br/>guarantees learning from anywhere!
+      <div className="hidden md:flex md:w-[42%] lg:w-[38%] xl:w-[36%] px-8 py-10 bg-[#F9F7F3] flex-col justify-center relative">
+        <div className="max-w-xs mx-auto w-full">
+          <EditorialHeader level="h1" className="mb-4 text-slate-900 leading-snug text-2xl lg:text-3xl">
+            Maple Online School<br/>— learning from anywhere!
           </EditorialHeader>
-          <p className="text-slate-600 font-medium leading-relaxed mb-10 text-lg">
-            Learn with expert teachers, tackle focused curriculum materials, and get AI-powered academic support directly aligned with your syllabus.
+          <p className="text-slate-500 font-normal leading-relaxed mb-7 text-sm">
+            Expert teachers, focused NCDC-aligned materials, and AI-powered academic support — all in one place.
           </p>
           
-          <div className="relative w-full aspect-square max-w-sm mx-auto overflow-hidden rounded-3xl shadow-xl border border-slate-200">
-             <div className="absolute inset-0 bg-gradient-to-tr from-[#98d8c6] to-[#fcb97d] opacity-40 mix-blend-multiply rounded-3xl" />
+          <div className="relative w-full aspect-[4/3] max-w-[260px] mx-auto overflow-hidden rounded-2xl shadow-lg border border-slate-200">
+             <div className="absolute inset-0 bg-gradient-to-tr from-[#98d8c6] to-[#fcb97d] opacity-40 mix-blend-multiply rounded-2xl" />
              <img src="/images/teenager_studying_at_home.png" alt="African teenager studying at home" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=2070&auto=format&fit=crop' }} />
+          </div>
+
+          <div className="mt-8 space-y-2.5">
+            {['NCDC-aligned curriculum', 'Live & recorded lessons', 'Parent progress tracking'].map(feat => (
+              <div key={feat} className="flex items-center gap-2">
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+                <span className="text-xs text-slate-600">{feat}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* RIGHT COLUMN: Form Area */}
-      <div className="w-full md:w-3/5 lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative bg-white">
+      <div className="w-full md:w-[58%] lg:w-[62%] xl:w-[64%] flex items-center justify-center p-6 md:px-16 md:py-12 relative bg-white">
         
         {/* Selection State */}
         {roleMode === 'selection' && (

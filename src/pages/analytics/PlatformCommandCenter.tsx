@@ -170,7 +170,7 @@ export const PlatformCommandCenter = () => {
           </div>
           
           <button className="w-full mt-6 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium rounded-lg text-sm transition-colors">
-            Run Finance Report
+            Run Revenue Report
           </button>
         </div>
       </div>

@@ -13,10 +13,10 @@ from curriculum.models import Country, CurriculumTrack, EducationLevel, ClassLev
 
 def run():
     print("Seeding from JSON...")
-    json_path = os.path.join(settings.BASE_DIR.parent, 'public', 'data', 'courses.json')
+    json_path = os.path.join(settings.BASE_DIR.parent, 'public', 'data', 'courses.json.bak')
     if not os.path.exists(json_path):
         # Maybe another directory since script is in edify_backend and public is adjacent
-        json_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'public', 'data', 'courses.json')
+        json_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'public', 'data', 'courses.json.bak')
         
     with open(json_path, 'r') as f:
         data = json.load(f)

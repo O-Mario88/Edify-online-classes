@@ -108,3 +108,50 @@ class AssignmentRecommendation(models.Model):
     
     def __str__(self):
         return f"Recommendation for {self.teacher.email} on {self.recommended_topic.title}"
+
+# ---------------------------------------------------------
+# MAPLE INTELLIGENCE OFFLINE INTEGRATION
+# ---------------------------------------------------------
+
+class OfflineAcademicResult(models.Model):
+    """
+    Module 5: Offline vs Online Subject Performance Comparison.
+    Uploaded by institutions to track physical exams.
+    """
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='offline_results')
+    institution = models.ForeignKey('institutions.Institution', on_delete=models.CASCADE)
+    subject = models.ForeignKey('curriculum.Subject', on_delete=models.CASCADE)
+    term = models.ForeignKey('scheduling.AcademicTerm', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    exam_name = models.CharField(max_length=255) # e.g., 'BOT 1', 'Mid Term'
+    score_pct = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    
+    online_mastery_at_time = models.DecimalField(max_digits=5, decimal_places=2, default=0.0, help_text="Snapshot of online performance when this was recorded")
+    date_recorded = models.DateField(db_index=True)
+
+    def __str__(self):
+        return f"{self.student.email} - {self.subject.name} - {self.score_pct}%"
+
+class NationalExamResult(models.Model):
+    """
+    Module 8: National Exam Result tracking.
+    """
+    institution = models.ForeignKey('institutions.Institution', on_delete=models.CASCADE, related_name='national_exam_results')
+    cohort_year = models.IntegerField(help_text="e.g. 2024")
+    exam_type = models.CharField(max_length=50, choices=[('UCE', 'UCE'), ('UACE', 'UACE'), ('PLE', 'PLE')])
+    
+    # Aggregates
+    total_candidates = models.IntegerField(default=0)
+    division_1_count = models.IntegerField(default=0)
+    division_2_count = models.IntegerField(default=0)
+    division_3_count = models.IntegerField(default=0)
+    division_4_count = models.IntegerField(default=0)
+    failures_count = models.IntegerField(default=0)
+    
+    year_over_year_improvement_pct = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.institution.name} - {self.exam_type} ({self.cohort_year})"
+

@@ -16,12 +16,14 @@ import { ParentActionCenter } from '../components/parents/ParentActionCenter';
 import { CelebrationEngineWidget } from '../components/dashboard/CelebrationEngineWidget';
 import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { SmartStudyPlanner } from '../components/students/SmartStudyPlanner';
+import { useStudyPlanner } from '../hooks/useIntelligence';
 
 export const ParentDashboard: React.FC = () => {
   const { userProfile } = useAuth();
   const parent = userProfile as any;
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<any>(null);
+  const { dailyPlan: studyPlanDays } = useStudyPlanner();
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -41,9 +43,9 @@ export const ParentDashboard: React.FC = () => {
               riskLevel: 'healthy',
               alertText: 'Top of class',
               actionLabel: 'Commend child',
-              actionLink: '/dashboard/messages',
+              actionLink: '/dashboard/parent',
               drillDownText: 'View assignments',
-              drillDownLink: '/dashboard/assignments'
+              drillDownLink: '/dashboard/parent'
             },
             {
               title: 'Struggling With',
@@ -54,9 +56,9 @@ export const ParentDashboard: React.FC = () => {
               riskLevel: 'critical',
               alertText: 'Kinematics failing',
               actionLabel: 'Book tutor',
-              actionLink: '/dashboard/tutoring',
+              actionLink: '/peer-tutoring',
               drillDownText: 'View intervention',
-              drillDownLink: '/dashboard/interventions'
+              drillDownLink: '/dashboard/parent'
             },
             {
               title: 'Study Time',
@@ -68,7 +70,7 @@ export const ParentDashboard: React.FC = () => {
               riskLevel: 'warning',
               alertText: 'Below target',
               actionLabel: 'Check library',
-              actionLink: '/dashboard/library'
+              actionLink: '/library'
             },
             {
               title: 'Teacher Support',
@@ -79,7 +81,7 @@ export const ParentDashboard: React.FC = () => {
               riskLevel: 'healthy',
               alertText: 'Teacher engaged',
               drillDownText: 'View plans',
-              drillDownLink: '/dashboard/support'
+              drillDownLink: '/dashboard/parent'
             },
             {
               title: 'Action List',
@@ -91,7 +93,7 @@ export const ParentDashboard: React.FC = () => {
               riskLevel: 'warning',
               alertText: 'Physics Lab',
               actionLabel: 'Review task',
-              actionLink: '/dashboard/tasks'
+              actionLink: '/dashboard/parent'
             }
           ],
           kpis: {
@@ -160,9 +162,8 @@ export const ParentDashboard: React.FC = () => {
         </div>
         
         <Tabs defaultValue="academics" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md bg-gray-100/80 mb-6">
+          <TabsList className="grid w-full grid-cols-1 max-w-md bg-gray-100/80 mb-6">
             <TabsTrigger value="academics" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">Academic Performance</TabsTrigger>
-            <TabsTrigger value="finance" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">Household Finances</TabsTrigger>
           </TabsList>
 
           <TabsContent value="academics" className="space-y-8 mt-0">
@@ -221,17 +222,7 @@ export const ParentDashboard: React.FC = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
                  Child's Study Plan
               </h3>
-              <SmartStudyPlanner mode="readonly" dailyPlan={[
-                 {
-                   dayOfWeek: "Monday",
-                   date: "Today",
-                   tasks: [
-                     { id: "1", title: "Review Quadratic Forms", type: "weak_topic", subject: "Mathematics", durationMinutes: 30, isCompleted: true },
-                     { id: "2", title: "Complete Physics Lab Report", type: "deadline", subject: "Physics", durationMinutes: 45, isCompleted: false },
-                     { id: "3", title: "Read Chapter 4 Notes", type: "custom", subject: "Biology", durationMinutes: 45, isCompleted: false }
-                   ]
-                 }
-               ]} />
+              <SmartStudyPlanner mode="readonly" dailyPlan={studyPlanDays} />
            </div>
         </div>
 
@@ -379,84 +370,6 @@ export const ParentDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </div>
-          </TabsContent>
-
-          <TabsContent value="finance" className="mt-0 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="border border-emerald-200 dark:border-emerald-800 shadow-sm bg-emerald-50/30">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xs text-emerald-800 uppercase font-bold">Household Balance Due</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-black text-emerald-900 mt-1">UGX 460,000</div>
-                  <p className="text-xs text-emerald-700 mt-2 font-medium">Due by June 15, 2026</p>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-sm border-slate-200">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xs text-slate-500 uppercase font-bold">Total Invoiced (Term 1)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-slate-900 mt-1">UGX 1,760,000</div>
-                  <Badge variant="outline" className="mt-2 bg-slate-100 font-medium">2 Dependents</Badge>
-                </CardContent>
-              </Card>
-              
-              <Card className="shadow-sm border-blue-200 bg-blue-50/50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xs text-blue-800 uppercase font-bold">Granted Waivers & Bursaries</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl font-bold text-blue-900 mt-1">- UGX 100,000</div>
-                  <p className="text-xs text-blue-700 mt-2">Sibling Discount Applied (5%)</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="shadow-sm border-slate-200">
-               <CardHeader className="border-b bg-slate-50/50">
-                 <CardTitle className="text-lg">Individual Child Ledgers</CardTitle>
-                 <CardDescription>Consolidated breakdown of generated bills mapped to your household.</CardDescription>
-               </CardHeader>
-               <CardContent className="p-0">
-                  <table className="w-full text-sm text-left border-collapse">
-                    <thead className="bg-slate-100 text-slate-500 border-b border-slate-200">
-                      <tr>
-                        <th className="font-semibold p-4 uppercase text-xs">Student Name</th>
-                        <th className="font-semibold p-4 uppercase text-xs">Class</th>
-                        <th className="font-semibold p-4 uppercase text-xs text-right">Invoiced (UGX)</th>
-                        <th className="font-semibold p-4 uppercase text-xs text-right">Paid (UGX)</th>
-                        <th className="font-semibold p-4 uppercase text-xs text-right">Balance Due</th>
-                        <th className="font-semibold p-4 uppercase text-xs text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      <tr className="hover:bg-slate-50">
-                        <td className="p-4 font-bold text-slate-900">Alice Mukasa</td>
-                        <td className="p-4 text-slate-600">S2-B</td>
-                        <td className="p-4 text-right">800,000</td>
-                        <td className="p-4 text-right text-emerald-600 font-medium">800,000</td>
-                        <td className="p-4 text-right font-black">0</td>
-                        <td className="p-4 text-center"><Badge className="bg-emerald-100 text-emerald-700 border-none">Cleared</Badge></td>
-                      </tr>
-                      <tr className="hover:bg-slate-50 bg-rose-50/20">
-                        <td className="p-4 font-bold text-slate-900">David Ochieng</td>
-                        <td className="p-4 text-slate-600">S4-A</td>
-                        <td className="p-4 text-right">960,000</td>
-                        <td className="p-4 text-right text-emerald-600 font-medium">500,000</td>
-                        <td className="p-4 text-right font-black text-rose-600">460,000</td>
-                        <td className="p-4 text-center"><Badge variant="destructive" className="border-none">Active Arrears</Badge></td>
-                      </tr>
-                    </tbody>
-                  </table>
-               </CardContent>
-            </Card>
-
-            <div className="flex justify-end gap-3 mt-4">
-              <Button variant="outline">Download Consolidated Statement</Button>
-              <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">Make Online Payment</Button>
-            </div>
           </TabsContent>
         </Tabs>
       </div>

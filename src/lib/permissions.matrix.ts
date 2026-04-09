@@ -32,7 +32,7 @@ export enum Permission {
   VIEW_ALL_GRADES = "VIEW_ALL_GRADES",
   MANAGE_EXAMS = "MANAGE_EXAMS",
 
-  // Billing & Finance
+  // Billing & Subscription
   MANAGE_BILLING = "MANAGE_BILLING",
   VIEW_INVOICES = "VIEW_INVOICES",
 }

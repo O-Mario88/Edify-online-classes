@@ -105,7 +105,6 @@ class PayoutRequestViewSet(viewsets.ModelViewSet):
         return Response(eligibility)
 
 from rest_framework import views, serializers
-from billing.models import TeacherAccessFeeAccount
 from .models import TeacherPayoutBatch
 from lessons.models import LessonQualificationRecord
 
@@ -141,26 +140,6 @@ class LessonQualificationViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return LessonQualificationRecord.objects.filter(lesson__parent_class__teacher=self.request.user).order_by('-lesson__scheduled_at')
 
-class MonetizationOverviewView(views.APIView):
-    """
-    Teacher Monetization: Central tracker for the Access Fee Obligation.
-    """
-    permission_classes = [IsAuthenticated]
-    
-    def get(self, request):
-        user = request.user
-        fee_account, _ = TeacherAccessFeeAccount.objects.get_or_create(teacher=user)
-        
-        latest_batch = TeacherPayoutBatch.objects.filter(teacher=user).order_by('-cycle_end_date').first()
-        last_net_payout = latest_batch.net_payout if latest_batch else 0.00
-        
-        return Response({
-            'total_obligation': fee_account.total_obligation,
-            'recovered_amount': fee_account.recovered_amount,
-            'remaining_balance': fee_account.remaining_balance,
-            'is_recovered': fee_account.is_recovered,
-            'last_net_payout': last_net_payout
-        })
 
 from rest_framework.permissions import AllowAny
 from django.db import transaction
@@ -206,9 +185,6 @@ class IndependentTeacherOnboardingView(views.APIView):
             mobile_money_number=data.get('payout_phone', ''),
             accepted_marketplace_terms=True
         )
-
-        # 3. Monetization Liability (UGX 300,000 threshold mapping)
-        TeacherAccessFeeAccount.objects.get_or_create(teacher=teacher)
 
         return Response({
             'message': 'Independent Educator onboarding Phase 1-4 Complete',

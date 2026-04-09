@@ -20,7 +20,7 @@ export const StudentPlatformLaunchpad: React.FC = () => {
               <h3 className="font-bold text-white text-lg leading-tight mb-1">Exams & Registration</h3>
               <p className="text-sm text-slate-400 font-medium">Mid-Term exams approaching in 14 days.</p>
             </div>
-            <Link to="/tools/exams">
+            <Link to="/exam-registration">
               <Button variant="ghost" className="w-full justify-between hover:bg-white/10 text-indigo-300 font-bold px-0 p-0 hover:px-3 h-auto py-2 transition-all group-hover:px-3 group-hover:bg-indigo-500/10">
                 View Timetable <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -40,7 +40,7 @@ export const StudentPlatformLaunchpad: React.FC = () => {
               <h3 className="font-bold text-white text-lg leading-tight mb-1">Project Workspaces</h3>
               <p className="text-sm text-slate-400 font-medium">1 Active Collaboration: Renewable Energy Model.</p>
             </div>
-            <Link to="/tools/projects">
+            <Link to="/projects">
               <Button variant="ghost" className="w-full justify-between hover:bg-white/10 text-emerald-300 font-bold px-0 p-0 hover:px-3 h-auto py-2 transition-all group-hover:px-3 group-hover:bg-emerald-500/10">
                 Open Workspace <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -80,7 +80,7 @@ export const StudentPlatformLaunchpad: React.FC = () => {
               <h3 className="font-bold text-white text-lg leading-tight mb-1">Maple AI Tutor</h3>
               <p className="text-sm text-slate-400 font-medium">Your interactive agent for math and science.</p>
             </div>
-            <Link to="/tools/ai-assistant">
+            <Link to="/ai-assistant">
               <Button variant="ghost" className="w-full justify-between hover:bg-white/10 text-blue-300 font-bold px-0 p-0 hover:px-3 h-auto py-2 transition-all group-hover:px-3 group-hover:bg-blue-500/10">
                 Ask a Question <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

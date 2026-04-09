@@ -215,8 +215,10 @@ export const InstitutionWizard: React.FC = () => {
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 space-y-8">
                    <div>
                        <h3 className="text-sm font-semibold text-slate-800 mb-3">Offered Levels</h3>
-                       <div className="grid grid-cols-3 gap-4">
-                          {['O-Level Only', 'A-Level Only', 'Both O & A Level'].map(level => (
+                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {(accountData.type === 'primary' ? ['Upper Primary (P4-P7)', 'Full Primary', 'Lower Primary Only'] :
+                            accountData.type === 'secondary' ? ['O-Level Only', 'A-Level Only', 'Both O & A Level'] :
+                            ['Full Primary + Secondary', 'Upper Primary + O-Level', 'Custom Matrix']).map(level => (
                             <div key={level} onClick={() => setBrandData({...brandData, levels: level})} className={`p-4 rounded-xl border cursor-pointer transition-all ${brandData.levels === level ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-white border-slate-200 hover:border-blue-300'}`}>
                                <div className="flex items-center justify-between pointer-events-none">
                                   <span className="font-medium text-sm text-slate-800">{level}</span>

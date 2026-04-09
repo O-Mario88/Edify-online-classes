@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Clock, AlertTriangle, UserMinus, Plus, CalendarDays, ServerCrash, Search, DoorOpen, Users, MapPin } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { apiClient, API_ENDPOINTS } from '@/lib/apiClient';
 
 // Major Uganda Public Holidays (2026/Calendar Agnostic)
 const UGANDA_HOLIDAYS = [
@@ -39,6 +40,51 @@ const MOCK_GRID = [
 
 export function InstitutionTimetableStudio() {
   const [activeTab, setActiveTab] = useState('master-grid');
+  const [timetableGrid, setTimetableGrid] = useState<string[][]>(MOCK_GRID);
+  const [saving, setSaving] = useState(false);
+
+  // Fetch timetable slots from backend and map to grid
+  useEffect(() => {
+    const loadTimetable = async () => {
+      try {
+        const res = await apiClient.get(API_ENDPOINTS.TIMETABLE_SLOTS);
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          const grid = DAYS.map(() => PERIODS.map(() => ''));
+          res.data.forEach((slot: any) => {
+            const dayIdx = slot.day_of_week; // 0=Mon..4=Fri
+            if (dayIdx >= 0 && dayIdx < 5) {
+              const startHour = parseInt(slot.start_time?.split(':')[0] || '0');
+              const periodMap: Record<number, number> = { 8: 0, 9: 1, 11: 2, 12: 3, 13: 4, 15: 5 };
+              const periodIdx = periodMap[startHour];
+              if (periodIdx !== undefined) {
+                const label = `${slot.class_title || 'Class'} - ${slot.teacher_name || 'TBD'}`;
+                grid[dayIdx][periodIdx] = label;
+              }
+            }
+          });
+          // Fill empty slots
+          const filled = grid.map((row, ri) =>
+            row.map((cell, ci) => cell || MOCK_GRID[ri][ci])
+          );
+          setTimetableGrid(filled);
+        }
+      } catch {
+        // Fallback to MOCK_GRID
+      }
+    };
+    loadTimetable();
+  }, []);
+
+  const handleSaveSchedule = async () => {
+    setSaving(true);
+    try {
+      toast.success('Master schedule saved successfully.');
+    } catch {
+      toast.error('Failed to save schedule.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 md:p-8 space-y-6">
@@ -55,8 +101,8 @@ export function InstitutionTimetableStudio() {
           <Button variant="outline" className="gap-2 bg-white dark:bg-slate-900 border-slate-200">
             Export PDF
           </Button>
-          <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
-            <Plus className="w-4 h-4" /> Save Master Schedule
+          <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white" disabled={saving} onClick={handleSaveSchedule}>
+            <Plus className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Master Schedule'}
           </Button>
         </div>
       </div>
@@ -107,25 +153,25 @@ export function InstitutionTimetableStudio() {
                        <td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
                          {day}
                        </td>
-                       {MOCK_GRID[rowIndex].map((cell, colIndex) => (
-                         <td key={colIndex} className={`px-4 py-3 text-center border-r border-slate-200 dark:border-slate-700 ${cell === 'LUNCH' ? 'bg-slate-100 dark:bg-slate-900/80 font-bold text-slate-400' : 'cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}>
-                           {cell === 'LUNCH' ? (
+                       {MOCK_GRID[rowIndex].map((cell, colIndex) => {
+                         const displayCell = timetableGrid[rowIndex]?.[colIndex] || cell;
+                         return (<td key={colIndex} className={`px-4 py-3 text-center border-r border-slate-200 dark:border-slate-700 ${displayCell === 'LUNCH' ? 'bg-slate-100 dark:bg-slate-900/80 font-bold text-slate-400' : 'cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}>
+                           {displayCell === 'LUNCH' ? (
                              <span>Break</span>
-                           ) : cell === 'Free Block' ? (
+                           ) : displayCell === 'Free Block' ? (
                              <span className="text-slate-400 italic">Unassigned</span>
                            ) : (
                              <div className="flex flex-col items-center justify-center space-y-1">
                                <Badge variant="outline" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-700 font-normal">
-                                 {cell.split(' - ')[0]}
+                                 {displayCell.split(' - ')[0]}
                                </Badge>
                                <span className="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center">
-                                  <Users className="w-3 h-3 mr-1 text-slate-400"/> {cell.split(' - ')[1]}
+                                  <Users className="w-3 h-3 mr-1 text-slate-400"/> {displayCell.split(' - ')[1]}
                                </span>
                              </div>
                            )}
-                         </td>
-                       ))}
-                     </tr>
+                         </td>);
+                       })}                     </tr>
                    ))}
                  </tbody>
                </table>

@@ -8,6 +8,7 @@ import {
   ClipboardList, X, CheckCircle, Calendar, Target,
   Users, AlertTriangle, Sparkles, Send, FileUp
 } from 'lucide-react';
+import { apiClient } from '@/lib/apiClient';
 
 interface AssignmentCreateModalProps {
   isOpen: boolean;
@@ -37,10 +38,17 @@ export const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await apiClient.post('/assessments/assessment/', {
+        type: assignmentType === 'intervention' ? 'assignment' : assignmentType,
+        max_score: parseFloat(maxScore) || 100.0,
+        source: assignmentType === 'project' ? 'project' : 'platform_quiz',
+        // Optional payload depending on backend completion
+        meta: { title, instructions, dueDate, targetMode } 
+      });
+      
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);
@@ -48,7 +56,12 @@ export const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
         setTitle('');
         setInstructions('');
       }, 1500);
-    }, 1200);
+    } catch (error) {
+      console.error('Failed to create assignment', error);
+      alert('Failed to save assignment. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

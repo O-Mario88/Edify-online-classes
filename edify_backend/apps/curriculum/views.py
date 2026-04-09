@@ -95,12 +95,6 @@ class CurriculumTreeView(APIView):
                     "terms": []
                 }
                 
-                term_dict = {
-                    "id": "term-1",
-                    "name": "Term 1",
-                    "subjects": []
-                }
-                
                 unique_subjects = {}
                 for topic in cls.topics.all():
                     subj_name = topic.subject.name
@@ -108,8 +102,6 @@ class CurriculumTreeView(APIView):
                         unique_subjects[subj_name] = {
                             "id": str(topic.subject.id),
                             "name": topic.subject.name,
-                            "teacherId": "sys-auto",
-                            "description": "",
                             "topics": []
                         }
                     
@@ -138,10 +130,34 @@ class CurriculumTreeView(APIView):
                         topic_dict["subtopics"].append(sub_dict)
                     unique_subjects[subj_name]["topics"].append(topic_dict)
                 
-                for s in unique_subjects.values():
-                    term_dict["subjects"].append(s)
-                
-                class_dict["terms"].append(term_dict)
+                # Split topics evenly into 3 terms using round-robin
+                import math
+                for term_idx in range(1, 4):
+                    term_dict = {
+                        "id": f"term-{term_idx}",
+                        "name": f"Term {term_idx}",
+                        "subjects": []
+                    }
+                    
+                    for subj_name, subj_data in unique_subjects.items():
+                        all_topics = subj_data["topics"]
+                        total = len(all_topics)
+                        # Even distribution: ceil for first terms, remainder for last
+                        chunk = math.ceil(total / 3)
+                        start = chunk * (term_idx - 1)
+                        end = chunk * term_idx if term_idx < 3 else total
+                        term_topics = all_topics[start:end]
+                            
+                        if term_topics:
+                            term_dict["subjects"].append({
+                                "id": subj_data["id"],
+                                "name": subj_data["name"],
+                                "teacherId": "sys-auto",
+                                "description": "",
+                                "topics": term_topics
+                            })
+                    
+                    class_dict["terms"].append(term_dict)
                 level_dict["classes"].append(class_dict)
             data["levels"].append(level_dict)
             

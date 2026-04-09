@@ -49,7 +49,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
   if (variant === 'default') {
     baseVariant = 'bg-white rounded-[1.8rem] shadow-[0_4px_24px_-4px_rgba(30,60,110,0.04)] ring-1 ring-slate-100 overflow-hidden relative group';
   } else if (variant === 'glass') {
-    baseVariant = 'bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl rounded-[1.8rem] overflow-hidden relative group';
+    baseVariant = 'bg-white/5 backdrop-blur-xl border border-white/20 shadow-2xl rounded-[1.8rem] overflow-hidden relative group';
   }
 
   // The is-horizontal marker class enables deep nesting css (e.g. w-[40%] instead of w-full inside content)

@@ -30,7 +30,7 @@ export function AssignmentTargetingStudio() {
       {/* Page Navigation & Meta */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div className="flex flex-col gap-2">
-           <Button variant="ghost" onClick={() => navigate(-1)} className="w-fit -ml-4 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100">
+           <Button variant="ghost" onClick={() => navigate('/dashboard')} className="w-fit -ml-4 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100">
              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
            </Button>
            <div>

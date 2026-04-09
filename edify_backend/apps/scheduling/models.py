@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from institutions.models import Institution
 from classes.models import Class
+from curriculum.models import Subject
 
 class AcademicTerm(models.Model):
     institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='academic_terms')
@@ -42,6 +43,7 @@ class TimetableSlot(models.Model):
     term = models.ForeignKey(AcademicTerm, on_delete=models.CASCADE, related_name='timetable_slots')
     
     assigned_class = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='timetable_slots')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='timetable_slots', null=True)
     room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True, blank=True)
     teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     
@@ -49,6 +51,29 @@ class TimetableSlot(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
     is_active = models.BooleanField(default=True)
+    is_draft = models.BooleanField(default=False, help_text="Draft slots are visible only for prep/allocation reviews.")
 
     def __str__(self):
-        return f"{self.assigned_class.title} on {self.get_day_of_week_display()} at {self.start_time}"
+        subject_name = self.subject.name if self.subject else "No Subject"
+        return f"{self.assigned_class.title} - {subject_name} on {self.get_day_of_week_display()}"
+
+
+class TimetableConflict(models.Model):
+    CONFLICT_TYPES = [
+        ('teacher', 'Teacher Overlap'),
+        ('room', 'Room Overlap'),
+        ('class', 'Class Overlap'),
+    ]
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='timetable_conflicts')
+    term = models.ForeignKey(AcademicTerm, on_delete=models.CASCADE)
+    
+    slot_1 = models.ForeignKey(TimetableSlot, on_delete=models.CASCADE, related_name='conflict_associations_1')
+    slot_2 = models.ForeignKey(TimetableSlot, on_delete=models.CASCADE, related_name='conflict_associations_2')
+    
+    conflict_type = models.CharField(max_length=20, choices=CONFLICT_TYPES)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.get_conflict_type_display()} - {self.institution.name}"

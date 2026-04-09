@@ -1,4 +1,4 @@
-from django.db.models import Avg, Sum, Count, Q, F
+from django.db.models import Avg, Sum, Count, Q, F, FloatField
 from django.db.models.functions import Coalesce
 from institutions.models import InstitutionMembership
 from datetime import timedelta
@@ -67,13 +67,13 @@ class ReadinessEngine:
         # --- Overall Progress (avg completion across subjects) ---
         progress_agg = SubjectPerformanceSnapshot.objects.filter(
             student=user
-        ).aggregate(avg_completion=Coalesce(Avg('completion_percentage'), 0.0))
+        ).aggregate(avg_completion=Coalesce(Avg('completion_percentage', output_field=FloatField()), 0.0, output_field=FloatField()))
         overall_progress = round(float(progress_agg['avg_completion']))
         
         # --- Readiness Score (avg exam readiness across subjects) ---
         readiness_agg = SubjectPerformanceSnapshot.objects.filter(
             student=user
-        ).aggregate(avg_readiness=Coalesce(Avg('exam_readiness_score'), 0.0))
+        ).aggregate(avg_readiness=Coalesce(Avg('exam_readiness_score', output_field=FloatField()), 0.0, output_field=FloatField()))
         readiness_score = round(float(readiness_agg['avg_readiness']))
         
         # --- Progress Trend (compare this month's score vs last month's) ---

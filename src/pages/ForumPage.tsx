@@ -23,6 +23,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { apiClient } from '@/lib/apiClient';
 
 interface ForumPost {
   id: string;
@@ -77,11 +78,37 @@ export const ForumPage: React.FC = () => {
   useEffect(() => {
     const fetchForumData = async () => {
       try {
-        const response = await fetch('/data/forum.json');
-        const data = await response.json();
-        
-        setCategories(data.categories);
-        setGeneralPosts(data.generalDiscussion || []);
+        const [liveThreadsRes, mockRes] = await Promise.all([
+          apiClient.get('/discussions/thread/').catch(() => ({ data: [] })),
+          fetch('/data/forum.json').then(res => res.json()).catch(() => ({ categories: [], generalDiscussion: [] }))
+        ]);
+
+        const threads = liveThreadsRes.data || [];
+        const mockData = mockRes;
+
+        setCategories(mockData.categories || []);
+
+        if (threads.length > 0) {
+           const mappedThreads = threads.map((t: any) => ({
+              id: String(t.id),
+              title: t.title,
+              content: t.initial_post_content || 'Discussion started...', // Backend would inject this or we read first post
+              authorId: String(t.author),
+              authorName: t.author_name || 'Community Member',
+              authorRole: 'student',
+              createdAt: t.created_at,
+              updatedAt: t.created_at,
+              replies: [],
+              tags: ['Live'],
+              views: 12,
+              likes: 0,
+              isPinned: false,
+              isSolved: false
+           }));
+           setGeneralPosts([...mappedThreads, ...mockData.generalDiscussion]);
+        } else {
+           setGeneralPosts(mockData.generalDiscussion || []);
+        }
       } catch (error) {
         console.error('Error fetching forum data:', error);
       } finally {
@@ -133,30 +160,47 @@ export const ForumPage: React.FC = () => {
     });
   };
 
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
     if (!newPostTitle.trim() || !newPostContent.trim()) return;
     
-    const newPost: ForumPost = {
-      id: `post-${Date.now()}`,
-      title: newPostTitle,
-      content: newPostContent,
-      authorId: user?.id || 'anonymous',
-      authorName: user?.name || 'Anonymous',
-      authorRole: user?.role || 'student',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      replies: [],
-      tags: [],
-      views: 0,
-      likes: 0,
-      isPinned: false,
-      isSolved: false
-    };
-    
-    setGeneralPosts(prev => [newPost, ...prev]);
-    setNewPostTitle('');
-    setNewPostContent('');
-    setShowNewPostModal(false);
+    try {
+      const threadRes = await apiClient.post('/discussions/thread/', {
+         title: newPostTitle,
+         author: user?.id || 1 
+      });
+
+      // Attempt to link post content if post endpoint accepts it standalone
+      await apiClient.post('/discussions/post/', {
+         thread: threadRes.data.id,
+         content: newPostContent,
+         author: user?.id || 1
+      });
+
+      const newPost: ForumPost = {
+        id: String(threadRes.data.id),
+        title: newPostTitle,
+        content: newPostContent,
+        authorId: user?.id || 'anonymous',
+        authorName: user?.name || 'Anonymous',
+        authorRole: user?.role || 'student',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        replies: [],
+        tags: ['New'],
+        views: 0,
+        likes: 0,
+        isPinned: false,
+        isSolved: false
+      };
+      
+      setGeneralPosts(prev => [newPost, ...prev]);
+      setNewPostTitle('');
+      setNewPostContent('');
+      setShowNewPostModal(false);
+    } catch (error) {
+      console.error('Failed to create thread on backend', error);
+      alert('Failed to post discussion. Please check your connection.');
+    }
   };
 
   const formatTimeAgo = (dateString: string) => {

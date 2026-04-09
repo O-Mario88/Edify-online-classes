@@ -69,8 +69,7 @@ INSTALLED_APPS = [
     'ai_services.apps.AiServicesConfig',
     'scheduling.apps.SchedulingConfig',
     'attendance.apps.AttendanceConfig',
-    'edify_backend.apps.finance.apps.FinanceConfig',  # Finance ERP System
-    'billing.apps.BillingConfig',
+    'intelligence.apps.IntelligenceConfig',
 ]
 
 MIDDLEWARE = [
@@ -218,3 +217,17 @@ CACHES = {
         'LOCATION': 'unique-snowflake',
     }
 }
+
+# Media Files Configuration (for user uploads)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+# File Upload Settings
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100MB (for large video files)
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, 'tmp')
+
+# Ensure upload directories exist
+os.makedirs(MEDIA_ROOT, exist_ok=True)
+os.makedirs(FILE_UPLOAD_TEMP_DIR, exist_ok=True)

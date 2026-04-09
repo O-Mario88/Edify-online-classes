@@ -15,8 +15,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
 from .models import ParentProfile, StudentProfile
-from billing.models import Invoice, TransactionRecord
-from billing.services import PesapalMockService
 from parent_portal.models import ParentStudentLink
 
 class StudentOnboardingAPIView(APIView):
@@ -82,28 +80,6 @@ class StudentOnboardingAPIView(APIView):
             consent_status='approved' # Implicitly approved since onboarding together
         )
 
-        # 4. Create Invoice and mock mobile money transaction
-        invoice = Invoice.objects.create(
-            user=student_user,
-            amount_due=50000.00,
-            currency='UGX',
-            description='Initial Platform Onboarding / Setup'
-        )
-        
-        # Initiate payment
-        payment_gateway_response = PesapalMockService.submit_order(invoice=invoice)
-        
-        TransactionRecord.objects.create(
-            invoice=invoice,
-            pesapal_tracking_id=payment_gateway_response['tracking_id'],
-            pesapal_merchant_reference=payment_gateway_response['merchant_reference'],
-            amount=50000.00,
-            currency='UGX',
-            payment_method=payment_data.get('network', 'mobile_money')
-        )
-
         return Response({
-            'message': 'Student and Parent created successfully. Awaiting payment.',
-            'redirect_url': payment_gateway_response['redirect_url'],
-            'tracking_id': payment_gateway_response['tracking_id']
+            'message': 'Student and Parent created successfully. Account is active.'
         }, status=status.HTTP_201_CREATED)

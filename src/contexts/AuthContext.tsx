@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UniversalStudent, IndependentTeacher, Institution, ParentUser } from '../types';
-import { apiClient } from '@/lib/apiClient';
+import { loginUser, registerUser as registerUserAPI, storeTokens, clearTokens } from '@/lib/apiClient';
 
 interface AuthContextType {
   user: User | null;
@@ -85,55 +85,59 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     
     try {
-      // Mock Bypass for Frontend-Only Testing
-      const legacyRoleMap: Record<string, string> = {
-         'student': 'universal_student',
-         'teacher': 'independent_teacher',
-         'admin': 'platform_admin',
-         'institution': 'institution_admin'
-      };
-
-      let inferredRole = overrideRole ? (legacyRoleMap[overrideRole] || overrideRole) : undefined;
+      // Send login request to real API
+      const response = await loginUser(email, password);
       
-      if (!inferredRole) {
-        const lowerEmail = email.toLowerCase();
-        if (lowerEmail.includes('teacher') || lowerEmail.includes('nakamya')) {
-          inferredRole = 'independent_teacher';
-        } else if (lowerEmail.includes('student') || lowerEmail.includes('nakato')) {
-          inferredRole = 'universal_student';
-        } else if (lowerEmail.includes('institution')) {
-          inferredRole = 'institution_admin';
-        } else if (lowerEmail.includes('admin') || lowerEmail.includes('namaganda')) {
-          inferredRole = 'platform_admin';
-        } else {
-          inferredRole = 'universal_student'; // Safe default
+      if (response.data) {
+        // Successfully logged in - tokens are stored by loginUser function
+        // Fetch user profile from backend
+        try {
+          // The backend returns user info in the token payload
+          // For now, create user object from email and role inference
+          const lowerEmail = email.toLowerCase();
+          let inferredRole = overrideRole;
+          
+          if (!inferredRole) {
+            if (lowerEmail.includes('teacher') || lowerEmail.includes('nakamya')) {
+              inferredRole = 'independent_teacher';
+            } else if (lowerEmail.includes('admin') || lowerEmail.includes('namaganda')) {
+              inferredRole = 'platform_admin';
+            } else if (lowerEmail.includes('parent')) {
+              inferredRole = 'parent';
+            } else {
+              inferredRole = 'universal_student';
+            }
+          }
+          
+          const sessionUser = {
+            id: email,
+            email: email,
+            name: email.split('@')[0],
+            role: inferredRole,
+            countryCode: 'uganda'
+          };
+          
+          setUser(sessionUser as any);
+          setUserProfile(sessionUser as any);
+          setCurrentContext('mixed');
+          
+          localStorage.setItem('maple-auth-user', JSON.stringify(sessionUser));
+          localStorage.setItem('maple-auth-profile', JSON.stringify(sessionUser));
+          localStorage.setItem('maple-auth-context', 'mixed');
+          
+          setIsLoading(false);
+          return true;
+        } catch (error) {
+          console.error('Failed to fetch user profile:', error);
+          setIsLoading(false);
+          return false;
         }
+      } else {
+        // Login failed
+        console.error('Login failed:', response.error);
+        setIsLoading(false);
+        return false;
       }
-
-      const finalRole = inferredRole;
-
-      const sessionUser = {
-         id: email,
-         email: email,
-         name: email.split('@')[0],
-         role: finalRole,
-         countryCode: 'uganda'
-      };
-      
-      setUser(sessionUser as any);
-      setUserProfile(sessionUser as any);
-      setCountryCode('uganda');
-      setCurrentContext('mixed');
-      
-      localStorage.setItem('maple-auth-user', JSON.stringify(sessionUser));
-      localStorage.setItem('maple-auth-profile', JSON.stringify(sessionUser));
-      localStorage.setItem('maple-auth-context', 'mixed');
-      localStorage.setItem('maple-access-token', 'mock_access_token');
-      localStorage.setItem('maple-refresh-token', 'mock_refresh_token');
-      
-      setIsLoading(false);
-      return true;
-      
     } catch (error) {
       console.error('Login authentication error:', error);
       setIsLoading(false);
@@ -144,8 +148,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const registerUser = async (email: string, full_name: string, country_code: string, password: string, role: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // Mock Bypass for registration
-      return await login(email, password, role);
+      // Map simple role names to backend format if needed
+      const roleMap: Record<string, string> = {
+        'learner': 'student',
+        'student': 'student',
+        'teacher': 'teacher',
+        'institution': 'institution',
+        'admin': 'admin'
+      };
+      
+      const apiRole = roleMap[role.toLowerCase()] || role.toLowerCase();
+      
+      // Call real registration API
+      const response = await registerUserAPI({
+        email,
+        full_name,
+        password,
+        country_code: country_code || 'uganda',
+        role: apiRole as 'student' | 'teacher' | 'institution' | 'admin'
+      });
+      
+      if (response.data) {
+        // Auto-login after successful registration
+        return await login(email, password, role);
+      } else {
+        console.error('Registration failed:', response.error);
+        setIsLoading(false);
+        return false;
+      }
     } catch (error) {
       console.error('Registration error:', error);
       setIsLoading(false);
@@ -156,34 +186,59 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const onboardStudent = async (studentData: any, parentData: any, paymentData: any) => {
     setIsLoading(true);
     try {
-      // In a real implementation this hits the new /api/accounts/onboard-student/
-      // For now, we simulate the success response and log them in
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // First, register the student
+      const registrationResponse = await registerUserAPI({
+        email: studentData.email || `${studentData.username}@edify.local`,
+        full_name: studentData.full_name,
+        password: studentData.password || 'DefaultPass123!',
+        country_code: studentData.country_code || 'uganda',
+        role: 'student'
+      });
       
-      const email = studentData.email || `${studentData.username}@edify.local`;
-      const sessionUser = {
-         id: email,
-         email: email,
-         name: studentData.full_name,
-         role: 'universal_student',
-         countryCode: studentData.country_code || 'uganda'
-      };
+      if (!registrationResponse.data) {
+        throw new Error('Student registration failed');
+      }
       
-      setUser(sessionUser as any);
-      setUserProfile(sessionUser as any);
-      setCurrentContext('mixed');
-      localStorage.setItem('maple-auth-user', JSON.stringify(sessionUser));
+      // Auto-login the newly registered student
+      const loginResponse = await loginUser(
+        studentData.email || `${studentData.username}@edify.local`,
+        studentData.password || 'DefaultPass123!'
+      );
       
-      setIsLoading(false);
-      
-      return { 
-        success: true, 
-        // Redirect to standard payment waiting/processing page or dashboard
-        redirect_url: `/payment/processing?tracking=mock-${Date.now()}` 
-      };
+      if (loginResponse.data) {
+        const email = studentData.email || `${studentData.username}@edify.local`;
+        const sessionUser = {
+          id: email,
+          email: email,
+          name: studentData.full_name,
+          role: 'universal_student',
+          countryCode: studentData.country_code || 'uganda'
+        };
+        
+        setUser(sessionUser as any);
+        setUserProfile(sessionUser as any);
+        setCurrentContext('mixed');
+        localStorage.setItem('maple-auth-user', JSON.stringify(sessionUser));
+        localStorage.setItem('maple-auth-profile', JSON.stringify(sessionUser));
+        localStorage.setItem('maple-auth-context', 'mixed');
+        
+        setIsLoading(false);
+        
+        return { 
+          success: true, 
+          // Redirect to dashboard or payment processing
+          redirect_url: '/student-dashboard' 
+        };
+      } else {
+        throw new Error('Auto-login after registration failed');
+      }
     } catch (error: any) {
+      console.error('Student onboarding error:', error);
       setIsLoading(false);
-      return { success: false, error: 'Registration failed' };
+      return { 
+        success: false, 
+        error: error?.message || 'Student onboarding failed. Please try again.'
+      };
     }
   };
 
@@ -194,8 +249,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('maple-auth-user');
     localStorage.removeItem('maple-auth-profile');
     localStorage.removeItem('maple-auth-context');
+    // Clear tokens from both naming conventions
+    clearTokens();
     localStorage.removeItem('maple-access-token');
     localStorage.removeItem('maple-refresh-token');
+    
+    // Redirect to login
+    window.location.href = '/login';
   };
 
   const switchStudentContext = (institutionId?: string) => {

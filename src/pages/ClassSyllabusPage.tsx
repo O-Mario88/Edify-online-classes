@@ -97,7 +97,9 @@ export const ClassSyllabusPage: React.FC = () => {
                 {classData.name}
               </EditorialHeader>
               <p className="mt-4 text-xl text-slate-500 font-light max-w-2xl leading-relaxed">
-                {classData.description}. Structured academic modules covering the official {classData.level === "A'level" ? 'UNEB' : 'NCDC'} syllabus.
+                {classData.description}. {classData.level.toLowerCase().includes('primary') 
+                  ? "Foundational and core subject modules aligned to the primary syllabus." 
+                  : `Structured academic modules covering the official ${classData.level === "A'level" ? 'UNEB' : 'NCDC'} syllabus.`}
               </p>
             </div>
             
@@ -160,8 +162,10 @@ export const ClassSyllabusPage: React.FC = () => {
                                   onClick={() => navigate(`/classes/${classId}/${currentTerm.id}/${subject.id}/topic/${topic.id}`)}
                                 >
                                   <span className="text-sm font-black text-slate-300 mt-0.5 leading-none flex-shrink-0 w-6">{topicIdx + 1}.</span>
-                                  <span className="text-base font-semibold text-slate-700 group-hover/topic:text-blue-600 transition-colors leading-snug">
-                                    {topic.name}
+                                  <span className="text-base font-semibold text-slate-700 leading-snug inline-block">
+                                    <span className="bg-gradient-to-r from-slate-900 to-slate-900 bg-[length:0%_2px] bg-no-repeat bg-left-bottom group-hover/topic:bg-[length:100%_2px] transition-all duration-300 ease-out pb-0.5">
+                                      {topic.name}
+                                    </span>
                                   </span>
                                 </button>
                               </li>
@@ -173,9 +177,12 @@ export const ClassSyllabusPage: React.FC = () => {
                        <div className="mt-8 pt-5 border-t border-slate-100">
                          <button 
                            onClick={() => navigate(`/classes/${classId}/subject/${subject.id}`)}
-                           className="text-sm font-bold text-[#8e8268] hover:text-blue-600 flex items-center gap-2 transition-colors"
+                           className="text-sm font-bold text-[#8e8268] flex items-center gap-2 group/btn"
                          >
-                           See all {subject.name} topics <ArrowRight className="w-4 h-4" />
+                           <span className="bg-gradient-to-r from-slate-900 to-slate-900 bg-[length:0%_2px] bg-no-repeat bg-left-bottom group-hover/btn:bg-[length:100%_2px] group-hover/btn:text-slate-900 transition-all duration-300 ease-out pb-0.5">
+                             See all {subject.name} topics
+                           </span>
+                           <ArrowRight className="w-4 h-4 group-hover/btn:text-slate-900 transition-colors" />
                          </button>
                        </div>
                      </div>

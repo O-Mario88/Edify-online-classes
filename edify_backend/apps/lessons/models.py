@@ -74,3 +74,36 @@ class LessonQualificationRecord(models.Model):
 
     def __str__(self):
         return f"Qual {self.lesson.title} -> {self.status}"
+
+class LessonInstance(models.Model):
+    timetable_slot = models.ForeignKey('scheduling.TimetableSlot', on_delete=models.CASCADE, related_name='instances')
+    date = models.DateField()
+    lesson_plan = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True, blank=True)
+    is_cancelled = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.timetable_slot} on {self.date}"
+
+class LessonVerificationRecord(models.Model):
+    STATE_CHOICES = [
+        ('scheduled', 'Scheduled'),
+        ('reminder_sent', 'Reminder Sent'),
+        ('acknowledged', 'Acknowledged'),
+        ('started', 'Started'),
+        ('completed', 'Completed'),
+        ('unverified', 'Unverified / Missed'),
+        ('partially_verified', 'Partially Verified')
+    ]
+    lesson_instance = models.OneToOneField(LessonInstance, on_delete=models.CASCADE, related_name='verification_record')
+    status = models.CharField(max_length=30, choices=STATE_CHOICES, default='scheduled')
+    
+    reminder_sent_at = models.DateTimeField(null=True, blank=True)
+    acknowledged_at = models.DateTimeField(null=True, blank=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    # Post-lesson compliance task
+    linked_assignment = models.ForeignKey('assessments.Assessment', on_delete=models.SET_NULL, null=True, blank=True, help_text="Required to move from started to completed")
+
+    def __str__(self):
+        return f"Verify: {self.lesson_instance} -> {self.status}"

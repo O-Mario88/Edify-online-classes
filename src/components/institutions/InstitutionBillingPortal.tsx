@@ -36,7 +36,7 @@ export function InstitutionBillingPortal({ activeStudents = 120, unpaidSeats = 1
                <ShieldAlert className="w-6 h-6" /> Free Setup Mode Active
              </h2>
              <p className="text-amber-800">
-               Your institution workspace is fully active for testing and onboarding. However, <strong className="font-extrabold">{unpaidSeats} active student seats</strong> require payment to unlock complete Analytics, Timetable Studio, and Finance operations.
+               Your institution workspace is fully active for testing and onboarding. However, <strong className="font-extrabold">{unpaidSeats} active student seats</strong> require payment to unlock complete Analytics and Timetable Studio operations.
              </p>
            </div>
            <div className="shrink-0 flex items-center gap-4 bg-white p-4 rounded-xl border border-amber-200 shadow-sm">

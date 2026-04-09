@@ -58,14 +58,16 @@ class CurriculumTrack(models.Model):
 
 class EducationLevel(models.Model):
     track = models.ForeignKey(CurriculumTrack, on_delete=models.CASCADE, related_name='education_levels')
-    name = models.CharField(max_length=100) # Lower Secondary, Upper Secondary
+    name = models.CharField(max_length=100) # Lower Secondary, Upper Secondary, Primary
+    is_primary = models.BooleanField(default=False, help_text="Flags this level as a primary education tier")
 
     def __str__(self):
         return f"{self.track.name} - {self.name}"
 
 class ClassLevel(models.Model):
     level = models.ForeignKey(EducationLevel, on_delete=models.CASCADE, related_name='class_levels')
-    name = models.CharField(max_length=50) # S1, S2, Form 1, Grade 8
+    name = models.CharField(max_length=50) # S1, S2, Form 1, Grade 8, Primary 4
+    internal_canonical_grade = models.IntegerField(default=0, help_text="Standardized grade mapping anchor (e.g. 4 for P4/Grade 4, 8 for S1/Grade 8)")
 
     def __str__(self):
         return f"{self.level.name} - {self.name}"

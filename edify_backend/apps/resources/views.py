@@ -1,5 +1,7 @@
 from rest_framework import viewsets, exceptions
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Resource, SharedResourceLink
 from .serializers import ResourceSerializer, SharedResourceLinkSerializer
 from institutions.models import InstitutionMembership
@@ -15,6 +17,11 @@ class TenantFilterMixin:
 class ResourceViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     serializer_class = ResourceSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['category', 'subject', 'visibility']
+    search_fields = ['title', 'description', 'author']
+    ordering_fields = ['created_at', 'rating', 'price']
+    ordering = ['-created_at']
 
     def get_queryset(self):
         user = self.request.user

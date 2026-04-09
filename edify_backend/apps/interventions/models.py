@@ -67,3 +67,24 @@ class InterventionAction(models.Model):
 
     def __str__(self):
         return f"{self.get_action_type_display()} for Plan #{self.plan.id}"
+
+# ---------------------------------------------------------
+# MAPLE INTELLIGENCE: INTERVENTION EFFECTIVENESS
+# ---------------------------------------------------------
+
+class InterventionEffectivenessTracker(models.Model):
+    """
+    Module 15: Measures true ROI of an intervention.
+    """
+    intervention_plan = models.OneToOneField(InterventionPlan, on_delete=models.CASCADE, related_name='effectiveness_tracker')
+    
+    baseline_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    post_intervention_score = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    
+    student_engagement_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.0, help_text="Did the student actually open the plan resources?")
+    parent_followup_logged = models.BooleanField(default=False)
+    
+    outcome_roi_pct = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    
+    def __str__(self):
+        return f"Effectiveness for Plan: {self.intervention_plan.id}"

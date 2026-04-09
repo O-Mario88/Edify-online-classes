@@ -55,29 +55,29 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
   if (trendDirection === 'down') trendColor = trendIsGood ? 'text-rose-600' : 'text-emerald-600';
 
   // Determine Risk Styling
-  let riskBg = 'bg-white border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]';
+  let riskBg = 'bg-white/5 backdrop-blur-lg border-[#1E293B] shadow-[0_4px_24px_rgba(0,0,0,0.2)]';
   let alertIcon = null;
   let alertClass = '';
   
   switch (riskLevel) {
     case 'critical':
-      riskBg = 'bg-rose-50/20 border-rose-100/50';
+      riskBg = 'bg-rose-500/5 backdrop-blur-lg border-rose-900/50 shadow-[0_4px_24px_rgba(244,63,94,0.1)]';
       alertIcon = <AlertTriangle className="w-4 h-4 text-rose-500 mr-1.5 flex-shrink-0" />;
-      alertClass = 'text-rose-700 bg-rose-50/50 border border-rose-100/50';
+      alertClass = 'text-rose-400';
       break;
     case 'warning':
-      riskBg = 'bg-amber-50/20 border-amber-100/50';
-      alertIcon = <AlertCircle className="w-4 h-4 text-amber-500 mr-1.5 flex-shrink-0" />;
-      alertClass = 'text-amber-800 bg-amber-50/50 border border-amber-100/50';
+      riskBg = 'bg-amber-500/5 backdrop-blur-lg border-amber-900/50 shadow-[0_4px_24px_rgba(251,189,35,0.05)]';
+      alertIcon = <AlertCircle className="w-4 h-4 text-[#FBBD23] mr-1.5 flex-shrink-0" />;
+      alertClass = 'text-[#FBBD23] font-bold';
       break;
     case 'healthy':
-      riskBg = 'bg-emerald-50/10 border-emerald-100/50';
-      alertIcon = <CheckCircle className="w-4 h-4 text-emerald-500 mr-1.5 flex-shrink-0" />;
-      alertClass = 'text-emerald-700 bg-emerald-50/50 border border-emerald-100/50';
+      riskBg = 'bg-[#36D399]/5 backdrop-blur-lg border-emerald-900/50 shadow-[0_4px_24px_rgba(16,185,129,0.05)]';
+      alertIcon = <CheckCircle className="w-4 h-4 text-[#36D399] mr-1.5 flex-shrink-0" />;
+      alertClass = 'text-[#36D399] font-bold';
       break;
     default:
-      alertIcon = <Minus className="w-4 h-4 text-gray-400 mr-1.5 flex-shrink-0" />;
-      alertClass = 'text-gray-600 bg-gray-50 border border-gray-100';
+      alertIcon = <Minus className="w-4 h-4 text-slate-500 mr-1.5 flex-shrink-0" />;
+      alertClass = 'text-slate-400';
       break;
   }
 
@@ -105,46 +105,58 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
   };
 
   return (
-    <Card className={`h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between overflow-hidden relative group border-slate-200/60 ${riskBg}`}>
+    <Card className={`h-full transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between overflow-hidden relative rounded-2xl group ${riskBg}`}>
       <CardHeader className="p-5 pb-2 flex flex-row items-center justify-between">
-        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest truncate max-w-full" title={title}>{title}</p>
-        {icon && <div className="text-slate-400 group-hover:text-primary transition-colors opacity-70">{icon}</div>}
+        <p className="text-[13px] font-medium text-slate-400 truncate max-w-full" title={title}>{title}</p>
+        {icon && <div className="text-slate-500 group-hover:text-[#3ABFF8] transition-colors opacity-70">{icon}</div>}
       </CardHeader>
       
       <CardContent className="p-5 pt-1 flex-grow">
         {/* Live Status & Trend */}
         <div className="flex justify-between items-center mb-4 gap-2">
-          <div className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight leading-tight shrink-0 mr-2 max-w-[65%] leading-snug break-words hyphens-auto mix-blend-multiply">{value}</div>
+          <div className="text-xl md:text-[22px] font-medium text-[#3ABFF8] tracking-tight shrink-0 mr-2 max-w-[65%] break-words">{value}</div>
           
           {trendValue !== undefined && (
             <div className={`flex flex-col items-end flex-shrink-0`}>
-               <div className={`flex items-center text-xs font-black px-2 py-1 rounded-full bg-slate-50/80 border shadow-sm ${trendColor.includes('emerald') ? 'border-emerald-100/50 bg-emerald-50/30' : trendColor.includes('rose') ? 'border-rose-100/50 bg-rose-50/30' : 'border-slate-100'} ${trendColor}`}>
+               <div className={`flex items-center text-[15px] font-medium ${trendColor.includes('emerald') ? 'text-[#36D399]' : trendColor.includes('rose') ? 'text-rose-500' : 'text-slate-300'}`}>
                  {trendDirection === 'up' && '+'}
                  {trendDirection === 'down' && '-'}
-                 {Math.abs(trendValue)}%
-                 {trendDirection === 'up' && <ArrowUpRight className="w-3 h-3 ml-0.5" />}
-                 {trendDirection === 'down' && <ArrowDownRight className="w-3 h-3 ml-0.5" />}
-                 {trendDirection === 'flat' && <Minus className="w-3 h-3 ml-0.5" />}
+                 {Math.abs(trendValue)}{typeof trendValue === 'number' && trendValue < 1000 ? '%' : ''}
+                 {trendDirection === 'up' && <ArrowUpRight className="w-3.5 h-3.5 ml-0.5" />}
+                 {trendDirection === 'down' && <ArrowDownRight className="w-3.5 h-3.5 ml-0.5" />}
                </div>
-               {trendLabel && <span className="text-[9px] uppercase font-bold text-slate-400 mt-1 text-right whitespace-nowrap tracking-wider">{trendLabel}</span>}
+               {trendLabel && <span className="text-[11px] text-slate-500 mt-1 text-right whitespace-nowrap">{trendLabel}</span>}
             </div>
           )}
         </div>
 
         {/* Intelligence Alert/Context */}
         {alertText && (
-          <div className={`flex items-start p-2.5 rounded-lg text-xs font-medium leading-relaxed mb-1 ${alertClass}`}>
-             {alertIcon}
-             <span>{alertText}</span>
+          <div className="mb-4">
+             {riskLevel !== 'neutral' && (
+                <div className={`flex items-center mb-2 text-[15px] ${alertClass}`}>
+                  {alertIcon}
+                  <span>{riskLevel === 'warning' ? 'Attention Needed!' : riskLevel === 'healthy' ? 'New Record Achieved!' : 'Alert Triggered!'}</span>
+                </div>
+             )}
+             <p className="text-[15px] leading-relaxed text-slate-400 font-normal">
+               {alertText}
+             </p>
           </div>
         )}
       </CardContent>
 
-      <CardFooter className="p-4 pt-3 flex flex-col gap-3 border-t border-black/5 bg-white/40">
+      <CardFooter className="p-4 pt-0 mt-auto flex flex-col gap-3">
         <div className="flex w-full items-center justify-between">
+           {/* Navigation Dots if slider logic applied elsewhere */}
+           <div className="flex gap-1.5 mx-auto">
+             <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+             <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+             <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+           </div>
            {/* Drill Down */}
            {drillDownLink && drillDownText ? (
-              <Link to={drillDownLink} className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center hover:underline">
+              <Link to={drillDownLink} className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center hover:underline">
                 {drillDownText} <ChevronRight className="w-3 h-3 ml-0.5" />
               </Link>
            ) : (

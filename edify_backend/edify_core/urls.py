@@ -22,7 +22,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from curriculum.views import CountryViewSet, SubjectViewSet, ClassLevelViewSet, TopicViewSet
 from marketplace.views import ListingViewSet
 from ai_services.views import CopilotInferenceView
-from institutions.views import InstitutionViewSet, InstitutionMembershipViewSet, BillingStatusView, LearnerRegistrationViewSet, AdminPinResetView
+from institutions.views import InstitutionViewSet, InstitutionMembershipViewSet, LearnerRegistrationViewSet, AdminPinResetView
 from classes.views import ClassViewSet, ClassEnrollmentViewSet
 from scheduling.views import TimetableSlotViewSet
 from attendance.views import DailyRegisterViewSet, LessonAttendanceViewSet
@@ -35,8 +35,18 @@ from lessons.views import LessonViewSet, LessonNoteViewSet, LessonRecordingViewS
 from live_sessions.views import LiveSessionViewSet, SessionReminderViewSet
 from notifications.views import NotificationViewSet
 from parent_portal.views import ParentStudentLinkViewSet, WeeklySummaryViewSet, RiskAlertViewSet
+from resources.upload_view import ResourceUploadViewSet
 from resources.views import ResourceViewSet, SharedResourceLinkViewSet
 from tutoring.views import MatchRequestViewSet, PeerPointsLedgerViewSet
+from intelligence.views import (
+    NextBestActionViewSet, InterventionPackViewSet, InterventionPackAssignmentViewSet,
+    StudyPlanViewSet, StudyTaskViewSet, ParentActionViewSet,
+    PointsLedgerViewSet, BadgeViewSet, UserBadgeViewSet,
+    ChallengeViewSet, HouseTeamViewSet,
+    LearningProgressViewSet, NationalExamResultViewSet,
+    StoryCardViewSet, InstitutionHealthHistoryViewSet, ImpactComparisonViewSet,
+    StudentPassportView, TeacherPassportView, InstitutionHealthView,
+)
 
 router = DefaultRouter()
 router.register(r'curriculum/countries', CountryViewSet)
@@ -51,7 +61,7 @@ from curriculum.views import TopicCompetencyViewSet, ResourceQualityReviewViewSe
 router.register(r'curriculum/topic-competencies', TopicCompetencyViewSet, basename='topic-competency')
 router.register(r'curriculum/resource-reviews', ResourceQualityReviewViewSet, basename='resource-review')
 
-from marketplace.views import ListingViewSet, PayoutRequestViewSet, PayoutBatchViewSet, LessonQualificationViewSet, MonetizationOverviewView, TeacherPayoutProfileViewSet
+from marketplace.views import ListingViewSet, PayoutRequestViewSet, PayoutBatchViewSet, LessonQualificationViewSet, TeacherPayoutProfileViewSet
 router.register(r'marketplace/listings', ListingViewSet, basename='marketplace-listing')
 router.register(r'marketplace/payouts', PayoutRequestViewSet, basename='marketplace-payout')
 router.register(r'marketplace/payout-profile', TeacherPayoutProfileViewSet, basename='marketplace-payout-profile')
@@ -62,7 +72,6 @@ router.register(r'marketplace/lesson-qualifications', LessonQualificationViewSet
 router.register(r'institutions', InstitutionViewSet, basename='institution')
 router.register(r'institution-memberships', InstitutionMembershipViewSet, basename='institution-membership')
 router.register(r'institutions/learner-registrations', LearnerRegistrationViewSet, basename='learner-registration')
-router.register(r'billing', BillingStatusView, basename='billing')
 router.register(r'classes', ClassViewSet, basename='class')
 router.register(r'class-enrollments', ClassEnrollmentViewSet, basename='class-enrollment')
 router.register(r'scheduling/timetable', TimetableSlotViewSet, basename='timetable-slot')
@@ -96,6 +105,7 @@ router.register(r'lessons/lesson-attendance', LessonAttendanceViewSet, basename=
 router.register(r'live-sessions/live-session', LiveSessionViewSet, basename='live_sessions-live-session')
 router.register(r'live-sessions/session-reminder', SessionReminderViewSet, basename='live_sessions-session-reminder')
 router.register(r'resources', ResourceViewSet, basename='resources-resource')
+router.register(r'resources-upload', ResourceUploadViewSet, basename='resources-upload')
 router.register(r'resources/shared-resource-link', SharedResourceLinkViewSet, basename='resources-shared-resource-link')
 
 # Community & Extensions
@@ -107,6 +117,24 @@ router.register(r'parent-portal/weekly-summary', WeeklySummaryViewSet, basename=
 router.register(r'parent-portal/risk-alert', RiskAlertViewSet, basename='parent_portal-risk-alert')
 router.register(r'tutoring/match-request', MatchRequestViewSet, basename='tutoring-match-request')
 router.register(r'tutoring/peer-points-ledger', PeerPointsLedgerViewSet, basename='tutoring-peer-points-ledger')
+
+# Intelligence Engine
+router.register(r'intelligence/actions', NextBestActionViewSet, basename='intelligence-actions')
+router.register(r'intelligence/intervention-packs', InterventionPackViewSet, basename='intelligence-intervention-packs')
+router.register(r'intelligence/intervention-assignments', InterventionPackAssignmentViewSet, basename='intelligence-intervention-assignments')
+router.register(r'intelligence/study-plans', StudyPlanViewSet, basename='intelligence-study-plans')
+router.register(r'intelligence/study-tasks', StudyTaskViewSet, basename='intelligence-study-tasks')
+router.register(r'intelligence/parent-actions', ParentActionViewSet, basename='intelligence-parent-actions')
+router.register(r'intelligence/points', PointsLedgerViewSet, basename='intelligence-points')
+router.register(r'intelligence/badges', BadgeViewSet, basename='intelligence-badges')
+router.register(r'intelligence/my-badges', UserBadgeViewSet, basename='intelligence-my-badges')
+router.register(r'intelligence/challenges', ChallengeViewSet, basename='intelligence-challenges')
+router.register(r'intelligence/houses', HouseTeamViewSet, basename='intelligence-houses')
+router.register(r'intelligence/learning-progress', LearningProgressViewSet, basename='intelligence-learning-progress')
+router.register(r'intelligence/national-exams', NationalExamResultViewSet, basename='intelligence-national-exams')
+router.register(r'intelligence/story-cards', StoryCardViewSet, basename='intelligence-story-cards')
+router.register(r'intelligence/health-history', InstitutionHealthHistoryViewSet, basename='intelligence-health-history')
+router.register(r'intelligence/impact', ImpactComparisonViewSet, basename='intelligence-impact')
 
 
 from institutions.views import InstitutionOnboardingAPIView
@@ -134,15 +162,10 @@ urlpatterns = [
     # Full Curriculum Tree Endpoint
     path('api/v1/curriculum/full-tree/', CurriculumTreeView.as_view(), name='curriculum_full_tree'),
 
+    # Intelligence: APIView endpoints
+    path('api/v1/intelligence/passport/student/', StudentPassportView.as_view(), name='intelligence-student-passport'),
+    path('api/v1/intelligence/passport/teacher/', TeacherPassportView.as_view(), name='intelligence-teacher-passport'),
+    path('api/v1/intelligence/health/', InstitutionHealthView.as_view(), name='intelligence-health'),
+
     path('api/v1/marketplace/onboard-teacher/', IndependentTeacherOnboardingView.as_view(), name='independent_teacher_onboard'),
-    path('api/v1/marketplace/monetization-overview/', MonetizationOverviewView.as_view(), name='monetization_overview_api'),
-    
-    # Billing / Subscriptions / Monetization
-    path('api/v1/billing/', include('billing.urls')),
-    
-    # Finance ERP Module - Institution Scoped (comprehensive financial system)
-    # All finance endpoints require institution_id in URL path
-    # Includes: billing, invoicing, payments, accounting, auditing, audit trails
-    # Only accessible to institution members - ensures data isolation and multi-tenancy
-    path('api/v1/institutions/<int:institution_id>/finance/', include('edify_backend.apps.finance.urls')),
 ]
