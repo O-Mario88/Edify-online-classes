@@ -191,3 +191,111 @@ class IndependentTeacherOnboardingView(views.APIView):
             'teacher_id': teacher.id
         }, status=status.HTTP_201_CREATED)
 
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.conf import settings
+from .models import PesapalTransaction
+from .services.pesapal_service import PesapalService
+import uuid
+
+class PesapalCheckoutInitView(APIView):
+    def post(self, request, *args, **kwargs):
+        # We will dynamically determine callback URLs assuming standard browser host
+        origin = request.META.get('HTTP_ORIGIN', 'http://localhost:5173')
+        
+        amount = request.data.get('amount')
+        description = request.data.get('description', 'Edify Platform Payment')
+        
+        if not amount:
+            return Response({'error': 'Amount is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        merchant_reference = str(uuid.uuid4())
+        callback_url = f"{origin}/dashboard/student?status=payment_callback" 
+        
+        # In a generic setup, the IPN url might need ngrok if running locally
+        ipn_url = f"https://api.maple-edify.app/api/v1/marketplace/pesapal-ipn/" # Using a robust namespace route
+        
+        try:
+            # 1. Get Token & Register IPN  
+            token = PesapalService.get_bearer_token()
+            ipn_id = PesapalService.register_ipn_url(token, ipn_url)
+            
+            # 2. Get User context safely
+            email = request.user.email if request.user.is_authenticated else "guest@school.app"
+            first_name = getattr(request.user, 'full_name', 'Guest').split(' ')[0]
+            last_name = getattr(request.user, 'full_name', 'User').split(' ')[-1]
+            phone = getattr(request.user, 'phone', '0777000000')
+
+            # 3. Submit Order
+            payment_response = PesapalService.submit_order(
+                amount=amount,
+                description=description,
+                reference=merchant_reference,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                phone_number=phone,
+                callback_url=callback_url,
+                ipn_id=ipn_id
+            )
+            
+            # 4. Save Internal Tracking Reference if authenticated
+            if request.user.is_authenticated:
+                PesapalTransaction.objects.create(
+                    user=request.user,
+                    merchant_reference=merchant_reference,
+                    order_tracking_id=payment_response.get('order_tracking_id'),
+                    amount=amount,
+                    description=description,
+                    notification_id=ipn_id
+                )
+                
+            return Response({'redirect_url': payment_response.get('redirect_url')}, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"Pesapal Initialization failed: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class PesapalIPNWebhookView(APIView):
+    """Listens for Instant Payment Notifications triggered asynchronously from Pesapal"""
+    permission_classes = [] # Public Route
+    
+    def post(self, request, *args, **kwargs):
+        # Pesapal normally sends OrderTrackingId and OrderNotificationType in the IPN query
+        order_tracking_id = request.data.get('OrderTrackingId') or request.query_params.get('OrderTrackingId')
+        notification_type = request.data.get('OrderNotificationType') or request.query_params.get('OrderNotificationType')
+        merchant_reference = request.data.get('OrderMerchantReference') or request.query_params.get('OrderMerchantReference')
+        
+        if not order_tracking_id:
+            return Response({'error': 'OrderTrackingId missing'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            # Recheck status with Pesapal explicitly
+            transaction_status_data = PesapalService.get_transaction_status(order_tracking_id)
+            
+            if transaction_status_data:
+                payment_status_code = transaction_status_data.get('payment_status_description', '').upper()
+                
+                # Fetch our transaction mapping
+                transaction = PesapalTransaction.objects.filter(order_tracking_id=order_tracking_id).first()
+                if transaction:
+                    transaction.state = payment_status_code
+                    transaction.raw_response = transaction_status_data
+                    transaction.save()
+                    
+                    # Activate student account statuses when "COMPLETED"
+                    if payment_status_code == "COMPLETED" and transaction.user:
+                        if hasattr(transaction.user, 'student_profile'):
+                            transaction.user.student_profile.status = 'active'
+                            transaction.user.student_profile.save()
+                            
+            # Always return a 200 response to acknowledge IPN so Pesapal stops retrying
+            return Response({'status': '200', 'message': 'IPN Processed'}, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

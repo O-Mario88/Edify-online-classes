@@ -17,7 +17,7 @@ export const GlobalInstitutionComparison: React.FC = () => {
        <CardHeader className="bg-slate-50 border-b border-slate-100 pb-3">
           <div className="flex justify-between items-center">
              <CardTitle className="text-lg flex items-center gap-2 text-slate-800">
-               <Globe className="w-5 h-5 text-indigo-600" />
+               <Globe className="w-5 h-5 text-indigo-800" />
                Global Institution Health
              </CardTitle>
              <Button variant="outline" size="sm" className="h-8">Full Analysis</Button>
@@ -26,7 +26,7 @@ export const GlobalInstitutionComparison: React.FC = () => {
        <CardContent className="p-0">
           <div className="overflow-x-auto">
              <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50/50 text-slate-500 font-medium">
+                <thead className="bg-slate-50/50 text-slate-700 font-medium">
                    <tr>
                       <th className="px-6 py-4 border-b border-slate-100">Institution</th>
                       <th className="px-6 py-4 border-b border-slate-100">Tier</th>
@@ -38,24 +38,24 @@ export const GlobalInstitutionComparison: React.FC = () => {
                    {institutions.map((inst, i) => (
                      <tr key={i} className={`hover:bg-slate-50 ${inst.alert ? 'bg-red-50/30' : ''}`}>
                         <td className="px-6 py-4 font-medium text-slate-900 flex items-center gap-2">
-                           {inst.alert && <ShieldAlert className="w-4 h-4 text-red-500 shrink-0" />}
+                           {inst.alert && <ShieldAlert className="w-4 h-4 text-red-700 shrink-0" />}
                            {inst.name}
                         </td>
                         <td className="px-6 py-4">
-                           <Badge variant="outline" className={inst.status === 'Premium' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-slate-50 text-slate-600'}>
+                           <Badge variant="outline" className={inst.status === 'Premium' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-slate-50 text-slate-800'}>
                              {inst.status}
                            </Badge>
                         </td>
                         <td className="px-6 py-4">
                            <div className="flex items-center gap-2">
-                              <span className={`font-bold ${inst.health < 60 ? 'text-red-600' : 'text-slate-800'}`}>{inst.health}</span>
+                              <span className={`font-bold ${inst.health < 60 ? 'text-red-800' : 'text-slate-800'}`}>{inst.health}</span>
                               <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden shrink-0">
                                  <div className={`h-full ${inst.health < 60 ? 'bg-red-500' : 'bg-green-500'}`} style={{ width: `${inst.health}%` }}></div>
                               </div>
                            </div>
                         </td>
                         <td className="px-6 py-4">
-                           <span className={`flex items-center font-bold text-xs ${inst.trend.startsWith('+') ? 'text-green-600' : 'text-red-500'}`}>
+                           <span className={`flex items-center font-bold text-xs ${inst.trend.startsWith('+') ? 'text-emerald-800' : 'text-red-700'}`}>
                              {inst.trend.startsWith('+') ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
                              {inst.trend}
                            </span>
@@ -72,5 +72,5 @@ export const GlobalInstitutionComparison: React.FC = () => {
 
 // Extracted button just for this file context if not imported
 function Button({ children, className, variant, size }: any) {
-  return <button className={`px-3 py-1 border rounded-md font-medium text-xs text-slate-600 hover:bg-slate-100 ${className}`}>{children}</button>;
+  return <button className={`px-3 py-1 border rounded-md font-medium text-xs text-slate-800 hover:bg-slate-100 ${className}`}>{children}</button>;
 }

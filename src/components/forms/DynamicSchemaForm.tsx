@@ -78,7 +78,7 @@ export function DynamicSchemaForm({ config, onSubmitSuccess }: DynamicSchemaForm
       <CardContent className="pt-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
+            <div className="bg-red-50 text-red-800 p-3 rounded-md text-sm">
               {error}
             </div>
           )}
@@ -121,18 +121,18 @@ export function DynamicSchemaForm({ config, onSubmitSuccess }: DynamicSchemaForm
                         <Checkbox checked={value} onCheckedChange={onChange} />
                       )}
                     />
-                    <span className="text-sm text-slate-500">{field.description}</span>
+                    <span className="text-sm text-slate-700">{field.description}</span>
                   </div>
                 ) : field.type === 'textarea' ? (
                   <textarea
                     placeholder={field.placeholder}
                     {...register(field.name)}
-                    className={`flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${errors[field.name] ? 'border-red-500' : ''}`}
+                    className={`flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${errors[field.name] ? 'border-red-500' : ''}`}
                   />
                 ) : null}
                 
                 {errors[field.name] && (
-                  <p className="text-xs text-red-500 mt-1">{errors[field.name]?.message as string}</p>
+                  <p className="text-xs text-red-700 mt-1">{errors[field.name]?.message as string}</p>
                 )}
               </div>
             ))}

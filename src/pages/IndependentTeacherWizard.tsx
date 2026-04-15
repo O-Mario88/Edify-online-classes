@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { UserCircle, GraduationCap, DollarSign, Wallet, FileText, CheckCircle, ArrowRight, ArrowLeft, HelpCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { toast } from 'sonner';
+import { apiClient } from '../lib/apiClient';
 
 const steps = [
   { id: 1, title: 'Account setup', icon: UserCircle },
@@ -29,10 +31,15 @@ export const IndependentTeacherWizard: React.FC = () => {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    // Real implementation would post to /api/marketplace/onboard-teacher/
-    await new Promise(res => setTimeout(res, 1500));
-    setIsSubmitting(false);
-    navigate('/'); // Mock redirect for now
+    try {
+      await apiClient.post('/marketplace/onboard-teacher/', formData);
+      toast.success('Onboarding Strategy Saved successfully.');
+      navigate('/'); 
+    } catch {
+      toast.error('Failed to submit onboarding details. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -47,10 +54,10 @@ export const IndependentTeacherWizard: React.FC = () => {
             </div>
             {/* Progress Circular Indicator */}
             <div className="w-10 h-10 rounded-full border-4 border-emerald-100 flex items-center justify-center relative">
-               <svg className="absolute inset-0 w-full h-full -rotate-90">
-                 <circle cx="50%" cy="50%" r="42%" className="stroke-emerald-600" strokeWidth="3" fill="none" strokeDasharray={`${(currentStep/8) * 100} 100`} />
+               <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                 <circle cx="50" cy="50" r="42" className="stroke-emerald-600" strokeWidth="8" fill="none" pathLength="100" strokeDasharray={`${(currentStep/4) * 100} 100`} strokeLinecap="round" />
                </svg>
-               <span className="text-[10px] font-bold text-emerald-700">{currentStep}/8</span>
+               <span className="text-[10px] font-bold text-emerald-700">{currentStep}/4</span>
             </div>
         </div>
 
@@ -162,7 +169,7 @@ export const IndependentTeacherWizard: React.FC = () => {
           {currentStep === 3 && (
              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="mb-8">
-                   <h1 className="text-3xl font-bold text-slate-900 mb-2">How you get paid on Edify</h1>
+                   <h1 className="text-3xl font-bold text-slate-900 mb-2">How you get paid on Maple</h1>
                    <p className="text-slate-500 text-sm">We believe in transparent monetization before you publish your first lesson.</p>
                 </div>
                 

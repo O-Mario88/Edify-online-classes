@@ -103,7 +103,7 @@ export const SmartStudyPlanner: React.FC<SmartStudyPlannerProps> = ({
                   <Calendar className="w-5 h-5 text-indigo-400" />
                   {titleOverride || getDefaultTitle()}
                </CardTitle>
-               <CardDescription className="text-slate-400 mt-1">
+               <CardDescription className="text-slate-800 mt-1">
                  {descriptionOverride || getDefaultDescription()}
                </CardDescription>
             </div>
@@ -120,26 +120,26 @@ export const SmartStudyPlanner: React.FC<SmartStudyPlannerProps> = ({
              <div className="p-4 bg-white/5">
                <div className="flex justify-between items-center mb-2">
                  <h4 className="text-sm font-bold text-slate-100">{mode === 'assign' ? 'Assign Custom Task' : 'Create Custom Task'}</h4>
-                 <button onClick={() => setIsAddingTask(false)} className="text-slate-400 hover:text-red-500"><X className="w-4 h-4"/></button>
+                 <button onClick={() => setIsAddingTask(false)} className="text-slate-800 hover:text-red-700"><X className="w-4 h-4"/></button>
                </div>
                <div className="space-y-3">
                  <input 
                    placeholder="Task description (e.g. Read Chapter 5)" 
-                   className="w-full text-sm p-2 border border-white/20 rounded-md bg-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-400"
+                   className="w-full text-sm p-2 border border-white/20 rounded-md bg-white/10 text-slate-100 placeholder:text-slate-700 focus:outline-none focus:border-indigo-400"
                    value={newTask.title}
                    onChange={e => setNewTask({...newTask, title: e.target.value})}
                  />
                  <div className="flex gap-2">
                    <input 
                      placeholder="Subject" 
-                     className="w-1/2 text-sm p-2 border border-white/20 rounded-md bg-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-400"
+                     className="w-1/2 text-sm p-2 border border-white/20 rounded-md bg-white/10 text-slate-100 placeholder:text-slate-700 focus:outline-none focus:border-indigo-400"
                      value={newTask.subject}
                      onChange={e => setNewTask({...newTask, subject: e.target.value})}
                    />
                    <input 
                      type="number"
                      placeholder="Mins" 
-                     className="w-1/2 text-sm p-2 border border-white/20 rounded-md bg-white/10 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-400"
+                     className="w-1/2 text-sm p-2 border border-white/20 rounded-md bg-white/10 text-slate-100 placeholder:text-slate-700 focus:outline-none focus:border-indigo-400"
                      value={newTask.duration}
                      onChange={e => setNewTask({...newTask, duration: Number(e.target.value)})}
                    />
@@ -159,12 +159,12 @@ export const SmartStudyPlanner: React.FC<SmartStudyPlannerProps> = ({
                        <span className={`font-bold ${isToday ? 'text-blue-300' : 'text-slate-300'}`}>
                          {isToday ? 'Today' : day.dayOfWeek}
                        </span>
-                       <span className="text-xs text-slate-400 mb-0.5">{day.date}</span>
+                       <span className="text-xs text-slate-800 mb-0.5">{day.date}</span>
                     </div>
 
                     <div className="space-y-2">
                        {day.tasks.length === 0 ? (
-                         <p className="text-sm text-slate-400 italic">Rest day scheduled.</p>
+                         <p className="text-sm text-slate-800 italic">Rest day scheduled.</p>
                        ) : (
                          day.tasks.map(task => (
                            <div key={task.id} className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${task.isCompleted ? 'bg-white/5 border-white/5 opacity-60' : 'bg-white/10 border-white/10 shadow-sm'} ${mode === 'interactive' && !task.isCompleted ? 'hover:border-indigo-400/30 cursor-pointer' : ''}`} onClick={() => mode === 'interactive' && handleToggleTask(idx, task.id)}>
@@ -172,13 +172,13 @@ export const SmartStudyPlanner: React.FC<SmartStudyPlannerProps> = ({
                                  {task.isCompleted && <CheckCircle className="w-3.5 h-3.5" />}
                               </div>
                               <div className="flex-1 min-w-0">
-                                 <p className={`text-sm font-semibold truncate ${task.isCompleted ? 'line-through text-slate-500' : 'text-slate-100'}`}>{task.title}</p>
+                                 <p className={`text-sm font-semibold truncate ${task.isCompleted ? 'text-slate-400' : 'text-slate-100'}`}>{task.title}</p>
                                  <div className="flex flex-wrap items-center gap-2 mt-1.5">
                                     <Badge variant="outline" className={`text-[10px] uppercase font-bold py-0 ${getTypeColor(task.type)}`}>
                                       {getIconForType(task.type)} {task.type.replace('_', ' ')}
                                     </Badge>
-                                    <span className="text-xs text-slate-400 font-medium">{task.subject}</span>
-                                    <span className="text-xs text-slate-500 flex items-center"><Clock className="w-3 h-3 mr-0.5"/> {task.durationMinutes}m</span>
+                                    <span className="text-xs text-slate-800 font-medium">{task.subject}</span>
+                                    <span className="text-xs text-slate-700 flex items-center"><Clock className="w-3 h-3 mr-0.5"/> {task.durationMinutes}m</span>
                                  </div>
                               </div>
                            </div>

@@ -650,3 +650,299 @@ class ImpactComparison(models.Model):
 
     class Meta:
         ordering = ['-computed_at']
+
+
+# ─────────────────────────────────────────
+# P7 READINESS ENGINE
+# ─────────────────────────────────────────
+
+class P7ReadinessProfile(models.Model):
+    """Tracks P7 learner readiness for PLE (Primary Leaving Examination)."""
+    READINESS_STATES = [
+        ('highly_ready', 'Highly Ready'),
+        ('on_track', 'On Track'),
+        ('needs_support', 'Needs Support'),
+        ('high_risk', 'High Risk'),
+        ('critical_exam_risk', 'Critical Exam Risk'),
+    ]
+    student = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='p7_readiness')
+    institution = models.ForeignKey('institutions.Institution', on_delete=models.CASCADE, related_name='p7_readiness_profiles')
+    class_level = models.ForeignKey('curriculum.ClassLevel', on_delete=models.SET_NULL, null=True, blank=True)
+
+    overall_readiness_score = models.FloatField(default=0, help_text="0-100 composite readiness score")
+    readiness_state = models.CharField(max_length=30, choices=READINESS_STATES, default='needs_support')
+
+    # Dimension scores (all 0-100)
+    attendance_score = models.FloatField(default=0)
+    lesson_completion_score = models.FloatField(default=0)
+    assignment_completion_score = models.FloatField(default=0)
+    mock_exam_score = models.FloatField(default=0)
+    offline_test_score = models.FloatField(default=0)
+    resource_engagement_score = models.FloatField(default=0)
+    intervention_completion_score = models.FloatField(default=0)
+    parent_followup_score = models.FloatField(default=0)
+    revision_participation_score = models.FloatField(default=0)
+
+    # Aggregated subject data
+    strongest_subject = models.CharField(max_length=200, blank=True)
+    weakest_subject = models.CharField(max_length=200, blank=True)
+    weak_subject_alerts = models.JSONField(default=list, help_text="List of subject names needing urgent revision")
+    weak_topic_alerts = models.JSONField(default=list, help_text="List of topic names needing urgent attention")
+    revision_priority_list = models.JSONField(default=list, help_text="Ordered list of subjects/topics to revise")
+
+    last_computed = models.DateTimeField(auto_now=True)
+
+    def compute_readiness(self):
+        """Compute overall readiness from dimension scores with weights."""
+        weights = {
+            'attendance': 0.10,
+            'lesson_completion': 0.12,
+            'assignment_completion': 0.12,
+            'mock_exam': 0.20,
+            'offline_test': 0.15,
+            'resource_engagement': 0.08,
+            'intervention_completion': 0.08,
+            'parent_followup': 0.05,
+            'revision_participation': 0.10,
+        }
+        self.overall_readiness_score = (
+            self.attendance_score * weights['attendance'] +
+            self.lesson_completion_score * weights['lesson_completion'] +
+            self.assignment_completion_score * weights['assignment_completion'] +
+            self.mock_exam_score * weights['mock_exam'] +
+            self.offline_test_score * weights['offline_test'] +
+            self.resource_engagement_score * weights['resource_engagement'] +
+            self.intervention_completion_score * weights['intervention_completion'] +
+            self.parent_followup_score * weights['parent_followup'] +
+            self.revision_participation_score * weights['revision_participation']
+        )
+        if self.overall_readiness_score >= 80:
+            self.readiness_state = 'highly_ready'
+        elif self.overall_readiness_score >= 65:
+            self.readiness_state = 'on_track'
+        elif self.overall_readiness_score >= 45:
+            self.readiness_state = 'needs_support'
+        elif self.overall_readiness_score >= 25:
+            self.readiness_state = 'high_risk'
+        else:
+            self.readiness_state = 'critical_exam_risk'
+        self.save()
+
+    def __str__(self):
+        return f"P7 Readiness: {self.student.full_name} ({self.overall_readiness_score:.0f}%)"
+
+
+class SubjectReadinessScore(models.Model):
+    """Per-subject readiness tracking for a P7 learner."""
+    readiness_profile = models.ForeignKey(P7ReadinessProfile, on_delete=models.CASCADE, related_name='subject_scores')
+    subject = models.ForeignKey('curriculum.Subject', on_delete=models.CASCADE)
+
+    average_score = models.FloatField(default=0)
+    mock_score = models.FloatField(default=0)
+    offline_score = models.FloatField(default=0)
+    completion_pct = models.FloatField(default=0)
+    resource_engagement_pct = models.FloatField(default=0)
+    intervention_exposure = models.IntegerField(default=0)
+    teacher_support_count = models.IntegerField(default=0)
+    improvement_trend = models.FloatField(default=0, help_text="Positive = improving, negative = declining")
+    is_weak = models.BooleanField(default=False)
+    needs_urgent_revision = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('readiness_profile', 'subject')
+
+    def __str__(self):
+        return f"{self.subject.name}: {self.average_score:.0f}%"
+
+
+class MockExamRecord(models.Model):
+    """Records mock exam results for P7 learners."""
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='mock_exams')
+    institution = models.ForeignKey('institutions.Institution', on_delete=models.CASCADE, related_name='mock_exams')
+    subject = models.ForeignKey('curriculum.Subject', on_delete=models.CASCADE)
+    class_level = models.ForeignKey('curriculum.ClassLevel', on_delete=models.SET_NULL, null=True)
+
+    exam_title = models.CharField(max_length=255)
+    score_pct = models.FloatField(default=0)
+    max_marks = models.FloatField(default=100)
+    obtained_marks = models.FloatField(default=0)
+    exam_date = models.DateField()
+    term = models.CharField(max_length=50, blank=True)
+
+    # Comparison data
+    class_average = models.FloatField(default=0, help_text="Average score for the class on this mock")
+    school_test_comparison = models.FloatField(default=0, help_text="Compared to latest offline school test")
+    online_activity_comparison = models.FloatField(default=0, help_text="Compared to online quiz/assignment performance")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-exam_date']
+
+    def __str__(self):
+        return f"{self.student.full_name} - {self.subject.name} Mock: {self.score_pct}%"
+
+
+class RevisionTask(models.Model):
+    """Assigned revision tasks for P7 learners."""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('overdue', 'Overdue'),
+    ]
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='revision_tasks')
+    institution = models.ForeignKey('institutions.Institution', on_delete=models.CASCADE)
+    subject = models.ForeignKey('curriculum.Subject', on_delete=models.CASCADE)
+    topic = models.ForeignKey('curriculum.Topic', on_delete=models.SET_NULL, null=True, blank=True)
+    assigned_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='assigned_revision_tasks')
+
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    priority = models.IntegerField(default=1, help_text="1=highest priority")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    due_date = models.DateField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    linked_resources = models.JSONField(default=list, help_text="IDs of linked revision resources")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['priority', 'due_date']
+
+    def __str__(self):
+        return f"{self.title} - {self.student.full_name}"
+
+
+class P7InterventionPack(models.Model):
+    """Exam-focused support packs for P7 learners."""
+    PACK_TYPES = [
+        ('subject_rescue', 'Subject Rescue Pack'),
+        ('weak_topic_revision', 'Weak Topic Revision Pack'),
+        ('attendance_recovery', 'Low Attendance Recovery Pack'),
+        ('parent_home_revision', 'Parent-Guided Home Revision Pack'),
+        ('mock_exam_recovery', 'Mock Exam Recovery Pack'),
+        ('exam_confidence', 'Exam Confidence Pack'),
+    ]
+    title = models.CharField(max_length=255)
+    pack_type = models.CharField(max_length=30, choices=PACK_TYPES)
+    institution = models.ForeignKey('institutions.Institution', on_delete=models.CASCADE, related_name='p7_intervention_packs')
+    subject = models.ForeignKey('curriculum.Subject', on_delete=models.SET_NULL, null=True, blank=True)
+    topic = models.ForeignKey('curriculum.Topic', on_delete=models.SET_NULL, null=True, blank=True)
+
+    contents = models.JSONField(default=dict, help_text="Pack contents: notes, videos, assignments, activities, practice items, parent_action_note, teacher_followup_note")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.get_pack_type_display()})"
+
+
+class P7InterventionAssignment(models.Model):
+    """Tracks assignment of intervention packs to P7 learners."""
+    pack = models.ForeignKey(P7InterventionPack, on_delete=models.CASCADE, related_name='assignments')
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='p7_interventions')
+    assigned_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='p7_intervention_assignments')
+
+    started = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False)
+    score_before = models.FloatField(default=0)
+    score_after = models.FloatField(default=0, help_text="Score after intervention, 0 if not yet measured")
+    readiness_improved = models.BooleanField(default=False)
+
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.pack.title} → {self.student.full_name}"
+
+
+class P7RiskFlag(models.Model):
+    """Flags learners, subjects, or classes needing urgent attention."""
+    RISK_TYPES = [
+        ('learner', 'High-Risk Learner'),
+        ('subject', 'High-Risk Subject'),
+        ('class', 'High-Risk Class'),
+    ]
+    SEVERITY_CHOICES = [
+        ('warning', 'Warning'),
+        ('high', 'High'),
+        ('critical', 'Critical'),
+    ]
+    institution = models.ForeignKey('institutions.Institution', on_delete=models.CASCADE, related_name='p7_risk_flags')
+    risk_type = models.CharField(max_length=20, choices=RISK_TYPES)
+    severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default='warning')
+
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='p7_risk_flags')
+    subject = models.ForeignKey('curriculum.Subject', on_delete=models.CASCADE, null=True, blank=True)
+    class_level = models.ForeignKey('curriculum.ClassLevel', on_delete=models.SET_NULL, null=True, blank=True)
+
+    signals = models.JSONField(default=list, help_text="List of risk signals contributing to this flag")
+    recommended_actions = models.JSONField(default=list)
+    is_resolved = models.BooleanField(default=False)
+
+    flagged_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-flagged_at']
+
+    def __str__(self):
+        return f"P7 Risk ({self.get_risk_type_display()}): {self.get_severity_display()}"
+
+
+class ParentP7SupportAction(models.Model):
+    """Tracks parent support actions for P7 learners."""
+    ACTION_TYPES = [
+        ('alert_acknowledged', 'Alert Acknowledged'),
+        ('revision_followup', 'Revision Follow-up Confirmed'),
+        ('resource_reviewed', 'Resource Reviewed'),
+        ('teacher_contact_requested', 'Teacher Contact Requested'),
+        ('revision_plan_viewed', 'Revision Plan Viewed'),
+        ('intervention_guidance_followed', 'Intervention Guidance Followed'),
+        ('home_practice_completed', 'Home Practice Completed'),
+    ]
+    parent = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='p7_support_actions')
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='p7_parent_support_received')
+    institution = models.ForeignKey('institutions.Institution', on_delete=models.CASCADE)
+
+    action_type = models.CharField(max_length=40, choices=ACTION_TYPES)
+    details = models.TextField(blank=True)
+    subject = models.ForeignKey('curriculum.Subject', on_delete=models.SET_NULL, null=True, blank=True)
+
+    performed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-performed_at']
+
+    def __str__(self):
+        return f"Parent Action: {self.get_action_type_display()} for {self.student.full_name}"
+
+
+class P7InstitutionSummary(models.Model):
+    """Aggregated P7 readiness summary for an institution."""
+    institution = models.OneToOneField('institutions.Institution', on_delete=models.CASCADE, related_name='p7_summary')
+
+    total_p7_learners = models.IntegerField(default=0)
+    highly_ready_count = models.IntegerField(default=0)
+    on_track_count = models.IntegerField(default=0)
+    needs_support_count = models.IntegerField(default=0)
+    high_risk_count = models.IntegerField(default=0)
+    critical_risk_count = models.IntegerField(default=0)
+
+    average_readiness_score = models.FloatField(default=0)
+    weakest_subject = models.CharField(max_length=200, blank=True)
+    strongest_subject = models.CharField(max_length=200, blank=True)
+
+    mock_exam_adoption_pct = models.FloatField(default=0)
+    parent_engagement_pct = models.FloatField(default=0)
+    intervention_completion_pct = models.FloatField(default=0)
+    revision_engagement_pct = models.FloatField(default=0)
+
+    readiness_trend = models.JSONField(default=list, help_text="Monthly readiness trend data")
+
+    last_computed = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"P7 Summary: {self.institution.name} (Avg: {self.average_readiness_score:.0f}%)"

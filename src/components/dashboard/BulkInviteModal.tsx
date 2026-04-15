@@ -5,7 +5,7 @@ import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
 import { AlertCircle, CheckCircle2, Loader2, Users } from 'lucide-react';
-import { apiClient } from '../../lib/api';
+import { apiClient } from '../../lib/apiClient';
 
 interface BulkInviteModalProps {
   isOpen: boolean;
@@ -30,17 +30,33 @@ export const BulkInviteModal: React.FC<BulkInviteModalProps> = ({ isOpen, onClos
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
+  const [conflictErrors, setConflictErrors] = useState<string[]>([]);
+
   const handleInvite = async () => {
     setError('');
     setSuccessMsg('');
+    setConflictErrors([]);
     
     // Parse emails from comma or newline separation
-    const emails = emailsRaw
-      .split(/[\n,]+/)
-      .map(e => e.trim().toLowerCase())
-      .filter(e => e.length > 0 && e.includes('@'));
+    const rawLines = emailsRaw.split(/[\n,]+/).map(e => e.trim().toLowerCase()).filter(e => e.length > 0);
+    const validEmails: string[] = [];
+    const invalidLines: string[] = [];
+    
+    rawLines.forEach(line => {
+       if (line.includes('@') && line.includes('.')) {
+          validEmails.push(line);
+       } else {
+          invalidLines.push(line);
+       }
+    });
 
-    if (emails.length === 0) {
+    if (invalidLines.length > 0) {
+      setError(`Found ${invalidLines.length} invalid email(s) in your batch.`);
+      setConflictErrors(invalidLines);
+      return;
+    }
+
+    if (validEmails.length === 0) {
       setError('Please paste at least one valid email address.');
       return;
     }
@@ -48,10 +64,10 @@ export const BulkInviteModal: React.FC<BulkInviteModalProps> = ({ isOpen, onClos
     setLoading(true);
     try {
       const { data } = await apiClient.post(`/institutions/${institutionId}/bulk_invite/`, {
-        emails,
+        emails: validEmails,
         role
       });
-      setSuccessMsg(`Success! Invited ${emails.length} users.`);
+      setSuccessMsg(`Success! Invited ${validEmails.length} users.`);
       setTimeout(() => {
         onSuccess();
         onClose();
@@ -70,7 +86,7 @@ export const BulkInviteModal: React.FC<BulkInviteModalProps> = ({ isOpen, onClos
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-blue-600" />
+            <Users className="w-5 h-5 text-blue-800" />
             Invite Users to Institution
           </DialogTitle>
           <DialogDescription>
@@ -105,13 +121,22 @@ export const BulkInviteModal: React.FC<BulkInviteModalProps> = ({ isOpen, onClos
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-2 rounded">
-              <AlertCircle className="w-4 h-4" /> {error}
+            <div className="flex flex-col gap-2 text-sm text-red-800 bg-red-50 p-3 rounded border border-red-200">
+               <div className="flex items-center gap-2 font-bold">
+                  <AlertCircle className="w-4 h-4" /> {error}
+               </div>
+               {conflictErrors.length > 0 && (
+                  <div className="mt-2 bg-white rounded border border-red-100 p-2 text-xs font-mono max-h-24 overflow-y-auto">
+                     {conflictErrors.map((conflict, i) => (
+                        <div key={i} className="text-red-600 line-clamp-1">{conflict}</div>
+                     ))}
+                  </div>
+               )}
             </div>
           )}
 
           {successMsg && (
-            <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 p-2 rounded">
+            <div className="flex items-center gap-2 text-sm text-emerald-800 bg-green-50 p-2 rounded">
               <CheckCircle2 className="w-4 h-4" /> {successMsg}
             </div>
           )}

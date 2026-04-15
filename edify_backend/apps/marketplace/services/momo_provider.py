@@ -41,28 +41,54 @@ class MobileMoneyDisbursementService:
             notes="Created transaction record and initiated MoMo call."
         )
 
-        # Mock API Call here for MoMo integration
-        # In real life, we would use something like MTN MoMo API or Flutterwave
-        # simulating success logic for the backend authoritative state mapping
+        # Real Sandbox MoMo Call using requests
+        import requests
         try:
-            # Fake HTTP req
-            transaction.provider_reference = f"MOCK-REF-{uuid.uuid4().hex[:8].upper()}"
-            transaction.status = 'provider_success'
-            transaction.raw_response = {"status": "SUCCESS", "message": "Disbursement completed"}
-            transaction.save()
+            momo_sandbox_url = os.environ.get('MOMO_SANDBOX_DISBURSEMENT_URL', 'https://sandbox.momodeveloper.mtn.com/disbursement/v1_0/transfer')
+            momo_subscription_key = os.environ.get('MOMO_SUBSCRIPTION_KEY', 'sandbox_mock_key')
+            momo_api_user = os.environ.get('MOMO_API_USER', 'sandbox_user')
+            
+            headers = {
+                'X-Reference-Id': str(uuid.uuid4()),
+                'X-Target-Environment': 'sandbox',
+                'Ocp-Apim-Subscription-Key': momo_subscription_key,
+                'Content-Type': 'application/json'
+            }
+            
+            payload = {
+                "amount": str(payout_request.amount),
+                "currency": "UGX",
+                "externalId": f"EDF-PAY-{payout_request.id}",
+                "payee": {
+                    "partyIdType": "MSISDN",
+                    "partyId": profile.mobile_number
+                },
+                "payerMessage": f"Edify Teacher Payout: {payout_request.amount} UGX",
+                "payeeNote": "Thank you for teaching with Edify"
+            }
+            
+            response = requests.post(momo_sandbox_url, headers=headers, json=payload, timeout=10)
+            
+            if response.status_code in [200, 202]:
+                transaction.provider_reference = headers['X-Reference-Id']
+                transaction.status = 'provider_success'
+                transaction.raw_response = {"status": "SUCCESS", "message": "Disbursement accepted by provider"}
+                transaction.save()
 
-            payout_request.status = 'paid'
-            payout_request.processed_at = timezone.now()
-            payout_request.save()
+                payout_request.status = 'paid'
+                payout_request.processed_at = timezone.now()
+                payout_request.save()
 
-            PayoutAuditLog.objects.create(
-                payout_request=payout_request,
-                action_type="PROVIDER_RESPONSE",
-                old_status='processing',
-                new_status='paid',
-                notes="Provider confirmed successful disbursement."
-            )
-            return True, transaction
+                PayoutAuditLog.objects.create(
+                    payout_request=payout_request,
+                    action_type="PROVIDER_RESPONSE",
+                    old_status='processing',
+                    new_status='paid',
+                    notes="Provider accepted successful disbursement."
+                )
+                return True, transaction
+            else:
+                raise Exception(f"Provider returned {response.status_code}: {response.text}")
         except Exception as e:
             transaction.status = 'provider_failed'
             transaction.raw_response = {"error": str(e)}

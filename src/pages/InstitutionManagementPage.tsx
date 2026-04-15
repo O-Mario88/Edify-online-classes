@@ -6,12 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  School, Users, DollarSign, TrendingUp, BookOpen, 
+  School, Users, TrendingUp, BookOpen, 
   UserCheck, AlertTriangle, Activity, MapPin, 
-  CheckCircle, Briefcase, Calendar, ShieldAlert, Settings2, Download, BellRing, TrendingDown, ArrowRight, ShieldCheck, UserX, Clock, Upload, CreditCard
+  CheckCircle, Briefcase, Calendar, ShieldAlert, Settings2, Download, BellRing, TrendingDown, ArrowRight, ShieldCheck, UserX, Clock, Upload
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/lib/apiClient';
+import contentApi from '../lib/contentApi';
+import type { ContentStats } from '../lib/contentApi';
 import { BulkInviteModal } from '@/components/dashboard/BulkInviteModal';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { TeacherRedAlertsPanel } from '../components/dashboard/TeacherRedAlertsPanel';
@@ -21,6 +23,7 @@ import { InstitutionIntelligenceHub } from '../components/dashboard/InstitutionI
 import { PastoralTimeline } from '../components/pastoral/PastoralTimeline';
 import { TeacherAssignmentManager } from '../components/dashboard/TeacherAssignmentManager';
 import { StudentOnboardingForm } from '../components/institutions/StudentOnboardingForm';
+
 import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { ActiveChallengeCard } from '../components/competition/ActiveChallengeCard';
 import { HouseStandingsCard } from '../components/competition/HouseStandingsCard';
@@ -29,7 +32,10 @@ import { ExamWarRoomMode } from '../components/institutions/ExamWarRoomMode';
 import { AIAdminReportAssistant } from '../components/institutions/AIAdminReportAssistant';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 import { ResourceUploadModal } from '../components/academic/ResourceUploadModal';
+import { ContentManagementPanel } from '../components/content';
 import { useInstitutionHealth } from '../hooks/useIntelligence';
+import { toast } from 'sonner';
+import { InstitutionPilotChecklist } from '../components/dashboard/InstitutionPilotChecklist';
 
 export const InstitutionManagementPage: React.FC = () => {
   const { user } = useAuth();
@@ -38,19 +44,33 @@ export const InstitutionManagementPage: React.FC = () => {
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [showOnboardingForm, setShowOnboardingForm] = useState(false);
   const [isLibraryUploadOpen, setIsLibraryUploadOpen] = useState(false);
+  const [contentStats, setContentStats] = useState<ContentStats | null>(null);
   const { metrics: healthMetrics } = useInstitutionHealth((user as any)?.institution_id || 1);
 
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch institution content stats
   useEffect(() => {
-    const fetchDashboard = async () => {
+    const fetchContentStats = async () => {
       try {
-        const { data, error: apiError } = await apiClient.get('/analytics/institution-dashboard/');
-        if (apiError || !data) {
-          throw new Error(apiError?.message || 'Data payload was empty from API');
-        }
-        setDashboardData(data);
-        setError(null);
+        const stats = await contentApi.institution.stats();
+        setContentStats(stats);
+      } catch {
+        // Non-critical, keep showing fallback
+      }
+    };
+    fetchContentStats();
+  }, []);
+
+  const fetchDashboard = async () => {
+    setLoading(true);
+    try {
+      const { data, error: apiError } = await apiClient.get('/analytics/institution-dashboard/');
+      if (apiError || !data) {
+        throw new Error(apiError?.message || 'Data payload was empty from API');
+      }
+      setDashboardData(data);
+      setError(null);
       } catch (error: any) {
         console.error('Error fetching dashboard data, falling back to mock data:', error);
         setDashboardData({
@@ -125,9 +145,19 @@ export const InstitutionManagementPage: React.FC = () => {
       } finally {
         setLoading(false);
       }
-    };
+  };
+
+  useEffect(() => {
     fetchDashboard();
   }, []);
+
+  const handleInvestigate = () => {
+    toast.info('Navigating to full Analytics & Pastoral ledger.');
+  };
+
+  const handlePingTeacher = () => {
+    toast.info('Navigating to Interventions Hub to escalate.');
+  };
 
   if (loading) {
     return <DashboardSkeleton type="institution" />;
@@ -140,17 +170,40 @@ export const InstitutionManagementPage: React.FC = () => {
           <AlertTriangle className="h-12 w-12 text-red-600 mx-auto mb-4" />
           <h2 className="text-lg font-bold text-red-900 mb-2">Dashboard Error</h2>
           <p className="text-red-700">{error || 'Data payload was empty'}</p>
-          <Button className="mt-6" variant="outline" onClick={() => window.location.reload()}>Retry</Button>
+          <Button className="mt-6" variant="outline" onClick={fetchDashboard}>Retry Connection</Button>
         </div>
       </div>
      )
   }
 
-  const { kpis, academicPerformance, financialMetrics, activationStatus, unpaidSeats } = dashboardData;
+  const { kpis, academicPerformance, financialMetrics, unpaidSeats } = dashboardData;
+  const activationStatus = (user as any)?.activation_status || dashboardData?.activationStatus || 'active';
   const isSetup = activationStatus === 'setup';
+  const isTrial = activationStatus === 'trial';
+  const isOverdue = activationStatus === 'overdue';
+  const isSuspended = activationStatus === 'suspended';
+
+  // If suspended, entirely soft-lock the portal
+  if (isSuspended) {
+     return (
+       <div className="w-full min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
+         <Card className="max-w-2xl w-full border-red-500 shadow-xl bg-white">
+           <CardHeader className="text-center pb-2">
+             <ShieldAlert className="w-16 h-16 text-red-500 mx-auto mb-4" />
+             <CardTitle className="text-2xl text-slate-900">Institution Suspended</CardTitle>
+             <CardDescription className="text-lg">Your Maple commercial license has been suspended. Please contact the Maple support team to resolve and restore academic access.</CardDescription>
+           </CardHeader>
+           <CardContent className="pt-6 border-t mt-4 border-slate-100 text-center">
+             <p className="text-slate-600 mb-4">For billing inquiries, reach out to our team directly.</p>
+             <Button variant="outline" className="border-red-200 text-red-700">Contact Billing Support</Button>
+           </CardContent>
+         </Card>
+       </div>
+     );
+  }
 
   return (
-    <div className="w-full bg-transparent">
+    <div className="w-full min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto py-8 px-4 space-y-8">
       
       {/* Header */}
@@ -171,13 +224,21 @@ export const InstitutionManagementPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-amber-500/10 border-l-4 border-amber-500/50 p-4 rounded-r-lg shadow-sm text-amber-200/90 text-sm backdrop-blur">
+      <div className="bg-amber-500/10 border-l-4 border-amber-500/50 p-4 rounded-r-lg shadow-sm text-amber-200/90 text-sm backdrop-blur mb-6">
         <strong className="font-bold flex items-center text-amber-400"><ShieldAlert className="w-4 h-4 mr-2"/> Privacy Bound Scope Active.</strong> 
         All analytics displayed on this dashboard represent ONLY Kampala Model High School learners, teachers, and academic transactions.
       </div>
 
+      {/* If Overdue, flash a stern warning payload */}
+      {isOverdue && (
+        <div className="bg-red-500/10 border-l-4 border-red-600 p-4 rounded-r-lg shadow-sm text-red-900 text-sm backdrop-blur mb-6">
+          <strong className="font-bold flex items-center text-red-700"><ShieldAlert className="w-4 h-4 mr-2"/> Payment Overdue.</strong> 
+          Your academic license has severely lapsed. Selected analytics routing and premium features have been suppressed until invoices are cleared. 
+        </div>
+      )}
 
-
+      {isSetup && <InstitutionPilotChecklist />}      
+      
       {/* Phase 1: Pillar 1 - School Health Score */}
       <SchoolHealthScore metrics={healthMetrics || {
         attendance: 92,
@@ -188,8 +249,9 @@ export const InstitutionManagementPage: React.FC = () => {
         interventionCompletion: 55
       }} />
 
-      {/* Row 1: KPI Strip (Intelligence Cards) */}
-      <div className="flex flex-wrap gap-4">
+      {/* Row 1: KPI Strip (Intelligence Cards) - Censor if Overdue */}
+      <div className={`flex flex-wrap gap-4 ${isOverdue ? 'opacity-50 pointer-events-none' : ''}`}>
+        {isOverdue && <div className="w-full text-red-600 font-bold mb-2 flex items-center"><ShieldAlert className="w-4 h-4 mr-2"/> KPIs Locked. Please resolve your billing.</div>}
         {dashboardData.intelligence?.map((card: any, i: number) => (
            <div key={i} className="flex-[1_1_200px] flex flex-col">
               <div className="flex-1 h-full">
@@ -264,23 +326,14 @@ export const InstitutionManagementPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 8-Lens Executive Command Center Layout */}
+      {/* 4-Lens Executive Command Center Layout (Consolidated for Scale) */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-9 bg-white/5 backdrop-blur-md mb-6 h-auto p-1 rounded-xl border border-[#1E293B]">
-          <TabsTrigger value="overview" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-2 shadow-sm rounded-lg text-slate-400">Overview</TabsTrigger>
-          <TabsTrigger value="academics" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-2 shadow-sm rounded-lg text-slate-400">Academics</TabsTrigger>
-          <TabsTrigger value="staff" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-2 shadow-sm rounded-lg text-slate-400">Staff</TabsTrigger>
-          <TabsTrigger value="students" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-2 shadow-sm rounded-lg text-slate-400">Students</TabsTrigger>
-          <TabsTrigger value="timetable" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-2 shadow-sm rounded-lg text-slate-400">Timetable</TabsTrigger>
-          <TabsTrigger value="pastoral" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-2 shadow-sm rounded-lg text-slate-400">Pastoral</TabsTrigger>
-          <TabsTrigger value="resources" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-2 shadow-sm rounded-lg text-slate-400">Resources</TabsTrigger>
-          <TabsTrigger value="parents" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-2 shadow-sm rounded-lg text-slate-400">Parents</TabsTrigger>
-          <TabsTrigger value="war_room" className="data-[state=active]:bg-rose-900/20 data-[state=active]:text-rose-400 py-2 shadow-sm rounded-lg text-slate-400 font-bold">War Room</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-white/5 backdrop-blur-md mb-6 h-auto p-1 rounded-xl border border-[#1E293B]">
+          <TabsTrigger value="overview" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-3 shadow-sm rounded-lg text-slate-400 font-semibold tracking-wide">Executive Overview</TabsTrigger>
+          <TabsTrigger value="academics" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-3 shadow-sm rounded-lg text-slate-400 font-semibold tracking-wide">Academics & Timetable</TabsTrigger>
+          <TabsTrigger value="operations" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-3 shadow-sm rounded-lg text-slate-400 font-semibold tracking-wide">Roster Operations</TabsTrigger>
+          <TabsTrigger value="resources" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-3 shadow-sm rounded-lg text-slate-400 font-semibold tracking-wide">Resource Centers</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="war_room" className="space-y-6">
-           <ExamWarRoomMode />
-        </TabsContent>
 
         <TabsContent value="overview">
            <Card className="border-red-500/20 bg-red-500/5 backdrop-blur-md shadow-sm mb-6">
@@ -296,22 +349,28 @@ export const InstitutionManagementPage: React.FC = () => {
                      <p className="font-bold text-white">High Absenteeism - S3 East</p>
                      <p className="text-sm text-slate-400">12 students fell below the 70% threshold this week.</p>
                    </div>
-                   <Button size="sm" variant="outline" className="text-red-400 border-red-500/20 bg-transparent hover:bg-red-500/10">Investigate</Button>
+                   <Link to="/dashboard/analytics/institution">
+                     <Button size="sm" variant="outline" className="text-red-400 border-red-500/20 bg-transparent hover:bg-red-500/10" onClick={handleInvestigate}>Investigate via Analytics</Button>
+                   </Link>
                  </div>
                  <div className="p-4 flex justify-between items-center hover:bg-red-500/10 transition-colors">
                    <div>
                      <p className="font-bold text-white">Low Grading Completion - Mr. Kato</p>
                      <p className="text-sm text-slate-400">Math assessments pending for over 5 days.</p>
                    </div>
-                   <Button size="sm" variant="outline" className="text-red-400 border-red-500/20 bg-transparent hover:bg-red-500/10">Ping Teacher</Button>
+                   <Link to={isOverdue ? "#" : "/dashboard/interventions"}>
+                     <Button size="sm" variant="outline" className="text-red-400 border-red-500/20 bg-transparent hover:bg-red-500/10" onClick={isOverdue ? () => toast.error('Account Restricted') : handlePingTeacher}>Follow up in Interventions</Button>
+                   </Link>
                  </div>
                </div>
              </CardContent>
            </Card>
 
-           <div className="mb-6">
-              <AIAdminReportAssistant />
-           </div>
+           {!isOverdue && (
+             <div className="mb-6">
+                <AIAdminReportAssistant />
+             </div>
+           )}
 
            <Card className="shadow-lg border-[#1E293B] bg-white/5 backdrop-blur-md mb-6">
              <CardHeader className="pb-4 border-b border-[#1E293B] bg-transparent rounded-t-xl">
@@ -333,83 +392,115 @@ export const InstitutionManagementPage: React.FC = () => {
            </Card>
         </TabsContent>
 
-        <TabsContent value="staff" className="space-y-6">
-           <Card className="shadow-lg border-[#1E293B] bg-white/5 backdrop-blur-md">
-             <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-[#1E293B] bg-transparent rounded-t-xl">
-               <div>
-                  <CardTitle className="text-white">Staff Management & Workload</CardTitle>
-                  <CardDescription className="text-slate-400">Monitor teacher attendance, assign subjects, and track grading compliance.</CardDescription>
-               </div>
-               <Button variant="outline" className="border-indigo-500/50 text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20" onClick={() => setInviteModalOpen(true)}><UserCheck className="w-4 h-4 mr-2" /> Bulk Invite Matrix</Button>
-             </CardHeader>
-           </Card>
-           <TeacherAssignmentManager />
-        </TabsContent>
+        <TabsContent value="operations" className="space-y-12">
+           {/* Unified Operations View containing Staff, Students, Parents, Pastoral previously separated */}
+           <div className="space-y-6">
+             <Card className="shadow-lg border-[#1E293B] bg-white/5 backdrop-blur-md">
+               <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-[#1E293B] bg-transparent rounded-t-xl">
+                 <div>
+                    <CardTitle className="text-white">Staff Management & Workload</CardTitle>
+                    <CardDescription className="text-slate-400">Monitor teacher attendance, assign subjects, and track grading compliance.</CardDescription>
+                 </div>
+                 <Button variant="outline" className="border-indigo-500/50 text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20" onClick={() => setInviteModalOpen(true)}><UserCheck className="w-4 h-4 mr-2" /> Bulk Invite Matrix</Button>
+               </CardHeader>
+             </Card>
+             <TeacherAssignmentManager />
+           </div>
 
-        <TabsContent value="academics">
-           <InstitutionIntelligenceHub />
-        </TabsContent>
-
-        <TabsContent value="students" className="space-y-6">
-           <Card className="shadow-sm border-indigo-200">
-             <CardHeader className="pb-4 border-b bg-indigo-50/30 flex flex-row justify-between items-center">
-               <div>
-                  <CardTitle className="text-indigo-900">Learner Onboarding Station</CardTitle>
-                  <CardDescription>Enroll students into the institution and attach parent/payment linkage.</CardDescription>
-               </div>
-               <Button onClick={() => setShowOnboardingForm(!showOnboardingForm)} className="bg-indigo-600 hover:bg-indigo-700">
-                  {showOnboardingForm ? 'Close Station' : 'Launch Onboarding Form'}
-               </Button>
-             </CardHeader>
-             {showOnboardingForm && (
-               <CardContent className="p-6 bg-slate-50 border-b">
-                  <StudentOnboardingForm />
+           <div className="space-y-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+             <Card className="shadow-sm border-indigo-200">
+               <CardHeader className="pb-4 border-b bg-indigo-50/30 flex flex-row justify-between items-center">
+                 <div>
+                    <CardTitle className="text-indigo-900">Learner Onboarding Station</CardTitle>
+                    <CardDescription>Enroll students into the institution and attach parent/payment linkage.</CardDescription>
+                 </div>
+                 <Button onClick={() => setShowOnboardingForm(!showOnboardingForm)} className="bg-indigo-600 hover:bg-indigo-700">
+                    {showOnboardingForm ? 'Close Station' : 'Launch Onboarding Form'}
+                 </Button>
+               </CardHeader>
+               {showOnboardingForm && (
+                 <CardContent className="p-6 bg-slate-50 border-b">
+                    <StudentOnboardingForm />
+                 </CardContent>
+               )}
+             </Card>
+           </div>
+           
+           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+             <Card className="shadow-sm">
+               <CardHeader className="pb-4 border-b bg-gray-50/50">
+                 <CardTitle>Student Interventions & Risk Radar</CardTitle>
+                 <CardDescription>Track students slipping across multiple subjects.</CardDescription>
+               </CardHeader>
+               <CardContent className="p-10">
+                 <PremiumEmptyState 
+                   icon={AlertTriangle} 
+                   title="No Elevated Risks" 
+                   description="Excellent! Your automated diagnostic radar has not flagged any critical student behavioral or academic risks within the past 48 hours." 
+                   actionLabel="View Historical Radar Logs"
+                   onAction={() => {}}
+                 />
                </CardContent>
-             )}
-           </Card>
+             </Card>
 
-           <Card className="shadow-sm">
-             <CardHeader className="pb-4 border-b bg-gray-50/50">
-               <CardTitle>Student Interventions & Risk Radar</CardTitle>
-               <CardDescription>Track students slipping across multiple subjects and intercept with support.</CardDescription>
-             </CardHeader>
-             <CardContent className="p-10">
-               <PremiumEmptyState 
-                 icon={AlertTriangle} 
-                 title="No Elevated Risks" 
-                 description="Excellent! Your automated diagnostic radar has not flagged any critical student behavioral or academic risks within the past 48 hours." 
-                 actionLabel="View Historical Radar Logs"
-                 onAction={() => {}}
-               />
-             </CardContent>
-           </Card>
+             <Card className="shadow-sm">
+               <CardHeader className="pb-4 border-b bg-gray-50/50">
+                 <CardTitle>Parent Engagement & Responsiveness</CardTitle>
+                 <CardDescription>Monitor parent portal sign-ins and intervention acknowledgment rates.</CardDescription>
+               </CardHeader>
+               <CardContent className="p-10">
+                 <PremiumEmptyState 
+                   icon={Users}
+                   title="Awaiting Parent Integrations"
+                   description="Once parents onboard and link to their student portfolios, engagement metrics and responsiveness data will securely surface here."
+                   actionLabel="Generate Parent Invites"
+                   onAction={() => {}}
+                 />
+               </CardContent>
+             </Card>
+           </div>
+
+           <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
+             <PastoralTimeline />
+           </div>
         </TabsContent>
 
-        <TabsContent value="timetable" className="space-y-6">
-           {isSetup ? (
+        <TabsContent value="academics" className="space-y-12">
+           <ExamWarRoomMode />
+           
+           {(isSetup || isTrial || isOverdue) ? (
              <div className="max-w-5xl mx-auto pt-6">
                 <PremiumLockState 
-                  title="Unlock the Timetable Studio" 
-                  description="Optimize your institution's schedule, prevent collisions, and instantly assign cover-teachers with the AI-driven Timetable Studio. Available immediately upon completing your institution's onboarding activation."
+                  title="Unlock Academic Intelligence" 
+                  description="Optimize your institution's predictive analytics and master timeline scheduling by resolving your activation payment. Restricted under Trial/Overdue accounts."
                 />
              </div>
            ) : (
-             <Card className="shadow-sm text-center py-8">
-                <Calendar className="w-12 h-12 text-indigo-600 mx-auto mb-4"/>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Master Timetable & Cover Substitutions</h3>
-                <p className="text-xs text-gray-500 max-w-sm mx-auto mb-4">Launch the Studio to resolve scheduling collisions and assign cover blocks.</p>
-                <Link to="/dashboard/institution/timetable">
-                  <Button className="bg-indigo-600 hover:bg-indigo-700">Launch Studio</Button>
-                </Link>
-             </Card>
+              <InstitutionIntelligenceHub />
            )}
+           
+           <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
+             {(isSetup || isTrial || isOverdue) ? (
+               <div className="max-w-5xl mx-auto pt-6">
+                  <PremiumLockState 
+                    title="Unlock the Timetable Studio" 
+                    description="Optimize your institution's schedule, prevent collisions, and instantly assign cover-teachers with the AI-driven Timetable Studio. Restricted under Trial accounts."
+                  />
+               </div>
+             ) : (
+               <Card className="shadow-sm text-center py-8">
+                  <Calendar className="w-12 h-12 text-indigo-600 mx-auto mb-4"/>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Master Timetable & Cover Substitutions <Badge variant="outline" className="ml-2 bg-indigo-50 text-indigo-700">Premium</Badge></h3>
+                  <p className="text-xs text-gray-500 max-w-sm mx-auto mb-4">Launch the Studio to resolve scheduling collisions and assign cover blocks.</p>
+                  <Link to="/dashboard/institution/timetable">
+                    <Button className="bg-indigo-600 hover:bg-indigo-700">Launch Studio</Button>
+                  </Link>
+               </Card>
+             )}
+           </div>
         </TabsContent>
 
-        <TabsContent value="pastoral" className="space-y-6">
-           <PastoralTimeline />
-        </TabsContent>
-
-        <TabsContent value="resources" className="space-y-6">
+        <TabsContent value="resources" className="space-y-12">
            <Card className="shadow-sm border-indigo-200 bg-indigo-50/20">
              <CardHeader className="pb-4 border-b bg-white flex flex-row items-center justify-between">
                <div>
@@ -423,43 +514,29 @@ export const InstitutionManagementPage: React.FC = () => {
              <CardContent className="pt-6">
                <div className="flex flex-wrap gap-6">
                  <div className="flex-[1_1_200px] flex flex-col justify-center bg-white border rounded-xl p-6 text-center shadow-sm">
-                    <p className="text-3xl font-black text-indigo-600 mb-1">142</p>
-                    <p className="text-xs font-bold text-slate-500 uppercase">Resources Deployed</p>
+                    <p className="text-3xl font-black text-indigo-600 mb-1">{contentStats?.total ?? 0}</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase">{(contentStats?.total ?? 0) > 0 ? "Resources Deployed" : "Resources Deployed"}</p>
                  </div>
                  <div className="flex-[1_1_200px] flex flex-col justify-center bg-white border rounded-xl p-6 text-center shadow-sm">
-                    <p className="text-3xl font-black text-emerald-600 mb-1">89%</p>
-                    <p className="text-xs font-bold text-slate-500 uppercase">Recovery Rate</p>
+                    <p className="text-3xl font-black text-emerald-600 mb-1">{contentStats?.published ?? 0}</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase">Published</p>
                  </div>
                  <div className="flex-[1_1_200px] flex flex-col justify-center bg-white border rounded-xl p-6 text-center shadow-sm">
-                    <p className="text-3xl font-black text-amber-600 mb-1">24</p>
-                     <p className="text-xs font-bold text-slate-500 uppercase">Peer Discussions Led</p>
+                    <p className="text-3xl font-black text-amber-600 mb-1">{contentStats?.drafts ?? 0}</p>
+                     <p className="text-xs font-bold text-slate-500 uppercase">Drafts</p>
                  </div>
                </div>
                <div className="mt-6 flex justify-end">
-                 <Link to="/dashboard/library">
+                 <Link to="/library">
                    <Button variant="outline" className="border-indigo-200 text-indigo-700">Go to Academic Library</Button>
                  </Link>
                </div>
              </CardContent>
            </Card>
-        </TabsContent>
 
-        <TabsContent value="parents" className="space-y-6">
-           <Card className="shadow-sm">
-             <CardHeader className="pb-4 border-b bg-gray-50/50">
-               <CardTitle>Parent Engagement & Responsiveness</CardTitle>
-               <CardDescription>Monitor parent portal sign-ins and intervention acknowledgment rates.</CardDescription>
-             </CardHeader>
-             <CardContent className="p-10">
-               <PremiumEmptyState 
-                 icon={Users}
-                 title="Awaiting Parent Integrations"
-                 description="Once parents onboard and link to their student portfolios, engagement metrics and responsiveness data will securely surface here."
-                 actionLabel="Generate Parent Invites"
-                 onAction={() => {}}
-               />
-             </CardContent>
-           </Card>
+           <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
+             <ContentManagementPanel role="institution" />
+           </div>
         </TabsContent>
 
 
@@ -473,8 +550,9 @@ export const InstitutionManagementPage: React.FC = () => {
         onSuccess={() => console.log('Successfully invited roster')}
       />
       <ResourceUploadModal 
-         isOpen={isLibraryUploadOpen} 
-         onClose={() => setIsLibraryUploadOpen(false)} 
+        isOpen={isLibraryUploadOpen} 
+        onClose={() => setIsLibraryUploadOpen(false)} 
+        role="institution"
       />
     </div>
     </div>

@@ -27,14 +27,14 @@ export function InstitutionIntelligenceHub() {
         <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
           <CardContent className="p-6 flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-500 font-medium">Critical Interventions</p>
+              <p className="text-sm text-slate-700 font-medium">Critical Interventions</p>
               <div className="flex items-end gap-2 mt-1">
-                <h3 className="text-3xl font-black text-red-600 dark:text-red-400">14</h3>
-                <span className="text-xs text-slate-500 mb-1">Active</span>
+                <h3 className="text-3xl font-black text-red-800 dark:text-red-400">14</h3>
+                <span className="text-xs text-slate-700 mb-1">Active</span>
               </div>
             </div>
             <div className="w-12 h-12 bg-red-50 dark:bg-red-900/20 rounded-xl flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+              <AlertTriangle className="w-6 h-6 text-red-800 dark:text-red-400" />
             </div>
           </CardContent>
         </Card>
@@ -42,14 +42,14 @@ export function InstitutionIntelligenceHub() {
         <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
           <CardContent className="p-6 flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-500 font-medium">Dual Attendance Discrepancy</p>
+              <p className="text-sm text-slate-700 font-medium">Dual Attendance Discrepancy</p>
               <div className="flex items-end gap-2 mt-1">
-                <h3 className="text-3xl font-black text-amber-600 dark:text-amber-400">12%</h3>
-                <span className="text-xs text-slate-500 mb-1">Gap</span>
+                <h3 className="text-3xl font-black text-amber-800 dark:text-amber-400">12%</h3>
+                <span className="text-xs text-slate-700 mb-1">Gap</span>
               </div>
             </div>
             <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-xl flex items-center justify-center">
-              <Users className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+              <Users className="w-6 h-6 text-amber-800 dark:text-amber-400" />
             </div>
           </CardContent>
         </Card>
@@ -57,10 +57,10 @@ export function InstitutionIntelligenceHub() {
         <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
           <CardContent className="p-6 flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-500 font-medium">Institutional Success Rate</p>
+              <p className="text-sm text-slate-700 font-medium">Institutional Success Rate</p>
               <div className="flex items-end gap-2 mt-1">
                 <h3 className="text-3xl font-black text-emerald-600 dark:text-emerald-400">76%</h3>
-                <span className="text-xs text-slate-500 mb-1">Overall Avg</span>
+                <span className="text-xs text-slate-700 mb-1">Overall Avg</span>
               </div>
             </div>
             <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center">
@@ -78,7 +78,7 @@ export function InstitutionIntelligenceHub() {
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-blue-600" /> Dual Attendance Matrix
+                  <Shield className="w-5 h-5 text-blue-800" /> Dual Attendance Matrix
                 </CardTitle>
                 <CardDescription>Offline vs Online Engagement Overlap</CardDescription>
               </div>

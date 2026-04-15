@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AICopilotMessage } from '../types';
 import { useAuth } from './AuthContext';
-import apiClient from '@/lib/apiClient';
+import { apiClient } from '@/lib/apiClient';
 
 interface AICopilotContextType {
   isOpen: boolean;

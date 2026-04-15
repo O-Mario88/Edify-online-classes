@@ -1,0 +1,13 @@
+# Dashboard Action Mapping Table
+
+| Action Label                  | Dashboard | Location                | Expected Behavior                                                                 | Current Behavior                | Missing Pieces / Issues                | Files / Components Involved                  |
+|------------------------------|-----------|-------------------------|----------------------------------------------------------------------------------|----------------------------------|----------------------------------------|----------------------------------------------|
+| View Schedule                | Student   | Header, top right       | Open weekly calendar (route or modal), fetch real schedule, show states           | setIsScheduleOpen(true) (modal?) | Needs real schedule fetch, states      | StudentDashboard.tsx, ScheduleModal?         |
+| Resume Learning              | Student   | Header, top right       | Route to best resume target from backend, fallback to classes                     | Uses backend, routes to topic    | None (logic present)                   | StudentDashboard.tsx                         |
+| Join Meeting                 | Student   | Next Live Session card  | Open meet link or internal room, handle session status, show states               | Opens link or routes            | Needs session status logic             | StudentDashboard.tsx                         |
+| Review Overdue Tasks         | Student   | Attention Required card | Route to tasks page with overdue filter or open filtered modal                    | setIsOverdueOpen(true) (modal?)  | Needs real filter/modal/route          | StudentDashboard.tsx, OverdueModal?          |
+| Start Challenge              | Student   | Mastery Enrichment card | Enroll in challenge, persist backend, route to challenge detail, show in tasks    | Backend enroll, disables button  | Needs route to challenge detail        | StudentDashboard.tsx                         |
+| Resume Study Module          | Student   | Concept Reinforcement   | Route to remedial topic/module, preserve progress, mark as opened                 | Hardcoded route to topic         | Needs dynamic target, mark as opened   | StudentDashboard.tsx                         |
+| Request Tutor Intervention   | Student   | Critical Intervention   | Create intervention request, persist, notify, show success, reflect in teacher UI | Backend request, disables button | Needs teacher/admin reflection         | StudentDashboard.tsx                         |
+
+# (Continue for Teacher, Parent, Institution, Admin dashboards...)

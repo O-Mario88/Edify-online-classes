@@ -21,93 +21,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { WebinarSession } from '../types';
 import { toast } from 'sonner';
 import { apiClient } from '@/lib/apiClient';
+import { useNavigate } from 'react-router-dom';
 import { isFuture, isPast, addMinutes } from 'date-fns';
 import { LiveSessionCTA } from '../components/dashboard/LiveSessionCTA';
-
-const MOCK_SESSIONS: WebinarSession[] = [
-  {
-    id: 'mock-1',
-    title: 'Advanced Derivatives & Option Strategies for Structuring Risk',
-    hostName: 'Dr. Sarah Jenkins',
-    scheduledStart: new Date().toISOString(), // effectively "Live"
-    durationMinutes: 90,
-    enrolledCount: 142,
-    capacity: 250,
-    type: 'webinar',
-    meetingUrl: 'https://meet.google.com/xyz',
-  },
-  {
-    id: 'mock-2',
-    title: 'S3 Biology Revision: Cell Structures Masterclass',
-    hostName: 'Prof. David Olinga',
-    scheduledStart: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // Future
-    durationMinutes: 60,
-    enrolledCount: 45,
-    capacity: 100,
-    type: 'revision',
-  },
-  {
-    id: 'mock-3',
-    title: 'Peer Discussion: Impact of Monetary Policies on East African Economies',
-    hostName: 'Alevel Economics Cohort A',
-    scheduledStart: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // Future
-    durationMinutes: 45,
-    enrolledCount: 12,
-    capacity: 20,
-    type: 'peer_discussion',
-  },
-  {
-    id: 'mock-4',
-    title: 'Mathematics O-Level Exam Prep Q&A',
-    hostName: 'Mr. Emmanuel Kato',
-    scheduledStart: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // Past
-    durationMinutes: 120,
-    enrolledCount: 300,
-    capacity: 300,
-    type: 'webinar',
-  },
-  {
-    id: 'mock-5',
-    title: 'University Admissions Essay Masterclass: Stand Out',
-    hostName: 'Madam Grace Akello',
-    scheduledStart: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // Future
-    durationMinutes: 90,
-    enrolledCount: 215,
-    capacity: 500,
-    type: 'webinar',
-  },
-  {
-    id: 'mock-6',
-    title: 'Introduction to Python for Data Science',
-    hostName: 'Mr. John Musisi',
-    scheduledStart: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // Past
-    durationMinutes: 120,
-    enrolledCount: 180,
-    capacity: 200,
-    type: 'webinar',
-  },
-  {
-    id: 'mock-7',
-    title: 'Peer Discussion: Climate Change and Global Responsibility',
-    hostName: 'Geography Club S4',
-    scheduledStart: new Date().toISOString(), // effectively "Live"
-    durationMinutes: 60,
-    enrolledCount: 35,
-    capacity: 50,
-    type: 'peer_discussion',
-    meetingUrl: 'https://meet.google.com/abc',
-  },
-  {
-    id: 'mock-8',
-    title: 'A-Level Chemistry: Organic Chemistry Revision',
-    hostName: 'Dr. Mukasa Godfrey',
-    scheduledStart: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Future
-    durationMinutes: 120,
-    enrolledCount: 88,
-    capacity: 150,
-    type: 'revision',
-  }
-] as unknown as WebinarSession[];
 
 export const LiveSessionsPage: React.FC = () => {
   const { user } = useAuth();
@@ -115,6 +31,7 @@ export const LiveSessionsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Host-specific states
   const isTeacher = user?.role === 'independent_teacher' || user?.role === 'institution_admin';
@@ -123,11 +40,13 @@ export const LiveSessionsPage: React.FC = () => {
     const fetchWebinars = async () => {
       try {
         const response = await apiClient.get('/live-sessions/live-session/');
-        const fetchedSessions = response.data.results || response.data || [];
-        setSessions(fetchedSessions.length > 0 ? fetchedSessions : MOCK_SESSIONS);
+        const respData: any = response.data || {};
+        let fetchedSessions = respData.results || respData;
+        if (!Array.isArray(fetchedSessions)) fetchedSessions = [];
+        setSessions(fetchedSessions);
       } catch (error) {
-        console.error('Error fetching webinars, loading mock data:', error);
-        setSessions(MOCK_SESSIONS);
+        console.error('Error fetching live sessions:', error);
+        setSessions([]);
       } finally {
         setLoading(false);
       }
@@ -193,10 +112,10 @@ export const LiveSessionsPage: React.FC = () => {
   }
 
   // Generate deterministic abstract background colors based on ID
-  const getGradientForId = (id: string, state: string) => {
+  const getGradientForId = (id: string | number, state: string) => {
     if (state === 'live') return 'from-rose-100 to-orange-50';
     if (state === 'recorded') return 'from-slate-200 to-slate-100';
-    const sum = id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+    const sum = String(id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
     const backgrounds = [
       'from-emerald-100 to-teal-50',
       'from-blue-100 to-indigo-50',
@@ -286,7 +205,10 @@ export const LiveSessionsPage: React.FC = () => {
                   </button>
                 )}
                 {state === 'Recorded' && (
-                   <button className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 hover:text-slate-700 transition-colors">
+                   <button 
+                     onClick={() => navigate(`/dashboard/sessions/recover/${session.id}`)}
+                     className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 hover:text-slate-700 transition-colors"
+                   >
                      <Play className="w-3 h-3" /> Replay
                    </button>
                 )}
@@ -356,8 +278,8 @@ export const LiveSessionsPage: React.FC = () => {
               
               <div className="relative rounded-[2.5rem] overflow-hidden border-8 border-white shadow-2xl shadow-slate-200/50 aspect-[4/3] bg-slate-100 group">
                 <img 
-                  src="https://images.unsplash.com/photo-1590650516494-0c8e4a4dd67e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
-                  alt="Student watching a live seminar"
+                  src="/images/online_teacher.png" 
+                  alt="Teacher hosting an online class"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
                 <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-md p-3 rounded-xl shadow-lg border border-white/50 flex items-center gap-3 animate-pulse">

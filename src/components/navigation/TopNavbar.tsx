@@ -28,20 +28,24 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
   };
 
   const getDashboardRoute = () => {
+    const isPrimary = (user as any)?.school_level === 'primary';
     switch (user?.role) {
       case 'universal_student': return '/dashboard/student';
+      case 'institution_student': return isPrimary ? '/dashboard/primary/student' : '/dashboard/student';
       case 'independent_teacher': return '/dashboard/teacher';
+      case 'institution_teacher': return isPrimary ? '/dashboard/primary/teacher' : '/dashboard/teacher';
       case 'institution_admin': return '/dashboard/institution';
       case 'platform_admin': return '/dashboard/admin';
-      case 'parent': return '/dashboard/parent';
+      case 'parent': return isPrimary ? '/dashboard/primary/parent' : '/dashboard/parent';
       default: return '/';
     }
   };
 
   // Nav Configuration
+  const isPrimary = (user as any)?.school_level === 'primary';
   const primaryLinks = [
     { label: 'Home', href: '/', icon: GraduationCap },
-    { label: 'Classes', href: '/classes', icon: BookOpen },
+    { label: 'Classes', href: isPrimary ? '/primary' : '/classes', icon: BookOpen },
     { label: 'Resource Center', href: '/library', icon: Library },
   ];
 
@@ -59,6 +63,19 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
         { label: 'Learning Path', href: '/learning-path', icon: Target },
         { label: 'Exam Registration', href: '/exam-registration', icon: CreditCard }
       );
+      engageLinks.push({ label: 'Peer Tutoring', href: '/peer-tutoring', icon: MessageSquare });
+    } else if (user.role === 'institution_student') {
+      if (isPrimary) {
+        toolsLinks.push(
+          { label: 'My Syllabus', href: `/primary/class/${(user as any).class_level || 'p7'}`, icon: BookOpen },
+          { label: 'Learning Path', href: '/learning-path', icon: Target }
+        );
+      } else {
+        toolsLinks.push(
+          { label: 'Learning Path', href: '/learning-path', icon: Target },
+          { label: 'Exam Registration', href: '/exam-registration', icon: CreditCard }
+        );
+      }
       engageLinks.push({ label: 'Peer Tutoring', href: '/peer-tutoring', icon: MessageSquare });
     } else if (user.role === 'independent_teacher') {
       toolsLinks.push({ label: 'AI Assistant', href: '/ai-assistant', icon: Brain });
@@ -93,11 +110,11 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
       to={item.href}
       className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
         isActive(item.href) 
-          ? isGlass ? 'bg-white/10 text-white shadow-sm border border-white/20' : 'bg-indigo-50/80 text-indigo-700 shadow-sm border border-indigo-100/50' 
-          : isGlass ? 'text-slate-300 hover:text-white hover:bg-white/10' : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
+          ? isGlass ? 'bg-white/10 text-white shadow-sm border border-white/20' : 'bg-indigo-100 text-indigo-700 shadow-sm border border-indigo-100/50' 
+          : isGlass ? 'text-slate-300 hover:text-white hover:bg-white/10' : 'text-slate-800 hover:text-indigo-800 hover:bg-slate-50'
       }`}
     >
-      <item.icon className={`h-4 w-4 ${isActive(item.href) ? isGlass ? 'text-blue-400' : 'text-indigo-600' : isGlass ? 'text-slate-400' : 'text-slate-400'}`} />
+      <item.icon className={`h-4 w-4 ${isActive(item.href) ? isGlass ? 'text-blue-400' : 'text-indigo-800' : isGlass ? 'text-slate-800' : 'text-slate-800'}`} />
       <span>{item.label}</span>
     </Link>
   );
@@ -112,7 +129,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
             <div className={`p-1.5 rounded-lg transition-colors shadow-sm ${isGlass ? 'bg-blue-600 group-hover:bg-blue-500' : 'bg-indigo-600 group-hover:bg-indigo-700'}`}>
                <GraduationCap className="h-5 w-5 text-white" />
             </div>
-            <span className={`text-xl font-extrabold tracking-tight ${isGlass ? 'text-white' : 'text-slate-900'}`}>Maple<span className={`font-bold ml-1 ${isGlass ? 'text-blue-400' : 'text-indigo-600'}`}>OS</span></span>
+            <span className={`text-xl font-extrabold tracking-tight ${isGlass ? 'text-white' : 'text-slate-900'}`}>Maple<span className={`font-bold ml-1 ${isGlass ? 'text-blue-400' : 'text-indigo-800'}`}>OS</span></span>
           </Link>
 
           {/* Nav Container (Desktop) */}
@@ -124,12 +141,12 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
             {/* Engage Dropdown */}
             {engageLinks.length > 0 && (
               <DropdownMenu>
-                <DropdownMenuTrigger className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all outline-none ${isGlass ? 'text-slate-300 hover:text-white hover:bg-white/10' : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'}`}>
+                <DropdownMenuTrigger className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all outline-none ${isGlass ? 'text-slate-300 hover:text-white hover:bg-white/10' : 'text-slate-800 hover:text-indigo-800 hover:bg-slate-50'}`}>
                   <span>Engage</span>
                   <ChevronDown className="w-4 h-4 opacity-50" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56 p-2 rounded-xl shadow-xl shadow-slate-900/5 border-slate-100 animate-in fade-in zoom-in-95 data-[side=bottom]:slide-in-from-top-2">
-                  <DropdownMenuLabel className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 px-2">Community & Live</DropdownMenuLabel>
+                  <DropdownMenuLabel className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1 px-2">Community & Live</DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-slate-100 mb-1" />
                   {engageLinks.map(item => (
                     <DropdownMenuItem key={item.href} asChild className="rounded-lg mb-0.5 cursor-pointer focus:bg-indigo-50 focus:text-indigo-700">
@@ -146,12 +163,12 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
             {/* Tools Dropdown */}
             {toolsLinks.length > 0 && (
               <DropdownMenu>
-                <DropdownMenuTrigger className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all outline-none ${isGlass ? 'text-slate-300 hover:text-white hover:bg-white/10' : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'}`}>
+                <DropdownMenuTrigger className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all outline-none ${isGlass ? 'text-slate-300 hover:text-white hover:bg-white/10' : 'text-slate-800 hover:text-indigo-800 hover:bg-slate-50'}`}>
                   <span>Tools</span>
                   <ChevronDown className="w-4 h-4 opacity-50" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56 p-2 rounded-xl shadow-xl shadow-slate-900/5 border-slate-100 animate-in fade-in zoom-in-95 data-[side=bottom]:slide-in-from-top-2">
-                  <DropdownMenuLabel className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 px-2">Opportunities</DropdownMenuLabel>
+                  <DropdownMenuLabel className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1 px-2">Opportunities</DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-slate-100 mb-1" />
                   {toolsLinks.map(item => (
                     <DropdownMenuItem key={item.href} asChild className="rounded-lg mb-0.5 cursor-pointer focus:bg-indigo-50 focus:text-indigo-700">
@@ -188,7 +205,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
                   variant="ghost"
                   size="icon"
                   onClick={handleLogout}
-                  className={`hidden sm:flex rounded-full ${isGlass ? 'text-slate-400 hover:text-rose-400 hover:bg-rose-950/50' : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'}`}
+                  className={`hidden sm:flex rounded-full ${isGlass ? 'text-slate-800 hover:text-rose-400 hover:bg-rose-950/50' : 'text-slate-800 hover:text-rose-600 hover:bg-rose-50'}`}
                 >
                   <LogOut className="h-5 w-5" />
                 </Button>
@@ -196,7 +213,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
             ) : (
               <div className="hidden sm:flex items-center space-x-2">
                 <Link to="/login">
-                  <Button variant="ghost" className={`font-semibold rounded-xl ${isGlass ? 'text-slate-300 hover:text-white hover:bg-white/10 bg-transparent' : 'text-slate-600 hover:text-slate-900 bg-transparent hover:bg-slate-50'}`}>
+                  <Button variant="ghost" className={`font-semibold rounded-xl ${isGlass ? 'text-slate-300 hover:text-white hover:bg-white/10 bg-transparent' : 'text-slate-800 hover:text-slate-900 bg-transparent hover:bg-slate-50'}`}>
                     Sign In
                   </Button>
                 </Link>
@@ -211,22 +228,22 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
             {/* Mobile / Tablet Menu Trapper */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="xl:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 active:bg-slate-200 focus-visible:ring-indigo-500">
+                <Button variant="ghost" size="icon" className="xl:hidden p-2 rounded-xl text-slate-800 hover:bg-slate-100 active:bg-slate-200 focus-visible:ring-indigo-500">
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[85vw] sm:w-[350px] p-0 flex flex-col bg-slate-50 border-l border-slate-200/60">
                 <SheetHeader className="p-5 border-b border-slate-200/60 bg-white text-left">
                   <SheetTitle className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center">
-                    <GraduationCap className="h-6 w-6 text-indigo-600 mr-2" />
-                    Maple<span className="text-indigo-600">OS</span>
+                    <GraduationCap className="h-6 w-6 text-indigo-800 mr-2" />
+                    Maple<span className="text-indigo-800">OS</span>
                   </SheetTitle>
                 </SheetHeader>
                 
                 <div className="flex-1 overflow-y-auto py-4 px-3 space-y-6">
                   {/* Primary Mobile Links */}
                   <div className="space-y-1">
-                    <p className="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Core Hub</p>
+                    <p className="px-3 text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Core Hub</p>
                     {primaryLinks.map(item => (
                        <Link
                          key={item.href}
@@ -234,7 +251,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
                          onClick={() => setMobileMenuOpen(false)}
                          className={`flex items-center space-x-3 px-3 py-3 rounded-xl text-base font-semibold transition-colors ${isActive(item.href) ? 'bg-indigo-100/50 text-indigo-700' : 'text-slate-700 hover:bg-slate-100'}`}
                        >
-                         <item.icon className={`h-5 w-5 ${isActive(item.href) ? 'text-indigo-600' : 'text-slate-400'}`} />
+                         <item.icon className={`h-5 w-5 ${isActive(item.href) ? 'text-indigo-800' : 'text-slate-800'}`} />
                          <span>{item.label}</span>
                        </Link>
                     ))}
@@ -243,7 +260,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
                   {/* Engage Mobile Links */}
                   {engageLinks.length > 0 && (
                     <div className="space-y-1">
-                      <p className="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Community</p>
+                      <p className="px-3 text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Community</p>
                       {engageLinks.map(item => (
                          <Link
                            key={item.href}
@@ -251,7 +268,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
                            onClick={() => setMobileMenuOpen(false)}
                            className={`flex items-center space-x-3 px-3 py-3 rounded-xl text-base font-semibold transition-colors ${isActive(item.href) ? 'bg-indigo-100/50 text-indigo-700' : 'text-slate-700 hover:bg-slate-100'}`}
                          >
-                           <item.icon className={`h-5 w-5 ${isActive(item.href) ? 'text-indigo-600' : 'text-slate-400'}`} />
+                           <item.icon className={`h-5 w-5 ${isActive(item.href) ? 'text-indigo-800' : 'text-slate-800'}`} />
                            <span>{item.label}</span>
                          </Link>
                       ))}
@@ -261,7 +278,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
                   {/* Tools Mobile Links */}
                   {toolsLinks.length > 0 && (
                     <div className="space-y-1">
-                      <p className="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Tools & Opportunities</p>
+                      <p className="px-3 text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Tools & Opportunities</p>
                       {toolsLinks.map(item => (
                          <Link
                            key={item.href}
@@ -269,7 +286,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
                            onClick={() => setMobileMenuOpen(false)}
                            className={`flex items-center space-x-3 px-3 py-3 rounded-xl text-base font-semibold transition-colors ${isActive(item.href) ? 'bg-indigo-100/50 text-indigo-700' : 'text-slate-700 hover:bg-slate-100'}`}
                          >
-                           <item.icon className={`h-5 w-5 ${isActive(item.href) ? 'text-indigo-600' : 'text-slate-400'}`} />
+                           <item.icon className={`h-5 w-5 ${isActive(item.href) ? 'text-indigo-800' : 'text-slate-800'}`} />
                            <span>{item.label}</span>
                          </Link>
                       ))}
@@ -293,7 +310,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
                         />
                         <div>
                           <p className="text-sm font-bold text-slate-900 leading-none">{user.name || 'User'}</p>
-                          <p className="text-xs font-medium text-slate-500 mt-1 capitalize">{user.role?.replace('_', ' ') || 'User'}</p>
+                          <p className="text-xs font-medium text-slate-700 mt-1 capitalize">{user.role?.replace('_', ' ') || 'User'}</p>
                         </div>
                       </Link>
                       <Button

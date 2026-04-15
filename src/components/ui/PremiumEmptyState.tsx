@@ -28,7 +28,7 @@ export const PremiumEmptyState: React.FC<PremiumEmptyStateProps> = ({
         </div>
       </div>
       <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
-      <p className="text-slate-500 max-w-md mx-auto mb-6 leading-relaxed">
+      <p className="text-slate-700 max-w-md mx-auto mb-6 leading-relaxed">
         {description}
       </p>
       {actionLabel && onAction && (

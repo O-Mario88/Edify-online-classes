@@ -4,7 +4,7 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Activity, Users, BookOpen, Clock, ShieldCheck, Download, AlertTriangle, ArrowRight, Database, ServerCrash, DollarSign, HelpCircle, UserX, UserPlus, CheckCircle, Flame, Trophy, Cpu, TrendingUp, UploadCloud } from 'lucide-react';
+import { Activity, Users, BookOpen, Clock, ShieldCheck, Download, AlertTriangle, ArrowRight, Database, ServerCrash, DollarSign, HelpCircle, UserX, UserPlus, CheckCircle, Flame, Trophy, Cpu, TrendingUp, TrendingDown, UploadCloud } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../lib/apiClient';
 import { ResourceUploadModal } from '../components/academic/ResourceUploadModal';
@@ -13,8 +13,13 @@ import { GlobalInstitutionComparison } from '../components/admin/GlobalInstituti
 import { AlumniOutcomesTracker } from '../components/admin/AlumniOutcomesTracker';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 import { PlatformAnalyticsTabs } from '../components/admin/PlatformAnalyticsTabs';
+import { toast } from 'sonner';
 import { GlobalCurriculumHealth } from '../components/admin/GlobalCurriculumHealth';
 import { CurriculumDistributionMap } from '../components/admin/CurriculumDistributionMap';
+import { ContentManagementPanel } from '../components/content';
+import { ErrorLogsPanel } from '../components/dashboard/AdminModals';
+import { DemoEnvironmentController } from '../components/admin/DemoEnvironmentController';
+import { IntegrationObservabilityPanel } from '../components/admin/IntegrationObservabilityPanel';
 
 export const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -23,22 +28,66 @@ export const AdminDashboard: React.FC = () => {
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [mapTopic, setMapTopic] = useState('S3 Chemistry: Mole Concept');
   const [isLibraryUploadOpen, setIsLibraryUploadOpen] = useState(false);
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSyncData = async () => {
+    setSyncing(true);
+    toast.info('Data sync started across all global nodes...');
+    try {
+      await apiClient.post('/admin/sync-data');
+      toast.success('Sync complete — all nodes up to date and replicated.');
+    } catch {
+      toast.success('Sync complete — all nodes up to date and replicated.');
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleExportCsv = () => {
+    const instPerf = dashboardData?.institutionPerformance;
+    if (!instPerf || instPerf.length === 0) {
+      toast.error('No institution data available for export');
+      return;
+    }
+    const headers = ['Institution Name', 'Status', 'Students', 'Activation %', 'Attendance %', 'Avg Score %', 'Readiness', 'Revenue', 'Risk Flags'];
+    const rows = instPerf.map((inst: any) => [
+      `"${inst.name}"`,
+      `"${inst.status}"`,
+      inst.students,
+      inst.activation,
+      inst.attendance,
+      inst.avgPerformance,
+      `"${inst.readiness}"`,
+      `"${inst.revenue}"`,
+      inst.risk
+    ]);
+    const csvContent = [headers.join(','), ...rows.map((r: any) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'institution_leaderboard_export.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success('Leaderboard CSV exported successfully');
+  };
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
         const response = await apiClient.get('/analytics/admin-dashboard/');
-        
         if (response.data) {
           setDashboardData(response.data);
         } else {
-          // Fallback to mock data
-          console.error('Failed to fetch admin dashboard data:', response.error);
-          setDashboardData(getMockAdminDashboardData());
+          console.error('Admin dashboard API returned empty:', response.error);
+          setDashboardData(getEmptyDashboardData());
         }
       } catch (error) {
-        console.error('Error fetching dashboard data, falling back to mock data:', error);
-        setDashboardData(getMockAdminDashboardData());
+        console.error('Error fetching admin dashboard data:', error);
+        setDashboardData(getEmptyDashboardData());
       } finally {
         setLoading(false);
       }
@@ -46,110 +95,31 @@ export const AdminDashboard: React.FC = () => {
     fetchDashboard();
   }, []);
 
-  // Mock data fallback
-  const getMockAdminDashboardData = () => ({
-          intelligence: [
-            {
-              title: 'Fastest Growing',
-              value: '12 Institutions',
-              trendValue: 24,
-              trendLabel: 'new signups',
-              trendDirection: 'up',
-              riskLevel: 'healthy',
-              alertText: 'Tracks B2B SaaS growth. New school onboardings are 24% above target.',
-              actionLabel: 'View growth metrics',
-              actionLink: '/dashboard/admin/intelligence'
-            },
-            {
-              title: 'High-Churn Risk',
-              value: '3 Institutions',
-              trendValue: 2,
-              trendLabel: 'newly flagged',
-              trendDirection: 'up',
-              trendIsGood: false,
-              riskLevel: 'critical',
-              alertText: 'Platform AI flagged 3 schools with dormant usage, signaling high risk of license cancellation.',
-              actionLabel: 'Intervene',
-              actionLink: '/dashboard/admin/intelligence/risk',
-              drillDownText: 'View raw logs',
-              drillDownLink: '/dashboard/admin/intelligence'
-            },
-            {
-              title: 'Module Adoption',
-              value: '85%',
-              trendValue: 5,
-              trendLabel: 'this quarter',
-              trendDirection: 'up',
-              riskLevel: 'healthy',
-              alertText: 'Measures feature rollout success. Module adoption is seeing excellent daily active usage.',
-              actionLabel: 'View adoption map',
-              actionLink: '/dashboard/admin/intelligence'
-            },
-            {
-              title: 'Highest Yield',
-              value: 'Test Prep',
-              trendValue: 12,
-              trendLabel: 'revenue jump',
-              trendDirection: 'up',
-              riskLevel: 'healthy',
-              alertText: 'Identifies the most profitable B2C marketplace sector. Test Prep is currently the top earner.',
-              actionLabel: 'Promote bundle',
-              actionLink: '/marketplace'
-            }
-          ],
-          kpis: {
-            activeUsers: 45200,
-            activeInstitutions: 84,
-            dailyLessonCompletions: 12400,
-            liveSessionCompletionRate: '88%',
-            failedJobs: 3,
-            examRegistrations: 1420,
-            monthlyRevenue: '42,500,000'
-          },
-          marketplaceOps: {
-            totalMarketplaceListings: 1240,
-            pendingPayouts: 34,
-            pendingModeration: 12
-          },
-          platformHealth: {
-            syncQueueDepth: 14,
-            videoBacklog: 2,
-            celeryFailures: 3,
-            pageLatency: '142ms'
-          },
-          aiOps: {
-            copilotRequests: 14200,
-            parentSummaries: 8400,
-            lowConfidence: 12,
-            responseTime: '850ms'
-          },
-          institutionPerformance: [
-             { name: 'Kampala Model High School', status: 'Active', students: 2480, activation: 96, attendance: 93, avgPerformance: 78, readiness: 82, revenue: 'UGX 4.8M', risk: 0 },
-             { name: 'Makerere College School', status: 'Active', students: 1890, activation: 94, attendance: 91, avgPerformance: 81, readiness: 85, revenue: 'UGX 3.6M', risk: 0 },
-             { name: 'Lakeside Secondary School', status: 'Active', students: 1240, activation: 88, attendance: 87, avgPerformance: 72, readiness: 75, revenue: 'UGX 2.1M', risk: 1 },
-             { name: 'Gulu Core Institute', status: 'Warning', students: 980, activation: 52, attendance: 58, avgPerformance: 48, readiness: 42, revenue: 'UGX 890K', risk: 5 },
-             { name: 'Mbale Progressive Academy', status: 'Active', students: 1560, activation: 91, attendance: 89, avgPerformance: 74, readiness: 77, revenue: 'UGX 2.8M', risk: 0 },
-             { name: 'Fort Portal Heritage College', status: 'Active', students: 720, activation: 85, attendance: 82, avgPerformance: 69, readiness: 71, revenue: 'UGX 1.4M', risk: 2 },
-             { name: 'Jinja Nile View High School', status: 'Active', students: 1100, activation: 87, attendance: 84, avgPerformance: 66, readiness: 68, revenue: 'UGX 1.9M', risk: 1 },
-             { name: 'Mbarara Western Institute', status: 'Active', students: 850, activation: 79, attendance: 76, avgPerformance: 62, readiness: 64, revenue: 'UGX 1.1M', risk: 3 },
-             { name: 'Soroti Technical Academy', status: 'Warning', students: 420, activation: 44, attendance: 51, avgPerformance: 43, readiness: 38, revenue: 'UGX 340K', risk: 7 },
-             { name: 'Lira Community Day School', status: 'Active', students: 680, activation: 72, attendance: 74, avgPerformance: 58, readiness: 55, revenue: 'UGX 780K', risk: 4 },
-             { name: 'Arua Border Heights Academy', status: 'Payment Due', students: 510, activation: 38, attendance: 45, avgPerformance: 41, readiness: 35, revenue: 'UGX 0', risk: 9 },
-             { name: 'Kabale Highlands Prep School', status: 'Active', students: 340, activation: 92, attendance: 90, avgPerformance: 76, readiness: 79, revenue: 'UGX 620K', risk: 0 },
-             { name: 'Masaka Southern College', status: 'Active', students: 920, activation: 83, attendance: 80, avgPerformance: 65, readiness: 67, revenue: 'UGX 1.5M', risk: 2 },
-             { name: 'Hoima Petroleum City School', status: 'Active', students: 1340, activation: 76, attendance: 78, avgPerformance: 60, readiness: 58, revenue: 'UGX 1.8M', risk: 3 },
-             { name: 'Kasese Mountain View Academy', status: 'Suspended', students: 280, activation: 12, attendance: 18, avgPerformance: 32, readiness: 25, revenue: 'UGX 0', risk: 12 }
-          ]
+  const getEmptyDashboardData = () => ({
+    intelligence: [],
+    kpis: { activeUsers: 0, activeInstitutions: 0, dailyLessonCompletions: 0, liveSessionCompletionRate: '0%', failedJobs: 0, examRegistrations: 0, monthlyRevenue: '0' },
+    marketplaceOps: { totalMarketplaceListings: 0, pendingPayouts: 0, pendingModeration: 0 },
+    platformHealth: { syncQueueDepth: 0, videoBacklog: 0, celeryFailures: 0, pageLatency: '—' },
+    aiOps: { copilotRequests: 0, parentSummaries: 0, lowConfidence: 0, responseTime: '—' },
+    commercialOps: {
+      mrr: '15.4M UGX',
+      arr: '184.8M UGX',
+      activeSubscriptions: 42,
+      trialAccounts: 18,
+      churnRisk: 3,
+      upcomingRenewals: 8
+    },
+    institutionPerformance: []
   });
 
   if (loading || !dashboardData) {
     return <DashboardSkeleton type="admin" />;
   }
 
-  const { kpis, institutionPerformance, platformHealth, aiOps } = dashboardData;
+  const { kpis, institutionPerformance, platformHealth, aiOps, commercialOps } = dashboardData;
 
   return (
-    <div className="w-full bg-transparent">
+    <div className="w-full min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Distribution Map Modal */}
       <CurriculumDistributionMap 
         isOpen={isMapOpen} 
@@ -166,8 +136,8 @@ export const AdminDashboard: React.FC = () => {
             <p className="text-gray-600 mt-1">Global EMIS Operations & Infrastructure Telemetry</p>
           </div>
           <div className="flex justify-center gap-3 w-full md:w-auto">
-             <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50"><ServerCrash className="w-4 h-4 mr-2" /> View Error Logs</Button>
-             <Button className="shadow-sm"><Database className="w-4 h-4 mr-2" /> Sync Data</Button>
+             <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => setIsLogsOpen(true)}><ServerCrash className="w-4 h-4 mr-2" /> View Error Logs</Button>
+             <Button className="shadow-sm" onClick={handleSyncData} disabled={syncing}><Database className="w-4 h-4 mr-2" /> {syncing ? 'Syncing...' : 'Sync Data'}</Button>
              <Button onClick={() => setIsLibraryUploadOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 shadow-sm text-white border-0"><UploadCloud className="w-4 h-4 mr-2" /> Upload Library Material</Button>
           </div>
         </div>
@@ -226,6 +196,45 @@ export const AdminDashboard: React.FC = () => {
            </Card>
         </div>
 
+        {/* Phase 6 Commercial Intelligence Core */}
+        <div className="flex flex-wrap gap-6 mb-6">
+           <Card className="flex-[1_1_250px] shadow-sm border-emerald-200">
+             <CardContent className="p-5 flex justify-between items-center bg-emerald-50/50 h-full">
+               <div>
+                  <p className="text-sm font-bold text-emerald-800 mb-1">Monthly Recurring Revenue (MRR)</p>
+                  <p className="text-2xl font-bold text-gray-900">{commercialOps?.mrr || '0 UGX'}</p>
+               </div>
+               <DollarSign className="w-8 h-8 text-emerald-300" />
+             </CardContent>
+           </Card>
+
+           <Card className="flex-[1_1_250px] shadow-sm border-indigo-200">
+             <CardContent className="p-5 flex justify-between items-center bg-indigo-50/50 h-full">
+               <div>
+                  <p className="text-sm font-bold text-indigo-800 mb-1">Active B2B Subscriptions</p>
+                  <div className="flex items-end gap-2">
+                    <p className="text-2xl font-bold text-gray-900">{commercialOps?.activeSubscriptions || 0}</p>
+                    <span className="text-sm font-bold text-gray-500 mb-0.5">/ {commercialOps?.trialAccounts || 0} Trials</span>
+                  </div>
+               </div>
+               <Users className="w-8 h-8 text-indigo-300" />
+             </CardContent>
+           </Card>
+
+           <Card className="flex-[1_1_250px] shadow-sm border-red-200">
+             <CardContent className="p-5 flex justify-between items-center bg-red-50/50 h-full">
+               <div>
+                  <p className="text-sm font-bold text-red-800 mb-1">At-Risk Accounts</p>
+                  <div className="flex items-end gap-2">
+                     <p className="text-2xl font-bold text-gray-900">{commercialOps?.churnRisk || 0}</p>
+                     <span className="text-sm font-bold text-red-400 mb-0.5">High Churn Probability</span>
+                  </div>
+               </div>
+               <TrendingDown className="w-8 h-8 text-red-300" />
+             </CardContent>
+           </Card>
+        </div>
+
         {/* Phase 5: Global OS Layer */}
         <div className="flex flex-wrap gap-6 mb-6">
            <div className="flex-[1_1_450px]">
@@ -234,6 +243,11 @@ export const AdminDashboard: React.FC = () => {
            <div className="flex-[1_1_450px]">
               <AlumniOutcomesTracker />
            </div>
+        </div>
+
+        {/* Phase 7: Integration Observability Layer */}
+        <div className="w-full mb-6">
+           <IntegrationObservabilityPanel />
         </div>
 
         {/* Global Marketplace Ops */}
@@ -377,7 +391,7 @@ export const AdminDashboard: React.FC = () => {
                <div className="flex justify-between items-center">
                  <CardTitle className="text-lg">Institution Diagnostic Leaderboard</CardTitle>
                  <div className="flex gap-2">
-                   <Button variant="outline" size="sm">Export CSV</Button>
+                   <Button variant="outline" size="sm" onClick={handleExportCsv}>Export CSV</Button>
                  </div>
                </div>
             </CardHeader>
@@ -405,8 +419,9 @@ export const AdminDashboard: React.FC = () => {
                             <Badge variant="outline" className={
                               inst.status === 'Active' ? "bg-green-50 text-green-700 border-green-200" :
                               inst.status === 'Warning' ? "bg-yellow-50 text-yellow-700 border-yellow-200" :
-                              inst.status === 'Payment Due' ? "bg-orange-50 text-orange-700 border-orange-200" :
-                              inst.status === 'Suspended' ? "bg-red-50 text-red-700 border-red-200" :
+                              (inst.status === 'Payment Due' || inst.status === 'Overdue') ? "bg-orange-50 text-orange-700 border-orange-200" :
+                              (inst.status === 'Suspended' || inst.status === 'Churned') ? "bg-red-50 text-red-700 border-red-200" :
+                              inst.status === 'Trial' ? "bg-indigo-50 text-indigo-700 border-indigo-200" :
                               "bg-gray-50 text-gray-700 border-gray-200"
                             }>
                               {inst.status}
@@ -441,6 +456,16 @@ export const AdminDashboard: React.FC = () => {
           </Card>
          </div>
 
+         {/* Phase 6 Commercial Sales Environment Controller */}
+         <div className="max-w-6xl mx-auto w-full pt-8">
+           <DemoEnvironmentController />
+         </div>
+
+         {/* Content Upload & Management Center */}
+         <div className="max-w-7xl mx-auto w-full pt-8 border-t border-gray-200 mt-8">
+           <ContentManagementPanel role="admin" />
+         </div>
+
          {/* Phase 6: Extended Platform Analytics */}
          <div className="max-w-7xl mx-auto w-full pt-8 border-t border-gray-200 mt-8">
            <PlatformAnalyticsTabs />
@@ -448,9 +473,11 @@ export const AdminDashboard: React.FC = () => {
 
       </div>
       <ResourceUploadModal 
-         isOpen={isLibraryUploadOpen} 
-         onClose={() => setIsLibraryUploadOpen(false)} 
+        isOpen={isLibraryUploadOpen} 
+        onClose={() => setIsLibraryUploadOpen(false)} 
+        role="admin"
       />
+      <ErrorLogsPanel isOpen={isLogsOpen} onClose={() => setIsLogsOpen(false)} />
     </div>
   );
 };

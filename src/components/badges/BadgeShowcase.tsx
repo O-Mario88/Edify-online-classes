@@ -21,7 +21,7 @@ export const BadgeShowcase: React.FC<BadgeShowcaseProps> = ({ badges }) => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl">
-          <Award className="h-6 w-6 text-purple-500" />
+          <Award className="h-6 w-6 text-purple-700" />
           Achievement Showcase
         </CardTitle>
         <CardDescription>Verified skills and milestones</CardDescription>

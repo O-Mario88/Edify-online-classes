@@ -36,7 +36,7 @@ export const StreakTracker: React.FC<StreakTrackerProps> = ({ streaks }) => {
               
               <div className="flex items-center gap-4">
                 <div className={`p-3 rounded-full flex items-center justify-center
-                  ${isActive ? 'bg-orange-100 text-orange-500' : isAtRisk ? 'bg-red-100 text-red-500' : 'bg-gray-100 text-gray-400'}
+                  ${isActive ? 'bg-orange-100 text-orange-500' : isAtRisk ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-800'}
                 `}>
                   {isActive || isAtRisk ? <Flame className={`w-6 h-6 ${isAtRisk ? 'animate-bounce' : ''}`} /> : <CalendarDays className="w-6 h-6" />}
                 </div>
@@ -44,18 +44,18 @@ export const StreakTracker: React.FC<StreakTrackerProps> = ({ streaks }) => {
                 <div>
                   <h4 className="font-bold text-gray-900">{streak.title}</h4>
                   <div className="flex items-center gap-3 mt-1 text-sm">
-                    <span className={`font-semibold ${isActive || isAtRisk ? 'text-orange-600' : 'text-gray-500'}`}>
+                    <span className={`font-semibold ${isActive || isAtRisk ? 'text-orange-600' : 'text-gray-700'}`}>
                       {streak.currentStreakCount} {streak.streakType === 'daily' ? 'Days' : 'Weeks'}
                     </span>
                     <span className="text-gray-300">|</span>
-                    <span className="text-gray-500 text-xs">Best: {streak.longestStreakCount}</span>
+                    <span className="text-gray-700 text-xs">Best: {streak.longestStreakCount}</span>
                   </div>
                 </div>
               </div>
 
               <div className="flex-1 w-full md:w-auto md:max-w-xs md:ml-auto">
                 {isAtRisk ? (
-                  <div className="flex items-center gap-2 text-red-600 bg-red-50 px-3 py-2 rounded-md text-xs font-medium border border-red-100">
+                  <div className="flex items-center gap-2 text-red-800 bg-red-50 px-3 py-2 rounded-md text-xs font-medium border border-red-100">
                     <ShieldAlert className="w-4 h-4 shrink-0" />
                     <span>{streak.maintenanceActionText}</span>
                   </div>
@@ -66,12 +66,12 @@ export const StreakTracker: React.FC<StreakTrackerProps> = ({ streaks }) => {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-1.5 w-full">
-                     <div className="flex justify-between text-xs text-gray-500 font-medium">
+                     <div className="flex justify-between text-xs text-gray-700 font-medium">
                         <span>Recovery Progress</span>
                         <span>0%</span>
                      </div>
                      <Progress value={0} className="h-1.5" />
-                     <p className="text-[10px] text-gray-400">Start today to rebuild your streak.</p>
+                     <p className="text-[10px] text-gray-800">Start today to rebuild your streak.</p>
                   </div>
                 )}
               </div>

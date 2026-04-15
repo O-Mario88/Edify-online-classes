@@ -43,14 +43,14 @@ export const GlobalCurriculumHealth: React.FC<GlobalCurriculumHealthProps> = ({ 
                 <div className="bg-white p-3 rounded-lg border border-emerald-100 shadow-sm flex justify-between items-center">
                    <div>
                       <p className="text-sm font-bold text-slate-800">Biology: Genetics</p>
-                      <p className="text-xs text-slate-500">82% Avg Score</p>
+                      <p className="text-xs text-slate-700">82% Avg Score</p>
                    </div>
                    <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100">Top 10%</Badge>
                 </div>
                 <div className="bg-white p-3 rounded-lg border border-emerald-100 shadow-sm flex justify-between items-center">
                    <div>
                       <p className="text-sm font-bold text-slate-800">History: World War II</p>
-                      <p className="text-xs text-slate-500">79% Avg Score</p>
+                      <p className="text-xs text-slate-700">79% Avg Score</p>
                    </div>
                    <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100">Rising</Badge>
                 </div>
@@ -70,7 +70,7 @@ export const GlobalCurriculumHealth: React.FC<GlobalCurriculumHealthProps> = ({ 
         <CardContent className="p-5 flex-1 flex flex-col justify-between">
           <div>
              <div className="flex items-center gap-2 mb-4">
-                <div className="p-2 bg-amber-100 rounded-full text-amber-600">
+                <div className="p-2 bg-amber-100 rounded-full text-amber-800">
                    <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div>
@@ -83,14 +83,14 @@ export const GlobalCurriculumHealth: React.FC<GlobalCurriculumHealthProps> = ({ 
                 <div className="bg-white p-3 rounded-lg border border-amber-100 shadow-sm flex justify-between items-center opacity-90">
                    <div>
                       <p className="text-sm font-bold text-slate-800">Physics: Kinematics</p>
-                      <p className="text-xs text-slate-500">54% Avg Score</p>
+                      <p className="text-xs text-slate-700">54% Avg Score</p>
                    </div>
                    <Badge className="bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100">-12% drop</Badge>
                 </div>
                 <div className="bg-white p-3 rounded-lg border border-amber-100 shadow-sm flex justify-between items-center opacity-90">
                    <div>
                       <p className="text-sm font-bold text-slate-800">Math: Vectors</p>
-                      <p className="text-xs text-slate-500">58% Avg Score</p>
+                      <p className="text-xs text-slate-700">58% Avg Score</p>
                    </div>
                    <Badge className="bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100">Underperforming</Badge>
                 </div>
@@ -114,7 +114,7 @@ export const GlobalCurriculumHealth: React.FC<GlobalCurriculumHealthProps> = ({ 
         <CardContent className="p-5 flex-1 flex flex-col justify-between">
           <div>
              <div className="flex items-center gap-2 mb-4">
-                <div className="p-2 bg-red-100 rounded-full text-red-600">
+                <div className="p-2 bg-red-100 rounded-full text-red-800">
                    <ShieldAlert className="w-5 h-5" />
                 </div>
                 <div>
@@ -128,7 +128,7 @@ export const GlobalCurriculumHealth: React.FC<GlobalCurriculumHealthProps> = ({ 
                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
                    <div>
                       <p className="text-sm font-bold text-slate-800 pl-2">Chem: Mole Concept</p>
-                      <p className="text-xs text-slate-500 pl-2">38% Avg Score</p>
+                      <p className="text-xs text-slate-700 pl-2">38% Avg Score</p>
                    </div>
                    <Badge className="bg-red-100 text-red-800 border-red-200 hover:bg-red-100">8% Spike Failure</Badge>
                 </div>
@@ -136,7 +136,7 @@ export const GlobalCurriculumHealth: React.FC<GlobalCurriculumHealthProps> = ({ 
                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
                    <div>
                       <p className="text-sm font-bold text-slate-800 pl-2">Literature: Poetry Analysis</p>
-                      <p className="text-xs text-slate-500 pl-2">41% Avg Score</p>
+                      <p className="text-xs text-slate-700 pl-2">41% Avg Score</p>
                    </div>
                    <Badge className="bg-red-100 text-red-800 border-red-200 hover:bg-red-100">14 Orgs failing</Badge>
                 </div>

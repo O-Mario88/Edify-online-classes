@@ -33,7 +33,7 @@ export const HouseStandingsCard: React.FC<HouseStandingsCardProps> = ({ houses, 
                <Flag className="w-5 h-5 text-[#3ABFF8]" />
                House Competition
             </CardTitle>
-            <CardDescription className="mt-1 text-slate-400">{institutionName} Term 2 Cup</CardDescription>
+            <CardDescription className="mt-1 text-slate-800">{institutionName} Term 2 Cup</CardDescription>
           </div>
           {userHouseId && isWinning && (
             <div className="bg-amber-500/20 text-amber-400 w-10 h-10 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.2)] border border-amber-500/30">

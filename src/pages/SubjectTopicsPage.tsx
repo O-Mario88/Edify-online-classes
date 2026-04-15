@@ -15,6 +15,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { UgandaClass, Subject, Topic } from '../types';
+import { getCurriculumTree } from '../lib/curriculumCache';
 
 interface TopicWithMeta extends Topic {
   termId: string;
@@ -26,6 +27,32 @@ export const SubjectTopicsPage: React.FC = () => {
   const { classId, subjectId } = useParams<{ classId: string; subjectId: string }>();
   const navigate = useNavigate();
 
+  // Resolve from a levels array
+  const resolveFromLevels = (levels: any[]) => {
+    for (const level of levels) {
+      for (const cls of level.classes) {
+        if (cls.id === classId) {
+          const topics: TopicWithMeta[] = [];
+          let globalIndex = 1;
+          let foundSubject: Subject | null = null;
+          for (const term of cls.terms) {
+            const subj = term.subjects.find((s: Subject) => s.id === subjectId);
+            if (subj) {
+              if (!foundSubject) foundSubject = subj;
+              for (const topic of subj.topics) {
+                topics.push({ ...topic, termId: term.id, termName: term.name, globalIndex: globalIndex++ });
+              }
+            }
+          }
+          if (foundSubject) {
+            return { classData: cls, subject: foundSubject, topics, firstTermId: cls.terms?.[0]?.id || null };
+          }
+        }
+      }
+    }
+    return null;
+  };
+
   const [classData, setClassData] = useState<UgandaClass | null>(null);
   const [subject, setSubject] = useState<Subject | null>(null);
   const [allTopics, setAllTopics] = useState<TopicWithMeta[]>([]);
@@ -33,47 +60,25 @@ export const SubjectTopicsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchData = async () => {
-      try {
-        const resp = await fetch('http://localhost:8000/api/v1/curriculum/full-tree/');
-        const data = await resp.json();
-
-        for (const level of data.levels) {
-          for (const cls of level.classes) {
-            if (cls.id === classId) {
-              setClassData(cls);
-
-              // Collect ALL topics for this subject across all terms in order
-              const topics: TopicWithMeta[] = [];
-              let globalIndex = 1;
-              let foundSubject: Subject | null = null;
-
-              for (const term of cls.terms) {
-                const subj = term.subjects.find((s: Subject) => s.id === subjectId);
-                if (subj) {
-                  if (!foundSubject) foundSubject = subj;
-                  for (const topic of subj.topics) {
-                    topics.push({ ...topic, termId: term.id, termName: term.name, globalIndex: globalIndex++ });
-                  }
-                }
-              }
-
-              setSubject(foundSubject);
-              setAllTopics(topics);
-              if (cls.terms && cls.terms.length > 0) {
-                setSelectedTermId(cls.terms[0].id);
-              }
-              return;
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Error loading subject topics:', err);
-      } finally {
-        setLoading(false);
+      // Try cached/shared API data first
+      const tree = await getCurriculumTree();
+      if (cancelled) return;
+      const apiResult = tree ? resolveFromLevels(tree.levels || []) : null;
+      if (apiResult) {
+        setClassData(apiResult.classData);
+        setSubject(apiResult.subject);
+        setAllTopics(apiResult.topics);
+        if (apiResult.firstTermId) setSelectedTermId(apiResult.firstTermId);
+      } else {
+        // API returned no matching data
+        console.warn('Curriculum data not found for', classId, subjectId);
       }
+      if (!cancelled) setLoading(false);
     };
     fetchData();
+    return () => { cancelled = true; };
   }, [classId, subjectId]);
 
   if (loading) {

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { X, Send, Phone, Video, Search, MessageSquare, MoreVertical, Paperclip, Smile, ShieldAlert, CheckCheck, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Send, Phone, Video, Search, MessageSquare, MoreVertical, Paperclip, Smile, ShieldAlert, CheckCheck, TrendingUp, Clock } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
+import { toast } from 'sonner';
+import { apiClient } from '@/lib/apiClient';
 
 interface WhatsAppCommunicationHubProps {
   isOpen: boolean;
@@ -21,29 +23,75 @@ export const WhatsAppCommunicationHub: React.FC<WhatsAppCommunicationHubProps> =
   onClose, 
   defaultRecipient 
 }) => {
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'them', text: 'Hello, I am concerned about my childs recent scores in Mathematics.', time: '10:42 AM' },
-    { id: 2, sender: 'me', text: 'Thank you for reaching out. Joan has been struggling with Vectors specifically.', time: '10:45 AM' },
-    { id: 3, sender: 'them', text: 'Is there any extra notes or past papers we can use?', time: '10:46 AM' }
-  ]);
+  const [messages, setMessages] = useState<any[]>([]);
   const [inputValue, setInputValue] = useState("");
-
-  if (!isOpen) return null;
+  const [loading, setLoading] = useState(false);
 
   const recipient = defaultRecipient || {
-     id: 'u1', name: 'John Doe (Parent)', role: 'Parent', phone: '+256 700 000 000', context: 'Math Concerns'
+     id: 'tutor_123', name: 'John Doe (Tutor)', role: 'Tutor', phone: '+256 700 000 000', context: 'Math Concerns'
   };
 
-  const handleSend = () => {
+  useEffect(() => {
+    if (isOpen) {
+      fetchMessages();
+    }
+  }, [isOpen, recipient.id]);
+
+  const fetchMessages = async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.get(`/notifications/notification/whatsapp-history/?recipient_id=${recipient.id}`);
+      const data: any = response.data || [];
+      const history = data.map((msg: any) => ({
+        id: msg.id,
+        sender: msg.direction === 'outbound' ? 'me' : 'them',
+        text: msg.message_body,
+        time: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: msg.status
+      }));
+      setMessages(history);
+    } catch (error) {
+      console.error("Failed to fetch WhatsApp history", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSend = async () => {
     if (!inputValue.trim()) return;
-    setMessages([...messages, {
-       id: Date.now(),
+    
+    const tempId = Date.now();
+    const newMsg = {
+       id: tempId,
        sender: 'me',
        text: inputValue,
-       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }]);
+       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+       status: 'sending'
+    };
+    
+    setMessages(prev => [...prev, newMsg]);
     setInputValue('');
+
+    try {
+      const response = await apiClient.post('/notifications/notification/send/', {
+        message: newMsg.text,
+        recipient_id: recipient.id,
+        phone: recipient.phone
+      });
+      
+      const savedMsg: any = response.data;
+      setMessages(prev => prev.map(msg => 
+        msg.id === tempId ? { ...msg, status: savedMsg.status || 'sent', id: savedMsg.id } : msg
+      ));
+    } catch (error) {
+      toast.error("Failed to send message via WhatsApp API.");
+      setMessages(prev => prev.map(msg => 
+        msg.id === tempId ? { ...msg, status: 'failed' } : msg
+      ));
+    }
   };
+
+  if (!isOpen) return null;
 
   return (
     <>
@@ -53,7 +101,7 @@ export const WhatsAppCommunicationHub: React.FC<WhatsAppCommunicationHubProps> =
         {/* WhatsApp Style Header */}
         <div className="bg-[#00a884] text-white px-4 py-3 flex items-center justify-between shadow-md z-10">
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-white overflow-hidden shadow-inner flex items-center justify-center text-slate-500 font-bold">
+             <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-white overflow-hidden shadow-inner flex items-center justify-center text-slate-700 font-bold">
                 {recipient.name.charAt(0)}
              </div>
              <div>
@@ -62,8 +110,8 @@ export const WhatsAppCommunicationHub: React.FC<WhatsAppCommunicationHubProps> =
              </div>
           </div>
           <div className="flex items-center gap-4 text-white">
-             <Video className="w-5 h-5 cursor-pointer" />
-             <Phone className="w-5 h-5 cursor-pointer" />
+             <Video className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" onClick={() => window.open('https://meet.google.com/new', '_blank')} />
+             <Phone className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" onClick={() => window.open(`tel:${recipient.phone}`)} />
              <div className="w-px h-5 bg-white/30" />
              <X className="w-6 h-6 cursor-pointer" onClick={onClose} />
           </div>
@@ -75,7 +123,7 @@ export const WhatsAppCommunicationHub: React.FC<WhatsAppCommunicationHubProps> =
              <ShieldAlert className="w-4 h-4 text-orange-500" />
              <span className="font-semibold text-slate-700">Sentiment: <span className="text-orange-600">Concerned</span></span>
            </div>
-           <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 cursor-pointer">
+           <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 cursor-pointer hover:bg-blue-100 transition-colors" onClick={() => toast.success('Feedback logged for analytics.')}>
               <TrendingUp className="w-3 h-3 mr-1" /> Log as Feedback
            </Badge>
         </div>
@@ -87,13 +135,23 @@ export const WhatsAppCommunicationHub: React.FC<WhatsAppCommunicationHubProps> =
               System Context: {recipient.context}
            </div>
 
+           {messages.length === 0 && !loading && (
+             <div className="text-center text-slate-500 text-xs my-4 bg-white/80 w-max mx-auto px-4 py-2 rounded-lg shadow-sm">
+               No message history. Start the conversation!
+             </div>
+           )}
+
            {messages.map(msg => (
              <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
                <div className={`max-w-[85%] rounded-lg px-3 py-2 shadow-sm text-sm ${msg.sender === 'me' ? 'bg-[#d9fdd3] rounded-tr-none' : 'bg-white rounded-tl-none'}`}>
                  <p className="text-slate-800">{msg.text}</p>
                  <div className="flex justify-end items-center gap-1 mt-1">
-                   <span className="text-[10px] text-slate-500">{msg.time}</span>
-                   {msg.sender === 'me' && <CheckCheck className="w-3.5 h-3.5 text-blue-500" />}
+                   <span className="text-[10px] text-slate-700">{msg.time}</span>
+                   {msg.sender === 'me' && (
+                     msg.status === 'sending' ? <Clock className="w-3 h-3 text-slate-400" /> :
+                     msg.status === 'failed' ? <ShieldAlert className="w-3 h-3 text-red-500" /> :
+                     <CheckCheck className="w-3.5 h-3.5 text-blue-700" />
+                   )}
                  </div>
                </div>
              </div>
@@ -102,14 +160,14 @@ export const WhatsAppCommunicationHub: React.FC<WhatsAppCommunicationHubProps> =
 
         {/* Action Panel */}
         <div className="bg-[#f0f2f5] p-3 flex items-center gap-2">
-           <Smile className="w-6 h-6 text-slate-500 cursor-pointer shrink-0" />
-           <Paperclip className="w-6 h-6 text-slate-500 cursor-pointer shrink-0" />
+           <Smile className="w-6 h-6 text-slate-700 cursor-pointer hover:text-slate-900 transition-colors shrink-0" onClick={() => setInputValue(prev => prev + ' 😊')} />
+           <Paperclip className="w-6 h-6 text-slate-700 cursor-pointer hover:text-slate-900 transition-colors shrink-0" onClick={() => toast.info('File attachments coming soon.')} />
            <Input 
              className="flex-1 bg-white border-none rounded-lg h-10 shadow-sm"
              placeholder="Type a message or use /ai for auto-reply"
              value={inputValue}
              onChange={(e) => setInputValue(e.target.value)}
-             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+             onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
            />
            {inputValue.trim() ? (
              <div className="w-10 h-10 rounded-full bg-[#00a884] text-white flex items-center justify-center cursor-pointer shadow-sm" onClick={handleSend}>
@@ -125,3 +183,4 @@ export const WhatsAppCommunicationHub: React.FC<WhatsAppCommunicationHubProps> =
     </>
   );
 };
+

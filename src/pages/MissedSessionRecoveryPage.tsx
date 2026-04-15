@@ -1,27 +1,55 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import { VideoOff, PlayCircle, FileText, ChevronRight, AlertTriangle, CheckCircle } from 'lucide-react';
+import { VideoOff, PlayCircle, FileText, ChevronRight, AlertTriangle, CheckCircle, GraduationCap } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
+import { toast } from 'sonner';
+import { apiClient } from '../lib/apiClient';
 
 export const MissedSessionRecoveryPage: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
+  const [sessionData, setSessionData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // In a real app, we would fetch the session details and recovery payload via API using sessionId
-  const mockSessionData = {
-    id: sessionId,
-    subject: 'Physics',
-    topic: 'Kinematics Review',
-    hostName: 'Mr. Kato',
-    date: 'Yesterday',
-    recordingUrl: 'https://youtube.com/mock',
-    summary: 'We covered constant acceleration formulas and solved three practical problems. The key takeaway was properly structuring your variables before attempting the equation.',
-    assignments: [
-      { id: '1', title: 'Kinematics Practice Sheet', type: 'PDF' }
-    ]
-  };
+  useEffect(() => {
+    const fetchRecovery = async () => {
+      try {
+        const { data, error } = await apiClient.get(`/live-sessions/missed-recovery/?session=${sessionId}`);
+        if (!error && data) {
+          // If it returns an array, take the first one; else use the object directly
+          const apiData = Array.isArray(data) && data.length > 0 ? data[0] : (Array.isArray(data) ? null : data);
+          if (apiData && Object.keys(apiData).length > 0) {
+            setSessionData(apiData);
+          } else {
+            console.warn('No recovery record found for this session');
+            setSessionData(null);
+          }
+        } else {
+            console.warn('Failed to fetch from backend', error);
+            setSessionData(null);
+        }
+      } catch (err) {
+        console.error('Failed to fetch session recovery', err);
+        setSessionData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (sessionId) fetchRecovery();
+  }, [sessionId]);
+
+  if (loading) return <div className="p-8 text-center mt-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div><p className="text-gray-600">Loading recovery module...</p></div>;
+
+  if (!sessionData) return (
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+      <GraduationCap className="w-16 h-16 text-indigo-300 mb-6" />
+      <h2 className="text-2xl font-bold text-gray-900 mb-2">No Recovery Required</h2>
+      <p className="text-gray-500 mb-6 max-w-md text-center">There are no mandatory recovery assignments for this session, or the session ID is invalid.</p>
+      <Button onClick={() => navigate('/dashboard')} variant="outline">Return to Dashboard</Button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50/50 py-8">
@@ -34,7 +62,7 @@ export const MissedSessionRecoveryPage: React.FC = () => {
            </div>
            <div>
              <h1 className="text-2xl font-bold text-red-900">Missed Session Recovery</h1>
-             <p className="text-red-700 mt-1">You missed the live session for <strong>{mockSessionData.subject}: {mockSessionData.topic}</strong> with {mockSessionData.hostName}. Completion of this recovery module is required to maintain your readiness score.</p>
+             <p className="text-red-700 mt-1">You missed the live session for <strong>{sessionData.subject}: {sessionData.topic}</strong> with {sessionData.host_name}. Completion of this recovery module is required to maintain your readiness score.</p>
            </div>
         </div>
 
@@ -53,16 +81,35 @@ export const MissedSessionRecoveryPage: React.FC = () => {
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Teacher's Session Summary</h4>
                   <p className="text-gray-600 text-sm p-4 bg-gray-50 rounded-lg border italic">
-                    "{mockSessionData.summary}"
+                    "{sessionData.summary || 'Ensure you review the required notes below.'}"
                   </p>
                 </div>
                 
-                {mockSessionData.recordingUrl ? (
-                  <div className="bg-gray-900 rounded-xl aspect-video flex flex-col items-center justify-center border border-gray-800 shadow-inner group cursor-pointer hover:bg-black transition-colors">
+                {sessionData.recording_url ? (
+                  <div onClick={() => {
+                     // Simulate Broken Link Check
+                     if (sessionData.recording_url.includes('drive.google.com') || sessionData.recording_url.includes('broken')) {
+                        toast.error('External Media Blocked', { description: 'Google Drive Video Not Found or Permissions Restricted.' });
+                        setSessionData({ ...sessionData, recording_url: null, drive_error: true });
+                     } else {
+                        window.open(sessionData.recording_url, '_blank');
+                     }
+                  }} className="bg-gray-900 rounded-xl aspect-video flex flex-col items-center justify-center border border-gray-800 shadow-inner group cursor-pointer hover:bg-black transition-colors">
                      <PlayCircle className="w-16 h-16 text-white/60 group-hover:text-white transition-colors mb-4" />
-                     <p className="text-white font-medium">Play Session Recording</p>
+                     <p className="text-white font-medium">Verify & Play Session Recording</p>
                      <p className="text-gray-400 text-xs mt-1">Duration: 45m</p>
                   </div>
+                ) : sessionData.drive_error ? (
+                  <Alert className="bg-red-50 border-red-200">
+                    <AlertTriangle className="w-4 h-4 text-red-600" />
+                    <AlertTitle>No Access to Recording</AlertTitle>
+                    <AlertDescription className="text-red-700 text-sm mb-3">
+                      The recording link provided by the teacher is private or broken. You need access to proceed.
+                    </AlertDescription>
+                    <Button variant="outline" size="sm" onClick={() => toast.success('Pinged Teacher for Access', { description: 'An urgent reminder has been sent.' })}>
+                       Ping Teacher for Access
+                    </Button>
+                  </Alert>
                 ) : (
                   <Alert className="bg-yellow-50 border-yellow-200">
                     <AlertTriangle className="w-4 h-4 text-yellow-600" />
@@ -88,7 +135,7 @@ export const MissedSessionRecoveryPage: React.FC = () => {
                   <p className="text-sm text-gray-600">To fully recover your attendance points for this module, complete the following:</p>
                   
                   <div className="space-y-3">
-                    {mockSessionData.assignments.map(assignment => (
+                    {sessionData.assignments && sessionData.assignments.length > 0 ? sessionData.assignments.map((assignment: any) => (
                       <div key={assignment.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-indigo-300 transition-colors">
                         <div className="flex items-center gap-3">
                            <FileText className="w-4 h-4 text-indigo-500" />
@@ -96,7 +143,9 @@ export const MissedSessionRecoveryPage: React.FC = () => {
                         </div>
                         <ChevronRight className="w-4 h-4 text-gray-400" />
                       </div>
-                    ))}
+                    )) : (
+                      <div className="p-3 text-sm text-gray-500 border border-dashed rounded-lg text-center">No assignments listed.</div>
+                    )}
                   </div>
 
                   <Button className="w-full bg-indigo-600 hover:bg-indigo-700">Submit Recovery Work</Button>

@@ -33,10 +33,10 @@ export const AchievementShowcase: React.FC<AchievementShowcaseProps> = ({ badges
       <CardHeader className="pb-3 border-b border-gray-100 bg-gray-50/50">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg text-gray-800">
-            <Award className="h-5 w-5 text-purple-500" />
+            <Award className="h-5 w-5 text-purple-700" />
             My Achievements
           </CardTitle>
-          <Badge variant="outline" className="text-gray-500 font-medium">
+          <Badge variant="outline" className="text-gray-700 font-medium">
              {badges.length} Unlocked
           </Badge>
         </div>

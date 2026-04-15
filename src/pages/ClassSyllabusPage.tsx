@@ -15,6 +15,7 @@ import {
   PenTool
 } from 'lucide-react';
 import { UgandaClass, Term, Subject, Topic } from '../types';
+import { apiClient } from '../lib/apiClient';
 
 export const ClassSyllabusPage: React.FC = () => {
   const { classId } = useParams<{ classId: string }>();
@@ -26,10 +27,12 @@ export const ClassSyllabusPage: React.FC = () => {
   useEffect(() => {
     const fetchClassData = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/v1/curriculum/full-tree/');
-        const data = await response.json();
+        const response = await apiClient.get<any>('/curriculum/full-tree/');
+        const data = response.data?.results?.[0] || response.data;
+        const levelsToSearch = data.levels || [];
+        
         let foundClass = null;
-        for (const level of data.levels) {
+        for (const level of levelsToSearch) {
           foundClass = level.classes.find((c: UgandaClass) => c.id === classId);
           if (foundClass) break;
         }
@@ -47,7 +50,7 @@ export const ClassSyllabusPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
+      <div className="min-h-screen bg-[#e2ddd1] flex items-center justify-center">
         <div className="animate-pulse w-12 h-12 rounded-full bg-[#f4efe2]"></div>
       </div>
     );
@@ -55,7 +58,7 @@ export const ClassSyllabusPage: React.FC = () => {
 
   if (!classData) {
     return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center flex-col gap-4">
+      <div className="min-h-screen bg-[#e2ddd1] flex items-center justify-center flex-col gap-4">
         <EditorialPanel className="text-center py-20">
           <EditorialHeader level="h2" className="text-slate-800 mb-4">Class Not Found</EditorialHeader>
           <Link to="/classes"><EditorialPill variant="outline">Browse All Classes</EditorialPill></Link>
@@ -71,13 +74,13 @@ export const ClassSyllabusPage: React.FC = () => {
     const str = subjectName.toLowerCase();
     if (str.includes('math')) return { icon: Activity, color: 'bg-amber-100 text-amber-700' };
     if (str.includes('bio') || str.includes('chem') || str.includes('phy') || str.includes('sci')) return { icon: Beaker, color: 'bg-rose-100 text-rose-700' };
-    if (str.includes('geo') || str.includes('hist')) return { icon: Globe, color: 'bg-emerald-100 text-emerald-700' };
+    if (str.includes('geo') || str.includes('hist') || str.includes('sst') || str.includes('social studies')) return { icon: Globe, color: 'bg-emerald-100 text-emerald-700' };
     if (str.includes('eng') || str.includes('art') || str.includes('lit')) return { icon: PenTool, color: 'bg-purple-100 text-purple-700' };
     return { icon: BookOpen, color: 'bg-[#e5dfd3] text-[#8e8268]' };
   };
 
   return (
-    <div className="min-h-screen bg-[#fbfaf8] font-sans pb-24 relative">
+    <div className="min-h-screen bg-[#e2ddd1] font-sans pb-24 relative">
       <div className="fixed inset-0 bg-white/40 pointer-events-none" />
 
       {/* Header Area */}

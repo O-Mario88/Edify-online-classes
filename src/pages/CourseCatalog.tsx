@@ -12,11 +12,10 @@ import {
 import { UgandaLevel, UgandaClass, Teacher } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '@/lib/apiClient';
-
 export const CourseCatalog: React.FC = () => {
   const [levels, setLevels] = useState<UgandaLevel[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   
   const { countryCode } = useAuth();
@@ -29,14 +28,15 @@ export const CourseCatalog: React.FC = () => {
           fetch(`/data/users.json?t=${new Date().getTime()}`).then(r => r.json()).catch(() => ({ teachers: [] }))
         ]);
         
-        const coursesData = coursesResponse.data || { levels: [] };
+        const coursesData: any = coursesResponse.data || { levels: [] };
         const usersData = usersResponse;
         
-        setLevels(coursesData.levels || []);
+        if (coursesData.levels?.length) {
+          setLevels(coursesData.levels);
+        }
         setTeachers(usersData.teachers || []);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        // Fallback or empty state management happens via empty arrays
+        console.error('Error fetching curriculum data:', error);
       } finally {
         setLoading(false);
       }
@@ -165,7 +165,7 @@ export const CourseCatalog: React.FC = () => {
                          </div>
                       </div>
                       <div className="mt-6 flex items-center gap-2 flex-wrap">
-                         <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">{teacher?.name || 'Edify Educators'}</span>
+                         <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">{teacher?.name || 'Maple Educators'}</span>
                          <span className="text-[9px] font-black text-[#8e8268] uppercase tracking-widest bg-[#f4efe2] px-2 py-0.5 rounded-full">Core</span>
                       </div>
                     </div>

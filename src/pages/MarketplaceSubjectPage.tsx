@@ -39,12 +39,12 @@ const MarketplaceSubjectPage: React.FC = () => {
     // Fetch the specific subject
     apiClient.get(`/curriculum/subjects/${subjectId}/`)
       .then(res => {
-         setRootSubject(res.data);
+         setRootSubject((res.data as any));
          // Once subject loaded, fetch topics bound to this subject
          return apiClient.get(`/curriculum/topics/?subject=${subjectId}`);
       })
       .then(res => {
-         setTopics(res.data);
+         setTopics((res.data as any));
          setLoading(false);
       })
       .catch(err => {

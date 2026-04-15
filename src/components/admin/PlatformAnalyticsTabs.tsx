@@ -140,7 +140,7 @@ export const PlatformAnalyticsTabs: React.FC = () => {
     try {
       const response = await apiClient.get('/analytics/admin-dashboard/');
       const serverData = response.data || {};
-      const kpis = serverData.kpis || {};
+      const kpis = (serverData as any).kpis || {};
       
       // Parse numeric revenue string if it's abbreviated
       const rawRev = kpis.monthlyRevenue || '0';
@@ -159,7 +159,7 @@ export const PlatformAnalyticsTabs: React.FC = () => {
           },
           user_statistics: {
             total_institutions: parseInt(kpis.activeInstitutions?.replace(/,/g, '')) || 0,
-            total_independent_teachers: serverData.marketplaceOps?.totalMarketplaceListings || 450,
+            total_independent_teachers: (serverData as any).marketplaceOps?.totalMarketplaceListings || 450,
             total_universal_students: parseInt(kpis.activeUsers?.replace(/,/g, '')) || 0,
             monthly_active_users: parseInt(kpis.activeUsers?.replace(/,/g, '')) || 0,
             new_registrations_this_month: 1205, // Placeholder metric
@@ -240,7 +240,7 @@ export const PlatformAnalyticsTabs: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="w-full py-8 text-center text-slate-500">Loading extended platform analytics...</div>
+      <div className="w-full py-8 text-center text-slate-700">Loading extended platform analytics...</div>
     );
   }
 
@@ -264,7 +264,7 @@ export const PlatformAnalyticsTabs: React.FC = () => {
         <div className="flex flex-col md:flex-row items-center justify-between text-center md:text-left gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Platform Analytics</h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-800">
               Comprehensive insights into Maple Online School platform performance
             </p>
           </div>
@@ -440,13 +440,13 @@ export const PlatformAnalyticsTabs: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b pb-3 border-slate-100">
                     <span className="text-sm font-medium text-slate-700">Total Revenue</span>
-                    <span className="text-lg font-bold text-green-600">
+                    <span className="text-lg font-bold text-emerald-800">
                       {formatCurrency(platformData.platform_overview.total_revenue_monthly)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between border-b pb-3 border-slate-100">
                     <span className="text-sm font-medium text-slate-700">B2B Subscriptions</span>
-                    <span className="text-lg font-bold text-blue-600">
+                    <span className="text-lg font-bold text-blue-800">
                       {formatCurrency(platformData.platform_overview.revenue_breakdown.b2b_subscriptions)}
                     </span>
                   </div>
@@ -458,13 +458,13 @@ export const PlatformAnalyticsTabs: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between border-b pb-3 border-slate-100">
                     <span className="text-sm font-medium text-slate-700">Exam Centers</span>
-                    <span className="text-lg font-bold text-amber-600">
+                    <span className="text-lg font-bold text-amber-800">
                       {formatCurrency(platformData.platform_overview.revenue_breakdown.exam_center_fees)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-slate-700">Facilitation</span>
-                    <span className="text-lg font-bold text-purple-600">
+                    <span className="text-lg font-bold text-purple-800">
                       {formatCurrency(platformData.platform_overview.revenue_breakdown.facilitation_fees)}
                     </span>
                   </div>
@@ -481,25 +481,25 @@ export const PlatformAnalyticsTabs: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b pb-3 border-slate-100">
                     <span className="text-sm font-medium text-slate-700">Courses Sold</span>
-                    <span className="text-lg font-bold text-blue-600">
+                    <span className="text-lg font-bold text-blue-800">
                       {platformData.financial_summary.monthly_breakdown.june_2025.marketplace_sales.total_courses_sold}
                     </span>
                   </div>
                   <div className="flex items-center justify-between border-b pb-3 border-slate-100">
                     <span className="text-sm font-medium text-slate-700">Teacher Earnings</span>
-                    <span className="text-lg font-bold text-green-600">
+                    <span className="text-lg font-bold text-emerald-800">
                       {formatCurrency(platformData.financial_summary.monthly_breakdown.june_2025.marketplace_sales.teacher_earnings)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between border-b pb-3 border-slate-100">
                     <span className="text-sm font-medium text-slate-700">Platform Commission</span>
-                    <span className="text-lg font-bold text-indigo-600">
+                    <span className="text-lg font-bold text-indigo-800">
                       {formatCurrency(platformData.financial_summary.monthly_breakdown.june_2025.marketplace_sales.platform_commission)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-slate-700">Exam Registrations</span>
-                    <span className="text-lg font-bold text-amber-600">
+                    <span className="text-lg font-bold text-amber-800">
                       {platformData.financial_summary.monthly_breakdown.june_2025.exam_registrations.total_registrations}
                     </span>
                   </div>
@@ -523,25 +523,25 @@ export const PlatformAnalyticsTabs: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between border-b pb-3 border-slate-100">
                     <span className="text-sm font-medium text-slate-700">Universal Students</span>
-                    <span className="text-lg font-bold text-blue-600">
+                    <span className="text-lg font-bold text-blue-800">
                       {platformData.platform_overview.user_statistics.total_universal_students.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex items-center justify-between border-b pb-3 border-slate-100">
                     <span className="text-sm font-medium text-slate-700">Independent Teachers</span>
-                    <span className="text-lg font-bold text-green-600">
+                    <span className="text-lg font-bold text-emerald-800">
                       {platformData.platform_overview.user_statistics.total_independent_teachers.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex items-center justify-between border-b pb-3 border-slate-100">
                     <span className="text-sm font-medium text-slate-700">Partner Institutions</span>
-                    <span className="text-lg font-bold text-purple-600">
+                    <span className="text-lg font-bold text-purple-800">
                       {platformData.platform_overview.user_statistics.total_institutions.toLocaleString()}
                     </span>
                   </div>
                   <div className="flex items-center justify-between border-b pb-3 border-slate-100">
                     <span className="text-sm font-medium text-slate-700">Monthly Active Users</span>
-                    <span className="text-lg font-bold text-indigo-600">
+                    <span className="text-lg font-bold text-indigo-800">
                       {platformData.platform_overview.user_statistics.monthly_active_users.toLocaleString()}
                     </span>
                   </div>
@@ -567,7 +567,7 @@ export const PlatformAnalyticsTabs: React.FC = () => {
                     <div>
                       <div className="flex justify-between mb-1.5">
                         <span className="text-sm font-medium text-slate-700">UACE Pass Rate</span>
-                        <span className="text-sm font-bold text-blue-600">{platformData.performance_metrics.student_success.exam_pass_rates.uace_2024}%</span>
+                        <span className="text-sm font-bold text-blue-800">{platformData.performance_metrics.student_success.exam_pass_rates.uace_2024}%</span>
                       </div>
                       <Progress value={platformData.performance_metrics.student_success.exam_pass_rates.uace_2024} className="h-2" />
                     </div>
@@ -605,19 +605,19 @@ export const PlatformAnalyticsTabs: React.FC = () => {
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm text-gray-600">Average Monthly Earnings</span>
+                      <span className="text-sm text-gray-800">Average Monthly Earnings</span>
                       <span className="font-semibold">
                         {formatCurrency(platformData.performance_metrics.teacher_success.average_earnings_monthly)}
                       </span>
                     </div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm text-gray-600">Average Rating</span>
+                      <span className="text-sm text-gray-800">Average Rating</span>
                       <span className="font-semibold">
                         {platformData.performance_metrics.teacher_success.average_rating}/5.0
                       </span>
                     </div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm text-gray-600">Class Completion Rate</span>
+                      <span className="text-sm text-gray-800">Class Completion Rate</span>
                       <span className="font-semibold">
                         {platformData.performance_metrics.teacher_success.course_completion_rates}%
                       </span>
@@ -635,19 +635,19 @@ export const PlatformAnalyticsTabs: React.FC = () => {
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm text-gray-600">Average Student Growth</span>
+                      <span className="text-sm text-gray-800">Average Student Growth</span>
                       <span className="font-semibold">
                         {platformData.performance_metrics.institution_success.average_student_growth}%
                       </span>
                     </div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm text-gray-600">Platform Adoption Rate</span>
+                      <span className="text-sm text-gray-800">Platform Adoption Rate</span>
                       <span className="font-semibold">
                         {platformData.performance_metrics.institution_success.platform_adoption_rate}%
                       </span>
                     </div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm text-gray-600">ROI on Subscription</span>
+                      <span className="text-sm text-gray-800">ROI on Subscription</span>
                       <span className="font-semibold">
                         {platformData.performance_metrics.institution_success.roi_on_subscription}%
                       </span>
@@ -665,32 +665,32 @@ export const PlatformAnalyticsTabs: React.FC = () => {
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <p className="text-sm font-bold text-purple-700 uppercase tracking-wide">Avg Active Time</p>
-                    <BookOpen className="w-4 h-4 text-purple-600" />
+                    <BookOpen className="w-4 h-4 text-purple-800" />
                   </div>
-                  <p className="text-3xl font-black text-purple-800">42<span className="text-lg font-medium text-purple-600 ml-1">mins</span></p>
-                  <p className="text-xs text-purple-600 mt-2 font-semibold">Per day, per active user</p>
+                  <p className="text-3xl font-black text-purple-800">42<span className="text-lg font-medium text-purple-800 ml-1">mins</span></p>
+                  <p className="text-xs text-purple-800 mt-2 font-semibold">Per day, per active user</p>
                 </CardContent>
               </Card>
 
               <Card className="shadow-sm">
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start mb-2">
-                    <p className="text-sm font-medium text-slate-500 uppercase">Video Completion Rate</p>
+                    <p className="text-sm font-medium text-slate-700 uppercase">Video Completion Rate</p>
                   </div>
                   <p className="text-3xl font-bold text-slate-900">76%</p>
                   <Progress value={76} className="h-1.5 mt-3 mb-1 bg-slate-100 [&>div]:bg-red-500" />
-                  <p className="text-xs text-slate-500 mt-2">Up 12% since disabling downloads</p>
+                  <p className="text-xs text-slate-700 mt-2">Up 12% since disabling downloads</p>
                 </CardContent>
               </Card>
 
               <Card className="shadow-sm">
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start mb-2">
-                    <p className="text-sm font-medium text-slate-500 uppercase">Document Reading Depth</p>
+                    <p className="text-sm font-medium text-slate-700 uppercase">Document Reading Depth</p>
                   </div>
                   <p className="text-3xl font-bold text-slate-900">68%</p>
                   <Progress value={68} className="h-1.5 mt-3 mb-1 bg-slate-100 [&>div]:bg-blue-500" />
-                  <p className="text-xs text-slate-500 mt-2">Avg scroll position achieved</p>
+                  <p className="text-xs text-slate-700 mt-2">Avg scroll position achieved</p>
                 </CardContent>
               </Card>
             </div>

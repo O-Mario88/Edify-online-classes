@@ -32,7 +32,7 @@ export const ParentCommunicationCopilot: React.FC = () => {
     <Card className="h-full flex flex-col justify-between shadow-sm border-blue-100 bg-white">
       <CardHeader className="pb-3 border-b border-slate-100">
         <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-blue-600" />
+          <MessageSquare className="w-5 h-5 text-blue-800" />
           Parent Communication Copilot
         </CardTitle>
       </CardHeader>
@@ -40,14 +40,14 @@ export const ParentCommunicationCopilot: React.FC = () => {
         <div className="space-y-4 flex-1 flex flex-col justify-between">
           {/* Guidance Description */}
           <div className="flex gap-2.5 p-3 bg-blue-50/70 rounded-lg border border-blue-100">
-            <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+            <Info className="w-4 h-4 text-blue-700 shrink-0 mt-0.5" />
             <p className="text-xs text-blue-700 leading-relaxed">
               Quickly draft professional messages to parents about attendance, academic praise, or intervention needs. Select a student, choose a context, and let AI generate the message for you.
             </p>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">Context Target</label>
+            <label className="text-xs font-bold text-slate-700 uppercase mb-1 block">Context Target</label>
             <div className="flex gap-2">
               <input 
                 type="text" 
@@ -88,7 +88,7 @@ export const ParentCommunicationCopilot: React.FC = () => {
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" className="flex-1" onClick={handleGenerate}>
-                  <RefreshCw className="w-4 h-4 mr-2 text-slate-500" /> Retry
+                  <RefreshCw className="w-4 h-4 mr-2 text-slate-700" /> Retry
                 </Button>
                 <Button className="flex-1 bg-green-600 hover:bg-green-700">
                   <Send className="w-4 h-4 mr-2" /> Send via Platform

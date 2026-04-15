@@ -1,12 +1,13 @@
 from rest_framework import serializers
-from .models import Institution, InstitutionMembership
+from .models import Institution, InstitutionMembership, SubscriptionPlan, LearnerRegistration, StudentPaymentTransaction, StudentActivation
 
 class InstitutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Institution
         fields = [
             'id', 'name', 'slug', 'logo', 'primary_color', 'secondary_color',
-            'country_code', 'curriculum_track', 'subscription_plan', 'is_active', 'created_at'
+            'country_code', 'curriculum_track', 'school_level', 'grade_offerings',
+            'subscription_plan', 'is_active', 'created_at'
         ]
 
 class InstitutionMembershipSerializer(serializers.ModelSerializer):
@@ -28,3 +29,60 @@ class BulkInviteSerializer(serializers.Serializer):
         allow_empty=False
     )
     role = serializers.ChoiceField(choices=InstitutionMembership.ROLE_CHOICES)
+
+
+class SubscriptionPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubscriptionPlan
+        fields = [
+            'id', 'name', 'slug', 'description', 'price_ugx', 'price_usd',
+            'duration_days', 'access_scope', 'is_active', 'created_at'
+        ]
+
+
+class LearnerRegistrationSerializer(serializers.ModelSerializer):
+    parent_user_name = serializers.CharField(source='parent_user.full_name', read_only=True, default=None)
+    subscription_plan_name = serializers.CharField(source='subscription_plan.name', read_only=True, default=None)
+    
+    class Meta:
+        model = LearnerRegistration
+        fields = [
+            'id', 'institution', 'full_name', 'class_level', 'stream_section',
+            'learner_id_number', 'gender',
+            'parent_name', 'parent_phone', 'parent_phone_secondary',
+            'parent_relationship', 'parent_email', 'parent_address', 'parent_consent',
+            'parent_user', 'parent_user_name',
+            'subscription_plan', 'subscription_plan_name',
+            'payment_method', 'payer_phone',
+            'status', 'student_user',
+            'created_at', 'updated_at', 'completed_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at', 'completed_at', 'student_user']
+
+
+class StudentPaymentTransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentPaymentTransaction
+        fields = [
+            'id', 'registration', 'institution', 'subscription_plan',
+            'student_name', 'parent_name',
+            'amount', 'currency', 'payment_method', 'payer_phone',
+            'provider_reference', 'internal_reference',
+            'status', 'provider_response',
+            'created_at', 'updated_at', 'completed_at'
+        ]
+        read_only_fields = ['id', 'internal_reference', 'created_at', 'updated_at', 'completed_at']
+
+
+class StudentActivationSerializer(serializers.ModelSerializer):
+    student_name = serializers.CharField(source='student.full_name', read_only=True)
+    plan_name = serializers.CharField(source='subscription_plan.name', read_only=True, default=None)
+    
+    class Meta:
+        model = StudentActivation
+        fields = [
+            'id', 'student', 'student_name', 'registration',
+            'subscription_plan', 'plan_name',
+            'status', 'activated_at', 'expires_at', 'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']

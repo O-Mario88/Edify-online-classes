@@ -45,7 +45,7 @@ const ResourceFilter: React.FC<ResourceFilterProps> = ({ onFilterChange, categor
     <div className="bg-white p-4 rounded-lg shadow border border-gray-200 mb-6 flex flex-col md:flex-row gap-4">
       <div className="flex-1 relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
+          <Search className="h-5 w-5 text-gray-800" />
         </div>
         <input
           type="text"
@@ -58,7 +58,7 @@ const ResourceFilter: React.FC<ResourceFilterProps> = ({ onFilterChange, categor
       
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex items-center">
-          <Filter className="h-5 w-5 text-gray-400 mr-2" />
+          <Filter className="h-5 w-5 text-gray-800 mr-2" />
           <select
             className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
             value={selectedCategory}
@@ -72,7 +72,7 @@ const ResourceFilter: React.FC<ResourceFilterProps> = ({ onFilterChange, categor
         </div>
         
         <div className="flex items-center">
-          <span className="text-sm text-gray-500 mr-2 whitespace-nowrap">Sort by:</span>
+          <span className="text-sm text-gray-700 mr-2 whitespace-nowrap">Sort by:</span>
           <select
             className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
             value={sortBy}

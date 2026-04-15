@@ -29,7 +29,7 @@ export const IntegrationsService = {
   provisionWebinar: async (params: Partial<WebinarSession>): Promise<Pick<WebinarSession, 'meetingUrl' | 'calendarEventId'>> => {
     try {
       const resp = await apiClient.post('/live-sessions/live-session/provision-webinar/', {
-        title: params.title || 'Edify Live Session',
+        title: params.title || 'Maple Live Session',
         description: params.description,
         startTime: params.scheduledStart,
         endTime: params.scheduledEnd

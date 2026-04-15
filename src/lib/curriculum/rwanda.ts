@@ -65,24 +65,26 @@ export const rwandaConfig: CurriculumConfig = {
       id: "rw-olevel",
       name: "Lower Secondary (O-Level)",
       description: "Senior 1 to Senior 3 Competency-Based Curriculum",
+      schoolLevel: "secondary",
       isLegacy: false,
       durationYears: 3,
       grades: [
-        { id: "rw-s1", name: "Senior 1", description: "First year of O-Level", isExamYear: false, subjectGroups: [oLevelCore, oLevelElectives] },
-        { id: "rw-s2", name: "Senior 2", description: "Second year of O-Level", isExamYear: false, subjectGroups: [oLevelCore, oLevelElectives] },
-        { id: "rw-s3", name: "Senior 3", description: "National Examination Year", isExamYear: true, examType: "O-Level National Exams", subjectGroups: [oLevelCore, oLevelElectives] }
+        { id: "rw-s1", name: "Senior 1", description: "First year of O-Level", isExamYear: false, canonicalGrade: 7, subjectGroups: [oLevelCore, oLevelElectives] },
+        { id: "rw-s2", name: "Senior 2", description: "Second year of O-Level", isExamYear: false, canonicalGrade: 8, subjectGroups: [oLevelCore, oLevelElectives] },
+        { id: "rw-s3", name: "Senior 3", description: "National Examination Year", isExamYear: true, examType: "O-Level National Exams", canonicalGrade: 9, subjectGroups: [oLevelCore, oLevelElectives] }
       ]
     },
     {
       id: "rw-alevel",
       name: "Upper Secondary (A-Level)",
       description: "Senior 4 to Senior 6 specialized combinations",
+      schoolLevel: "secondary",
       isLegacy: false,
       durationYears: 3,
       grades: [
-        { id: "rw-s4", name: "Senior 4", description: "First year of A-Level", isExamYear: false, subjectGroups: [aLevelPathways, aLevelSubsidiaries] },
-        { id: "rw-s5", name: "Senior 5", description: "Second year of A-Level", isExamYear: false, subjectGroups: [aLevelPathways, aLevelSubsidiaries] },
-        { id: "rw-s6", name: "Senior 6", description: "Advanced National Examination Year", isExamYear: true, examType: "A-Level National Exams", subjectGroups: [aLevelPathways, aLevelSubsidiaries] }
+        { id: "rw-s4", name: "Senior 4", description: "First year of A-Level", isExamYear: false, canonicalGrade: 10, subjectGroups: [aLevelPathways, aLevelSubsidiaries] },
+        { id: "rw-s5", name: "Senior 5", description: "Second year of A-Level", isExamYear: false, canonicalGrade: 11, subjectGroups: [aLevelPathways, aLevelSubsidiaries] },
+        { id: "rw-s6", name: "Senior 6", description: "Advanced National Examination Year", isExamYear: true, examType: "A-Level National Exams", canonicalGrade: 12, subjectGroups: [aLevelPathways, aLevelSubsidiaries] }
       ]
     }
   ]

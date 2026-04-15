@@ -36,59 +36,24 @@ export const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('O-Level');
   
-  // Default mock data as fallback - moved before state
-  const DEFAULT_CLASSES: ClassCard[] = [
-    {
-      id: 1, weeks: '12 WEEKS', title: 'O-Level Mathematics: Algebra Mastery',
-      lessons: '24', students: '1.2k', level: 'O-Level',
-      teacher: 'Sarah K.', teacherImg: 'https://ui-avatars.com/api/?name=Sarah+K&background=0D8ABC&color=fff',
-      image: 'https://images.unsplash.com/photo-1635317711438-e6fd425bfce3?q=80&w=2670&auto=format&fit=crop',
-      rating: 4.8, priceStatus: 'FREE'
-    },
-    {
-      id: 2, weeks: '08 WEEKS', title: 'A-Level Physics: Quantum & Mechanics',
-      lessons: '16', students: '850', level: 'A-Level',
-      teacher: 'David J.', teacherImg: 'https://ui-avatars.com/api/?name=David+J&background=10B981&color=fff',
-      image: 'https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?q=80&w=2574&auto=format&fit=crop',
-      rating: 4.9, priceStatus: 'PREMIUM'
-    },
-    {
-      id: 3, weeks: '04 WEEKS', title: 'Literature in English: African Writers',
-      lessons: '8', students: '2.1k', level: 'O-Level',
-      teacher: 'Aisha M.', teacherImg: 'https://ui-avatars.com/api/?name=Aisha+M&background=F59E0B&color=fff',
-      image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=2546&auto=format&fit=crop',
-      rating: 4.7, priceStatus: 'FREE'
-    },
-    {
-      id: 4, weeks: '16 WEEKS', title: 'Advanced Chemistry: Organic Synthesis',
-      lessons: '32', students: '540', level: 'A-Level',
-      teacher: 'Dr. Okello', teacherImg: 'https://ui-avatars.com/api/?name=Dr.+Okello&background=6366f1&color=fff',
-      image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=2670&auto=format&fit=crop',
-      rating: 5.0, priceStatus: 'PREMIUM'
-    }
-  ];
-  
-  const [popularClasses, setPopularClasses] = useState<ClassCard[]>(DEFAULT_CLASSES);
+  const [popularClasses, setPopularClasses] = useState<ClassCard[]>([]);
 
   useEffect(() => {
     const fetchListings = async () => {
       try {
         setLoading(true);
         
-        // Set a 5-second timeout for the API call
         const timeoutPromise = new Promise((_, reject) => 
           setTimeout(() => reject(new Error('API timeout')), 5000)
         );
         
-        // Fetch marketplace listings with timeout
         const response = await Promise.race([
           fetch('http://localhost:8000/api/v1/curriculum/full-tree/').then(res => res.json()),
           timeoutPromise as any
         ]);
         
         if (response.data?.results && response.data.results.length > 0) {
-          // Transform API listings to ClassCard format
-          const classes = response.data.results.slice(0, 4).map((listing, index) => ({
+          const classes = response.data.results.slice(0, 4).map((listing: any, index: number) => ({
             id: listing.id,
             weeks: `${Math.ceil(Math.random() * 16)}  WEEKS`,
             title: listing.title || `Lesson ${index + 1}`,
@@ -106,16 +71,13 @@ export const HomePage: React.FC = () => {
             rating: listing.average_rating || 4.5 + Math.random() * 0.5,
             priceStatus: listing.price_amount ? 'PREMIUM' : 'FREE'
           }));
-          
           setPopularClasses(classes);
         } else {
-          // Use default mock data if no listings
-          setPopularClasses(DEFAULT_CLASSES);
+          setPopularClasses([]);
         }
       } catch (err) {
         console.error('Error fetching listings:', err);
-        // Fall back to mock data on error
-        setPopularClasses(DEFAULT_CLASSES);
+        setPopularClasses([]);
       } finally {
         setLoading(false);
       }
@@ -312,9 +274,11 @@ export const HomePage: React.FC = () => {
                   ))}
                </div>
 
-               <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 px-8 font-medium mt-4 shadow-sm">
-                  Learn More About Us <ArrowRight className="w-4 h-4 ml-2" />
-               </Button>
+               <Link to="/about" className="inline-block">
+                  <Button variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-transparent font-medium p-0 h-auto">
+                    Learn More About Us <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+               </Link>
             </div>
          </div>
       </section>
@@ -391,9 +355,11 @@ export const HomePage: React.FC = () => {
             </div>
 
             <div className="flex justify-center pt-16">
-               <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 px-8 font-medium shadow-sm">
-                  View All Classes <ArrowRight className="w-4 h-4 ml-2" />
-               </Button>
+               <Link to="/classes" className="inline-block">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 px-8 font-medium shadow-sm">
+                     View All Classes <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+               </Link>
             </div>
          </div>
       </section>

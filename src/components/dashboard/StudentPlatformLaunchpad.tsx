@@ -18,7 +18,7 @@ export const StudentPlatformLaunchpad: React.FC = () => {
                 <ShieldCheck className="w-6 h-6 text-indigo-400" />
               </div>
               <h3 className="font-bold text-white text-lg leading-tight mb-1">Exams & Registration</h3>
-              <p className="text-sm text-slate-400 font-medium">Mid-Term exams approaching in 14 days.</p>
+              <p className="text-sm text-slate-800 font-medium">Mid-Term exams approaching in 14 days.</p>
             </div>
             <Link to="/exam-registration">
               <Button variant="ghost" className="w-full justify-between hover:bg-white/10 text-indigo-300 font-bold px-0 p-0 hover:px-3 h-auto py-2 transition-all group-hover:px-3 group-hover:bg-indigo-500/10">
@@ -38,7 +38,7 @@ export const StudentPlatformLaunchpad: React.FC = () => {
                 <FolderGit2 className="w-6 h-6 text-emerald-400" />
               </div>
               <h3 className="font-bold text-white text-lg leading-tight mb-1">Project Workspaces</h3>
-              <p className="text-sm text-slate-400 font-medium">1 Active Collaboration: Renewable Energy Model.</p>
+              <p className="text-sm text-slate-800 font-medium">1 Active Collaboration: Renewable Energy Model.</p>
             </div>
             <Link to="/projects">
               <Button variant="ghost" className="w-full justify-between hover:bg-white/10 text-emerald-300 font-bold px-0 p-0 hover:px-3 h-auto py-2 transition-all group-hover:px-3 group-hover:bg-emerald-500/10">
@@ -58,7 +58,7 @@ export const StudentPlatformLaunchpad: React.FC = () => {
                 <ShoppingBag className="w-6 h-6 text-amber-400" />
               </div>
               <h3 className="font-bold text-white text-lg leading-tight mb-1">Academic Marketplace</h3>
-              <p className="text-sm text-slate-400 font-medium">Missing 2 required textbooks for Term 2.</p>
+              <p className="text-sm text-slate-800 font-medium">Missing 2 required textbooks for Term 2.</p>
             </div>
             <Link to="/marketplace">
               <Button variant="ghost" className="w-full justify-between hover:bg-white/10 text-amber-300 font-bold px-0 p-0 hover:px-3 h-auto py-2 transition-all group-hover:px-3 group-hover:bg-amber-500/10">
@@ -69,7 +69,7 @@ export const StudentPlatformLaunchpad: React.FC = () => {
         </Card>
       </DashboardCard>
 
-      {/* Edify AI Tutor */}
+      {/* Maple AI Tutor */}
       <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={3} variant="transparent">
         <Card className="h-full border border-white/10 bg-gradient-to-br from-white/5 to-white/0 hover:bg-white/10 transition-colors group">
           <CardContent className="p-5 flex flex-col h-full justify-between gap-4">
@@ -78,7 +78,7 @@ export const StudentPlatformLaunchpad: React.FC = () => {
                 <Bot className="w-6 h-6 text-blue-400" />
               </div>
               <h3 className="font-bold text-white text-lg leading-tight mb-1">Maple AI Tutor</h3>
-              <p className="text-sm text-slate-400 font-medium">Your interactive agent for math and science.</p>
+              <p className="text-sm text-slate-800 font-medium">Your interactive agent for math and science.</p>
             </div>
             <Link to="/ai-assistant">
               <Button variant="ghost" className="w-full justify-between hover:bg-white/10 text-blue-300 font-bold px-0 p-0 hover:px-3 h-auto py-2 transition-all group-hover:px-3 group-hover:bg-blue-500/10">

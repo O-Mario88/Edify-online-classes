@@ -58,10 +58,10 @@ export const ProjectActivityPanel: React.FC<ProjectActivityPanelProps> = ({ cont
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-            <Lightbulb className="h-5 w-5 text-purple-600" />
+            <Lightbulb className="h-5 w-5 text-purple-800" />
             Projects & Activities
           </h3>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-700 mt-1">
             {contextType === 'topic'
               ? 'Project work and activities of integration for this topic'
               : 'Activities specific to this lesson'}
@@ -75,7 +75,7 @@ export const ProjectActivityPanel: React.FC<ProjectActivityPanelProps> = ({ cont
       {/* Active Projects/Activities */}
       {MOCK_PROJECTS.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-bold text-gray-600 uppercase tracking-wider">Active</h4>
+          <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Active</h4>
           {MOCK_PROJECTS.map(proj => (
             <Card key={proj.id} className="border-gray-200 hover:shadow-md transition-all overflow-hidden">
               <div className={`h-1 w-full ${proj.type === 'project' ? 'bg-purple-500' : 'bg-emerald-500'}`} />
@@ -92,7 +92,7 @@ export const ProjectActivityPanel: React.FC<ProjectActivityPanelProps> = ({ cont
                       </Badge>
                     )}
                     <Badge variant="outline" className={`text-[10px] ${
-                      proj.status === 'active' ? 'text-blue-600 border-blue-200' : 'text-gray-500'
+                      proj.status === 'active' ? 'text-blue-800 border-blue-200' : 'text-gray-700'
                     }`}>
                       {proj.status === 'active' ? 'In Progress' : 'Not Started'}
                     </Badge>
@@ -100,9 +100,9 @@ export const ProjectActivityPanel: React.FC<ProjectActivityPanelProps> = ({ cont
                 </div>
 
                 <h4 className="font-semibold text-gray-900 mb-1">{proj.title}</h4>
-                <p className="text-sm text-gray-600 mb-3">{proj.description}</p>
+                <p className="text-sm text-gray-800 mb-3">{proj.description}</p>
 
-                <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
+                <div className="flex items-center gap-4 text-xs text-gray-700 mb-3">
                   <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> Due: {proj.dueDate}</span>
                   <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {proj.groupSize}</span>
                 </div>
@@ -110,7 +110,7 @@ export const ProjectActivityPanel: React.FC<ProjectActivityPanelProps> = ({ cont
                 {proj.status === 'active' && (
                   <div className="space-y-1.5 mb-3">
                     <div className="flex justify-between text-xs">
-                      <span className="text-gray-500">Progress</span>
+                      <span className="text-gray-700">Progress</span>
                       <span className="font-medium text-gray-700">{proj.progress}%</span>
                     </div>
                     <Progress value={proj.progress} className="h-1.5" />
@@ -138,14 +138,14 @@ export const ProjectActivityPanel: React.FC<ProjectActivityPanelProps> = ({ cont
       {/* Completed */}
       {MOCK_COMPLETED.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-bold text-gray-600 uppercase tracking-wider">Completed</h4>
+          <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Completed</h4>
           {MOCK_COMPLETED.map(proj => (
             <div key={proj.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
               <div className="flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                <CheckCircle className="h-5 w-5 text-emerald-700 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-gray-900">{proj.title}</p>
-                  <p className="text-xs text-gray-500">Completed {proj.completedDate} · Score: {proj.score}</p>
+                  <p className="text-xs text-gray-700">Completed {proj.completedDate} · Score: {proj.score}</p>
                 </div>
               </div>
               <Button size="sm" variant="ghost"><FileText className="h-3.5 w-3.5" /></Button>
@@ -157,8 +157,8 @@ export const ProjectActivityPanel: React.FC<ProjectActivityPanelProps> = ({ cont
       {MOCK_PROJECTS.length === 0 && MOCK_COMPLETED.length === 0 && (
         <div className="text-center py-10 bg-gray-50 rounded-xl border border-dashed">
           <Lightbulb className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 font-medium">No projects or activities yet</p>
-          <p className="text-sm text-gray-400 mt-1">Teachers can create project work and activities of integration here.</p>
+          <p className="text-gray-700 font-medium">No projects or activities yet</p>
+          <p className="text-sm text-gray-800 mt-1">Teachers can create project work and activities of integration here.</p>
         </div>
       )}
     </div>

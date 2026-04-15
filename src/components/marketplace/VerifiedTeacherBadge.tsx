@@ -23,12 +23,12 @@ export const VerifiedTeacherBadge: React.FC<VerifiedTeacherBadgeProps> = ({ isVe
         <Tooltip>
           <TooltipTrigger>
             <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 flex items-center gap-1 cursor-help">
-              <ShieldCheck size={compact ? 12 : 14} className="text-blue-600" />
+              <ShieldCheck size={compact ? 12 : 14} className="text-blue-800" />
               Verified Expert
             </Badge>
           </TooltipTrigger>
           <TooltipContent className="bg-white p-3 border shadow-md text-sm text-gray-700 max-w-xs">
-            <p><strong>Edify Verified</strong> <br/> This teacher's qualifications and identity have been fully vetted by our academic review board.</p>
+            <p><strong>Maple Verified</strong> <br/> This teacher's qualifications and identity have been fully vetted by our academic review board.</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -38,7 +38,7 @@ export const VerifiedTeacherBadge: React.FC<VerifiedTeacherBadgeProps> = ({ isVe
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
-                <div className="flex items-center gap-1 text-gray-500 cursor-help">
+                <div className="flex items-center gap-1 text-gray-700 cursor-help">
                   <MessageSquare size={14} />
                   <span>{reputation.responseRate}%</span>
                 </div>
@@ -50,7 +50,7 @@ export const VerifiedTeacherBadge: React.FC<VerifiedTeacherBadgeProps> = ({ isVe
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
-                <div className="flex items-center gap-1 text-gray-500 cursor-help">
+                <div className="flex items-center gap-1 text-gray-700 cursor-help">
                   <Clock size={14} />
                   <span>&lt; {reputation.avgResponseTimeMins}m</span>
                 </div>

@@ -7,9 +7,43 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Save, UploadCloud, FileText, ArrowLeft, Download, CheckCircle, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+
 import { apiClient, API_ENDPOINTS } from '../lib/apiClient';
+import { getPrimarySubjectsForClass, getPrimaryTopics, ugandaPrimaryContentSubjects } from '../lib/curriculum/ugandaPrimaryContent';
 
 export function TeacherMarksUpload() {
+  // Dropdown state
+  const classLevels = ['P4', 'P5', 'P6', 'P7'];
+  const terms = ['Term 1', 'Term 2', 'Term 3'];
+  const [selectedClass, setSelectedClass] = useState('P4');
+  const [selectedTerm, setSelectedTerm] = useState('Term 1');
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedTopic, setSelectedTopic] = useState('');
+  const [selectedLesson, setSelectedLesson] = useState('');
+
+  // Subjects for selected class
+  const subjects = getPrimarySubjectsForClass(selectedClass);
+  // Topics for selected subject/class
+  const topics = selectedSubject ? getPrimaryTopics(selectedSubject, selectedClass) : [];
+  // Lessons for selected topic
+  const lessons = topics.find(t => t.id === selectedTopic)?.subtopics || [];
+
+  // Set default subject/topic/lesson when class changes
+  useEffect(() => {
+    if (subjects.length > 0) {
+      setSelectedSubject(subjects[0].id);
+    }
+  }, [selectedClass]);
+  useEffect(() => {
+    if (topics.length > 0) {
+      setSelectedTopic(topics[0].id);
+    }
+  }, [selectedSubject, selectedClass]);
+  useEffect(() => {
+    if (lessons.length > 0) {
+      setSelectedLesson(lessons[0].id);
+    }
+  }, [selectedTopic]);
   const navigate = useNavigate();
   const [maxScore, setMaxScore] = useState("10");
 
@@ -66,12 +100,22 @@ export function TeacherMarksUpload() {
           status: 'graded',
         });
       });
-      await Promise.allSettled(promises);
-      toast.success("Marks synced to NCDC Engine. Background Worker building PDF Reports...");
-      setStudents(prev => prev.map(s => ({ ...s, status: "published" })));
-    } catch {
-      toast.success("Marks synced to NCDC Engine. Background Worker building PDF Reports...");
-      setStudents(prev => prev.map(s => ({ ...s, status: "published" })));
+      const results = await Promise.allSettled(promises);
+      const failed = results.filter(r => r.status === 'rejected');
+      
+      if (failed.length > 0) {
+         toast.error(`Warning: ${failed.length} marks failed to sync. Check network and try again.`);
+         // Only mark fulfilled ones as published
+         setStudents(prev => prev.map((s, i) => ({
+           ...s,
+           status: results[i].status === 'fulfilled' ? "published" : "pending"
+         })));
+      } else {
+         toast.success("All marks validated and synced successfully to NCDC Engine.");
+         setStudents(prev => prev.map(s => ({ ...s, status: "published" })));
+      }
+    } catch (error) {
+      toast.error("Critical failure during sync. Please export offline cache.");
     } finally {
       setPublishing(false);
     }
@@ -111,28 +155,57 @@ export function TeacherMarksUpload() {
           </CardHeader>
           <CardContent className="space-y-4 pt-4">
             <div className="space-y-2">
-              <label className="text-sm font-semibold">Assessment Source</label>
-              <Select defaultValue="manual_school_test">
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+              <label className="text-sm font-semibold">Class Level</label>
+              <Select value={selectedClass} onValueChange={setSelectedClass}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="manual_school_test">Manual School Test (Paper)</SelectItem>
-                  <SelectItem value="practical">Laboratory Practical</SelectItem>
-                  <SelectItem value="oral">Oral Examination</SelectItem>
-                  <SelectItem value="project">Project Work</SelectItem>
+                  {classLevels.map(cl => (
+                    <SelectItem key={cl} value={cl}>{cl}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-semibold">Target Subject</label>
-              <Select defaultValue="bio">
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+              <label className="text-sm font-semibold">Term</label>
+              <Select value={selectedTerm} onValueChange={setSelectedTerm}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="bio">S3 Biology - Respiration</SelectItem>
-                  <SelectItem value="math">S2 Mathematics</SelectItem>
+                  {terms.map(term => (
+                    <SelectItem key={term} value={term}>{term}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold">Subject</label>
+              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {subjects.map(subj => (
+                    <SelectItem key={subj.id} value={subj.id}>{subj.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold">Topic</label>
+              <Select value={selectedTopic} onValueChange={setSelectedTopic}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {topics.map(topic => (
+                    <SelectItem key={topic.id} value={topic.id}>{topic.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold">Lesson</label>
+              <Select value={selectedLesson} onValueChange={setSelectedLesson}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {lessons.map(lesson => (
+                    <SelectItem key={lesson.id} value={lesson.id}>{lesson.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

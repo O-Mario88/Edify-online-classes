@@ -37,7 +37,7 @@ export const ActiveChallengeCard: React.FC<ActiveChallengeCardProps> = ({ challe
         <div className="flex justify-between items-start">
           <div>
             <div className="flex items-center gap-2 mb-1">
-               <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full">
+               <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded-full">
                  {challenge.scope} Challenge
                </span>
                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isComplete ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
@@ -45,7 +45,7 @@ export const ActiveChallengeCard: React.FC<ActiveChallengeCardProps> = ({ challe
                </span>
             </div>
             <CardTitle className="text-lg text-slate-900 mt-1">{challenge.title}</CardTitle>
-            <CardDescription className="text-slate-600">{challenge.description}</CardDescription>
+            <CardDescription className="text-slate-800">{challenge.description}</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -56,7 +56,7 @@ export const ActiveChallengeCard: React.FC<ActiveChallengeCardProps> = ({ challe
         <div>
            <div className="flex justify-between text-sm font-medium mb-1.5">
               <span className="text-slate-700">Goal Progress</span>
-              <span className={`${isComplete ? 'text-green-600 font-bold' : 'text-indigo-600'}`}>
+              <span className={`${isComplete ? 'text-emerald-800 font-bold' : 'text-indigo-800'}`}>
                  {challenge.currentValue} / {challenge.targetValue} {challenge.unit}
               </span>
            </div>
@@ -69,14 +69,14 @@ export const ActiveChallengeCard: React.FC<ActiveChallengeCardProps> = ({ challe
         {/* Challenge Footer Stats */}
         <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-0.5">
+              <div className="flex items-center gap-1.5 text-xs text-slate-700 mb-0.5">
                  <Users className="w-3.5 h-3.5" /> Participants
               </div>
               <span className="font-semibold text-slate-800">{challenge.participantsCount.toLocaleString()}</span>
            </div>
            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-0.5">
-                 <Gift className="w-3.5 h-3.5 text-yellow-600" /> Reward
+              <div className="flex items-center gap-1.5 text-xs text-slate-700 mb-0.5">
+                 <Gift className="w-3.5 h-3.5 text-amber-700" /> Reward
               </div>
               <span className="font-semibold text-slate-800 truncate">{challenge.rewardText}</span>
            </div>

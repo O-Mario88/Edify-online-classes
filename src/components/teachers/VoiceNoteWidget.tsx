@@ -40,12 +40,12 @@ export const VoiceNoteWidget: React.FC = () => {
                 <button 
                   onClick={handleToggleRecord}
                   className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105
-                    ${isRecording ? 'bg-red-100 text-red-600 animate-pulse border-2 border-red-300' : 'bg-indigo-600 text-white hover:bg-indigo-700'}
+                    ${isRecording ? 'bg-red-100 text-red-800 animate-pulse border-2 border-red-300' : 'bg-indigo-600 text-white hover:bg-indigo-700'}
                   `}
                 >
                   {isRecording ? <Square className="w-6 h-6 fill-current" /> : <Mic className="w-6 h-6" />}
                 </button>
-                <p className="text-xs text-slate-500 mt-3 font-medium">
+                <p className="text-xs text-slate-700 mt-3 font-medium">
                   {isRecording ? 'Recording Audio Note...' : 'Tap to Record Micro-Lesson'}
                 </p>
              </div>
@@ -56,7 +56,7 @@ export const VoiceNoteWidget: React.FC = () => {
                 <div className="flex items-center gap-3 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                    <button 
                      onClick={() => setIsPlaying(!isPlaying)}
-                     className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 hover:bg-indigo-200"
+                     className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-800 flex items-center justify-center shrink-0 hover:bg-indigo-200"
                    >
                       {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
                    </button>
@@ -65,13 +65,13 @@ export const VoiceNoteWidget: React.FC = () => {
                       <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                          <div className={`h-full bg-indigo-500 ${isPlaying ? 'w-[45%]' : 'w-0'} transition-all duration-1000`}></div>
                       </div>
-                      <div className="flex justify-between text-[10px] text-slate-400 font-bold mt-1">
+                      <div className="flex justify-between text-[10px] text-slate-800 font-bold mt-1">
                          <span>0:00</span>
                          <span>0:{duration}</span>
                       </div>
                    </div>
 
-                   <button onClick={handleDelete} className="p-2 text-slate-400 hover:text-red-500">
+                   <button onClick={handleDelete} className="p-2 text-slate-800 hover:text-red-700">
                       <Trash2 className="w-4 h-4" />
                    </button>
                 </div>

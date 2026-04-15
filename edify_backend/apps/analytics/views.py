@@ -60,6 +60,18 @@ class SystemHealthSnapshotViewSet(viewsets.ModelViewSet):
     serializer_class = SystemHealthSnapshotSerializer
     permission_classes = [IsAuthenticated]
 
+from .churn_signals import ChurnSignalAnalyzer
+
+class CustomerSuccessChurnView(APIView):
+    """Admin-only view exposing real-time churn risk across all institutions."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != 'platform_admin':
+            raise exceptions.PermissionDenied("Only platform administrators can access churn signals.")
+        reports = ChurnSignalAnalyzer.analyze_all_institutions()
+        return Response(reports)
+
 # ------------------------------------------------------------------
 # MASS AGGREGATE ENDPOINTS FOR DATA-DRIVEN DASHBOARDS
 # All views now query REAL database tables with graceful fallbacks.
@@ -95,12 +107,9 @@ class StudentDashboardView(APIView):
                 "average": round(float(avg_score), 1)
             })
         
-        # Fallback if no real submissions exist yet
+        # Fallback removed - we want authentic empty states when not seeded
         if not assessment_snapshot:
-            assessment_snapshot = [
-                { "name": 'Physics Quiz 3', "scored": 45, "average": 65 },
-                { "name": 'Math Mid-Term', "scored": 88, "average": 70 },
-            ]
+            assessment_snapshot = []
 
         # Intelligence cards derived from real data patterns
         intelligence = self._build_student_intelligence(request.user, kpis)
@@ -122,7 +131,7 @@ class StudentDashboardView(APIView):
         # Streak card
         streak = LessonAttendance.objects.filter(
             student=user, status='present'
-        ).order_by('-recorded_at').count()
+        ).order_by('-timestamp').count()
         
         cards.append({
             "id": 1,
@@ -236,7 +245,7 @@ class TeacherDashboardView(APIView):
         from lessons.models import LessonAttendance
         recent_engaged = LessonAttendance.objects.filter(
             lesson__parent_class__teacher=request.user,
-            recorded_at__gte=now - timedelta(days=7),
+            timestamp__gte=now - timedelta(days=7),
             status='present'
         ).values('student').distinct().count()
         engagement_rate = round((recent_engaged / max(1, total_learners)) * 100) if total_learners else 0
@@ -286,13 +295,9 @@ class TeacherDashboardView(APIView):
                 "topWeakTopic": 'Pending analysis'
             })
         
-        # Fallback for empty class health
+        # Explicitly empty if not seeded
         if not class_health:
-            class_health = [
-                { "name": 'S4 Physics North', "enrolled": 45, "attendance": 92, "avgScore": 78, "completion": 60, "riskCount": 2, "topWeakTopic": 'Electromagnetism' },
-                { "name": 'S3 Biology East', "enrolled": 38, "attendance": 65, "avgScore": 54, "completion": 45, "riskCount": 12, "topWeakTopic": 'Genetics' },
-                { "name": 'S2 Chemistry Core', "enrolled": 45, "attendance": 85, "avgScore": 68, "completion": 55, "riskCount": 4, "topWeakTopic": 'Mole Concept' },
-            ]
+            class_health = []
 
         # Content performance from resources
         content_performance = []
@@ -312,20 +317,17 @@ class TeacherDashboardView(APIView):
             })
         
         if not content_performance:
-            content_performance = [
-                { "title": 'O-Level Physics Revision PDF', "views": 1205, "downloads": 850, "completion": 92, "rating": 4.8 },
-                { "title": 'Circuits Virtual Lab Video', "views": 800, "downloads": 0, "completion": 45, "rating": 4.2 },
-            ]
+            content_performance = []
 
         return Response({
             "kpis": {
-                "activeClasses": active_classes or 4,
-                "totalLearners": total_learners or 128,
-                "avgAttendance": avg_attendance or 85,
-                "markingBacklog": marking_backlog,
-                "avgClassScore": avg_class_score or 68,
-                "engagementRate": engagement_rate or 74,
-                "liveAttendance": live_att_pct or 92,
+                "activeClasses": active_classes or 0,
+                "totalLearners": total_learners or 0,
+                "avgAttendance": avg_attendance or 0,
+                "markingBacklog": marking_backlog or 0,
+                "avgClassScore": avg_class_score or 0,
+                "engagementRate": engagement_rate or 0,
+                "liveAttendance": live_att_pct or 0,
                 "monthlyEarnings": float(wallet_balance),
             },
             "qualityScore": {
@@ -388,12 +390,12 @@ class ParentDashboardView(APIView):
                 "status": 'Pending Parent Acknowledgment' if overdue > 0 else 'Acknowledged'
             },
             "weeklySummary": {
-                "strongestSubject": 'Biology',
-                "weakestTopic": 'Kinematics',
-                "attendanceChange": f"{child_kpis['attendanceTrend']}%",
-                "assessmentTrend": 'Stable' if child_kpis['assessmentsCompleted'] > 3 else 'Needs monitoring',
+                "strongestSubject": subject_performance[0]['subject'] if subject_performance else 'Pending Data',
+                "weakestTopic": 'Pending Data', # Derived dynamically later
+                "attendanceChange": "0%",
+                "assessmentTrend": 'Stable',
                 "recommendedFocus": 'Review weak topics identified in the performance breakdown below.',
-                "aiNarrative": f"Your child has completed {child_kpis['assessmentsCompleted']} assessments this term with a readiness score of {child_kpis['readinessScore']}%. {'Performance is on track.' if child_kpis['readinessScore'] >= 70 else 'Additional study time is recommended.'}"
+                "aiNarrative": "No ai narrative generated, pending assessment completion." if child_kpis['assessmentsCompleted'] == 0 else f"Your child has completed {child_kpis['assessmentsCompleted']} assessments this term with a readiness score of {child_kpis['readinessScore']}%. {'Performance is on track.' if child_kpis['readinessScore'] >= 70 else 'Additional study time is recommended.'}"
             },
             "childPerformance": {
                 "name": getattr(request.user, 'full_name', 'Student'),
@@ -432,7 +434,7 @@ class AdminDashboardView(APIView):
         # Lesson completions today from LessonAttendance
         from lessons.models import LessonAttendance
         daily_completions = LessonAttendance.objects.filter(
-            recorded_at__date=today,
+            timestamp__date=today,
             status='present'
         ).count()
         

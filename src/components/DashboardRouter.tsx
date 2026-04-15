@@ -34,17 +34,19 @@ export const DashboardRouter: React.FC = () => {
     }
 
     const role = (user.role || '').toString().toLowerCase();
+    const schoolLevel = (user as any).school_level || (user as any).institution?.school_level || '';
+    const isPrimary = schoolLevel === 'primary';
 
     if (role.includes('student')) {
-      navigate('/dashboard/student', { replace: true });
+      navigate(isPrimary ? '/dashboard/primary/student' : '/dashboard/student', { replace: true });
     } else if (role.includes('teacher')) {
-      navigate('/dashboard/teacher', { replace: true });
+      navigate(isPrimary ? '/dashboard/primary/teacher' : '/dashboard/teacher', { replace: true });
     } else if (role.includes('admin') && !role.includes('institution')) {
       navigate('/dashboard/admin', { replace: true });
     } else if (role.includes('institution')) {
       navigate('/dashboard/institution', { replace: true });
     } else if (role.includes('parent')) {
-      navigate('/dashboard/parent', { replace: true });
+      navigate(isPrimary ? '/dashboard/primary/parent' : '/dashboard/parent', { replace: true });
     } else {
       // Safe fallback — go to student dashboard
       navigate('/dashboard/student', { replace: true });
@@ -55,7 +57,7 @@ export const DashboardRouter: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading your dashboard...</p>
+        <p className="text-gray-800">Loading your dashboard...</p>
       </div>
     </div>
   );

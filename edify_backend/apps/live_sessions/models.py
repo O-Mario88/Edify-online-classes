@@ -48,3 +48,38 @@ class SessionReminder(models.Model):
 
     def __str__(self):
         return f"Reminder for {self.session} at {self.send_at}"
+
+
+class MissedSessionRecovery(models.Model):
+    """Recovery payload for a student who missed a live session."""
+    RECOVERY_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('submitted', 'Submitted'),
+        ('verified', 'Verified'),
+    ]
+    session = models.ForeignKey(LiveSession, on_delete=models.CASCADE, related_name='recovery_records')
+    student = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='missed_session_recoveries')
+    summary = models.TextField(blank=True, default='')
+    recording_url = models.URLField(max_length=500, blank=True, null=True)
+    recovery_status = models.CharField(max_length=20, choices=RECOVERY_STATUS_CHOICES, default='pending')
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Missed Session Recoveries'
+        unique_together = ['session', 'student']
+
+    def __str__(self):
+        return f"Recovery for {self.student.full_name} - {self.session}"
+
+
+class RecoveryAssignment(models.Model):
+    """An assignment that a student must complete as part of session recovery."""
+    recovery = models.ForeignKey(MissedSessionRecovery, on_delete=models.CASCADE, related_name='assignments')
+    title = models.CharField(max_length=255)
+    file_type = models.CharField(max_length=50, default='PDF')
+    file_url = models.URLField(max_length=500, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.file_type})"
+

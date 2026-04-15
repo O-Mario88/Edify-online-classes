@@ -1,5 +1,5 @@
 /**
- * API Client for Edify Backend
+ * API Client for Maple Backend
  * Handles all HTTP requests to the Django REST API
  * Includes JWT token management and error handling
  */
@@ -54,6 +54,21 @@ export const API_ENDPOINTS = {
 
   // Resources
   RESOURCES: `${API_BASE_URL}${API_V1}/resources/`,
+
+  // Content Management System
+  CONTENT_ITEMS: `${API_BASE_URL}${API_V1}/content/items/`,
+  CONTENT_TEACHER: `${API_BASE_URL}${API_V1}/content/teacher/`,
+  CONTENT_INSTITUTION: `${API_BASE_URL}${API_V1}/content/institution/`,
+  CONTENT_ADMIN: `${API_BASE_URL}${API_V1}/content/admin/`,
+  CONTENT_LIBRARY: `${API_BASE_URL}${API_V1}/content/library/`,
+  CONTENT_CLASSROOM: `${API_BASE_URL}${API_V1}/content/classroom/`,
+  CONTENT_ENGAGEMENT: `${API_BASE_URL}${API_V1}/content/engagement/`,
+  CONTENT_TAGS: `${API_BASE_URL}${API_V1}/content/tags/`,
+  CONTENT_ASSIGNMENTS: `${API_BASE_URL}${API_V1}/content/assignments/`,
+  CONTENT_RECOMMENDATIONS: `${API_BASE_URL}${API_V1}/content/recommendations/`,
+  CONTENT_DASHBOARD_STUDENT: `${API_BASE_URL}${API_V1}/content/dashboard/student/`,
+  CONTENT_DASHBOARD_TEACHER: `${API_BASE_URL}${API_V1}/content/dashboard/teacher/`,
+  CONTENT_DASHBOARD_PARENT: `${API_BASE_URL}${API_V1}/content/dashboard/parent/`,
   
   // Discussions
   THREADS: `${API_BASE_URL}${API_V1}/discussions/thread/`,
@@ -88,6 +103,18 @@ export const API_ENDPOINTS = {
   INTELLIGENCE_IMPACT: `${API_BASE_URL}${API_V1}/intelligence/impact/`,
   INTELLIGENCE_STUDENT_PASSPORT: `${API_BASE_URL}${API_V1}/intelligence/passport/student/`,
   INTELLIGENCE_TEACHER_PASSPORT: `${API_BASE_URL}${API_V1}/intelligence/passport/teacher/`,
+
+  // P7 Readiness & Primary
+  P7_READINESS: `${API_BASE_URL}${API_V1}/intelligence/p7-readiness/`,
+  P7_SUBJECT_READINESS: `${API_BASE_URL}${API_V1}/intelligence/p7-subject-readiness/`,
+  P7_MOCK_EXAMS: `${API_BASE_URL}${API_V1}/intelligence/p7-mock-exams/`,
+  P7_REVISION_TASKS: `${API_BASE_URL}${API_V1}/intelligence/p7-revision-tasks/`,
+  P7_INTERVENTION_PACKS: `${API_BASE_URL}${API_V1}/intelligence/p7-intervention-packs/`,
+  P7_RISK_FLAGS: `${API_BASE_URL}${API_V1}/intelligence/p7-risk-flags/`,
+  P7_PARENT_SUPPORT: `${API_BASE_URL}${API_V1}/intelligence/p7-parent-support/`,
+  P7_INSTITUTION_SUMMARY: `${API_BASE_URL}${API_V1}/intelligence/p7-institution-summary/`,
+  OFFLINE_ASSESSMENT_UPLOAD: `${API_BASE_URL}${API_V1}/assessments/offline-results/`,
+  OFFLINE_ONLINE_COMPARISON: `${API_BASE_URL}${API_V1}/assessments/offline-online-comparison/`,
 };
 
 export interface ApiError {
@@ -166,6 +193,14 @@ export const apiRequest = async <T = unknown>(
   url: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> => {
+  // Fast-fail when browser is offline — avoids hanging TCP timeouts
+  if (!navigator.onLine) {
+    return {
+      data: null as unknown as T,
+      error: { status: 0, message: 'You are offline. Please check your internet connection.' },
+    };
+  }
+
   try {
     const { accessToken } = getStoredTokens();
     

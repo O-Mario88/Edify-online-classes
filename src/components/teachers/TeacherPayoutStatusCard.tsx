@@ -55,11 +55,11 @@ export const TeacherPayoutStatusCard: React.FC = () => {
         <div className="flex flex-wrap md:flex-nowrap gap-3 mb-8">
           <div className="flex-1 bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-100">
              <span className="text-2xl font-black text-slate-800 tracking-tight">{stats.totalLessons}</span>
-             <span className="text-xs text-slate-500 font-semibold mt-1">Live Lessons</span>
+             <span className="text-xs text-slate-700 font-semibold mt-1">Live Lessons</span>
           </div>
           <div className="flex-1 bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-100">
              <span className="text-2xl font-black text-slate-800 tracking-tight">{stats.qualifiedLessons}</span>
-             <span className="text-xs text-slate-500 font-semibold mt-1">Qualified</span>
+             <span className="text-xs text-slate-700 font-semibold mt-1">Qualified</span>
           </div>
           <div className="flex-1 bg-primary/5 rounded-2xl p-4 flex flex-col items-center justify-center border border-primary/10">
              <span className="text-xl font-bold text-primary tracking-tight">{formatCurrency(stats.earnings.thisMonth)}</span>
@@ -71,14 +71,14 @@ export const TeacherPayoutStatusCard: React.FC = () => {
         <div className="space-y-4 mb-8 flex-1">
            <div className="flex justify-between items-center bg-white border border-slate-100 p-4 rounded-[1.5rem] shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="bg-slate-50 p-2.5 rounded-full"><Calendar className="w-4 h-4 text-slate-500"/></div>
+                <div className="bg-slate-50 p-2.5 rounded-full"><Calendar className="w-4 h-4 text-slate-700"/></div>
                 <span className="text-sm font-semibold text-slate-700">This Quarter</span>
               </div>
               <span className="font-bold text-slate-900">{formatCurrency(stats.earnings.thisQuarter)}</span>
            </div>
            <div className="flex justify-between items-center bg-white border border-slate-100 p-4 rounded-[1.5rem] shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="bg-slate-50 p-2.5 rounded-full"><Calendar className="w-4 h-4 text-slate-500"/></div>
+                <div className="bg-slate-50 p-2.5 rounded-full"><Calendar className="w-4 h-4 text-slate-700"/></div>
                 <span className="text-sm font-semibold text-slate-700">Year to Date</span>
               </div>
               <span className="font-bold text-slate-900">{formatCurrency(stats.earnings.thisYear)}</span>

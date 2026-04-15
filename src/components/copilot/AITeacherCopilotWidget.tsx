@@ -7,7 +7,7 @@ import { apiClient } from '@/lib/apiClient';
 export const AITeacherCopilotWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{role: 'ai'|'user', content: string}[]>([
-    { role: 'ai', content: "Hi! I'm Edify Copilot. I can help draft lesson plans, grade assignments via OCR, or identify students at risk of drop-out. How can I assist you today?" }
+    { role: 'ai', content: "Hi! I'm Maple Copilot. I can help draft lesson plans, grade assignments via OCR, or identify students at risk of drop-out. How can I assist you today?" }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -25,7 +25,7 @@ export const AITeacherCopilotWidget: React.FC = () => {
         content: userMessage,
         context: 'teacher_studio'
       });
-      setMessages(prev => [...prev, { role: 'ai', content: res.data.reply }]);
+      setMessages(prev => [...prev, { role: 'ai', content: (res.data as any).reply }]);
     } catch (error) {
       setMessages(prev => [...prev, { role: 'ai', content: "Sorry, I'm currently offline and couldn't process that request." }]);
     } finally {
@@ -57,7 +57,7 @@ export const AITeacherCopilotWidget: React.FC = () => {
         <Card className="fixed bottom-6 right-6 w-80 md:w-96 shadow-2xl z-50 flex flex-col border-purple-200 border-2 overflow-hidden animate-in slide-in-from-bottom flex flex-col max-h-[600px] h-[80vh]">
           <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex flex-row items-center justify-between p-4 shrink-0 rounded-t-lg">
             <CardTitle className="text-sm font-bold flex items-center">
-              <Bot className="w-5 h-5 mr-2" /> Edify Copilot
+              <Bot className="w-5 h-5 mr-2" /> Maple Copilot
             </CardTitle>
             <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-white hover:bg-white/20 h-8 w-8">
               <X className="w-4 h-4" />
@@ -81,8 +81,8 @@ export const AITeacherCopilotWidget: React.FC = () => {
               ))}
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="bg-white border border-gray-100 shadow-sm rounded-2xl p-3 rounded-bl-none text-gray-400">
-                    <Loader2 className="w-4 h-4 animate-spin text-purple-600" />
+                  <div className="bg-white border border-gray-100 shadow-sm rounded-2xl p-3 rounded-bl-none text-gray-800">
+                    <Loader2 className="w-4 h-4 animate-spin text-purple-800" />
                   </div>
                 </div>
               )}
@@ -102,7 +102,7 @@ export const AITeacherCopilotWidget: React.FC = () => {
                   <Send className="w-4 h-4" />
                 </Button>
               </div>
-              <div className="text-[10px] text-center text-gray-400 font-medium mt-2">
+              <div className="text-[10px] text-center text-gray-800 font-medium mt-2">
                 AI can make mistakes. Check important information.
               </div>
             </div>

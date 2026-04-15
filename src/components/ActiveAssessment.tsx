@@ -63,11 +63,11 @@ export const ActiveAssessment: React.FC<ActiveAssessmentProps> = ({ assessmentId
   };
 
   if (loading) {
-    return <div className="p-8 text-center"><Clock className="w-6 h-6 animate-spin mx-auto text-blue-500 mb-2"/> Loading Assessment...</div>;
+    return <div className="p-8 text-center"><Clock className="w-6 h-6 animate-spin mx-auto text-blue-700 mb-2"/> Loading Assessment...</div>;
   }
 
   if (!assessment) {
-    return <div className="p-8 text-center text-red-500"><AlertCircle className="w-8 h-8 mx-auto mb-2"/> Failed to load assessment.</div>;
+    return <div className="p-8 text-center text-red-700"><AlertCircle className="w-8 h-8 mx-auto mb-2"/> Failed to load assessment.</div>;
   }
 
   if (result) {
@@ -75,7 +75,7 @@ export const ActiveAssessment: React.FC<ActiveAssessmentProps> = ({ assessmentId
       <Card className="max-w-2xl mx-auto mt-8 border-green-200">
         <CardHeader className="bg-green-50/50">
           <CardTitle className="flex items-center gap-2 text-green-800">
-            <CheckCircle className="w-6 h-6 text-green-500" />
+            <CheckCircle className="w-6 h-6 text-emerald-700" />
             Assessment Submitted
           </CardTitle>
           <CardDescription>Your responses have been recorded.</CardDescription>
@@ -84,11 +84,11 @@ export const ActiveAssessment: React.FC<ActiveAssessmentProps> = ({ assessmentId
           {result.status === 'graded' ? (
             <div className="text-center">
               <h1 className="text-4xl font-black text-gray-900 mb-2">{result.total_score}</h1>
-              <p className="text-gray-500 uppercase tracking-widest text-sm font-bold">Total Score</p>
+              <p className="text-gray-700 uppercase tracking-widest text-sm font-bold">Total Score</p>
             </div>
           ) : (
             <div className="text-center">
-              <p className="text-gray-600">Your assignment is pending manual review by your teacher.</p>
+              <p className="text-gray-800">Your assignment is pending manual review by your teacher.</p>
             </div>
           )}
         </CardContent>
@@ -104,7 +104,7 @@ export const ActiveAssessment: React.FC<ActiveAssessmentProps> = ({ assessmentId
             <CardTitle>{assessment.type.toUpperCase()}</CardTitle>
             <CardDescription className="mt-1">Please answer all questions before submitting.</CardDescription>
           </div>
-          <div className="text-xs font-bold text-gray-500 uppercase bg-gray-200 px-3 py-1 rounded">
+          <div className="text-xs font-bold text-gray-700 uppercase bg-gray-200 px-3 py-1 rounded">
             {assessment.questions?.length || 0} Questions
           </div>
         </div>
@@ -116,9 +116,9 @@ export const ActiveAssessment: React.FC<ActiveAssessmentProps> = ({ assessmentId
             <div key={q.id} className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-base font-medium text-gray-900">
-                  <span className="text-gray-400 mr-2">{idx + 1}.</span> {q.content}
+                  <span className="text-gray-800 mr-2">{idx + 1}.</span> {q.content}
                 </h3>
-                <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                <span className="text-xs font-bold text-gray-700 bg-gray-100 px-2 py-1 rounded">
                   {q.marks} marks
                 </span>
               </div>
@@ -153,7 +153,7 @@ export const ActiveAssessment: React.FC<ActiveAssessmentProps> = ({ assessmentId
       </CardContent>
 
       <CardFooter className="bg-gray-50/50 border-t p-6 flex justify-between items-center">
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-gray-700">
           Answered: {Object.keys(answers).length} / {assessment.questions?.length || 0}
         </span>
         <Button 

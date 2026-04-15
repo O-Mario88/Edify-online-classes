@@ -16,7 +16,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ children, classNam
   };
 
   return (
-    <div className={`grid ${colClasses[columns]} gap-6 items-start auto-rows-min ${className}`}>
+    <div className={`grid ${colClasses[columns]} gap-6 ${className}`}>
       {children}
     </div>
   );

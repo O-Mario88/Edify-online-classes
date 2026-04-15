@@ -27,7 +27,7 @@ from classes.views import ClassViewSet, ClassEnrollmentViewSet
 from scheduling.views import TimetableSlotViewSet
 from attendance.views import DailyRegisterViewSet, LessonAttendanceViewSet
 from grading.views import SubjectGradeViewSet, ReportCardViewSet
-from analytics.views import AnalyticsEventViewSet, DailyPlatformMetricViewSet, DailyInstitutionMetricViewSet, SubjectPerformanceSnapshotViewSet, SystemHealthSnapshotViewSet, StudentDashboardView, TeacherDashboardView, ParentDashboardView, AdminDashboardView, InstitutionDashboardView
+from analytics.views import AnalyticsEventViewSet, DailyPlatformMetricViewSet, DailyInstitutionMetricViewSet, SubjectPerformanceSnapshotViewSet, SystemHealthSnapshotViewSet, StudentDashboardView, TeacherDashboardView, ParentDashboardView, AdminDashboardView, InstitutionDashboardView, CustomerSuccessChurnView
 from assessments.views import AssessmentWindowViewSet, AssessmentViewSet, QuestionViewSet, SubmissionViewSet
 from discussions.views import ThreadViewSet, PostViewSet
 from exams.views import ExamCenterViewSet, CandidateRegistrationViewSet, SubjectSelectionViewSet, BoardSubmissionBatchViewSet
@@ -37,6 +37,14 @@ from notifications.views import NotificationViewSet
 from parent_portal.views import ParentStudentLinkViewSet, WeeklySummaryViewSet, RiskAlertViewSet
 from resources.upload_view import ResourceUploadViewSet
 from resources.views import ResourceViewSet, SharedResourceLinkViewSet
+from resources.content_views import (
+    ContentItemViewSet, TeacherContentViewSet, InstitutionContentViewSet,
+    AdminContentViewSet, ContentDeliveryView, ClassContentView,
+    ContentEngagementViewSet, ContentTagViewSet,
+    ContentAssignmentViewSet, ContentRecommendationViewSet,
+    StudentContentDashboardView, TeacherContentDashboardView,
+    ParentContentDashboardView,
+)
 from tutoring.views import MatchRequestViewSet, PeerPointsLedgerViewSet
 from intelligence.views import (
     NextBestActionViewSet, InterventionPackViewSet, InterventionPackAssignmentViewSet,
@@ -62,6 +70,8 @@ router.register(r'curriculum/topic-competencies', TopicCompetencyViewSet, basena
 router.register(r'curriculum/resource-reviews', ResourceQualityReviewViewSet, basename='resource-review')
 
 from marketplace.views import ListingViewSet, PayoutRequestViewSet, PayoutBatchViewSet, LessonQualificationViewSet, TeacherPayoutProfileViewSet
+from marketplace.views import PesapalCheckoutInitView, PesapalIPNWebhookView
+
 router.register(r'marketplace/listings', ListingViewSet, basename='marketplace-listing')
 router.register(r'marketplace/payouts', PayoutRequestViewSet, basename='marketplace-payout')
 router.register(r'marketplace/payout-profile', TeacherPayoutProfileViewSet, basename='marketplace-payout-profile')
@@ -108,6 +118,16 @@ router.register(r'resources', ResourceViewSet, basename='resources-resource')
 router.register(r'resources-upload', ResourceUploadViewSet, basename='resources-upload')
 router.register(r'resources/shared-resource-link', SharedResourceLinkViewSet, basename='resources-shared-resource-link')
 
+# Content Management System
+router.register(r'content/items', ContentItemViewSet, basename='content-item')
+router.register(r'content/teacher', TeacherContentViewSet, basename='content-teacher')
+router.register(r'content/institution', InstitutionContentViewSet, basename='content-institution')
+router.register(r'content/admin', AdminContentViewSet, basename='content-admin')
+router.register(r'content/engagement', ContentEngagementViewSet, basename='content-engagement')
+router.register(r'content/tags', ContentTagViewSet, basename='content-tag')
+router.register(r'content/assignments', ContentAssignmentViewSet, basename='content-assignment')
+router.register(r'content/recommendations', ContentRecommendationViewSet, basename='content-recommendation')
+
 # Community & Extensions
 router.register(r'discussions/thread', ThreadViewSet, basename='discussions-thread')
 router.register(r'discussions/post', PostViewSet, basename='discussions-post')
@@ -117,6 +137,12 @@ router.register(r'parent-portal/weekly-summary', WeeklySummaryViewSet, basename=
 router.register(r'parent-portal/risk-alert', RiskAlertViewSet, basename='parent_portal-risk-alert')
 router.register(r'tutoring/match-request', MatchRequestViewSet, basename='tutoring-match-request')
 router.register(r'tutoring/peer-points-ledger', PeerPointsLedgerViewSet, basename='tutoring-peer-points-ledger')
+from tutoring.views import TutorProfileViewSet, TutoringBountyViewSet
+router.register(r'tutoring/tutor-profiles', TutorProfileViewSet, basename='tutoring-profiles')
+router.register(r'tutoring/bounties', TutoringBountyViewSet, basename='tutoring-bounties')
+
+from live_sessions.views import MissedSessionRecoveryViewSet
+router.register(r'live-sessions/missed-recovery', MissedSessionRecoveryViewSet, basename='live_sessions-missed-recovery')
 
 # Intelligence Engine
 router.register(r'intelligence/actions', NextBestActionViewSet, basename='intelligence-actions')
@@ -136,9 +162,17 @@ router.register(r'intelligence/story-cards', StoryCardViewSet, basename='intelli
 router.register(r'intelligence/health-history', InstitutionHealthHistoryViewSet, basename='intelligence-health-history')
 router.register(r'intelligence/impact', ImpactComparisonViewSet, basename='intelligence-impact')
 
+from interventions.views import StudentRiskAlertViewSet, InterventionPlanViewSet, InterventionActionViewSet
+router.register(r'interventions/alerts', StudentRiskAlertViewSet, basename='interventions-alerts')
+router.register(r'interventions/plans', InterventionPlanViewSet, basename='interventions-plans')
+router.register(r'interventions/actions', InterventionActionViewSet, basename='interventions-actions')
+
 
 from institutions.views import InstitutionOnboardingAPIView
 from marketplace.views import IndependentTeacherOnboardingView
+
+from accounts.views import PublicProfileView
+from tutoring.views import PeerTutoringDashboardView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -148,12 +182,16 @@ urlpatterns = [
     path('api/v1/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
+    path('api/v1/tutoring/dashboard/', PeerTutoringDashboardView.as_view(), name='tutoring-dashboard'),
+    path('api/v1/users/profile/<str:username>/', PublicProfileView.as_view(), name='public-profile'),
+    
     # Custom dashboard routes
     path('api/v1/analytics/student-dashboard/', StudentDashboardView.as_view(), name='student_dashboard_api'),
     path('api/v1/analytics/teacher-dashboard/', TeacherDashboardView.as_view(), name='teacher_dashboard_api'),
     path('api/v1/analytics/parent-dashboard/', ParentDashboardView.as_view(), name='parent_dashboard_api'),
     path('api/v1/analytics/admin-dashboard/', AdminDashboardView.as_view(), name='admin_dashboard_api'),
     path('api/v1/analytics/institution-dashboard/', InstitutionDashboardView.as_view(), name='institution_dashboard_api'),
+    path('api/v1/analytics/churn-signals/', CustomerSuccessChurnView.as_view(), name='admin_churn_signals_api'),
     path('api/v1/institutions/admin-pin-reset/', AdminPinResetView.as_view(), name='admin_pin_reset'),
     
     # Institution Onboarding Phase 1-3
@@ -168,4 +206,21 @@ urlpatterns = [
     path('api/v1/intelligence/health/', InstitutionHealthView.as_view(), name='intelligence-health'),
 
     path('api/v1/marketplace/onboard-teacher/', IndependentTeacherOnboardingView.as_view(), name='independent_teacher_onboard'),
+    path('api/v1/marketplace/pesapal-checkout/', PesapalCheckoutInitView.as_view(), name='pesapal-checkout'),
+    path('api/v1/marketplace/pesapal-ipn/', PesapalIPNWebhookView.as_view(), name='pesapal-ipn'),
+
+    # Content Delivery endpoints
+    path('api/v1/content/library/', ContentDeliveryView.as_view(), name='content-library'),
+    path('api/v1/content/classroom/', ClassContentView.as_view(), name='content-classroom'),
+
+    # Content Dashboard endpoints
+    path('api/v1/content/dashboard/student/', StudentContentDashboardView.as_view(), name='content-dashboard-student'),
+    path('api/v1/content/dashboard/teacher/', TeacherContentDashboardView.as_view(), name='content-dashboard-teacher'),
+    path('api/v1/content/dashboard/parent/', ParentContentDashboardView.as_view(), name='content-dashboard-parent'),
 ]
+
+# Serve media files in development
+from django.conf import settings
+from django.conf.urls.static import static
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

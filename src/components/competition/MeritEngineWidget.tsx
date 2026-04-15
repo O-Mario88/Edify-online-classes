@@ -25,12 +25,12 @@ export const MeritEngineWidget: React.FC<MeritEngineWidgetProps> = ({
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'academic': return <CheckCircle className="w-4 h-4 text-blue-500" />;
-      case 'attendance': return <Clock className="w-4 h-4 text-green-500" />;
+      case 'academic': return <CheckCircle className="w-4 h-4 text-blue-700" />;
+      case 'attendance': return <Clock className="w-4 h-4 text-emerald-700" />;
       case 'consistency': return <TrendingUp className="w-4 h-4 text-orange-500" />;
       case 'peer_support': return <HeartHandshake className="w-4 h-4 text-pink-500" />;
-      case 'improvement': return <TrendingUp className="w-4 h-4 text-purple-500" />;
-      default: return <Award className="w-4 h-4 text-gray-500" />;
+      case 'improvement': return <TrendingUp className="w-4 h-4 text-purple-700" />;
+      default: return <Award className="w-4 h-4 text-gray-700" />;
     }
   };
 
@@ -39,7 +39,7 @@ export const MeritEngineWidget: React.FC<MeritEngineWidgetProps> = ({
       <CardHeader className="pb-3 border-b border-gray-100 bg-gray-50/50">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg text-gray-800">
-             <Award className="w-5 h-5 text-indigo-500" />
+             <Award className="w-5 h-5 text-indigo-700" />
              Merit & Points
           </CardTitle>
           <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 hover:bg-indigo-100">
@@ -50,12 +50,12 @@ export const MeritEngineWidget: React.FC<MeritEngineWidgetProps> = ({
       <CardContent className="p-0">
         <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
            <div className="p-4 text-center">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Total Merits</p>
-              <p className="text-3xl font-black text-indigo-600">{totalPoints}</p>
+              <p className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Total Merits</p>
+              <p className="text-3xl font-black text-indigo-800">{totalPoints}</p>
            </div>
            <div className="p-4 text-center">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">House Contribution</p>
-              <p className="text-3xl font-black text-blue-600">+{housePointsContributed}</p>
+              <p className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">House Contribution</p>
+              <p className="text-3xl font-black text-blue-800">+{housePointsContributed}</p>
            </div>
         </div>
 
@@ -70,16 +70,16 @@ export const MeritEngineWidget: React.FC<MeritEngineWidgetProps> = ({
                        <span className="font-medium text-gray-700">{event.description}</span>
                     </div>
                     <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-gray-800">
                         {new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
-                      <span className="font-bold text-green-600">+{event.points}</span>
+                      <span className="font-bold text-emerald-800">+{event.points}</span>
                     </div>
                  </div>
                ))}
              </div>
            ) : (
-             <p className="text-sm text-gray-500 text-center py-4">No points earned recently. Complete a module to start earning!</p>
+             <p className="text-sm text-gray-700 text-center py-4">No points earned recently. Complete a module to start earning!</p>
            )}
         </div>
       </CardContent>

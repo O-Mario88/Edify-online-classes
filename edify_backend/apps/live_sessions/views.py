@@ -1,9 +1,9 @@
 from rest_framework import viewsets, status, exceptions
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import LiveSession, SessionReminder
-from .serializers import LiveSessionSerializer, SessionReminderSerializer
+from .models import LiveSession, SessionReminder, MissedSessionRecovery
+from .serializers import LiveSessionSerializer, SessionReminderSerializer, MissedSessionRecoverySerializer
 from institutions.models import InstitutionMembership
 from django.db.models import Q
 import time
@@ -100,3 +100,21 @@ class SessionReminderViewSet(TenantFilterMixin, viewsets.ModelViewSet):
             Q(session__lesson__parent_class__visibility='public')
         ).distinct()
 
+
+class MissedSessionRecoveryViewSet(viewsets.ModelViewSet):
+    """
+    Retrieve missed session recovery records.
+    Filter by ?session=<id> to get recovery for a specific session.
+    """
+    serializer_class = MissedSessionRecoverySerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        qs = MissedSessionRecovery.objects.select_related(
+            'session', 'session__lesson', 'student'
+        ).prefetch_related('assignments').order_by('-created_at')
+
+        session_id = self.request.query_params.get('session')
+        if session_id:
+            qs = qs.filter(session_id=session_id)
+        return qs

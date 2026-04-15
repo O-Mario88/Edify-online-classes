@@ -10,43 +10,44 @@ import {
 } from 'lucide-react';
 import { PermissionGuard } from '../../components/auth/PermissionGuard';
 import { Permission } from '../../lib/permissions.matrix';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
 
 export const AnalyticsLayout = () => {
   const location = useLocation();
 
   const navItems = [
     {
-      to: '/analytics/platform',
+      to: '/dashboard/analytics/platform',
       icon: <BarChart3 className="w-5 h-5" />,
       label: 'Executive Overview',
       permission: Permission.VIEW_GLOBAL_ANALYTICS,
     },
     {
-      to: '/analytics/institution',
+      to: '/dashboard/analytics/institution',
       icon: <School className="w-5 h-5" />,
       label: 'Institution Intelligence',
       permission: Permission.VIEW_INSTITUTION_DASHBOARD,
     },
     {
-      to: '/analytics/learning',
+      to: '/dashboard/analytics/learning',
       icon: <BookOpen className="w-5 h-5" />,
       label: 'Learning & Assessment',
       permission: Permission.VIEW_ALL_GRADES,
     },
     {
-      to: '/analytics/exams',
+      to: '/dashboard/analytics/exams',
       icon: <GraduationCap className="w-5 h-5" />,
       label: 'National Exams',
       permission: Permission.MANAGE_EXAMS,
     },
     {
-      to: '/analytics/marketplace',
+      to: '/dashboard/analytics/marketplace',
       icon: <Store className="w-5 h-5" />,
       label: 'Marketplace & Revenue',
       permission: Permission.MANAGE_BILLING,
     },
     {
-      to: '/analytics/system',
+      to: '/dashboard/analytics/system',
       icon: <Activity className="w-5 h-5" />,
       label: 'System Health',
       permission: Permission.MANAGE_PLATFORM_SETTINGS,
@@ -108,7 +109,9 @@ export const AnalyticsLayout = () => {
             </div>
           </div>
 
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </div>
       </main>
     </div>

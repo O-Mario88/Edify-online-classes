@@ -6,3 +6,9 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = '__all__'
 
+from .models import WhatsAppMessage
+
+class WhatsAppMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WhatsAppMessage
+        fields = '__all__'

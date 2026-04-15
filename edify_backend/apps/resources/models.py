@@ -4,6 +4,13 @@ from institutions.models import Institution
 from curriculum.models import Subject, ClassLevel, Topic
 from classes.models import Class
 
+# Import content models so they're discoverable by Django migrations
+from .content_models import (
+    ContentItem, ContentVersion, ContentTag, ContentItemTag,
+    ContentVisibilityRule, ContentAuditLog, ContentEngagement,
+    ContentAssignment, ContentRecommendation, ContentAccessSession,
+)
+
 class Resource(models.Model):
     OWNER_TYPE_CHOICES = [
         ('platform', 'Platform Global'),

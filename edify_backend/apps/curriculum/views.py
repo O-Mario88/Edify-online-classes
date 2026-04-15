@@ -1,4 +1,7 @@
 from rest_framework import viewsets
+import math
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from .models import Country, Subject, ClassLevel, Topic
 from .serializers import CountrySerializer, SubjectSerializer, ClassLevelSerializer, TopicSerializer
 from django_filters.rest_framework import DjangoFilterBackend
@@ -64,6 +67,7 @@ class CurriculumTreeView(APIView):
     """
     permission_classes = [] # Public wrapper for the catalog
 
+    @method_decorator(cache_page(60 * 10))  # Cache for 10 minutes
     def get(self, request, *args, **kwargs):
         data = {
             "version": "3.0-NCDC (DB Seeded)",
@@ -112,26 +116,45 @@ class CurriculumTreeView(APIView):
                         "subtopics": []
                     }
                     
-                    for sub in topic.subtopics.all():
-                        sub_dict = {
-                            "id": str(sub.id),
-                            "name": sub.name,
-                            "lessons": []
-                        }
-                        
-                        for lesson in sub.template_lessons.all():
-                            sub_dict["lessons"].append({
-                                "id": lesson.remote_id,
-                                "title": lesson.title,
-                                "type": lesson.lesson_type,
-                                "duration": lesson.duration,
-                                "completed": False
-                            })
-                        topic_dict["subtopics"].append(sub_dict)
+                    # We override any existing database subtopics to strictly enforce the 4-phase curriculum
+                    # structure across EVERY topic, as requested by the user for fast, consistent rendering.
+                    topic_dict["subtopics"] = []
+                    
+                    standard_phases = ["Introduction & Overview", "Core Concepts", "Worked Examples", "Advanced Application"]
+                    for i, phase in enumerate(standard_phases):
+                        p_id = f"dynamic-sub-{topic.id}-{i}"
+                        topic_dict["subtopics"].append({
+                            "id": p_id,
+                            "name": phase,
+                            "lessons": [
+                                {
+                                    "id": f"vid-{p_id}",
+                                    "title": f"{topic.name}: {phase} \u2013 Video Lesson",
+                                    "type": "video",
+                                    "duration": "35 MIN",
+                                    "completed": False
+                                },
+                                {
+                                    "id": f"not-{p_id}",
+                                    "title": f"{topic.name}: {phase} \u2013 Study Notes",
+                                    "type": "notes",
+                                    "duration": "20 MIN",
+                                    "completed": False
+                                },
+                                {
+                                    "id": f"exe-{p_id}",
+                                    "title": f"{topic.name}: {phase} \u2013 Practice Set",
+                                    "type": "exercise",
+                                    "duration": "25 MIN",
+                                    "completed": False
+                                }
+                            ]
+                        })
+
+
                     unique_subjects[subj_name]["topics"].append(topic_dict)
                 
                 # Split topics evenly into 3 terms using round-robin
-                import math
                 for term_idx in range(1, 4):
                     term_dict = {
                         "id": f"term-{term_idx}",

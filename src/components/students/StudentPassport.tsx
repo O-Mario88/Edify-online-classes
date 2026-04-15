@@ -29,7 +29,7 @@ export const StudentPassport: React.FC<StudentPassportProps> = ({ data }) => {
           <div className="absolute top-0 right-0 p-4 opacity-20"><Globe className="w-32 h-32" /></div>
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
              <div>
-                <h2 className="text-sm font-bold tracking-widest uppercase opacity-80 mb-1">Edify Global Learner Passport</h2>
+                <h2 className="text-sm font-bold tracking-widest uppercase opacity-80 mb-1">Maple Global Learner Passport</h2>
                 <h1 className="text-3xl font-black">{data.studentName}</h1>
                 <p className="opacity-90">{data.grade} • {data.house} House</p>
              </div>
@@ -55,19 +55,19 @@ export const StudentPassport: React.FC<StudentPassportProps> = ({ data }) => {
 
                 <div className="grid grid-cols-2 gap-3">
                    <div className="bg-indigo-50/50 p-3 rounded-xl border border-indigo-100 flex flex-col items-center justify-center text-center">
-                      <GraduationCap className="w-5 h-5 text-indigo-500 mb-1" />
-                      <span className="text-[10px] font-bold text-slate-500 uppercase">Core Academic</span>
+                      <GraduationCap className="w-5 h-5 text-indigo-700 mb-1" />
+                      <span className="text-[10px] font-bold text-slate-700 uppercase">Core Academic</span>
                       <span className="text-xl font-black text-slate-800">{data.academicGPA.toFixed(1)}</span>
                    </div>
                    <div className="bg-green-50/50 p-3 rounded-xl border border-green-100 flex flex-col items-center justify-center text-center">
-                      <User className="w-5 h-5 text-green-500 mb-1" />
-                      <span className="text-[10px] font-bold text-slate-500 uppercase">Attendance</span>
+                      <User className="w-5 h-5 text-emerald-700 mb-1" />
+                      <span className="text-[10px] font-bold text-slate-700 uppercase">Attendance</span>
                       <span className="text-xl font-black text-slate-800">{data.attendanceRate}%</span>
                    </div>
                 </div>
 
                 <div className="space-y-3">
-                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><HeartHandshake className="w-3.5 h-3.5" /> Leadership & Honors</h3>
+                   <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5"><HeartHandshake className="w-3.5 h-3.5" /> Leadership & Honors</h3>
                    <div className="flex flex-wrap gap-2">
                      {data.leadershipRoles.map((role, i) => (
                        <Badge key={i} variant="secondary" className="bg-yellow-50 text-yellow-800 hover:bg-yellow-50 border border-yellow-200">
@@ -78,11 +78,11 @@ export const StudentPassport: React.FC<StudentPassportProps> = ({ data }) => {
                 </div>
 
                 <div className="space-y-3">
-                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><Briefcase className="w-3.5 h-3.5" /> Career Signals</h3>
+                   <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5"><Briefcase className="w-3.5 h-3.5" /> Career Signals</h3>
                    <div className="flex flex-wrap gap-2">
                      {data.careerSignals.map((signal, i) => (
-                       <Badge key={i} variant="outline" className="text-slate-600 border-slate-200">
-                         <Sparkles className="w-3 h-3 mr-1 text-purple-500" /> {signal}
+                       <Badge key={i} variant="outline" className="text-slate-800 border-slate-200">
+                         <Sparkles className="w-3 h-3 mr-1 text-purple-700" /> {signal}
                        </Badge>
                      ))}
                    </div>
@@ -94,14 +94,14 @@ export const StudentPassport: React.FC<StudentPassportProps> = ({ data }) => {
                
                 <div>
                    <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                     <Code className="w-4 h-4 text-indigo-500" /> Competency Matrix
+                     <Code className="w-4 h-4 text-indigo-700" /> Competency Matrix
                    </h3>
                    <div className="space-y-4">
                       {data.topSkills.map((skill, i) => (
                         <div key={i}>
                            <div className="flex justify-between text-sm font-medium mb-1">
                               <span className="text-slate-700">{skill.name}</span>
-                              <span className="text-indigo-600">{skill.level}%</span>
+                              <span className="text-indigo-800">{skill.level}%</span>
                            </div>
                            <Progress value={skill.level} className="h-2 [&>div]:bg-indigo-500" />
                         </div>
@@ -111,7 +111,7 @@ export const StudentPassport: React.FC<StudentPassportProps> = ({ data }) => {
 
                 <div>
                    <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                     <Award className="w-4 h-4 text-purple-500" /> Portfolio & Projects
+                     <Award className="w-4 h-4 text-purple-700" /> Portfolio & Projects
                    </h3>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {data.projects.map((proj, i) => (
@@ -121,7 +121,7 @@ export const StudentPassport: React.FC<StudentPassportProps> = ({ data }) => {
                            </div>
                            <div>
                               <p className="font-bold text-slate-800 text-sm line-clamp-1">{proj.title}</p>
-                              <p className="text-xs text-slate-500 uppercase tracking-wider mt-0.5">{proj.type}</p>
+                              <p className="text-xs text-slate-700 uppercase tracking-wider mt-0.5">{proj.type}</p>
                            </div>
                         </div>
                       ))}
@@ -137,7 +137,7 @@ export const StudentPassport: React.FC<StudentPassportProps> = ({ data }) => {
 };
 
 const FileIcon = ({ type }: { type: string }) => {
-  if (type === 'code') return <Code className="w-4 h-4 text-slate-400" />;
+  if (type === 'code') return <Code className="w-4 h-4 text-slate-800" />;
   if (type === 'presentation') return <Sparkles className="w-4 h-4 text-yellow-500" />;
   return <Briefcase className="w-4 h-4 text-blue-400" />;
 }

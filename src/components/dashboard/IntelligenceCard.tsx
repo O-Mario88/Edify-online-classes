@@ -50,7 +50,7 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
 }) => {
   
   // Determine Trend Styling
-  let trendColor = 'text-gray-400';
+  let trendColor = 'text-gray-800';
   if (trendDirection === 'up') trendColor = trendIsGood ? 'text-emerald-600' : 'text-rose-600';
   if (trendDirection === 'down') trendColor = trendIsGood ? 'text-rose-600' : 'text-emerald-600';
 
@@ -76,8 +76,8 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
       alertClass = 'text-[#36D399] font-bold';
       break;
     default:
-      alertIcon = <Minus className="w-4 h-4 text-slate-500 mr-1.5 flex-shrink-0" />;
-      alertClass = 'text-slate-400';
+      alertIcon = <Minus className="w-4 h-4 text-slate-700 mr-1.5 flex-shrink-0" />;
+      alertClass = 'text-slate-800';
       break;
   }
 
@@ -87,9 +87,9 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
     
     if (actionLink) {
       return (
-        <Link to={actionLink} className="p-0 m-0 leading-none">
-          <Button size="sm" variant={actionVariant} className="w-full text-xs font-semibold py-1 h-8">
-            {actionVariant === 'default' && <Zap className="w-3 h-3 mr-1" />}
+        <Link to={actionLink} className="p-0 m-0 leading-none w-full flex justify-center">
+          <Button size="sm" variant={actionVariant} className="w-[85%] text-[13px] font-semibold py-1.5 h-9 rounded-full shadow-sm hover:w-[90%] transition-all">
+            {actionVariant === 'default' && <Zap className="w-3.5 h-3.5 mr-1.5" />}
             {actionLabel}
           </Button>
         </Link>
@@ -97,8 +97,8 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
     }
     
     return (
-      <Button size="sm" variant={actionVariant} onClick={actionCallback} className="w-full text-xs font-semibold py-1 h-8">
-         {actionVariant === 'default' && <Zap className="w-3 h-3 mr-1" />}
+      <Button size="sm" variant={actionVariant} onClick={actionCallback} className="w-[85%] text-[13px] font-semibold py-1.5 h-9 rounded-full shadow-sm hover:w-[90%] transition-all">
+         {actionVariant === 'default' && <Zap className="w-3.5 h-3.5 mr-1.5" />}
          {actionLabel}
       </Button>
     );
@@ -107,8 +107,8 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
   return (
     <Card className={`h-full transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between overflow-hidden relative rounded-2xl group ${riskBg}`}>
       <CardHeader className="p-5 pb-2 flex flex-row items-center justify-between">
-        <p className="text-[13px] font-medium text-slate-400 truncate max-w-full" title={title}>{title}</p>
-        {icon && <div className="text-slate-500 group-hover:text-[#3ABFF8] transition-colors opacity-70">{icon}</div>}
+        <p className="text-[13px] font-medium text-slate-800 truncate max-w-full" title={title}>{title}</p>
+        {icon && <div className="text-slate-700 group-hover:text-[#3ABFF8] transition-colors opacity-70">{icon}</div>}
       </CardHeader>
       
       <CardContent className="p-5 pt-1 flex-grow">
@@ -125,7 +125,7 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
                  {trendDirection === 'up' && <ArrowUpRight className="w-3.5 h-3.5 ml-0.5" />}
                  {trendDirection === 'down' && <ArrowDownRight className="w-3.5 h-3.5 ml-0.5" />}
                </div>
-               {trendLabel && <span className="text-[11px] text-slate-500 mt-1 text-right whitespace-nowrap">{trendLabel}</span>}
+               {trendLabel && <span className="text-[11px] text-slate-700 mt-1 text-right whitespace-nowrap">{trendLabel}</span>}
             </div>
           )}
         </div>
@@ -139,37 +139,34 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
                   <span>{riskLevel === 'warning' ? 'Attention Needed!' : riskLevel === 'healthy' ? 'New Record Achieved!' : 'Alert Triggered!'}</span>
                 </div>
              )}
-             <p className="text-[15px] leading-relaxed text-slate-400 font-normal">
+             <p className="text-[15px] leading-relaxed text-slate-800 font-normal">
                {alertText}
              </p>
           </div>
         )}
       </CardContent>
 
-      <CardFooter className="p-4 pt-0 mt-auto flex flex-col gap-3">
-        <div className="flex w-full items-center justify-between">
-           {/* Navigation Dots if slider logic applied elsewhere */}
-           <div className="flex gap-1.5 mx-auto">
-             <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-             <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-             <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-           </div>
-           {/* Drill Down */}
-           {drillDownLink && drillDownText ? (
-              <Link to={drillDownLink} className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center hover:underline">
-                {drillDownText} <ChevronRight className="w-3 h-3 ml-0.5" />
-              </Link>
-           ) : (
-              <div></div> // Empty flex spacer
-           )}
-           
-           {/* Action */}
-           {actionLabel && (
-              <div className="flex-shrink-0">
-                {renderAction()}
-              </div>
-           )}
-        </div>
+      <CardFooter className="p-4 pt-0 mt-auto flex flex-col items-center gap-3 w-full">
+         {drillDownLink && drillDownText && (
+            <div className="w-full flex justify-center">
+               <Link to={drillDownLink} className="text-[12px] font-bold text-indigo-700 hover:text-indigo-800 flex items-center hover:underline">
+                 {drillDownText} <ChevronRight className="w-3 h-3 ml-0.5" />
+               </Link>
+            </div>
+         )}
+         
+         {actionLabel && (
+            <div className="w-full flex justify-center">
+              {renderAction()}
+            </div>
+         )}
+         
+         {/* Navigation Dots if slider logic applied elsewhere */}
+         <div className="flex gap-1.5 mx-auto mt-1">
+           <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+           <div className="w-1.5 h-1.5 rounded-full bg-slate-400/50"></div>
+           <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+         </div>
       </CardFooter>
     </Card>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,7 +35,8 @@ export const TeacherLessonStudio: React.FC = () => {
         class_id: classId
       });
       
-      const meetingUrl = res.meeting_url || res.url || 'https://meet.google.com/placeholder';
+      const responseData: any = res.data || {};
+      const meetingUrl = responseData.meeting_url || responseData.url || 'https://meet.google.com/placeholder';
       toast.success(`Live session provisioned! Access: ${meetingUrl}`);
       
       // Optional: Copy URL to clipboard
@@ -57,11 +58,29 @@ export const TeacherLessonStudio: React.FC = () => {
     }
   };
 
-  const lessonTimeline = [
-    { id: 1, title: 'Introduction to Cell Structure', status: 'published', date: 'Oct 02', hasNotes: true, hasVideo: true, attachments: 2 },
-    { id: 2, title: 'Plant vs Animal Cells', status: 'published', date: 'Oct 04', hasNotes: true, hasVideo: false, attachments: 1 },
-    { id: 3, title: 'Cellular Respiration (Theory)', status: 'draft', date: 'Oct 09', hasNotes: false, hasVideo: false, attachments: 0 },
-  ];
+  const [lessonTimeline, setLessonTimeline] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchTimeline = async () => {
+      try {
+        const { data, error } = await apiClient.get('/lessons/lessons/');
+        if (error) throw error;
+        if (data && data.length > 0) {
+           setLessonTimeline(data);
+        } else {
+           // Fallback for visual mock if none returned
+           setLessonTimeline([
+             { id: 1, title: 'Introduction to Cell Structure', status: 'published', date: 'Oct 02', hasNotes: true, hasVideo: true, attachments: 2 },
+             { id: 2, title: 'Plant vs Animal Cells', status: 'published', date: 'Oct 04', hasNotes: true, hasVideo: false, attachments: 1 },
+             { id: 3, title: 'Cellular Respiration (Theory)', status: 'draft', date: 'Oct 09', hasNotes: false, hasVideo: false, attachments: 0 }
+           ]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch lessons", err);
+      }
+    };
+    fetchTimeline();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-16">
@@ -84,7 +103,7 @@ export const TeacherLessonStudio: React.FC = () => {
              <Button variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100" onClick={provisionWebinar} disabled={isProvisioning}>
                <CalendarIcon className="w-4 h-4 mr-2" /> {isProvisioning ? 'Provisioning...' : 'Live Schedule'}
              </Button>
-             <Button onClick={() => console.log('Create lesson dialog...')}>
+             <Button onClick={() => toast.info('Lesson creation wizard coming soon — use the Assessment Engine below to create assessments.')}>
                <PlusCircle className="w-4 h-4 mr-2" /> New Lesson
              </Button>
           </div>
@@ -181,7 +200,7 @@ export const TeacherLessonStudio: React.FC = () => {
                    <p className="text-gray-500 mb-6 font-medium text-sm">
                      Create timed quizzes or standard assignments. The system will auto-grade objective MCQ questions and update the UNEB Readiness scores.
                    </p>
-                   <Button onClick={() => console.log('Open Quiz Creator...')}>
+                   <Button onClick={() => toast.info('Quiz creator coming soon — auto-graded MCQ assessments with UNEB Readiness scoring.')}>
                      <PlusCircle className="w-4 h-4 mr-2" /> Create New Assessment
                    </Button>
                 </div>

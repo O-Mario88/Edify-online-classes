@@ -68,7 +68,7 @@
     --secondary-foreground: 0 0% 100%;
 
     --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted-foreground: 214 20% 78%;
 
     --accent: 37 90% 55%;
     --accent-foreground: 222.2 47% 11%;
@@ -145,7 +145,7 @@ table th, table td {
 .dark [class*="text-zinc-800"],
 .dark [class*="text-slate-950"],
 .dark [class*="text-gray-950"] {
-  color: #f1f5f9 !important;
+  color: #ffffff !important;
 }
 
 .dark [class*="text-slate-700"],
@@ -157,29 +157,70 @@ table th, table td {
 .dark [class*="text-slate-500"],
 .dark [class*="text-gray-500"],
 .dark [class*="text-zinc-500"] {
-  color: #cbd5e1 !important;
+  color: #e2e8f0 !important;
 }
 
 .dark [class*="text-slate-400"],
 .dark [class*="text-gray-400"],
 .dark [class*="text-zinc-400"] {
-  color: #94a3b8 !important;
+  color: #cbd5e1 !important;
 }
 
 /* Colored semantic text — keep vibrant but brighten for dark bg */
 .dark [class*="text-indigo-700"] { color: #a5b4fc !important; }
-.dark [class*="text-indigo-600"] { color: #818cf8 !important; }
+.dark [class*="text-indigo-600"] { color: #c7d2fe !important; }
 .dark [class*="text-blue-700"]   { color: #93c5fd !important; }
-.dark [class*="text-blue-600"]   { color: #60a5fa !important; }
+.dark [class*="text-blue-600"]   { color: #93c5fd !important; }
+.dark [class*="text-blue-800"]   { color: #93c5fd !important; }
 .dark [class*="text-emerald-700"]{ color: #6ee7b7 !important; }
-.dark [class*="text-green-700"]  { color: #6ee7b7 !important; }
-.dark [class*="text-green-600"]  { color: #4ade80 !important; }
+.dark [class*="text-emerald-800"]{ color: #6ee7b7 !important; }
+.dark [class*="text-emerald-600"]{ color: #6ee7b7 !important; }
+.dark [class*="text-green-700"]  { color: #86efac !important; }
+.dark [class*="text-green-600"]  { color: #86efac !important; }
+.dark [class*="text-green-800"]  { color: #86efac !important; }
+.dark [class*="text-green-500"]  { color: #4ade80 !important; }
 .dark [class*="text-red-700"]    { color: #fca5a5 !important; }
-.dark [class*="text-red-600"]    { color: #f87171 !important; }
+.dark [class*="text-red-600"]    { color: #fca5a5 !important; }
+.dark [class*="text-red-800"]    { color: #fca5a5 !important; }
+.dark [class*="text-red-500"]    { color: #f87171 !important; }
 .dark [class*="text-amber-700"]  { color: #fcd34d !important; }
-.dark [class*="text-amber-800"]  { color: #fbbf24 !important; }
-.dark [class*="text-orange-600"] { color: #fb923c !important; }
+.dark [class*="text-amber-800"]  { color: #fcd34d !important; }
+.dark [class*="text-amber-600"]  { color: #fcd34d !important; }
+.dark [class*="text-orange-600"] { color: #fdba74 !important; }
+.dark [class*="text-orange-700"] { color: #fdba74 !important; }
+.dark [class*="text-orange-800"] { color: #fdba74 !important; }
+.dark [class*="text-orange-500"] { color: #fb923c !important; }
 .dark [class*="text-rose-700"]   { color: #fda4af !important; }
+.dark [class*="text-rose-600"]   { color: #fda4af !important; }
+.dark [class*="text-rose-800"]   { color: #fda4af !important; }
+.dark [class*="text-rose-500"]   { color: #fb7185 !important; }
+.dark [class*="text-purple-700"] { color: #c4b5fd !important; }
+.dark [class*="text-purple-600"] { color: #c4b5fd !important; }
+.dark [class*="text-purple-800"] { color: #c4b5fd !important; }
+.dark [class*="text-yellow-700"] { color: #fde68a !important; }
+.dark [class*="text-yellow-600"] { color: #fde68a !important; }
+.dark [class*="text-yellow-800"] { color: #fde68a !important; }
+.dark [class*="text-teal-700"]   { color: #5eead4 !important; }
+.dark [class*="text-teal-600"]   { color: #5eead4 !important; }
+.dark [class*="text-cyan-700"]   { color: #67e8f9 !important; }
+.dark [class*="text-cyan-600"]   { color: #67e8f9 !important; }
+
+/* Colored -900 shades used in badges and inline labels */
+.dark [class*="text-amber-900"]  { color: #fcd34d !important; }
+.dark [class*="text-red-900"]    { color: #fca5a5 !important; }
+.dark [class*="text-green-900"]  { color: #86efac !important; }
+.dark [class*="text-blue-900"]   { color: #93c5fd !important; }
+.dark [class*="text-orange-900"] { color: #fdba74 !important; }
+.dark [class*="text-yellow-900"] { color: #fde68a !important; }
+.dark [class*="text-rose-900"]   { color: #fda4af !important; }
+.dark [class*="text-emerald-900"]{ color: #6ee7b7 !important; }
+.dark [class*="text-purple-900"] { color: #c4b5fd !important; }
+
+/* CardDescription / muted text */
+.dark [class*="text-zinc-500"],
+.dark [class*="text-zinc-400"] {
+  color: #cbd5e1 !important;
+}
 
 /* ── 2. NUCLEAR BACKGROUND DISSOLVE ─────────────────────────── */
 /* Every hardcoded bg-white, bg-*-50, bg-*-100 melts into glass  */
@@ -261,7 +302,7 @@ table th, table td {
 .dark thead,
 .dark th {
   background-color: rgba(255, 255, 255, 0.04) !important;
-  color: #94a3b8 !important;
+  color: #cbd5e1 !important;
   border-bottom-color: rgba(255, 255, 255, 0.1) !important;
 }
 

@@ -59,9 +59,9 @@ const MarketplaceTopicPage: React.FC = () => {
       })
     ])
     .then(([subRes, topRes, listingsRes]) => {
-      setRootSubject(subRes.data);
-      setTopic(topRes.data);
-      setLiveListings(listingsRes.data.results || listingsRes.data);
+      setRootSubject((subRes.data as any));
+      setTopic((topRes.data as any));
+      setLiveListings(((listingsRes.data as any) as any).results || (listingsRes.data as any));
       setLoading(false);
     })
     .catch(err => {

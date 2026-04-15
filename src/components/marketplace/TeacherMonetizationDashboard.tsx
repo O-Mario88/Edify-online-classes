@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Progress } from '../ui/progress';
 import { AlertCircle, CheckCircle, Clock, Smartphone, Info } from 'lucide-react';
-import { apiClient } from '../../lib/api';
+import { apiClient } from '../../lib/apiClient';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 
@@ -114,7 +114,7 @@ export const TeacherMonetizationDashboard: React.FC = () => {
         }
     };
 
-    if (!overview) return <div className="p-8 text-center text-gray-500">Loading payment dashboard...</div>;
+    if (!overview) return <div className="p-8 text-center text-gray-700">Loading payment dashboard...</div>;
 
     const progressPercentage = (Number(overview.recovered_amount) / Number(overview.total_obligation)) * 100;
 
@@ -125,25 +125,25 @@ export const TeacherMonetizationDashboard: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">Access Fee Progress</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-700">Access Fee Progress</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-gray-900">
                             UGX {Number(overview.recovered_amount).toLocaleString()}
                         </div>
-                        <p className="text-xs text-gray-500 mb-2">of UGX {Number(overview.total_obligation).toLocaleString()} total</p>
+                        <p className="text-xs text-gray-700 mb-2">of UGX {Number(overview.total_obligation).toLocaleString()} total</p>
                         <Progress value={progressPercentage} className="h-2" />
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-500">Remaining Balance</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-700">Remaining Balance</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-orange-600">
                             UGX {Number(overview.remaining_balance).toLocaleString()}
                         </div>
-                        <p className="text-xs text-gray-500">Auto-deducted in chunks of 60k</p>
+                        <p className="text-xs text-gray-700">Auto-deducted in chunks of 60k</p>
                     </CardContent>
                 </Card>
                 <Card className="lg:col-span-2 border-green-500 bg-green-50">
@@ -159,7 +159,7 @@ export const TeacherMonetizationDashboard: React.FC = () => {
                                     <div className="text-3xl font-bold text-green-700">
                                         UGX {Number(eligibility.net_payable || 0).toLocaleString()}
                                     </div>
-                                    <p className="text-sm text-green-600 mt-1">
+                                    <p className="text-sm text-emerald-800 mt-1">
                                         {eligibility.eligible 
                                             ? "Available for immediate Mobile Money disbursement"
                                             : eligibility.reason}
@@ -178,11 +178,11 @@ export const TeacherMonetizationDashboard: React.FC = () => {
                                     >
                                         {loadingPayout ? "Processing..." : "Request Payout Now"}
                                     </Button>
-                                    {!profile && <span className="text-xs text-red-500 text-center">Missing Profile</span>}
+                                    {!profile && <span className="text-xs text-red-700 text-center">Missing Profile</span>}
                                 </div>
                              </div>
                         ) : (
-                            <div className="text-sm text-gray-500">Loading payout rules...</div>
+                            <div className="text-sm text-gray-700">Loading payout rules...</div>
                         )}
                         {payoutMessage && (
                             <div className="mt-3 text-sm font-medium p-2 bg-white rounded border border-green-200">
@@ -227,7 +227,7 @@ export const TeacherMonetizationDashboard: React.FC = () => {
                                         value={mobileNumber}
                                         onChange={e => setMobileNumber(e.target.value)}
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">Transactions will be sent from platform source: 0777078032</p>
+                                    <p className="text-xs text-gray-700 mt-1">Transactions will be sent from platform source: 0777078032</p>
                                 </div>
                                 <Button 
                                     className="w-full" 
@@ -244,10 +244,10 @@ export const TeacherMonetizationDashboard: React.FC = () => {
                     <Card className="bg-blue-50 border-blue-200">
                         <CardContent className="p-4">
                             <div className="flex gap-3">
-                                <Info className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                                <Info className="h-5 w-5 text-blue-800 flex-shrink-0" />
                                 <div className="text-sm text-blue-800">
                                     <p className="font-semibold mb-1">How it works</p>
-                                    <p>Upon requesting a payout, the Edify command engine immediately assesses your fee recovery. Any available chunk is deducted safely before your net total is routed to your mobile money account using <strong>automatic disbursement.</strong></p>
+                                    <p>Upon requesting a payout, the Maple command engine immediately assesses your fee recovery. Any available chunk is deducted safely before your net total is routed to your mobile money account using <strong>automatic disbursement.</strong></p>
                                 </div>
                             </div>
                         </CardContent>
@@ -263,14 +263,14 @@ export const TeacherMonetizationDashboard: React.FC = () => {
                     <CardContent>
                         <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
                             {records.length === 0 ? (
-                                <div className="bg-gray-50 p-6 text-center text-gray-500 rounded-lg border border-dashed">No lessons evaluated yet. Ensure your lessons belong to a public class and have active attendees!</div>
+                                <div className="bg-gray-50 p-6 text-center text-gray-700 rounded-lg border border-dashed">No lessons evaluated yet. Ensure your lessons belong to a public class and have active attendees!</div>
                             ) : records.map(r => (
                                 <div key={r.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                                     <div>
                                         <h4 className="font-semibold text-gray-900">{r.lesson_title}</h4>
-                                        <p className="text-sm text-gray-500">Scheduled: {new Date(r.scheduled_at).toLocaleDateString()}</p>
+                                        <p className="text-sm text-gray-700">Scheduled: {new Date(r.scheduled_at).toLocaleDateString()}</p>
                                         {r.status === 'rejected_for_payout' && (
-                                            <p className="text-sm text-red-600 mt-1 flex items-center gap-1 bg-red-50 p-1 px-2 rounded">
+                                            <p className="text-sm text-red-800 mt-1 flex items-center gap-1 bg-red-50 p-1 px-2 rounded">
                                                 <AlertCircle className="h-4 w-4" />
                                                 {r.rejection_reason}
                                             </p>

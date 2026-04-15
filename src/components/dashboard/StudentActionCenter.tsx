@@ -5,7 +5,7 @@ import { Badge } from '../ui/badge';
 import { Clock, PlayCircle, Users, CheckCircle, ArrowRight, AlertCircle } from 'lucide-react';
 import { DashboardGrid } from './layout/DashboardGrid';
 import { DashboardCard } from './layout/DashboardCard';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiGet, API_ENDPOINTS } from '../../lib/apiClient';
 
 // Fallback mock actions if API is unavailable
@@ -81,6 +81,18 @@ const DEFAULT_MOCK_ACTIONS = [
     colorMode: 'red',
     actionText: 'Request Extension',
     icon: 'clock'
+  },
+  {
+    id: 'act-7',
+    type: 'exercise',
+    title: 'Atomic Structure Basics',
+    subtitle: 'Chemistry • Teacher Requested Re-review',
+    postedBy: 'Dr. Sarah Jenkins',
+    status: 'warning',
+    statusLabel: 'Review Priority',
+    colorMode: 'orange',
+    actionText: 'Retry Practice',
+    icon: 'users'
   }
 ];
 
@@ -97,10 +109,13 @@ interface StudentAction {
   icon: string;
 }
 
-export const StudentActionCenter: React.FC = () => {
+export const StudentActionCenter = () => {
   const [actions, setActions] = useState<StudentAction[]>(DEFAULT_MOCK_ACTIONS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  // Modal state for peer/missed actions (expand as needed)
+  const [modalAction, setModalAction] = useState<StudentAction | null>(null);
 
   useEffect(() => {
     const fetchActions = async () => {
@@ -144,8 +159,9 @@ export const StudentActionCenter: React.FC = () => {
   }, []);
 
   return (
-    <DashboardGrid>
-      {error && (
+    <>
+      <DashboardGrid>
+        {error && (
         <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12}>
           <Card className="border-amber-500/30 bg-amber-500/5">
             <CardContent className="p-4 flex items-center gap-3">
@@ -157,6 +173,24 @@ export const StudentActionCenter: React.FC = () => {
       )}
       
       {actions.map((action) => {
+        // Handler for action button
+        const handleAction = () => {
+          if (action.type === 'exercise') {
+            navigate(`/exercises/${action.id}`);
+          } else if (action.type === 'project') {
+            navigate(`/projects`);
+          } else if (action.type === 'assignment') {
+            navigate(`/assignments/${action.id}`);
+          } else if (action.type === 'completed') {
+            navigate(`/assignments/${action.id}/feedback`);
+          } else if (action.type === 'missed') {
+            navigate(`/dashboard/sessions/recover/${action.id}`);
+          } else if (action.type === 'peer') {
+            navigate(`/peer-tutoring`);
+          } else {
+            setModalAction(action);
+          }
+        };
         // Dynamic styling based on colorMode
         const colorStyles = {
           orange: 'border-orange-500/30 bg-orange-500/5 hover:bg-orange-500/10 text-orange-400',
@@ -179,12 +213,12 @@ export const StudentActionCenter: React.FC = () => {
           indigoBadge: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30',
           indigoBtn: 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-900/20 group-hover:shadow-indigo-900/40',
 
-          slate: 'border-slate-500/30 bg-slate-500/5 hover:bg-slate-500/10 text-slate-400',
+          slate: 'border-slate-500/30 bg-slate-500/5 hover:bg-slate-500/10 text-slate-800',
           slateBg: 'bg-slate-500',
-          slateBadge: 'bg-slate-500/20 text-slate-400 border-slate-500/30',
+          slateBadge: 'bg-slate-500/20 text-slate-800 border-slate-500/30',
           slateBtn: 'bg-slate-600 hover:bg-slate-500 shadow-slate-900/20 group-hover:shadow-slate-900/40',
 
-          red: 'border-red-500/30 bg-red-500/5 hover:bg-red-500/10 text-red-500',
+          red: 'border-red-500/30 bg-red-500/5 hover:bg-red-500/10 text-red-700',
           redBg: 'bg-red-500',
           redBadge: 'bg-red-500/20 text-red-400 border-red-500/30',
           redBtn: 'bg-red-600 hover:bg-red-500 shadow-red-900/20 group-hover:shadow-red-900/40'
@@ -211,15 +245,18 @@ export const StudentActionCenter: React.FC = () => {
                     {action.icon === 'check' && <CheckCircle className={`w-5 h-5 text-${action.colorMode}-400`} />}
                   </div>
                   <h3 className="font-bold text-white text-lg leading-tight mb-1">{action.title}</h3>
-                  <p className="text-sm text-slate-400 font-medium mb-1">{action.subtitle}</p>
-                  <p className="text-[11px] text-slate-500 uppercase tracking-wider font-bold">Teacher: {action.postedBy}</p>
+                  <p className="text-sm text-slate-800 font-medium mb-1">{action.subtitle}</p>
+                  <p className="text-[11px] text-slate-700 uppercase tracking-wider font-bold">Teacher: {action.postedBy}</p>
                 </div>
-                <Button className={`w-full text-white shadow-lg ${action.colorMode === 'orange' ? 'bg-orange-600 hover:bg-orange-500 shadow-orange-900/20 group-hover:shadow-orange-900/40' : 
+                <Button
+                  className={`w-full text-white shadow-lg ${action.colorMode === 'orange' ? 'bg-orange-600 hover:bg-orange-500 shadow-orange-900/20 group-hover:shadow-orange-900/40' : 
                                                                  action.colorMode === 'blue' ? 'bg-blue-600 hover:bg-blue-500 shadow-blue-900/20 group-hover:shadow-blue-900/40' : 
                                                                  action.colorMode === 'emerald' ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-900/20 group-hover:shadow-emerald-900/40' : 
                                                                  action.colorMode === 'indigo' ? 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-900/20 group-hover:shadow-indigo-900/40' : 
                                                                  action.colorMode === 'slate' ? 'bg-slate-600 hover:bg-slate-500 shadow-slate-900/20 group-hover:shadow-slate-900/40' : 
-                                                                 'bg-red-600 hover:bg-red-500 shadow-red-900/20 group-hover:shadow-red-900/40'}`}>
+                                                                 'bg-red-600 hover:bg-red-500 shadow-red-900/20 group-hover:shadow-red-900/40'}`}
+                  onClick={handleAction}
+                >
                   {action.actionText} <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </CardContent>
@@ -228,5 +265,16 @@ export const StudentActionCenter: React.FC = () => {
         );
       })}
     </DashboardGrid>
+    {/* Modal for peer/missed actions (placeholder) */}
+    {modalAction && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full">
+          <h2 className="text-lg font-bold mb-4">{modalAction.title}</h2>
+          <p className="mb-4">This action requires a custom modal implementation.</p>
+          <Button onClick={() => setModalAction(null)}>Close</Button>
+        </div>
+      </div>
+    )}
+    </>
   );
 };

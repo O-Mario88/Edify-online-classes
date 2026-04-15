@@ -17,7 +17,7 @@ export const ContinuityPanel: React.FC = () => {
   const navigateToResource = (resourceId: string) => {
     // Navigate to a generic resource viewer or topic page
     // For demo purposes, we alert or route to library, since actual resource viewer is a modal or param
-    navigate(`/dashboard/library?resource=${resourceId}`);
+    navigate(`/library?resource=${resourceId}`);
   };
 
   return (
@@ -28,23 +28,23 @@ export const ContinuityPanel: React.FC = () => {
           <CardContent className="p-4 flex flex-col justify-between h-full space-y-3 relative z-10">
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
+                <div className="p-2 bg-indigo-50 rounded-lg text-indigo-800">
                   <FileText className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-0.5">{lastReadingResource.subject}</p>
+                  <p className="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-0.5">{lastReadingResource.subject}</p>
                   <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{lastReadingResource.title}</h4>
                 </div>
               </div>
             </div>
             
             <div className="space-y-1">
-               <div className="flex justify-between text-xs text-gray-500 font-medium">
+               <div className="flex justify-between text-xs text-gray-700 font-medium">
                  <span>Progress</span>
                  <span>{Math.round(lastReadingResource.progressPercentage)}%</span>
                </div>
                <Progress value={lastReadingResource.progressPercentage} className="h-1.5" />
-               <p className="text-[10px] text-gray-400 mt-1 flex items-center"><Clock className="w-3 h-3 mr-1" /> Last active: {new Date(lastReadingResource.lastActiveAt).toLocaleDateString()}</p>
+               <p className="text-[10px] text-gray-800 mt-1 flex items-center"><Clock className="w-3 h-3 mr-1" /> Last active: {new Date(lastReadingResource.lastActiveAt).toLocaleDateString()}</p>
             </div>
 
             <Button onClick={() => navigateToResource(lastReadingResource.id)} className="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 shadow-none border border-indigo-200">
@@ -60,23 +60,23 @@ export const ContinuityPanel: React.FC = () => {
           <CardContent className="p-4 flex flex-col justify-between h-full space-y-3 relative z-10">
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                <div className="p-2 bg-blue-50 rounded-lg text-blue-800">
                   <Video className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-0.5">{lastVideoResource.subject}</p>
+                  <p className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-0.5">{lastVideoResource.subject}</p>
                   <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{lastVideoResource.title}</h4>
                 </div>
               </div>
             </div>
             
             <div className="space-y-1">
-               <div className="flex justify-between text-xs text-gray-500 font-medium">
+               <div className="flex justify-between text-xs text-gray-700 font-medium">
                  <span>Completion</span>
                  <span>{Math.round(lastVideoResource.progressPercentage)}%</span>
                </div>
                <Progress value={lastVideoResource.progressPercentage} className="h-1.5 indicator-blue-500" />
-               <p className="text-[10px] text-gray-400 mt-1 flex items-center"><Clock className="w-3 h-3 mr-1" /> Last active: {new Date(lastVideoResource.lastActiveAt).toLocaleDateString()}</p>
+               <p className="text-[10px] text-gray-800 mt-1 flex items-center"><Clock className="w-3 h-3 mr-1" /> Last active: {new Date(lastVideoResource.lastActiveAt).toLocaleDateString()}</p>
             </div>
 
             <Button onClick={() => navigateToResource(lastVideoResource.id)} className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 shadow-none border border-blue-200">

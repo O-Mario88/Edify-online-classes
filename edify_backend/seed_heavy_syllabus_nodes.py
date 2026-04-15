@@ -43,25 +43,41 @@ def run():
                 )
                 
                 if created:
-                    # 3 subtopics per topic
-                    for sub_idx in range(3):
+                    # 4 units per topic
+                    for sub_idx in range(4):
                         subtopic_order = sub_idx + 1
                         subtopic, _ = Subtopic.objects.get_or_create(
                             topic=topic,
-                            name=f"Module {subtopic_order} regarding {subj.name}"
+                            name=f"Unit {subtopic_order} regarding {subj.name}"
                         )
                         
-                        # 2 template lessons per subtopic
-                        for les_idx in range(2):
+                        # exactly 3 standard items per unit
+                        for les_idx, l_type in enumerate(['video', 'notes', 'exercise']):
                             TemplateLesson.objects.get_or_create(
                                 subtopic=subtopic,
                                 remote_id=f"test_lesson_{cls.id}_{subj.id}_{topic.id}_{subtopic.id}_{les_idx}",
                                 defaults={
-                                    'title': f"{subj.name} Mastery Part {les_idx + 1}",
-                                    'lesson_type': random.choice(['video', 'reading', 'interactive']),
-                                    'duration': f"{random.randint(20, 60)} minutes"
+                                    'title': f"{subj.name} {l_type.capitalize()} Lesson {subtopic_order}.{les_idx + 1}",
+                                    'lesson_type': l_type,
+                                    'duration': f"{random.randint(15, 30)} minutes"
                                 }
                             )
+                            
+                    # 2 projects per topic
+                    project_subtopic, _ = Subtopic.objects.get_or_create(
+                        topic=topic,
+                        name="Topic Projects"
+                    )
+                    for p_idx in range(2):
+                        TemplateLesson.objects.get_or_create(
+                            subtopic=project_subtopic,
+                            remote_id=f"test_project_{cls.id}_{subj.id}_{topic.id}_{p_idx}",
+                            defaults={
+                                'title': f"{subj.name} Capstone Project {p_idx + 1}",
+                                'lesson_type': 'project',
+                                'duration': "1-2 weeks"
+                            }
+                        )
 
     print("Heavy syllabus seeding completed! Thousands of topics instantiated.")
 

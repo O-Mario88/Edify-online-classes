@@ -320,7 +320,7 @@ export const PeerTutoringPage: React.FC = () => {
           <TabsContent value="groups">
             <div className="space-y-8">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <EditorialPanel variant="glass" padding="sm" radius="full" className="flex-1 relative w-full border border-white">
+                <EditorialPanel variant="glass" padding="sm" radius="xl" className="flex-1 relative w-full border border-white">
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     placeholder="Discover circles..."

@@ -70,11 +70,11 @@ export const Leaderboards: React.FC<LeaderboardsProps> = ({ boards, currentStude
 
   const getIconForType = (type: string) => {
     switch (type) {
-      case 'improvers': return <TrendingUp className="w-4 h-4 text-purple-600" />;
+      case 'improvers': return <TrendingUp className="w-4 h-4 text-purple-800" />;
       case 'peer_support': return <HeartHandshake className="w-4 h-4 text-pink-600" />;
       case 'consistency': return <Zap className="w-4 h-4 text-orange-600" />;
       case 'academic':
-      default: return <Award className="w-4 h-4 text-blue-600" />;
+      default: return <Award className="w-4 h-4 text-blue-800" />;
     }
   };
 
@@ -86,7 +86,7 @@ export const Leaderboards: React.FC<LeaderboardsProps> = ({ boards, currentStude
              <Trophy className="w-5 h-5 text-yellow-500" />
              Class Rankings
           </CardTitle>
-          <Badge variant="outline" className="text-slate-500 text-xs">This Week</Badge>
+          <Badge variant="outline" className="text-slate-700 text-xs">This Week</Badge>
         </div>
       </CardHeader>
       <CardContent className="p-0">
@@ -112,7 +112,7 @@ export const Leaderboards: React.FC<LeaderboardsProps> = ({ boards, currentStude
 
             return (
               <TabsContent key={board.type} value={board.type} className="m-0 p-0">
-                <div className="p-3 bg-slate-50 border-b border-slate-100 text-xs text-slate-500 px-4">
+                <div className="p-3 bg-slate-50 border-b border-slate-100 text-xs text-slate-700 px-4">
                   {board.description}
                 </div>
                 <div className="divide-y divide-slate-100">
@@ -128,12 +128,12 @@ export const Leaderboards: React.FC<LeaderboardsProps> = ({ boards, currentStude
                           </div>
                         )}
                         <div className={`flex items-center p-3 px-4 transition-colors ${entry.studentId === currentStudentId ? 'bg-indigo-50/60' : 'hover:bg-slate-50'}`}>
-                           <div className="w-8 text-center font-black text-slate-400 mr-2">
+                           <div className="w-8 text-center font-black text-slate-800 mr-2">
                               {entry.rank === 1 ? '🥇' : entry.rank === 2 ? '🥈' : entry.rank === 3 ? '🥉' : `#${entry.rank}`}
                            </div>
                            <Avatar className="h-8 w-8 mr-3 border border-slate-200">
                               <AvatarImage src={entry.avatarUrl} />
-                              <AvatarFallback className="bg-slate-100 text-slate-600 text-xs font-semibold">{entry.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                              <AvatarFallback className="bg-slate-100 text-slate-800 text-xs font-semibold">{entry.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                            </Avatar>
                            <div className="flex-1 min-w-0">
                              <p className={`text-sm font-semibold truncate ${entry.studentId === currentStudentId ? 'text-indigo-900' : 'text-slate-800'}`}>
@@ -142,7 +142,7 @@ export const Leaderboards: React.FC<LeaderboardsProps> = ({ boards, currentStude
                            </div>
                            <div className="text-right">
                              <span className="font-bold text-slate-700">{entry.score}</span>
-                             <span className="text-xs text-slate-500 ml-1">pts</span>
+                             <span className="text-xs text-slate-700 ml-1">pts</span>
                            </div>
                         </div>
                       </React.Fragment>

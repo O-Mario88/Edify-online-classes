@@ -44,7 +44,7 @@ export const SchoolHealthScore: React.FC<SchoolHealthScoreProps> = ({ metrics })
        <CardHeader className="pb-2 border-b border-[#1E293B] bg-transparent">
           <CardTitle className="text-lg flex items-center text-white gap-2">
             <HeartPulse className={`w-5 h-5 ${scoreTheme.split(' ')[0]}`} />
-            Edify School Health Index
+            Maple School Health Index
           </CardTitle>
        </CardHeader>
        <CardContent className="p-5 flex flex-col md:flex-row items-center gap-6">
@@ -58,7 +58,7 @@ export const SchoolHealthScore: React.FC<SchoolHealthScoreProps> = ({ metrics })
                 const isWarning = value < 60;
                 return (
                   <div key={key} className="flex flex-col">
-                     <span className="text-[11px] uppercase font-bold text-slate-400 truncate" title={metricLabels[key as keyof HealthScoreMetrics]}>
+                     <span className="text-[11px] uppercase font-bold text-slate-800 truncate" title={metricLabels[key as keyof HealthScoreMetrics]}>
                        {metricLabels[key as keyof HealthScoreMetrics]}
                      </span>
                      <div className="flex items-end gap-1.5 mt-1">

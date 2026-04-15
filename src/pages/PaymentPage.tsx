@@ -17,6 +17,8 @@ import {
   Star
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { EcosystemIntegrationService } from '../lib/integrations/EcosystemIntegrationService';
+import { apiClient } from '../lib/apiClient';
 
 interface PaymentMethod {
   id: string;
@@ -39,6 +41,8 @@ export const PaymentPage: React.FC = () => {
   const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvv: '', name: '' });
   const [processing, setProcessing] = useState(false);
   const [paymentComplete, setPaymentComplete] = useState(false);
+  const [transactionState, setTransactionState] = useState<'idle' | 'pending_callback' | 'failed' | 'confirmed'>('idle');
+  const [txnId, setTxnId] = useState<string | null>(null);
   const [pricingData, setPricingData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -132,11 +136,57 @@ export const PaymentPage: React.FC = () => {
     if (!selectedMethod || !selectedPlan) return;
 
     setProcessing(true);
+    setTransactionState('pending_callback');
+
+    const amount = getTotalAmount().ugx;
     
-    setTimeout(() => {
+    try {
+      const { data, error } = await apiClient.post('/marketplace/pesapal-checkout/', {
+        amount,
+        description: `Payment for ${selectedPlan.name || 'Maple Plan'}`,
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Payment initiation failed');
+      }
+
+      if (data?.redirect_url) {
+        window.location.href = data.redirect_url;
+      } else {
+        throw new Error('Invalid redirect URL from payment provider');
+      }
+    } catch (err) {
+      console.error(err);
+      setTransactionState('failed');
       setProcessing(false);
-      setPaymentComplete(true);
-    }, 3000);
+    }
+  };
+
+  const pollPayment = async (txn: string) => {
+    const st = await EcosystemIntegrationService.pollTransactionState(txn);
+    if (st === 'confirmed') {
+       try {
+          const rawUser = localStorage.getItem('maple-auth-user');
+          if (rawUser) {
+            const parsed = JSON.parse(rawUser);
+            parsed.activation_status = 'active';
+            localStorage.setItem('maple-auth-user', JSON.stringify(parsed));
+          }
+       } catch (e) {}
+       setTransactionState('confirmed');
+       setPaymentComplete(true);
+       setProcessing(false);
+    } else if (st === 'failed') {
+       setTransactionState('failed');
+       setProcessing(false);
+    } else {
+       // Keep polling
+       setTimeout(() => pollPayment(txn), 1500);
+    }
+  };
+
+  const simulateWebhook = (outcome: 'success' | 'failure') => {
+    if (txnId) EcosystemIntegrationService.simulateWebhookCallback(txnId, outcome);
   };
 
   const getTotalAmount = () => {
@@ -181,7 +231,7 @@ export const PaymentPage: React.FC = () => {
             </p>
             <div className="space-y-3">
               <Button 
-                onClick={() => navigate(user?.role === 'independent_teacher' ? '/teacher-dashboard' : '/student-dashboard')}
+                onClick={() => navigate(user?.role === 'independent_teacher' ? '/dashboard/teacher' : '/dashboard/student')}
                 className="w-full"
               >
                 Go to Dashboard
@@ -467,19 +517,38 @@ export const PaymentPage: React.FC = () => {
                     </div>
                   )}
 
-                  <Button 
-                    onClick={handlePayment}
-                    disabled={!selectedMethod || processing}
-                    className="w-full"
-                  >
-                    {processing ? (
-                      'Processing Payment...'
-                    ) : (
-                      `Pay UGX ${totalAmount.ugx.toLocaleString()}`
-                    )}
-                  </Button>
+                  {transactionState === 'idle' ? (
+                    <Button 
+                      onClick={handlePayment}
+                      disabled={!selectedMethod || processing}
+                      className="w-full"
+                    >
+                      Pay UGX {totalAmount.ugx.toLocaleString()}
+                    </Button>
+                  ) : (
+                    <div className="space-y-3 bg-slate-50 border p-4 rounded-xl">
+                       {transactionState === 'pending_callback' ? (
+                          <>
+                            <div className="flex items-center gap-2 text-amber-600 font-bold justify-center mb-2">
+                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600"></div>
+                               Awaiting External Callback...
+                            </div>
+                            <Button size="sm" onClick={() => simulateWebhook('success')} className="w-full bg-emerald-600">Simulate Network Success</Button>
+                            <Button size="sm" variant="destructive" onClick={() => simulateWebhook('failure')} className="w-full">Simulate Delivery Failure</Button>
+                          </>
+                       ) : transactionState === 'failed' ? (
+                          <>
+                            <div className="flex items-center gap-2 text-red-600 font-bold justify-center mb-2">
+                               <AlertCircle className="w-5 h-5"/>
+                               Payment Callback Failed!
+                            </div>
+                            <Button size="sm" onClick={() => setTransactionState('idle')} className="w-full">Retry Payment Flow</Button>
+                          </>
+                       ) : null}
+                    </div>
+                  )}
 
-                  <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                  <div className="flex items-center justify-center gap-2 text-xs text-gray-500 mt-4">
                     <Shield className="h-4 w-4" />
                     <span>Secured by 256-bit SSL encryption</span>
                   </div>

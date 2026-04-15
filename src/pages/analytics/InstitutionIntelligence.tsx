@@ -13,7 +13,7 @@ import {
   AreaChart,
   Area
 } from 'recharts';
-import { apiClient } from '../../lib/api';
+import { apiClient } from '../../lib/apiClient';
 
 export const InstitutionIntelligence = () => {
   const [metrics, setMetrics] = useState<any[]>([]);
@@ -24,6 +24,7 @@ export const InstitutionIntelligence = () => {
     // In production, we'd pass institution ID params here or filter server-side
     apiClient.get('/analytics/daily-institution-metric/')
       .then(res => {
+        if (res.error) throw res.error;
         setMetrics(res.data);
         setLoading(false);
       })

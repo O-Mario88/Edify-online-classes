@@ -54,3 +54,44 @@ class NotificationViewSet(viewsets.ModelViewSet):
             "status": "sent"
         }, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['post'], url_path='send')
+    def send_direct_whatsapp(self, request):
+        from .services import TwilioWhatsAppService
+        from .models import WhatsAppMessage
+        from .serializers import WhatsAppMessageSerializer
+        
+        # We simulate the tutor phone number for now, but gracefully read from environment
+        recipient_id = request.data.get('recipient_id', 'tutor_123')
+        message = request.data.get('message', '')
+        tutor_phone = request.data.get('phone', '0777078032') # Fallback phone number
+        
+        result = TwilioWhatsAppService.send_message(tutor_phone, message)
+        
+        # Save to database to preserve chat history
+        msg = WhatsAppMessage.objects.create(
+            sender=request.user,
+            recipient_id=recipient_id,
+            recipient_phone=tutor_phone,
+            message_body=message,
+            direction='outbound',
+            status=result.get('status', 'failed')
+        )
+        
+        return Response(WhatsAppMessageSerializer(msg).data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='whatsapp-history')
+    def whatsapp_history(self, request):
+        """Fetch WhatsApp messages grouped by recipient (e.g. tutor)"""
+        from .models import WhatsAppMessage
+        from .serializers import WhatsAppMessageSerializer
+        
+        recipient_id = request.query_params.get('recipient_id')
+        if not recipient_id:
+            return Response({"error": "recipient_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        messages = WhatsAppMessage.objects.filter(
+            sender=request.user,
+            recipient_id=recipient_id
+        ).order_by('created_at')
+        
+        return Response(WhatsAppMessageSerializer(messages, many=True).data, status=status.HTTP_200_OK)

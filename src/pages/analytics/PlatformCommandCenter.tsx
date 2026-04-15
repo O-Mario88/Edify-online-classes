@@ -3,7 +3,7 @@ import { Users, School, PlayCircle, BookmarkCheck, TrendingUp, AlertTriangle } f
 import { MetricCard } from '../../components/dashboard/MetricCard';
 import { AlertBanner } from '../../components/dashboard/AlertBanner';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { apiClient } from '../../lib/api';
+import { apiClient } from '../../lib/apiClient';
 
 export const PlatformCommandCenter = () => {
   const [metrics, setMetrics] = useState<any[]>([]);
@@ -12,6 +12,7 @@ export const PlatformCommandCenter = () => {
   useEffect(() => {
     apiClient.get('/analytics/daily-platform-metric/')
       .then(res => {
+        if (res.error) throw res.error;
         setMetrics(res.data);
         setLoading(false);
       })

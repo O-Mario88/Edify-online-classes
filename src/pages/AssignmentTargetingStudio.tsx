@@ -15,13 +15,38 @@ export function AssignmentTargetingStudio() {
   const navigate = useNavigate();
   const [targetMode, setTargetMode] = useState<'global' | 'at-risk' | 'high-performers'>('global');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isDispatching, setIsDispatching] = useState(false);
+  const [title, setTitle] = useState('');
 
   const handleAIAssist = () => {
     setIsGenerating(true);
     setTimeout(() => {
       setIsGenerating(false);
+      setTitle("AI Generated: Remedial Worksheet - Quadratic Roots");
       toast.success("AI generated a customized remedial worksheet based on previous failure points.");
     }, 1500);
+  };
+
+  const handleDispatch = async () => {
+    if (!title.trim()) {
+      toast.error('Please specify an assignment title before dispatching.');
+      return;
+    }
+    setIsDispatching(true);
+    try {
+      // Import apiClient locally if missing, assuming it's available or we can use it
+      const { apiClient } = await import('@/lib/apiClient');
+      await apiClient.post('/assessments/assessment/', {
+        title: title,
+        context: targetMode,
+        type: 'worksheet' // hardcoded just to satisfy generic payload
+      });
+      toast.success("Assignment dispatched successfully to Target Group.");
+    } catch (err) {
+      toast.error("Failed to connect to Assignment Engine.");
+    } finally {
+      setIsDispatching(false);
+    }
   };
 
   return (
@@ -42,11 +67,11 @@ export function AssignmentTargetingStudio() {
         </div>
         
         <div className="flex gap-3">
-          <Button variant="outline" className="gap-2 bg-white dark:bg-slate-900 border-slate-200">
+          <Button variant="outline" className="gap-2 bg-white dark:bg-slate-900 border-slate-200" onClick={() => toast.success('Assignment draft saved.')}>
             Save Draft
           </Button>
-          <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => toast.success("Assignment dispatched successfully to Target Group.")}>
-            <Send className="w-4 h-4" /> Dispatch Assignment
+          <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white" disabled={isDispatching} onClick={handleDispatch}>
+            <Send className="w-4 h-4" /> {isDispatching ? 'Dispatching...' : 'Dispatch Assignment'}
           </Button>
         </div>
       </div>
@@ -63,7 +88,7 @@ export function AssignmentTargetingStudio() {
             <CardContent className="pt-6 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="title">Assignment Title</Label>
-                <Input id="title" placeholder="e.g. Remedial Worksheet: Quadratic Roots" className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800" />
+                <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Remedial Worksheet: Quadratic Roots" className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800" />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -162,12 +187,12 @@ export function AssignmentTargetingStudio() {
           <Card className="border-indigo-200 dark:border-indigo-900/50 shadow-sm bg-indigo-50 dark:bg-indigo-900/10">
             <CardHeader>
                <CardTitle className="text-sm font-bold text-indigo-900 dark:text-indigo-200 flex items-center gap-2">
-                 <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /> Edify Copilot
+                 <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /> Maple Copilot
                </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-xs text-indigo-800/80 dark:text-indigo-300 mb-4">
-                Not sure what to assign? Edify Copilot can analyze this cohort's performance history and automatically generate a targeted worksheet.
+                Not sure what to assign? Maple Copilot can analyze this cohort's performance history and automatically generate a targeted worksheet.
               </p>
               <Button 
                 onClick={handleAIAssist} 

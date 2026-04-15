@@ -3,6 +3,8 @@ import { X, Maximize, Minimize, CheckCircle2, Clock, PlayCircle } from 'lucide-r
 import { Resource } from '../../types';
 import { useResourceEngagement } from '../../hooks/useResourceEngagement';
 import { useStudentContinuity } from '../../hooks/useStudentContinuity';
+import { useAssignmentSubmissions } from '../../hooks/useAssignmentSubmissions';
+import { InteractivePracticeEngine } from './InteractivePracticeEngine';
 
 interface ResourceViewerProps {
   resource: Resource;
@@ -102,7 +104,7 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
           </div>
           <div className="truncate">
             <h2 className="font-bold text-lg truncate pr-4">{resource.title}</h2>
-            <p className="text-xs text-slate-400 truncate">{resource.authorName} • Internal Platform Viewer</p>
+            <p className="text-xs text-slate-800 truncate">{resource.authorName} • Internal Platform Viewer</p>
           </div>
         </div>
 
@@ -115,12 +117,12 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
             </div>
             <div className="w-px h-4 bg-slate-700"></div>
             <div className={`flex items-center ${isCompleted ? 'text-green-400' : 'text-slate-300'}`}>
-              <CheckCircle2 className={`w-4 h-4 mr-1.5 ${isCompleted ? 'text-green-400' : 'text-slate-500'}`} />
+              <CheckCircle2 className={`w-4 h-4 mr-1.5 ${isCompleted ? 'text-green-400' : 'text-slate-700'}`} />
               {Math.round(completionPercentage)}% read
             </div>
           </div>
 
-          <button onClick={toggleFullscreen} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">
+          <button onClick={toggleFullscreen} className="p-2 text-slate-800 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">
             {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
           </button>
           
@@ -139,8 +141,8 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
 
           <div className="w-px h-6 bg-slate-800"></div>
           
-          <button onClick={handleClose} className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors flex items-center gap-2 font-medium">
-            Close <X className="w-5 h-5" />
+          <button onClick={handleClose} aria-label="Close Viewer" className="p-2 w-10 h-10 flex items-center justify-center text-white bg-red-600 hover:bg-red-700 hover:scale-105 active:scale-95 shadow-md shadow-red-900/20 rounded-full transition-all flex-shrink-0">
+            <X className="w-5 h-5" strokeWidth={2.5} />
           </button>
         </div>
       </div>
@@ -169,7 +171,7 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
                 <div className="absolute inset-0 bg-slate-900/50 flex flex-col items-center justify-center">
                    <PlayCircle className="w-20 h-20 text-white/50 mb-4" />
                    <h3 className="text-white font-bold text-xl">{resource.title}</h3>
-                   <p className="text-slate-400 mt-2 text-sm">Interactive Video Player Mock</p>
+                   <p className="text-slate-800 mt-2 text-sm">Interactive Video Player Mock</p>
                 </div>
                 {/* Mock Controls */}
                 <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
@@ -182,6 +184,17 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
                    </div>
                 </div>
              </div>
+          </div>
+        ) : resource.type === 'interactive' ? (
+          <div className="w-full h-full overflow-y-auto custom-scrollbar bg-slate-100 dark:bg-slate-900">
+             <InteractivePracticeEngine 
+                resource={resource} 
+                studentId={studentId} 
+                onComplete={() => {
+                   // Force completion status for grading logic internally
+                   reportProgress(100, 100);
+                }}
+             />
           </div>
         ) : (
           <div 
@@ -199,8 +212,8 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
                  <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-6 border-b border-slate-200 dark:border-slate-800 pb-6">{resource.title}</h1>
                  
                  <div className="prose prose-slate dark:prose-invert max-w-none prose-indigo">
-                    <p className="lead text-lg text-slate-600 dark:text-slate-400">
-                      This document is rendered securely within the Edify learning platform. Your reading time and progress are automatically synchronized with your learning profile.
+                    <p className="lead text-lg text-slate-800 dark:text-slate-800">
+                      This document is rendered securely within the Maple learning platform. Your reading time and progress are automatically synchronized with your learning profile.
                     </p>
 
                     <h3>Learning Objectives</h3>
@@ -220,7 +233,7 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
 
                     {/* Spacer for scroll simulation */}
                     <div className="h-64 bg-slate-50 dark:bg-slate-800/50 rounded-lg flex items-center justify-center my-8 border border-slate-100 dark:border-slate-800">
-                       <span className="text-slate-400 font-medium">Chart or Diagram Here</span>
+                       <span className="text-slate-800 font-medium">Chart or Diagram Here</span>
                     </div>
 
                     <h3>Content Section 2</h3>
@@ -234,9 +247,9 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
 
                  {isCompleted && (
                    <div className="mt-16 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-xl p-6 flex flex-col items-center justify-center text-center">
-                     <CheckCircle2 className="w-12 h-12 text-green-500 mb-3" />
+                     <CheckCircle2 className="w-12 h-12 text-emerald-700 mb-3" />
                      <h3 className="text-lg font-bold text-green-800 dark:text-green-400">Section Completed</h3>
-                     <p className="text-green-600 dark:text-green-500 text-sm mt-1">Your completion data has been synced to your learning profile.</p>
+                     <p className="text-emerald-800 dark:text-emerald-700 text-sm mt-1">Your completion data has been synced to your learning profile.</p>
                    </div>
                  )}
                </div>
@@ -252,12 +265,12 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
               <div className="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center mb-4 border border-indigo-500/30">
                 <Sparkles className="w-6 h-6 text-indigo-400" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Edify Contextual Tutor</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
+              <h3 className="text-xl font-bold text-white mb-2">Maple Contextual Tutor</h3>
+              <p className="text-sm text-slate-800 leading-relaxed">
                 I act as your personal tutor. Ask me to explain concepts, define terms, or provide examples specifically related to {resource.title}.
               </p>
               <div className="mt-4 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
-                <p className="text-xs text-amber-500 font-medium flex gap-2">
+                <p className="text-xs text-amber-700 font-medium flex gap-2">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   I am restricted to academic support and will not process off-topic requests.
                 </p>
@@ -284,7 +297,7 @@ export const ResourceViewer: React.FC<ResourceViewerProps> = ({ resource, studen
                    value={chatMessage}
                    onChange={(e) => setChatMessage(e.target.value)}
                    placeholder="Ask about the document..."
-                   className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pl-4 pr-12 text-sm text-white placeholder:text-slate-500 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                   className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 pl-4 pr-12 text-sm text-white placeholder:text-slate-700 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
                    onKeyDown={(e) => {
                      if (e.key === 'Enter') {
                        setChatMessage('');

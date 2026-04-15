@@ -115,16 +115,16 @@ export const TeacherDashboard: React.FC = () => {
         const kpis = dashData.kpis || {};
         const classesList = Array.isArray(classesRes.data) ? classesRes.data : [];
         
-        // Calculate teacher stats mapped from backend
+        // Calculate teacher stats mapped directly from backend
         const teacherStats: TeacherStats = {
-          totalStudents: kpis.totalLearners || teacher?.totalStudents || 142,
-          activeClasses: kpis.activeClasses || teacher?.classes?.length || 4,
-          totalEarnings: (kpis.monthlyEarnings || 125000) * 6 || teacher?.earnings?.totalEarned || 845000,
-          monthlyEarnings: kpis.monthlyEarnings || teacher?.earnings?.currentMonth || 125000,
-          pendingPayouts: 34000, // Extracted from wallet/pending ledger
-          completedSessions: 84, // Use a baseline
-          avgRating: 4.8,
-          totalContent: dashData.contentPerformance?.length || 32,
+          totalStudents: kpis.totalLearners || 0,
+          activeClasses: kpis.activeClasses || 0,
+          totalEarnings: (kpis.monthlyEarnings || 0) * 6,
+          monthlyEarnings: kpis.monthlyEarnings || 0,
+          pendingPayouts: 0, 
+          completedSessions: 0, 
+          avgRating: kpis.avgRating || 0,
+          totalContent: dashData.contentPerformance?.length || 0,
           intelligence: [
             {
               title: 'Top Struggling Topic',

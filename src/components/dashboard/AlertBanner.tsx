@@ -17,10 +17,10 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ type, title, message, 
   };
 
   const icons = {
-    info: <Info className="w-5 h-5 text-blue-500" />,
-    success: <CheckCircle2 className="w-5 h-5 text-green-500" />,
-    warning: <AlertCircle className="w-5 h-5 text-amber-500" />,
-    error: <XCircle className="w-5 h-5 text-red-500" />,
+    info: <Info className="w-5 h-5 text-blue-700" />,
+    success: <CheckCircle2 className="w-5 h-5 text-emerald-700" />,
+    warning: <AlertCircle className="w-5 h-5 text-amber-700" />,
+    error: <XCircle className="w-5 h-5 text-red-700" />,
   };
 
   return (

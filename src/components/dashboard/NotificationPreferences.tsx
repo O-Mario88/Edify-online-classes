@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 
 export const NotificationPreferences: React.FC = () => {
   const [waOptIn, setWaOptIn] = useState(true);
+  const [smsOptIn, setSmsOptIn] = useState(false);
+  const [emailOptIn, setEmailOptIn] = useState(true);
   const [sendingTest, setSendingTest] = useState(false);
 
   const handleTestWhatsApp = async () => {
@@ -29,7 +31,7 @@ export const NotificationPreferences: React.FC = () => {
     <Card className="shadow-sm border-gray-200">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Bell className="text-gray-600" size={20} /> Parent Communication Preferences
+          <Bell className="text-gray-800" size={20} /> Parent Communication Preferences
         </CardTitle>
         <CardDescription>Control how you receive alerts and weekly summaries</CardDescription>
       </CardHeader>
@@ -37,12 +39,12 @@ export const NotificationPreferences: React.FC = () => {
         {/* WhatsApp Channel */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg bg-green-50/30 border-green-100">
           <div className="flex items-center gap-4 mb-4 md:mb-0">
-             <div className="bg-green-100 p-2 rounded-full text-green-600">
+             <div className="bg-green-100 p-2 rounded-full text-emerald-800">
                 <MessageCircle size={24} />
              </div>
              <div>
                 <h4 className="font-semibold text-gray-900">WhatsApp Summaries</h4>
-                <p className="text-sm text-gray-600">Receive instant alerts and AI weekly summaries directly to your phone.</p>
+                <p className="text-sm text-gray-800">Receive instant alerts and AI weekly summaries directly to your phone.</p>
              </div>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
@@ -70,29 +72,37 @@ export const NotificationPreferences: React.FC = () => {
         {/* SMS Channel */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors">
           <div className="flex items-center gap-4 mb-4 md:mb-0">
-             <div className="bg-blue-100 p-2 rounded-full text-blue-600">
+             <div className="bg-blue-100 p-2 rounded-full text-blue-800">
                 <Smartphone size={24} />
              </div>
              <div>
                 <h4 className="font-semibold text-gray-900">SMS Alerts</h4>
-                <p className="text-sm text-gray-600">Critical alerts only (Missed exams, low balances).</p>
+                <p className="text-sm text-gray-800">Critical alerts only (Missed exams, low balances).</p>
              </div>
           </div>
-          <Button variant="outline" className="w-full md:w-auto">Disabled</Button>
+          <Button
+             variant={smsOptIn ? "default" : "outline"}
+             className={smsOptIn ? "bg-blue-600 hover:bg-blue-700 w-full md:w-auto" : "w-full md:w-auto"}
+             onClick={() => { setSmsOptIn(!smsOptIn); toast.success(smsOptIn ? 'SMS alerts disabled.' : 'SMS alerts enabled.'); }}
+          >{smsOptIn ? "Enabled" : "Enable"}</Button>
         </div>
 
         {/* Email Channel */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors">
           <div className="flex items-center gap-4 mb-4 md:mb-0">
-             <div className="bg-gray-100 p-2 rounded-full text-gray-600">
+             <div className="bg-gray-100 p-2 rounded-full text-gray-800">
                 <Mail size={24} />
              </div>
              <div>
                 <h4 className="font-semibold text-gray-900">Email Reports</h4>
-                <p className="text-sm text-gray-600">Detailed monthly pdf transcripts and receipts.</p>
+                <p className="text-sm text-gray-800">Detailed monthly pdf transcripts and receipts.</p>
              </div>
           </div>
-          <Button variant="outline" className="w-full md:w-auto">Enabled</Button>
+          <Button
+             variant={emailOptIn ? "default" : "outline"}
+             className={emailOptIn ? "bg-gray-700 hover:bg-gray-800 w-full md:w-auto" : "w-full md:w-auto"}
+             onClick={() => { setEmailOptIn(!emailOptIn); toast.success(emailOptIn ? 'Email reports disabled.' : 'Email reports enabled.'); }}
+          >{emailOptIn ? "Enabled" : "Enable"}</Button>
         </div>
 
       </CardContent>

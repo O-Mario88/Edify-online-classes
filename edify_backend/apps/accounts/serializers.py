@@ -39,3 +39,16 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             InstitutionAdminProfile.objects.create(user=user)
             
         return user
+
+
+class PublicProfileSerializer(serializers.Serializer):
+    """Read-only serializer for public profile pages."""
+    name = serializers.CharField()
+    username = serializers.CharField()
+    bio = serializers.CharField()
+    location = serializers.CharField()
+    avatar = serializers.CharField()
+    joinedDate = serializers.CharField()
+    badges = serializers.ListField(child=serializers.DictField())
+    certificates = serializers.ListField(child=serializers.DictField())
+

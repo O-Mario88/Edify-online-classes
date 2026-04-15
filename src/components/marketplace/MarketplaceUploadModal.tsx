@@ -44,9 +44,12 @@ export const MarketplaceUploadModal: React.FC<MarketplaceUploadModalProps> = ({ 
 
   React.useEffect(() => {
      if (isOpen) {
-        apiClient.get('/curriculum/subjects/')
-           .then(res => setSystemSubjects(res.data))
-           .catch(err => console.error(err));
+         apiClient.get('/curriculum/subjects/')
+            .then((res: any) => {
+              const data = res.data?.results || res.data || [];
+              setSystemSubjects(Array.isArray(data) ? data : []);
+            })
+            .catch(err => console.error(err));
      }
   }, [isOpen]);
 
@@ -164,7 +167,7 @@ export const MarketplaceUploadModal: React.FC<MarketplaceUploadModalProps> = ({ 
               <div className="grid gap-2">
                 <Label className="flex items-center gap-2">
                   Topic Node
-                  {topicId && <CheckCircle2 className="h-4 w-4 text-green-500" />}
+                  {topicId && <CheckCircle2 className="h-4 w-4 text-emerald-700" />}
                 </Label>
                 <Select value={topicId} onValueChange={setTopicId} disabled={!classLevel || availableTopics.length === 0}>
                   <SelectTrigger><SelectValue placeholder="Select the exact target topic" /></SelectTrigger>
@@ -237,7 +240,7 @@ export const MarketplaceUploadModal: React.FC<MarketplaceUploadModalProps> = ({ 
           <>
             <div className="py-12 text-center flex flex-col items-center">
               <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
+                <CheckCircle2 className="h-8 w-8 text-emerald-800" />
               </div>
               <DialogTitle className="text-2xl mb-2">Listing Drafted!</DialogTitle>
               <DialogDescription className="text-base max-w-sm mb-6">

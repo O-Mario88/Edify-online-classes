@@ -18,7 +18,7 @@ class ExamCenter(models.Model):
         return f"{self.board_name} Center: {self.center_number}"
 
 class CandidateRegistration(models.Model):
-    EXAM_TYPES = [('UCE', 'UCE'), ('UACE', 'UACE')]
+    EXAM_TYPES = [('PLE', 'PLE'), ('UCE', 'UCE'), ('UACE', 'UACE')]
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='exam_registrations')
     exam_center = models.ForeignKey(ExamCenter, on_delete=models.CASCADE, related_name='candidates')
     registration_year = models.CharField(max_length=10)

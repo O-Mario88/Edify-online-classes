@@ -42,10 +42,6 @@ export const RegisterPage: React.FC = () => {
   const [error, setError] = useState('');
 
   const handleRoleSelection = (role: 'learner' | 'teacher' | 'institution') => {
-    if (role === 'institution') {
-      navigate('/institution-onboarding');
-      return;
-    }
     setRoleMode(role);
     if (role === 'learner') setLearnerStep(1);
   };
@@ -73,7 +69,11 @@ export const RegisterPage: React.FC = () => {
     setIsLoading(true);
     const success = await register(studentData.email || 'test@edify.local', studentData.full_name || role, 'uganda', studentData.password || 'password123', role);
     if (success) {
-      navigate('/');
+      if (role === 'institution') {
+        navigate('/institution-onboarding');
+      } else {
+        navigate('/');
+      }
     }
     setIsLoading(false);
   };
@@ -82,8 +82,8 @@ export const RegisterPage: React.FC = () => {
     <div className="min-h-screen bg-white flex flex-col md:flex-row p-0 m-0 w-full relative overflow-hidden font-sans">
       
       {/* LEFT COLUMN: Editorial Splash */}
-      <div className="hidden md:flex md:w-[42%] lg:w-[38%] xl:w-[36%] px-8 py-10 bg-[#F9F7F3] flex-col justify-center relative">
-        <div className="max-w-xs mx-auto w-full">
+      <div className="hidden md:flex md:w-[55%] lg:w-[55%] xl:w-[55%] px-10 py-10 bg-[#F9F7F3] flex-col justify-center relative">
+        <div className="max-w-md mx-auto w-full">
           <EditorialHeader level="h1" className="mb-4 text-slate-900 leading-snug text-2xl lg:text-3xl">
             Maple Online School<br/>— learning from anywhere!
           </EditorialHeader>
@@ -91,7 +91,7 @@ export const RegisterPage: React.FC = () => {
             Expert teachers, focused NCDC-aligned materials, and AI-powered academic support — all in one place.
           </p>
           
-          <div className="relative w-full aspect-[4/3] max-w-[260px] mx-auto overflow-hidden rounded-2xl shadow-lg border border-slate-200">
+          <div className="relative w-full aspect-[4/3] max-w-[420px] mx-auto overflow-hidden rounded-2xl shadow-lg border border-slate-200">
              <div className="absolute inset-0 bg-gradient-to-tr from-[#98d8c6] to-[#fcb97d] opacity-40 mix-blend-multiply rounded-2xl" />
              <img src="/images/teenager_studying_at_home.png" alt="African teenager studying at home" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=2070&auto=format&fit=crop' }} />
           </div>
@@ -108,12 +108,18 @@ export const RegisterPage: React.FC = () => {
       </div>
 
       {/* RIGHT COLUMN: Form Area */}
-      <div className="w-full md:w-[58%] lg:w-[62%] xl:w-[64%] flex items-center justify-center p-6 md:px-16 md:py-12 relative bg-white">
+      <div className="w-full md:w-[45%] lg:w-[45%] xl:w-[45%] flex items-center justify-center p-6 md:px-10 md:py-12 relative bg-white">
         
         {/* Selection State */}
         {roleMode === 'selection' && (
-          <div className="max-w-md w-full space-y-6">
-            <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-8 tracking-tight">Start learning today by signing up!</h2>
+          <div className="max-w-md w-full space-y-6 relative mt-8 md:mt-0">
+            <button 
+              onClick={() => navigate(-1)} 
+              className="absolute -top-10 -left-2 text-slate-400 hover:text-slate-800 font-medium text-sm flex items-center gap-1 hover:underline transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" /> Go Back
+            </button>
+            <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-8 tracking-tight mt-4">Start learning today by signing up!</h2>
             
             <div className="space-y-4">
               <button onClick={() => handleRoleSelection('learner')} className="w-full bg-[#f8f9fa] hover:bg-[#edf2f7] border border-blue-100/50 rounded-xl p-5 flex items-center justify-between transition-colors group">
@@ -133,7 +139,7 @@ export const RegisterPage: React.FC = () => {
             </div>
 
             <p className="mt-8 text-sm text-slate-500 font-medium">
-              Already have an Edify account? <Link to="/login" className="text-blue-600 font-semibold hover:underline">Log in</Link>
+              Already have a Maple account? <Link to="/login" className="text-blue-600 font-semibold hover:underline">Log in</Link>
             </p>
           </div>
         )}
@@ -186,7 +192,13 @@ export const RegisterPage: React.FC = () => {
                      <option value="kenya">Kenya (CBC)</option>
                    </select>
                 </div>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6 mt-4" onClick={() => setLearnerStep(2)} disabled={!studentData.full_name || !studentData.email || !studentData.password}>Next</Button>
+              </div>
+            )}
+
+            {/* Step 1 Next Button - below card */}
+            {learnerStep === 1 && (
+              <div className="flex justify-center mt-6">
+                <Button className="w-full max-w-xs bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6" onClick={() => setLearnerStep(2)} disabled={!studentData.full_name || !studentData.email || !studentData.password}>Next</Button>
               </div>
             )}
 
@@ -220,7 +232,13 @@ export const RegisterPage: React.FC = () => {
                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Parent Email (Optional)</label>
                    <Input type="email" value={parentData.email} onChange={e => setParentData({...parentData, email: e.target.value})} placeholder="If available" />
                 </div>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6 mt-4" onClick={() => setLearnerStep(3)} disabled={!parentData.full_name || !parentData.phone}>Next</Button>
+              </div>
+            )}
+
+            {/* Step 2 Next Button - below card */}
+            {learnerStep === 2 && (
+              <div className="flex justify-center mt-6">
+                <Button className="w-full max-w-xs bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6" onClick={() => setLearnerStep(3)} disabled={!parentData.full_name || !parentData.phone}>Next</Button>
               </div>
             )}
 
@@ -253,9 +271,15 @@ export const RegisterPage: React.FC = () => {
                   <p className="text-[11px] text-slate-500 leading-tight">By clicking finish, your parent will automatically be registered for the Parent Dashboard, and a payment prompt will be initiated directly to their phone.</p>
                 </div>
 
+              </div>
+            )}
+
+            {/* Step 3 Finish Button - below card */}
+            {learnerStep === 3 && (
+              <div className="flex justify-center mt-6">
                 <Button 
                   onClick={handleLearnerSubmit} 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6 mt-4 flex items-center justify-center gap-2" 
+                  className="w-full max-w-xs bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6 flex items-center justify-center gap-2" 
                   disabled={isLoading || !paymentData.network}
                 >
                   {isLoading ? 'Processing Setup...' : 'Finish & Setup Account'}
@@ -274,7 +298,7 @@ export const RegisterPage: React.FC = () => {
             >
               <ArrowLeft className="w-4 h-4" /> Choose a different role
             </button>
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">How are you joining Edify?</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">How are you joining Maple?</h2>
             <p className="text-sm text-slate-500 mb-6">Are you joining your school's official platform or setting up as an independent educator?</p>
             
             <div className="space-y-4">
@@ -303,7 +327,7 @@ export const RegisterPage: React.FC = () => {
             </div>
             
             <div className="p-4 bg-orange-50 border border-orange-100 rounded-lg mt-6">
-               <p className="text-xs text-orange-800 leading-relaxed font-medium">Institution staff onboarding requires an invite from your Headteacher or DOS. If your school has not yet onboarded to Edify, <a onClick={() => navigate('/institution-onboarding')} className="text-blue-600 hover:underline cursor-pointer">register your institution here</a>.</p>
+               <p className="text-xs text-orange-800 leading-relaxed font-medium">Institution staff onboarding requires an invite from your Headteacher or DOS. If your school has not yet onboarded to Maple, <a onClick={() => navigate('/institution-onboarding')} className="text-blue-600 hover:underline cursor-pointer">register your institution here</a>.</p>
             </div>
           </div>
         )}
@@ -320,7 +344,7 @@ export const RegisterPage: React.FC = () => {
             <h2 className="text-2xl font-bold text-slate-900">
               Sign up as an institution today!
             </h2>
-            <form onSubmit={(e) => handleStandardRegister(e, 'institution')} className="space-y-4">
+            <form id="institution-form" onSubmit={(e) => handleStandardRegister(e, 'institution')} className="space-y-4">
                 <div>
                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Institution Name</label>
                    <Input type="text" value={studentData.full_name} onChange={e => setStudentData({...studentData, full_name: e.target.value})} placeholder="e.g. Greenhill Academy" required/>
@@ -333,10 +357,12 @@ export const RegisterPage: React.FC = () => {
                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Password</label>
                    <Input type="password" value={studentData.password} onChange={e => setStudentData({...studentData, password: e.target.value})} placeholder="At least 8 characters" required/>
                 </div>
-                <Button type="submit" disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6 mt-4 flex items-center justify-center gap-2">
-                  {isLoading ? 'Creating Account...' : 'Continue Setup'}
-                </Button>
             </form>
+            <div className="flex justify-center mt-6">
+              <Button type="submit" form="institution-form" disabled={isLoading} className="w-full max-w-xs bg-blue-600 hover:bg-blue-700 text-white rounded-full py-6 flex items-center justify-center gap-2">
+                {isLoading ? 'Creating Account...' : 'Continue Setup'}
+              </Button>
+            </div>
           </div>
         )}
       </div>

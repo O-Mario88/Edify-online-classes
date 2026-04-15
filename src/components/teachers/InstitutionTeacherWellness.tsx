@@ -13,7 +13,7 @@ export const InstitutionTeacherWellness: React.FC = () => {
          <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <HeartPulse className="w-5 h-5 text-rose-500" />
             Teacher Wellness & Cover
-            <Badge variant="outline" className="ml-auto bg-slate-100 text-slate-500 text-xs border-slate-200">
+            <Badge variant="outline" className="ml-auto bg-slate-100 text-slate-700 text-xs border-slate-200">
                Institution Feature
             </Badge>
          </CardTitle>
@@ -22,14 +22,14 @@ export const InstitutionTeacherWellness: React.FC = () => {
         {/* Load Status */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white border text-center border-slate-100 rounded-lg p-3 shadow-sm">
-             <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Weekly Load</div>
+             <div className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Weekly Load</div>
              <div className="text-xl font-bold text-slate-800">28 Hours</div>
-             <div className="text-[10px] text-green-600 mt-1">Within limits</div>
+             <div className="text-[10px] text-emerald-800 mt-1">Within limits</div>
           </div>
           <div className="bg-white border text-center border-slate-100 rounded-lg p-3 shadow-sm border-l-4 border-l-orange-400">
-             <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Burnout Risk</div>
+             <div className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">Burnout Risk</div>
              <div className="text-xl font-bold text-orange-600">Moderate</div>
-             <div className="text-[10px] text-slate-500 mt-1">Due to high grading volume</div>
+             <div className="text-[10px] text-slate-700 mt-1">Due to high grading volume</div>
           </div>
         </div>
 
@@ -48,10 +48,10 @@ export const InstitutionTeacherWellness: React.FC = () => {
               </Button>
            ) : (
               <div className="bg-white rounded-md p-3 border border-rose-200 text-sm animate-in fade-in zoom-in">
-                 <div className="flex items-center gap-2 text-green-600 font-semibold mb-2">
+                 <div className="flex items-center gap-2 text-emerald-800 font-semibold mb-2">
                     <CalendarCheck className="w-4 h-4" /> Package Ready
                  </div>
-                 <ul className="list-disc pl-4 space-y-1 text-slate-600 text-xs mb-3">
+                 <ul className="list-disc pl-4 space-y-1 text-slate-800 text-xs mb-3">
                     <li>S3 Physics Topic State: "Kinematics" (Week 2 of 4)</li>
                     <li>S4 Maths Assignments pending review</li>
                     <li>Joan Doe (S4) Requires Red-Alert Monitoring</li>

@@ -29,7 +29,7 @@ export const StudentMotivationEngine: React.FC = () => {
                 <h3 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
                   Level 4 Academician <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
                 </h3>
-                <p className="text-sm text-slate-400 font-medium">120 Platform Reputation Points <span className="opacity-50">(Max Level 10)</span></p>
+                <p className="text-sm text-slate-800 font-medium">120 Platform Reputation Points <span className="opacity-50">(Max Level 10)</span></p>
               </div>
               
               <div className="space-y-1.5">
@@ -40,7 +40,7 @@ export const StudentMotivationEngine: React.FC = () => {
                 <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
                   <div className="h-full bg-gradient-to-r from-purple-600 to-fuchsia-400 w-[60%] rounded-full shadow-[0_0_10px_rgba(192,38,211,0.5)]"></div>
                 </div>
-                <p className="text-[10px] text-slate-500 pt-1">Help 2 more students to level up.</p>
+                <p className="text-[10px] text-slate-700 pt-1">Help 2 more students to level up.</p>
               </div>
             </div>
           </CardContent>
@@ -72,7 +72,7 @@ export const StudentMotivationEngine: React.FC = () => {
               <div className="bg-slate-900/50 rounded-xl p-3 border border-white/5 space-y-3">
                  <div className="flex justify-between items-end">
                     <div>
-                      <p className="text-xs text-slate-400 font-medium">Current Sci/Math Avg</p>
+                      <p className="text-xs text-slate-800 font-medium">Current Sci/Math Avg</p>
                       <p className="text-lg font-bold text-white">72%</p>
                     </div>
                     <div className="text-right">
@@ -93,7 +93,7 @@ export const StudentMotivationEngine: React.FC = () => {
                     <div className="absolute top-0 left-[72%] w-1 h-5 bg-white shadow-[0_0_8px_white] -translate-x-1/2 z-30 rounded-full"></div>
                     <div className="absolute top-0 left-[85%] w-1 h-5 bg-blue-400 shadow-[0_0_8px_blue] -translate-x-1/2 z-30 rounded-full"></div>
                  </div>
-                 <p className="text-[10px] text-slate-400 text-center font-medium">You need a <span className="text-blue-300 font-bold">+13% boost</span> to hit your trajectory line.</p>
+                 <p className="text-[10px] text-slate-800 text-center font-medium">You need a <span className="text-blue-300 font-bold">+13% boost</span> to hit your trajectory line.</p>
               </div>
             </div>
           </CardContent>

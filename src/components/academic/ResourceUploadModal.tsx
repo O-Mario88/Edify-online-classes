@@ -8,7 +8,8 @@ import {
   UploadCloud, FileText, Video, PlayCircle, BookOpen,
   Presentation, FileSpreadsheet, X, CheckCircle, FolderOpen
 } from 'lucide-react';
-import { apiClient } from '../../lib/api';
+import contentApi from '../../lib/contentApi';
+import type { ContentType } from '../../lib/contentApi';
 
 interface ResourceUploadModalProps {
   isOpen: boolean;
@@ -17,17 +18,18 @@ interface ResourceUploadModalProps {
   defaultClass?: string;
   defaultTopic?: string;
   defaultLesson?: string;
+  role?: 'admin' | 'institution' | 'teacher';
 }
 
 const RESOURCE_TYPES = [
-  { value: 'video', label: 'Video Lesson', icon: Video, color: 'text-red-600 bg-red-50' },
-  { value: 'notes', label: 'Lesson Notes', icon: FileText, color: 'text-blue-600 bg-blue-50' },
+  { value: 'video', label: 'Video Lesson', icon: Video, color: 'text-red-800 bg-red-50' },
+  { value: 'notes', label: 'Lesson Notes', icon: FileText, color: 'text-blue-800 bg-blue-50' },
   { value: 'pdf', label: 'PDF Document', icon: FileText, color: 'text-orange-600 bg-orange-50' },
-  { value: 'slides', label: 'Slides / PowerPoint', icon: Presentation, color: 'text-purple-600 bg-purple-50' },
-  { value: 'worksheet', label: 'Worksheet', icon: FileSpreadsheet, color: 'text-green-600 bg-green-50' },
-  { value: 'recording', label: 'Recorded Live Session', icon: PlayCircle, color: 'text-indigo-600 bg-indigo-50' },
+  { value: 'slides', label: 'Slides / PowerPoint', icon: Presentation, color: 'text-purple-800 bg-purple-50' },
+  { value: 'worksheet', label: 'Worksheet', icon: FileSpreadsheet, color: 'text-emerald-800 bg-green-50' },
+  { value: 'recording', label: 'Recorded Live Session', icon: PlayCircle, color: 'text-indigo-800 bg-indigo-50' },
   { value: 'reading', label: 'Recommended Reading', icon: BookOpen, color: 'text-teal-600 bg-teal-50' },
-  { value: 'revision', label: 'Revision Materials', icon: FolderOpen, color: 'text-amber-600 bg-amber-50' },
+  { value: 'revision', label: 'Revision Materials', icon: FolderOpen, color: 'text-amber-800 bg-amber-50' },
 ];
 
 export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
@@ -36,7 +38,8 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
   defaultSubject = '',
   defaultClass = '',
   defaultTopic = '',
-  defaultLesson = ''
+  defaultLesson = '',
+  role = 'teacher',
 }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -56,19 +59,26 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
   const handleUpload = async () => {
     setIsUploading(true);
     try {
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('visibility', visibility);
-      if (resourceType === 'video' && externalUrl) {
-         formData.append('external_url', externalUrl);
-      } else if (file) {
-         formData.append('file_path', file);
+      // Choose correct API endpoint based on role
+      let api;
+      if (role === 'admin') {
+        api = contentApi.admin;
+      } else if (role === 'institution') {
+        api = contentApi.institution;
+      } else {
+        api = contentApi.teacher;
       }
-      
-      await apiClient.post('/resources/resource/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      await api.create({
+         title,
+         description,
+         content_type: resourceType as ContentType,
+         visibility_scope: visibility as any,
+         subject: subject ? parseInt(subject) || null : null,
+         class_level: classLevel ? parseInt(classLevel.replace(/\D/g, '')) || null : null,
+         topic: null, // Topic is string input currently, real DB needs ID. Leaving null for fallback mapping.
+         external_url: resourceType === 'video' ? externalUrl : undefined,
+         file: file || undefined
       });
-      
       setUploaded(true);
       setTimeout(() => {
         setUploaded(false);
@@ -91,24 +101,24 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between z-10">
           <div>
             <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <UploadCloud className="h-5 w-5 text-indigo-600" /> Upload Academic Resource
+              <UploadCloud className="h-5 w-5 text-indigo-800" /> Upload Academic Resource
             </h2>
-            <p className="text-sm text-gray-500 mt-0.5">One central place to upload all teaching materials</p>
+            <p className="text-sm text-gray-700 mt-0.5">One central place to upload all teaching materials</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
-            <X className="h-5 w-5 text-gray-400" />
+            <X className="h-5 w-5 text-gray-800" />
           </button>
         </div>
 
         <CardContent className="p-6 space-y-5">
           {uploaded ? (
             <div className="text-center py-12">
-              <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+              <CheckCircle className="h-16 w-16 text-emerald-700 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900">Resource Uploaded!</h3>
               {resourceType === 'video' && file ? (
-                <p className="text-gray-500 mt-2">Your video is being securely uploaded to Vimeo in the background and will be available shortly.</p>
+                <p className="text-gray-700 mt-2">Your video is being securely uploaded to Vimeo in the background and will be available shortly.</p>
               ) : (
-                <p className="text-gray-500 mt-2">It's now linked to the selected topic/lesson.</p>
+                <p className="text-gray-700 mt-2">It's now linked to the selected topic/lesson.</p>
               )}
             </div>
           ) : (
@@ -153,7 +163,7 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-600">Subject *</label>
+                    <label className="text-xs font-medium text-gray-800">Subject *</label>
                     <select
                       value={subject}
                       onChange={e => setSubject(e.target.value)}
@@ -172,7 +182,7 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
                     </select>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-gray-600">Class *</label>
+                    <label className="text-xs font-medium text-gray-800">Class *</label>
                     <select
                       value={classLevel}
                       onChange={e => setClassLevel(e.target.value)}
@@ -189,7 +199,7 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-gray-600">Topic *</label>
+                  <label className="text-xs font-medium text-gray-800">Topic *</label>
                   <Input
                     placeholder="e.g. Equations and Inequalities"
                     value={topic}
@@ -197,7 +207,7 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-gray-600">Lesson <span className="text-gray-400">(optional — leave blank for topic-level resource)</span></label>
+                  <label className="text-xs font-medium text-gray-800">Lesson <span className="text-gray-800">(optional — leave blank for topic-level resource)</span></label>
                   <Input
                     placeholder="e.g. Video Lesson: Solving Quadratics"
                     value={lesson}
@@ -217,11 +227,11 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
                       onChange={e => { setExternalUrl(e.target.value); setFile(null); }}
                     />
                   </div>
-                  <div className="text-center text-sm text-gray-500 font-medium">OR Upload MP4</div>
+                  <div className="text-center text-sm text-gray-700 font-medium">OR Upload MP4</div>
                   <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all cursor-pointer relative">
                     <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={e => { if (e.target.files?.length) { setFile(e.target.files[0]); setExternalUrl(''); } }} accept="video/mp4" />
-                    <UploadCloud className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-                    <p className="text-sm font-medium text-gray-600">
+                    <UploadCloud className="h-10 w-10 text-gray-800 mx-auto mb-3" />
+                    <p className="text-sm font-medium text-gray-800">
                       {file ? file.name : "Click to select video or drag and drop"}
                     </p>
                   </div>
@@ -229,11 +239,11 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
               ) : (
                 <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all cursor-pointer relative">
                   <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={e => { if (e.target.files?.length) setFile(e.target.files[0]); }} />
-                  <UploadCloud className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-                  <p className="text-sm font-medium text-gray-600">
+                  <UploadCloud className="h-10 w-10 text-gray-800 mx-auto mb-3" />
+                  <p className="text-sm font-medium text-gray-800">
                     {file ? file.name : "Click to select files or drag and drop"}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">PDF, DOCX, PPTX up to 100MB</p>
+                  <p className="text-xs text-gray-800 mt-1">PDF, DOCX, PPTX up to 100MB</p>
                 </div>
               )}
 
@@ -263,7 +273,7 @@ export const ResourceUploadModal: React.FC<ResourceUploadModalProps> = ({
                       className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                         visibility === v.value
                           ? 'bg-indigo-600 text-white border-indigo-600'
-                          : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                          : 'bg-white text-gray-800 border-gray-200 hover:border-gray-300'
                       }`}
                     >
                       {v.label}

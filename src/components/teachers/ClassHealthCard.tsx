@@ -45,7 +45,7 @@ export const ClassHealthCard: React.FC<ClassHealthProps> = ({
       <div className="p-4 border-b border-slate-100">
         <div className="flex justify-between items-start gap-2">
           <div className="min-w-0 flex-1">
-            <Badge variant="outline" className="mb-1.5 bg-slate-50 text-slate-600 border-slate-200 text-[10px]">
+            <Badge variant="outline" className="mb-1.5 bg-slate-50 text-slate-800 border-slate-200 text-[10px]">
               {subject}
             </Badge>
             <CardTitle className="text-base font-bold text-slate-800 line-clamp-2 leading-tight" title={className}>
@@ -53,9 +53,9 @@ export const ClassHealthCard: React.FC<ClassHealthProps> = ({
             </CardTitle>
           </div>
           <div className="shrink-0 mt-1">
-            {improvementTrend === 'up' && <TrendingUp className="w-5 h-5 text-green-500" />}
-            {improvementTrend === 'down' && <TrendingDown className="w-5 h-5 text-red-500" />}
-            {improvementTrend === 'flat' && <Minus className="w-5 h-5 text-slate-400" />}
+            {improvementTrend === 'up' && <TrendingUp className="w-5 h-5 text-emerald-700" />}
+            {improvementTrend === 'down' && <TrendingDown className="w-5 h-5 text-red-700" />}
+            {improvementTrend === 'flat' && <Minus className="w-5 h-5 text-slate-800" />}
           </div>
         </div>
       </div>
@@ -64,7 +64,7 @@ export const ClassHealthCard: React.FC<ClassHealthProps> = ({
       <div className="p-4 bg-slate-50/50 flex-1">
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-white px-3 py-2.5 rounded-lg border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium mb-1 uppercase tracking-wider">
+            <div className="flex items-center gap-1 text-[10px] text-slate-700 font-medium mb-1 uppercase tracking-wider">
               <Users className="w-3 h-3 shrink-0" /> Attendance
             </div>
             <div className={`text-xl font-bold ${attendancePct < 85 ? 'text-orange-600' : 'text-slate-800'}`}>
@@ -72,10 +72,10 @@ export const ClassHealthCard: React.FC<ClassHealthProps> = ({
             </div>
           </div>
           <div className="bg-white px-3 py-2.5 rounded-lg border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium mb-1 uppercase tracking-wider">
+            <div className="flex items-center gap-1 text-[10px] text-slate-700 font-medium mb-1 uppercase tracking-wider">
               <BookOpen className="w-3 h-3 shrink-0" /> Avg Score
             </div>
-            <div className={`text-xl font-bold ${avgPerformance < 50 ? 'text-red-600' : 'text-slate-800'}`}>
+            <div className={`text-xl font-bold ${avgPerformance < 50 ? 'text-red-800' : 'text-slate-800'}`}>
               {avgPerformance}%
             </div>
           </div>
@@ -84,18 +84,18 @@ export const ClassHealthCard: React.FC<ClassHealthProps> = ({
         {/* Risk Indicators */}
         <div className="space-y-2.5">
           <div className="flex items-start gap-2 text-sm">
-            <span className="text-slate-500 flex items-center gap-1 shrink-0 mt-0.5">
+            <span className="text-slate-700 flex items-center gap-1 shrink-0 mt-0.5">
               <AlertTriangle className="w-3.5 h-3.5" />
             </span>
             <div className="min-w-0">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Weak Topic</span>
+              <span className="text-[10px] text-slate-800 font-semibold uppercase tracking-wider block">Weak Topic</span>
               <span className="font-semibold text-slate-800 text-sm leading-tight line-clamp-2" title={weakestTopic}>
                 {weakestTopic}
               </span>
             </div>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-500 flex items-center gap-1.5 shrink-0">
+            <span className="text-slate-700 flex items-center gap-1.5 shrink-0">
               <UserMinus className="w-3.5 h-3.5" /> At-Risk
             </span>
             <Badge variant="secondary" className={`shrink-0 ${redAlertStudents > 0 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>

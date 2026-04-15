@@ -18,7 +18,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ isOpen, onClose, vimeoVideoId
           <h2 className="text-xl font-semibold text-gray-800 truncate pr-8">{title}</h2>
           <button 
             onClick={onClose}
-            className="text-gray-500 hover:text-red-500 transition-colors p-1"
+            className="text-gray-700 hover:text-red-700 transition-colors p-1"
           >
             <X size={24} />
           </button>

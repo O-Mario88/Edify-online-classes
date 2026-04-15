@@ -46,14 +46,14 @@ export const CurriculumDistributionMap: React.FC<CurriculumDistributionMapProps>
            <div>
               <div className="flex items-center gap-2 mb-1">
                  <Badge className="bg-indigo-100 text-indigo-700 border-indigo-200">National Analytics</Badge>
-                 <span className="text-sm font-medium text-slate-500">Master Distribution Map</span>
+                 <span className="text-sm font-medium text-slate-700">Master Distribution Map</span>
               </div>
               <CardTitle className="text-2xl font-bold text-slate-900 flex items-center gap-2">
                  {topicName}
               </CardTitle>
            </div>
            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-slate-200 shrink-0">
-             <X className="w-5 h-5 text-slate-500" />
+             <X className="w-5 h-5 text-slate-700" />
            </Button>
         </CardHeader>
         
@@ -61,13 +61,13 @@ export const CurriculumDistributionMap: React.FC<CurriculumDistributionMapProps>
            {/* Tab Navigation */}
            <div className="flex border-b border-slate-100 px-6 shrink-0 pt-2">
               <button 
-                className={`py-3 px-4 font-semibold text-sm border-b-2 flex items-center gap-2 transition-colors ${activeTab === 'curve' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                className={`py-3 px-4 font-semibold text-sm border-b-2 flex items-center gap-2 transition-colors ${activeTab === 'curve' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-700 hover:text-slate-700'}`}
                 onClick={() => setActiveTab('curve')}
               >
                  <BarChart3 className="w-4 h-4" /> National Grade Curve
               </button>
               <button 
-                className={`py-3 px-4 font-semibold text-sm border-b-2 flex items-center gap-2 transition-colors ${activeTab === 'heatmap' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                className={`py-3 px-4 font-semibold text-sm border-b-2 flex items-center gap-2 transition-colors ${activeTab === 'heatmap' ? 'border-indigo-600 text-indigo-700' : 'border-transparent text-slate-700 hover:text-slate-700'}`}
                 onClick={() => setActiveTab('heatmap')}
               >
                  <Map className="w-4 h-4" /> Institutional Heatmap
@@ -80,13 +80,13 @@ export const CurriculumDistributionMap: React.FC<CurriculumDistributionMapProps>
                 <div className="flex-1 flex flex-col">
                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 shrink-0">
                       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                         <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">Total Students</p>
+                         <p className="text-sm font-bold text-slate-700 uppercase tracking-widest mb-1">Total Students</p>
                          <p className="text-3xl font-bold text-slate-800 flex items-center gap-2">
                             15,200 <Users className="w-5 h-5 text-indigo-400" />
                          </p>
                       </div>
                       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                         <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">National Average</p>
+                         <p className="text-sm font-bold text-slate-700 uppercase tracking-widest mb-1">National Average</p>
                          <p className="text-3xl font-bold text-slate-800 flex items-center gap-2">
                             62% <TrendingUp className="w-5 h-5 text-emerald-500" />
                          </p>
@@ -94,14 +94,14 @@ export const CurriculumDistributionMap: React.FC<CurriculumDistributionMapProps>
                       <div className="bg-red-50 p-4 rounded-xl border border-red-100 shadow-sm">
                          <p className="text-sm font-bold text-red-700 uppercase tracking-widest mb-1">Critical Failure Cohort</p>
                          <p className="text-3xl font-bold text-red-900 flex items-center gap-2">
-                            1,200 <AlertTriangle className="w-5 h-5 text-red-500" />
+                            1,200 <AlertTriangle className="w-5 h-5 text-red-700" />
                          </p>
                       </div>
                    </div>
 
                    {/* The Abstract CSS Bell Curve */}
                    <div className="flex-1 bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col justify-end relative h-64 md:h-auto min-h-[300px]">
-                      <div className="absolute top-4 left-6 text-sm font-bold text-slate-400 uppercase tracking-widest">Student Volume</div>
+                      <div className="absolute top-4 left-6 text-sm font-bold text-slate-800 uppercase tracking-widest">Student Volume</div>
                       
                       <div className="flex items-end justify-between gap-2 h-full pb-8 pt-12">
                          {curveData.map((bar, idx) => (
@@ -110,7 +110,7 @@ export const CurriculumDistributionMap: React.FC<CurriculumDistributionMapProps>
                                 <Badge variant="outline" className="bg-slate-800 text-white border-slate-800 shadow-lg mb-1">
                                   {bar.count.toLocaleString()} students
                                 </Badge>
-                                <div className="text-xs font-bold text-slate-600">{bar.percentage}%</div>
+                                <div className="text-xs font-bold text-slate-800">{bar.percentage}%</div>
                               </div>
                               <div className={`w-full max-w-[80px] rounded-t-lg transition-all duration-500 ${bar.height} ${bar.color} opacity-80 group-hover:opacity-100`} />
                            </div>
@@ -120,7 +120,7 @@ export const CurriculumDistributionMap: React.FC<CurriculumDistributionMapProps>
                       {/* X Axis Labels */}
                       <div className="absolute bottom-0 left-0 right-0 h-10 border-t border-slate-200 flex justify-between px-6 pt-2">
                          {curveData.map((bar, idx) => (
-                           <div key={idx} className="flex-1 text-center text-xs font-bold text-slate-500">
+                           <div key={idx} className="flex-1 text-center text-xs font-bold text-slate-700">
                              {bar.grade}
                            </div>
                          ))}
@@ -130,7 +130,7 @@ export const CurriculumDistributionMap: React.FC<CurriculumDistributionMapProps>
               ) : (
                 <div className="flex-1 flex flex-col">
                    <div className="mb-4">
-                     <p className="text-slate-600">Visualizing 113 active institutions currently engaged with this topic. Institutions in red are driving down the national average.</p>
+                     <p className="text-slate-800">Visualizing 113 active institutions currently engaged with this topic. Institutions in red are driving down the national average.</p>
                    </div>
                    
                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 flex-1">
@@ -156,10 +156,10 @@ export const CurriculumDistributionMap: React.FC<CurriculumDistributionMapProps>
                              {icon}
                              <div className="relative z-10">
                                <h4 className={`font-bold ${textClass}`}>{region.region}</h4>
-                               <p className="text-xs text-slate-500 mb-3">{region.orgs} Institutions</p>
+                               <p className="text-xs text-slate-700 mb-3">{region.orgs} Institutions</p>
                              </div>
                              <div className="relative z-10">
-                               <p className="text-xs uppercase font-bold text-slate-400 mb-1">Local Avg</p>
+                               <p className="text-xs uppercase font-bold text-slate-800 mb-1">Local Avg</p>
                                <p className={`text-3xl font-black ${textClass}`}>{region.avg}%</p>
                              </div>
                            </div>

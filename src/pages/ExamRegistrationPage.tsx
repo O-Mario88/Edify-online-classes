@@ -120,7 +120,10 @@ const ExamRegistrationPage: React.FC = () => {
   const fetchExamCenters = async () => {
     try {
       const response = await apiClient.get('/exams/exam-center/');
-      setExamCenters(response.data.results || response.data || []);
+      const responseData: any = response.data;
+      const centers = Array.isArray(responseData?.results) ? responseData.results
+        : Array.isArray(responseData) ? responseData : [];
+      setExamCenters(centers);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching exam centers:', error);

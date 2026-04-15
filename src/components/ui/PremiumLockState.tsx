@@ -35,18 +35,18 @@ export const PremiumLockState: React.FC<PremiumLockStateProps> = ({
       </div>
 
       {/* Frosted Glass Overlay */}
-      <div className="absolute inset-0 backdrop-blur-md bg-white/70 flex flex-col items-center justify-center p-8 text-center z-10 transition-colors">
+      <div className="absolute inset-0 backdrop-blur-md bg-white/80 flex flex-col items-center justify-center p-8 text-center z-10 transition-colors">
         
         <div className="relative mb-6 group">
            <div className="absolute inset-0 bg-amber-500/20 blur-2xl rounded-full scale-[2.0] transition-transform group-hover:scale-[2.5]" />
            <div className="relative bg-gradient-to-br from-amber-100 to-amber-50 p-4 rounded-full shadow-lg border border-amber-200/50 flex items-center justify-center">
-             <Lock className="w-8 h-8 text-amber-600 mb-0.5 absolute opacity-0 group-hover:opacity-100 transition-opacity" />
-             <Crown className="w-8 h-8 text-amber-600 group-hover:opacity-0 transition-opacity" />
+             <Lock className="w-8 h-8 text-amber-800 mb-0.5 absolute opacity-0 group-hover:opacity-100 transition-opacity" />
+             <Crown className="w-8 h-8 text-amber-800 group-hover:opacity-0 transition-opacity" />
            </div>
         </div>
 
         <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-3 drop-shadow-sm">{title}</h3>
-        <p className="text-slate-600 font-medium max-w-md mx-auto mb-8 leading-relaxed">
+        <p className="text-slate-800 font-medium max-w-md mx-auto mb-8 leading-relaxed">
           {description}
         </p>
 

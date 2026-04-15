@@ -40,7 +40,7 @@ export function CareerGuidanceWidget() {
         <Card className="border-slate-200 dark:border-slate-800 shadow-sm flex flex-col bg-white dark:bg-slate-900">
           <CardHeader className="pb-2">
              <CardTitle className="flex items-center gap-2 text-lg">
-               <BrainCircuit className="w-5 h-5 text-purple-500" /> Human Strength Profile
+               <BrainCircuit className="w-5 h-5 text-purple-700" /> Human Strength Profile
              </CardTitle>
              <CardDescription>Synthesized from 12 projects and 4 term exams.</CardDescription>
           </CardHeader>
@@ -82,30 +82,30 @@ export function CareerGuidanceWidget() {
                <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                  <div className="h-full bg-emerald-500 w-[85%] rounded-full"></div>
                </div>
-               <p className="text-xs text-slate-500">Your strong focus on Creativity and Analytical problem-solving translates heavily to careers that require non-routine human judgment. These are highly resistant to AI disruption.</p>
+               <p className="text-xs text-slate-700">Your strong focus on Creativity and Analytical problem-solving translates heavily to careers that require non-routine human judgment. These are highly resistant to AI disruption.</p>
             </div>
 
             <div className="space-y-2">
                <div className="flex justify-between items-end">
                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                   <HeartHandshake className="w-4 h-4 text-blue-600" /> Human-Value Demand
+                   <HeartHandshake className="w-4 h-4 text-blue-800" /> Human-Value Demand
                  </div>
-                 <span className="text-blue-600 font-bold">Growing</span>
+                 <span className="text-blue-800 font-bold">Growing</span>
                </div>
                <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                  <div className="h-full bg-blue-500 w-[70%] rounded-full"></div>
                </div>
-               <p className="text-xs text-slate-500">Your empathy and communication markers are good, but strengthening collaborative projects will boost your fitness for leadership layers.</p>
+               <p className="text-xs text-slate-700">Your empathy and communication markers are good, but strengthening collaborative projects will boost your fitness for leadership layers.</p>
             </div>
 
             <div className="space-y-2">
                <div className="flex justify-between items-end">
                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                   <Cpu className="w-4 h-4 text-amber-500" /> Digital Economy Adaptation
+                   <Cpu className="w-4 h-4 text-amber-700" /> Digital Economy Adaptation
                  </div>
-                 <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20">Needs Polish</Badge>
+                 <Badge variant="outline" className="text-amber-800 border-amber-200 bg-amber-50 dark:bg-amber-900/20">Needs Polish</Badge>
                </div>
-               <p className="text-xs text-slate-500 mt-1">Some fields you lean towards naturally (like physical layout design) are under immense automation pressure. You should integrate more digital software literacy into your next projects to stay hybrid.</p>
+               <p className="text-xs text-slate-700 mt-1">Some fields you lean towards naturally (like physical layout design) are under immense automation pressure. You should integrate more digital software literacy into your next projects to stay hybrid.</p>
             </div>
 
           </CardContent>
@@ -115,7 +115,7 @@ export function CareerGuidanceWidget() {
         <Card className="border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 flex flex-col">
           <CardHeader>
              <CardTitle className="flex items-center gap-2 text-lg">
-               <Lightbulb className="w-5 h-5 text-amber-500" /> Suggested Pathways
+               <Lightbulb className="w-5 h-5 text-amber-700" /> Suggested Pathways
              </CardTitle>
              <CardDescription>Data-grounded directions to consider.</CardDescription>
           </CardHeader>
@@ -127,7 +127,7 @@ export function CareerGuidanceWidget() {
                 <h4 className="font-bold text-slate-900 dark:text-white">Architecture & Green Design</h4>
                 <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200">92% Match</Badge>
               </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
+              <p className="text-xs text-slate-800 dark:text-slate-800 mb-3">
                 Your physics performance combined with your exceptional geography modeling project suggests a profound fit for sustainable infrastructure.
               </p>
               <div className="text-xs border-t border-slate-200 dark:border-slate-700 pt-3">
@@ -141,7 +141,7 @@ export function CareerGuidanceWidget() {
                 <h4 className="font-bold text-slate-900 dark:text-white">Software Engineering</h4>
                 <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">86% Match</Badge>
               </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
+              <p className="text-xs text-slate-800 dark:text-slate-800 mb-3">
                 Your analytical logic scores are elite, and your persistence in solving the Term 2 coding challenges flags high resilience for debugging systems.
               </p>
               <div className="text-xs border-t border-slate-200 dark:border-slate-700 pt-3">
@@ -151,7 +151,7 @@ export function CareerGuidanceWidget() {
 
           </CardContent>
           <div className="p-4 bg-slate-50 dark:bg-slate-900/50 text-center border-t border-slate-100 dark:border-slate-800 rounded-b-xl">
-             <p className="text-xs text-slate-500 italic">These AI-driven pathways are guides, not limits. The more evidence you produce, the smarter this becomes.</p>
+             <p className="text-xs text-slate-700 italic">These AI-driven pathways are guides, not limits. The more evidence you produce, the smarter this becomes.</p>
           </div>
         </Card>
 

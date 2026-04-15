@@ -21,10 +21,10 @@ interface TeacherLeaderboardCardProps {
 }
 
 const getRankIcon = (rank: number) => {
-  if (rank === 1) return <Crown className="w-4 h-4 text-amber-500" />;
-  if (rank === 2) return <Medal className="w-4 h-4 text-slate-400" />;
+  if (rank === 1) return <Crown className="w-4 h-4 text-amber-700" />;
+  if (rank === 2) return <Medal className="w-4 h-4 text-slate-800" />;
   if (rank === 3) return <Award className="w-4 h-4 text-amber-700" />;
-  return <span className="text-xs font-bold text-slate-400 w-4 text-center">#{rank}</span>;
+  return <span className="text-xs font-bold text-slate-800 w-4 text-center">#{rank}</span>;
 };
 
 const getRankBg = (rank: number) => {
@@ -51,7 +51,7 @@ const TeacherLeaderboardCard: React.FC<TeacherLeaderboardCardProps> = ({
           </div>
           <div className="min-w-0">
             <CardTitle className="text-sm font-bold text-slate-800 leading-tight">{title}</CardTitle>
-            <p className="text-[10px] text-slate-500 font-medium mt-0.5">{description}</p>
+            <p className="text-[10px] text-slate-700 font-medium mt-0.5">{description}</p>
           </div>
         </div>
       </CardHeader>
@@ -72,7 +72,7 @@ const TeacherLeaderboardCard: React.FC<TeacherLeaderboardCardProps> = ({
                 <h4 className={`text-sm font-semibold text-slate-800 truncate ${entry.rank === 1 ? 'text-amber-900' : ''}`}>
                   {entry.name}
                 </h4>
-                <p className="text-[10px] text-slate-500 font-medium truncate">{entry.subject}</p>
+                <p className="text-[10px] text-slate-700 font-medium truncate">{entry.subject}</p>
               </div>
 
               {/* Value */}
@@ -80,7 +80,7 @@ const TeacherLeaderboardCard: React.FC<TeacherLeaderboardCardProps> = ({
                 <span className={`text-sm font-bold ${entry.rank === 1 ? 'text-amber-700' : 'text-slate-700'}`}>
                   {entry.value}
                 </span>
-                <p className="text-[9px] text-slate-400 font-medium uppercase tracking-wider">{valueLabel}</p>
+                <p className="text-[9px] text-slate-800 font-medium uppercase tracking-wider">{valueLabel}</p>
               </div>
             </div>
           ))}
@@ -129,7 +129,7 @@ export const TeacherCompetitionLeaderboards: React.FC = () => {
       <TeacherLeaderboardCard
         title="Content Review Stars"
         description="Top rated teachers by students"
-        icon={<Star className="w-4 h-4 text-amber-600" />}
+        icon={<Star className="w-4 h-4 text-amber-800" />}
         accentColor="amber"
         entries={contentReviewBoard}
         valueLabel="rating"
@@ -137,7 +137,7 @@ export const TeacherCompetitionLeaderboards: React.FC = () => {
       <TeacherLeaderboardCard
         title="Most Accessed Content"
         description="Highest student engagement"
-        icon={<BookOpen className="w-4 h-4 text-blue-600" />}
+        icon={<BookOpen className="w-4 h-4 text-blue-800" />}
         accentColor="blue"
         entries={contentUploadBoard}
         valueLabel="accesses"
@@ -153,7 +153,7 @@ export const TeacherCompetitionLeaderboards: React.FC = () => {
       <TeacherLeaderboardCard
         title="Best Class Attendance"
         description="Most attended live sessions"
-        icon={<Users className="w-4 h-4 text-indigo-600" />}
+        icon={<Users className="w-4 h-4 text-indigo-800" />}
         accentColor="indigo"
         entries={topAttendanceBoard}
         valueLabel="attendance"

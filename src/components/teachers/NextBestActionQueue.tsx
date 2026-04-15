@@ -29,12 +29,12 @@ export const NextBestActionQueue: React.FC<NextBestActionQueueProps> = ({ action
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'urgent_academic': return <AlertTriangle className="w-5 h-5 text-red-500" />;
+      case 'urgent_academic': return <AlertTriangle className="w-5 h-5 text-red-700" />;
       case 'attendance_risk': return <Users className="w-5 h-5 text-orange-500" />;
-      case 'grading_blocker': return <FileCheck className="w-5 h-5 text-indigo-500" />;
-      case 'payout_blocker': return <DollarSign className="w-5 h-5 text-green-500" />;
-      case 'peer_support': return <Play className="w-5 h-5 text-blue-500" />;
-      default: return <AlertCircle className="w-5 h-5 text-slate-500" />;
+      case 'grading_blocker': return <FileCheck className="w-5 h-5 text-indigo-700" />;
+      case 'payout_blocker': return <DollarSign className="w-5 h-5 text-emerald-700" />;
+      case 'peer_support': return <Play className="w-5 h-5 text-blue-700" />;
+      default: return <AlertCircle className="w-5 h-5 text-slate-700" />;
     }
   };
 
@@ -72,7 +72,7 @@ export const NextBestActionQueue: React.FC<NextBestActionQueueProps> = ({ action
         <CardContent className="p-0">
           <div className="divide-y divide-slate-100">
             {sortedActions.length === 0 ? (
-              <div className="p-6 text-center text-slate-500">
+              <div className="p-6 text-center text-slate-700">
                 <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
                 <p>You're all caught up! No urgent actions required.</p>
               </div>
@@ -87,10 +87,10 @@ export const NextBestActionQueue: React.FC<NextBestActionQueueProps> = ({ action
                       <div className="flex justify-between items-start mb-1">
                         <h4 className="font-semibold text-slate-900 truncate">{action.title}</h4>
                         {action.priority === 'high' && (
-                          <span className="text-[10px] uppercase font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full whitespace-nowrap ml-2">Urgent</span>
+                          <span className="text-[10px] uppercase font-bold text-red-800 bg-red-100 px-2 py-0.5 rounded-full whitespace-nowrap ml-2">Urgent</span>
                         )}
                       </div>
-                      <p className="text-sm text-slate-600 mb-3">{action.description}</p>
+                      <p className="text-sm text-slate-800 mb-3">{action.description}</p>
                       
                       <Button 
                         size="sm" 

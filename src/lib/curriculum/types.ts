@@ -1,4 +1,5 @@
 export type CountryCode = 'uganda' | 'kenya' | 'rwanda';
+export type SchoolLevel = 'primary' | 'secondary';
 
 export interface CurriculumConfig {
   countryCode: CountryCode;
@@ -8,20 +9,23 @@ export interface CurriculumConfig {
 }
 
 export interface EducationLevel {
-  id: string; // e.g. "o-level", "a-level", "jss", "sss"
-  name: string; // e.g. "Lower Secondary", "Senior School"
+  id: string; // e.g. "o-level", "a-level", "primary", "jss", "sss"
+  name: string; // e.g. "Lower Secondary", "Upper Primary"
   description: string;
+  schoolLevel: SchoolLevel; // Whether this is a primary or secondary education level
   isLegacy?: boolean; 
   durationYears: number;
   grades: Grade[]; 
 }
 
 export interface Grade {
-  id: string; // e.g., "senior-1", "form-1", "grade-10"
-  name: string; // Senior 1, Form 1, Grade 10
+  id: string; // e.g., "senior-1", "p4", "form-1", "grade-10"
+  name: string; // Senior 1, Primary 4, Form 1, Grade 10
   description: string;
   isExamYear: boolean;
-  examType?: string; // e.g., "UCE", "KCSE", "O-Level Exams"
+  isTransitionYear?: boolean; // For P4 transition year support
+  examType?: string; // e.g., "UCE", "PLE", "KCSE", "O-Level Exams"
+  canonicalGrade: number; // Standardized grade number (4 for P4, 8 for S1, etc.)
   subjectGroups: SubjectGroup[];
 }
 

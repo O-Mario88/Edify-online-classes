@@ -15,14 +15,14 @@ interface ParentActionItem {
 }
 
 const TYPE_ICON_MAP: Record<string, React.ReactNode> = {
-  attendance_issue: <AlertCircle className="w-5 h-5 text-red-500" />,
-  alert_acknowledge: <AlertCircle className="w-5 h-5 text-red-500" />,
+  attendance_issue: <AlertCircle className="w-5 h-5 text-red-700" />,
+  alert_acknowledge: <AlertCircle className="w-5 h-5 text-red-700" />,
   home_follow_up: <BookOpen className="w-5 h-5 text-orange-500" />,
-  view_tasks: <BookOpen className="w-5 h-5 text-blue-500" />,
-  teacher_contact: <MessageSquare className="w-5 h-5 text-indigo-500" />,
-  intervention_response: <HeartCrack className="w-5 h-5 text-purple-500" />,
+  view_tasks: <BookOpen className="w-5 h-5 text-blue-700" />,
+  teacher_contact: <MessageSquare className="w-5 h-5 text-indigo-700" />,
+  intervention_response: <HeartCrack className="w-5 h-5 text-purple-700" />,
   celebration: <Lightbulb className="w-5 h-5 text-yellow-500" />,
-  payment: <BookOpen className="w-5 h-5 text-green-500" />,
+  payment: <BookOpen className="w-5 h-5 text-emerald-700" />,
 };
 
 const FALLBACK_ACTIONS: ParentActionItem[] = [
@@ -30,7 +30,7 @@ const FALLBACK_ACTIONS: ParentActionItem[] = [
     id: 'a1', type: 'alert', title: 'Dropped below attendance threshold',
     description: 'Your child missed 3 live sessions this week.',
     homeHelp: 'Please discuss the importance of showing up on time, and ensure their device is charged.',
-    icon: <AlertCircle className="w-5 h-5 text-red-500" />
+    icon: <AlertCircle className="w-5 h-5 text-red-700" />
   },
   {
     id: 'a2', type: 'academic', title: 'Pending Mathematics Assignment',
@@ -42,7 +42,7 @@ const FALLBACK_ACTIONS: ParentActionItem[] = [
     id: 'a3', type: 'wellbeing', title: 'Peer Support Drop',
     description: 'Your child has been less active in class discussions recently.',
     homeHelp: 'Ask them if they are feeling overwhelmed and encourage them to ask one question tomorrow.',
-    icon: <HeartCrack className="w-5 h-5 text-purple-500" />
+    icon: <HeartCrack className="w-5 h-5 text-purple-700" />
   }
 ];
 
@@ -62,7 +62,7 @@ export const ParentActionCenter: React.FC = () => {
             title: a.title,
             description: a.description || `Regarding ${a.child_name}`,
             homeHelp: a.data_payload?.home_help || 'Follow up with your child about this item.',
-            icon: TYPE_ICON_MAP[a.action_type] || <AlertCircle className="w-5 h-5 text-slate-500" />,
+            icon: TYPE_ICON_MAP[a.action_type] || <AlertCircle className="w-5 h-5 text-slate-700" />,
           })));
         }
       } catch {
@@ -89,10 +89,10 @@ export const ParentActionCenter: React.FC = () => {
          <div className="flex justify-between items-start">
            <div>
              <CardTitle className="text-xl text-indigo-950 flex items-center gap-2">
-               <CheckSquare className="w-6 h-6 text-indigo-600" />
+               <CheckSquare className="w-6 h-6 text-indigo-800" />
                Parent Action Center
              </CardTitle>
-             <CardDescription className="text-slate-500 mt-1">
+             <CardDescription className="text-slate-700 mt-1">
                Go beyond summaries. Actively partner in their learning.
              </CardDescription>
            </div>
@@ -110,12 +110,12 @@ export const ParentActionCenter: React.FC = () => {
                  <div className="flex gap-4">
                     <div className="mt-1 flex-shrink-0">{action.icon}</div>
                     <div className="flex-1">
-                       <h4 className={`text-md font-bold mb-1 ${isAck ? 'text-slate-500' : 'text-slate-900'}`}>{action.title}</h4>
-                       <p className="text-sm text-slate-600 mb-3">{action.description}</p>
+                       <h4 className={`text-md font-bold mb-1 ${isAck ? 'text-slate-700' : 'text-slate-900'}`}>{action.title}</h4>
+                       <p className="text-sm text-slate-800 mb-3">{action.description}</p>
                        
                        {!isAck && (
                          <div className="bg-yellow-50 border border-yellow-100 p-3 rounded-lg mb-4 flex gap-2">
-                            <Lightbulb className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" />
+                            <Lightbulb className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
                             <div>
                                <span className="text-xs font-bold uppercase tracking-wider text-yellow-700 block mb-0.5">Help at Home</span>
                                <span className="text-sm text-yellow-900">{action.homeHelp}</span>
@@ -125,7 +125,7 @@ export const ParentActionCenter: React.FC = () => {
 
                        <div className="flex flex-wrap gap-3 mt-2">
                           {isAck ? (
-                             <span className="text-sm font-semibold text-green-600 flex items-center">
+                             <span className="text-sm font-semibold text-emerald-800 flex items-center">
                                 <CheckSquare className="w-4 h-4 mr-1.5" /> Acknowledged & Action Taken
                              </span>
                           ) : (
@@ -133,7 +133,7 @@ export const ParentActionCenter: React.FC = () => {
                                <Button size="sm" onClick={() => handleAcknowledge(action.id)} className="bg-indigo-600 hover:bg-indigo-700 shadow-sm">
                                   Acknowledge Intervention
                                </Button>
-                               <Button size="sm" variant="outline" className="text-slate-600 border-slate-200">
+                               <Button size="sm" variant="outline" className="text-slate-800 border-slate-200">
                                   <MessageSquare className="w-4 h-4 mr-1.5" /> Request Teacher Meeting
                                </Button>
                              </>

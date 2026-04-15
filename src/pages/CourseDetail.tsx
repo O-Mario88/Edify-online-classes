@@ -28,70 +28,95 @@ import { UgandaLevel, UgandaClass, Subject, Teacher, Topic, Student } from '../t
 import { useAuth } from '../contexts/AuthContext';
 import { OfflineSyncEngine } from '../lib/offlineSync';
 import { apiClient } from '@/lib/apiClient';
+import { contentApi, ContentItem } from '../lib/contentApi';
 
 export const CourseDetail: React.FC = () => {
   const { classId, termId, subjectId } = useParams();
   const { user } = useAuth();
   const [levels, setLevels] = useState<UgandaLevel[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<string>('');
+  const [contentResources, setContentResources] = useState<ContentItem[]>([]);
+  // Resolve from mock data immediately
+  const resolveFromLevels = (lvls: UgandaLevel[]) => {
+    for (const level of lvls) {
+      for (const ugandaClass of level.classes) {
+        if (ugandaClass.id === classId) {
+          const specificTerm = ugandaClass.terms.find((t: any) => t.id === termId) || ugandaClass.terms[0];
+          if (specificTerm) {
+            const subject = specificTerm.subjects.find((s: Subject) => s.id === subjectId);
+            if (subject) return { cls: ugandaClass, subject };
+          }
+          return { cls: ugandaClass, subject: null };
+        }
+      }
+    }
+    return null;
+  };
 
   const [currentClass, setCurrentClass] = useState<UgandaClass | null>(null);
   const [currentSubject, setCurrentSubject] = useState<Subject | null>(null);
   const [currentTeacher, setCurrentTeacher] = useState<Teacher | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchData = async () => {
       try {
         const [coursesResponse, usersResponse] = await Promise.all([
           apiClient.get('/curriculum/full-tree/').catch(() => ({ data: { levels: [] } })),
           fetch(`/data/users.json?t=${new Date().getTime()}`).then(r => r.json()).catch(() => ({ teachers: [] }))
         ]);
-        
-        const coursesData = coursesResponse.data || { levels: [] };
+        if (cancelled) return;
+
+        const coursesData: any = coursesResponse.data || { levels: [] };
         const usersData = usersResponse;
-        
-        setLevels(coursesData.levels || []);
+
+        if (coursesData.levels?.length) {
+          setLevels(coursesData.levels);
+        }
         setTeachers(usersData.teachers || []);
 
-        // Find the specific class and subject
-        let found = false;
-        for (const level of coursesData.levels) {
-          if(found) break;
-          for (const ugandaClass of level.classes) {
-            if(found) break;
-            if (ugandaClass.id === classId) {
-              setCurrentClass(ugandaClass);
-              
-              // Find the subject for the specific term in the URL
-              const specificTerm = ugandaClass.terms.find((t: any) => t.id === termId) || ugandaClass.terms[0];
-              if (specificTerm) {
-                const subject = specificTerm.subjects.find((s: Subject) => s.id === subjectId);
-                if (subject) {
-                  setCurrentSubject(subject);
-                  
-                  // Find the teacher
-                  const teacher = usersData.teachers.find((t: Teacher) => t.id === subject.teacherId);
-                  if (teacher) {
-                    setCurrentTeacher(teacher);
-                  }
-                  found = true;
-                }
-              }
-            }
-          }
+        // Find the specific class and subject from API data
+        const apiResult = resolveFromLevels(coursesData.levels || []);
+        if (apiResult?.cls) setCurrentClass(apiResult.cls);
+        if (apiResult?.subject) {
+          setCurrentSubject(apiResult.subject);
+          const teacher = usersData.teachers?.find((t: Teacher) => t.id === apiResult.subject!.teacherId);
+          if (teacher) setCurrentTeacher(teacher);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching curriculum (API unavailable):', error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchData();
+    return () => { cancelled = true; };
   }, [classId, termId, subjectId]);
+
+  // Fetch content resources from content delivery API
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await contentApi.library({
+          subject: subjectId,
+          class_level: classId,
+          content_type: undefined,
+          search: undefined
+        });
+        if (response.results?.length) {
+          setContentResources(response.results);
+        }
+      } catch {
+        // Silently fall back to empty — hardcoded fallback below
+      }
+    };
+    if (subjectId) fetchContent();
+  }, [subjectId, classId]);
 
   const handleEnroll = async () => {
     setEnrolling(true);
@@ -256,7 +281,7 @@ export const CourseDetail: React.FC = () => {
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mastery Progress</span>
                     <span className="text-sm font-bold text-slate-700">{getCompletedLessons()} / {getTotalLessons()} Units</span>
                   </div>
-                  <Progress value={getProgressPercentage()} className="h-2 bg-slate-100 mb-2" indicatorClassName="bg-emerald-500" />
+                  <Progress value={getProgressPercentage()} className="h-2 bg-slate-100 mb-2" />
                   <p className="text-[10px] font-bold tracking-widest text-emerald-600 uppercase text-right">{getProgressPercentage()}% Verified</p>
                 </div>
               ) : (
@@ -269,12 +294,34 @@ export const CourseDetail: React.FC = () => {
                   >
                     {enrolling ? 'Processing...' : `Secure Access • UGX ${currentClass.priceUGX.toLocaleString()}/mo`}
                   </EditorialPill>
-                  <EditorialPill variant="outline" className="justify-center py-5 bg-white">
+                  <EditorialPill variant="outline" className="justify-center py-5 bg-white" onClick={() => setShowPreviewModal(true)}>
                     Preview Material
                   </EditorialPill>
                 </div>
               )}
             </EditorialPanel>
+
+            {showPreviewModal && (
+               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                  <div className="bg-white rounded-3xl w-full max-w-4xl h-[70vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                     <div className="flex justify-between items-center p-6 border-b">
+                        <div className="flex items-center gap-3">
+                           <Play className="w-5 h-5 text-blue-600" />
+                           <h3 className="font-bold text-slate-800">Preview: {currentSubject.name} Overview</h3>
+                        </div>
+                        <button onClick={() => setShowPreviewModal(false)} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 font-black">
+                           &times;
+                        </button>
+                     </div>
+                     <div className="flex-1 bg-slate-900 flex items-center justify-center relative overflow-hidden">
+                        <video controls className="w-full h-full object-contain bg-black" autoPlay>
+                           <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+                           Your browser does not support the video tag.
+                        </video>
+                     </div>
+                  </div>
+               </div>
+            )}
 
             <Tabs defaultValue="curriculum" className="space-y-8">
               <TabsList className="flex overflow-x-auto hide-scrollbar w-full h-auto bg-white/60 backdrop-blur-md p-2 rounded-[2rem] border border-white shadow-sm gap-2">
@@ -466,7 +513,7 @@ export const CourseDetail: React.FC = () => {
                       {[5, 4, 3, 2, 1].map(r => (
                         <div key={r} className="flex items-center gap-3 mb-2 last:mb-0">
                            <span className="text-xs font-bold text-slate-500 w-2">{r}</span>
-                           <Progress value={r === 5 ? 80 : r === 4 ? 15 : r === 3 ? 3 : 1} className="h-1.5 flex-1 bg-slate-100" indicatorClassName="bg-amber-400" />
+                           <Progress value={r === 5 ? 80 : r === 4 ? 15 : r === 3 ? 3 : 1} className="h-1.5 flex-1 bg-slate-100" />
                         </div>
                       ))}
                     </div>
@@ -510,13 +557,19 @@ export const CourseDetail: React.FC = () => {
                   
                   <div className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {[
-                        { name: "UNEB Past Papers Collection", type: "PDF Archive", size: "15 MB", icon: FileText, color: "text-rose-600 bg-rose-50 border-rose-100" },
-                        { name: "Quick Reference Formula Sheet", type: "PDF Document", size: "2 MB", icon: FileText, color: "text-blue-600 bg-blue-50 border-blue-100" },
-                        { name: "Practice Exercise Bank", type: "Interactive Module", size: "Cloud App", icon: BookOpen, color: "text-[#8e8268] bg-[#f4efe2] border-white" },
-                        { name: "Video Solutions Library", type: "Media Hub", size: "500+ Assets", icon: Play, color: "text-amber-600 bg-amber-50 border-amber-100" }
-                      ].map((resource, index) => (
-                        <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 border border-slate-100 rounded-2xl bg-white hover:shadow-md transition-all gap-4 group cursor-pointer">
+                      {(contentResources.length > 0 ? contentResources.map(item => ({
+                        name: item.title,
+                        type: item.content_type.replace('_', ' ').toUpperCase(),
+                        size: item.file_size ? `${(item.file_size / (1024 * 1024)).toFixed(1)} MB` : 'Online',
+                        icon: ['video', 'video_lecture', 'recorded_lesson'].includes(item.content_type) ? Play : 
+                              ['interactive_sim', 'interactive_exercise'].includes(item.content_type) ? BookOpen : FileText,
+                        color: ['video', 'video_lecture', 'recorded_lesson'].includes(item.content_type) ? 'text-amber-600 bg-amber-50 border-amber-100' :
+                               ['interactive_sim', 'interactive_exercise'].includes(item.content_type) ? 'text-[#8e8268] bg-[#f4efe2] border-white' :
+                               'text-blue-600 bg-blue-50 border-blue-100',
+                        fileUrl: item.file_url
+                      })) : []).map((resource, index) => (
+                        <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 border border-slate-100 rounded-2xl bg-white hover:shadow-md transition-all gap-4 group cursor-pointer"
+                          onClick={() => resource.fileUrl && window.open(resource.fileUrl, '_blank')}>
                           <div className="flex items-center gap-4">
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center border shadow-sm ${resource.color}`}>
                               <resource.icon className="h-5 w-5" />
@@ -577,9 +630,11 @@ export const CourseDetail: React.FC = () => {
                      <EditorialPill variant="secondary" className="w-full justify-center" onClick={() => OfflineSyncEngine.queueJob('download_course', currentSubject.id)}>
                        <WifiOff className="h-4 w-4 mr-2 text-slate-500" /> Save for Offline
                      </EditorialPill>
-                     <EditorialPill variant="outline" className="w-full justify-center bg-white shadow-sm border-white hover:border-slate-200">
-                       <TrendingUp className="h-4 w-4 mr-2 text-slate-500" /> Analytics Suite
-                     </EditorialPill>
+                     <Link to="/dashboard/analytics" className="block w-full">
+                       <EditorialPill variant="outline" className="w-full justify-center bg-white shadow-sm border-white hover:border-slate-200">
+                         <TrendingUp className="h-4 w-4 mr-2 text-slate-500" /> Analytics Suite
+                       </EditorialPill>
+                     </Link>
                   </div>
                </div>
             </EditorialPanel>

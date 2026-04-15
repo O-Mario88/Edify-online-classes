@@ -73,26 +73,24 @@ export const ForumPage: React.FC = () => {
   const [showNewPostModal, setShowNewPostModal] = useState(false);
   const [newPostTitle, setNewPostTitle] = useState('');
   const [newPostContent, setNewPostContent] = useState('');
+  const [replyContent, setReplyContent] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchForumData = async () => {
       try {
-        const [liveThreadsRes, mockRes] = await Promise.all([
-          apiClient.get('/discussions/thread/').catch(() => ({ data: [] })),
-          fetch('/data/forum.json').then(res => res.json()).catch(() => ({ categories: [], generalDiscussion: [] }))
-        ]);
-
+        const liveThreadsRes = await apiClient.get('/discussions/thread/').catch(() => ({ data: [] }));
         const threads = liveThreadsRes.data || [];
-        const mockData = mockRes;
 
-        setCategories(mockData.categories || []);
+        // Categories will come from the API once backend supports it
+        setCategories([]);
 
-        if (threads.length > 0) {
-           const mappedThreads = threads.map((t: any) => ({
+        const threadsData: any = threads;
+        if (Array.isArray(threadsData) && threadsData.length > 0) {
+           const mappedThreads = threadsData.map((t: any) => ({
               id: String(t.id),
               title: t.title,
-              content: t.initial_post_content || 'Discussion started...', // Backend would inject this or we read first post
+              content: t.initial_post_content || 'Discussion started...',
               authorId: String(t.author),
               authorName: t.author_name || 'Community Member',
               authorRole: 'student',
@@ -105,12 +103,14 @@ export const ForumPage: React.FC = () => {
               isPinned: false,
               isSolved: false
            }));
-           setGeneralPosts([...mappedThreads, ...mockData.generalDiscussion]);
+           setGeneralPosts(mappedThreads);
         } else {
-           setGeneralPosts(mockData.generalDiscussion || []);
+           setGeneralPosts([]);
         }
       } catch (error) {
         console.error('Error fetching forum data:', error);
+        setCategories([]);
+        setGeneralPosts([]);
       } finally {
         setLoading(false);
       }
@@ -171,13 +171,13 @@ export const ForumPage: React.FC = () => {
 
       // Attempt to link post content if post endpoint accepts it standalone
       await apiClient.post('/discussions/post/', {
-         thread: threadRes.data.id,
+         thread: (threadRes.data as any).id,
          content: newPostContent,
          author: user?.id || 1
       });
 
       const newPost: ForumPost = {
-        id: String(threadRes.data.id),
+        id: String((threadRes.data as any).id),
         title: newPostTitle,
         content: newPostContent,
         authorId: user?.id || 'anonymous',
@@ -201,6 +201,52 @@ export const ForumPage: React.FC = () => {
       console.error('Failed to create thread on backend', error);
       alert('Failed to post discussion. Please check your connection.');
     }
+  };
+
+  const handlePostReply = async () => {
+    if (!replyContent.trim() || !selectedPost) return;
+
+    const newReply: ForumReply = {
+      id: Math.random().toString(36).substring(7),
+      content: replyContent,
+      authorId: user?.id || 'id',
+      authorName: user?.name || 'Current User',
+      authorRole: user?.role || 'student',
+      createdAt: new Date().toISOString(),
+      likes: 0
+    };
+
+    const updatedPost = { ...selectedPost, replies: [...(selectedPost.replies || []), newReply] };
+    setSelectedPost(updatedPost);
+    setGeneralPosts(posts => posts.map(p => p.id === updatedPost.id ? updatedPost : p));
+    setReplyContent('');
+  };
+
+  const handleLikePost = (postId: string) => {
+    setGeneralPosts(posts => posts.map(p => {
+      if (p.id === postId) {
+        const updatedPost = { ...p, likes: p.likes + 1 };
+        if (selectedPost && selectedPost.id === postId) {
+          setSelectedPost(updatedPost);
+        }
+        return updatedPost;
+      }
+      return p;
+    }));
+  };
+
+  const handleLikeReply = (postId: string, replyId: string) => {
+    setGeneralPosts(posts => posts.map(p => {
+      if (p.id === postId) {
+        const updatedReplies = p.replies?.map(r => r.id === replyId ? { ...r, likes: r.likes + 1 } : r);
+        const updatedPost = { ...p, replies: updatedReplies };
+        if (selectedPost && selectedPost.id === postId) {
+          setSelectedPost(updatedPost);
+        }
+        return updatedPost;
+      }
+      return p;
+    }));
   };
 
   const formatTimeAgo = (dateString: string) => {
@@ -356,11 +402,13 @@ export const ForumPage: React.FC = () => {
               )}
               
               <div className="flex items-center gap-4">
-                <Button variant="outline" size="sm">
-                  <Heart className="mr-2 h-4 w-4" />
+                <Button variant="outline" size="sm" onClick={() => handleLikePost(selectedPost.id)}>
+                  <Heart className={`mr-2 h-4 w-4 ${selectedPost.likes > 0 ? 'text-red-500 fill-current' : ''}`} />
                   Like ({selectedPost.likes})
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => {
+                   document.getElementById('reply-textarea')?.focus();
+                }}>
                   <Reply className="mr-2 h-4 w-4" />
                   Reply
                 </Button>
@@ -389,8 +437,8 @@ export const ForumPage: React.FC = () => {
                       <span className="text-sm text-gray-500">{formatTimeAgo(reply.createdAt)}</span>
                     </div>
                     <p className="text-gray-700 whitespace-pre-wrap mb-3">{reply.content}</p>
-                    <Button variant="outline" size="sm">
-                      <Heart className="mr-1 h-3 w-3" />
+                    <Button variant="outline" size="sm" onClick={() => handleLikeReply(selectedPost.id, reply.id)}>
+                      <Heart className={`mr-1 h-3 w-3 ${reply.likes > 0 ? 'text-red-500 fill-current' : ''}`} />
                       {reply.likes}
                     </Button>
                   </CardContent>
@@ -406,11 +454,14 @@ export const ForumPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <Textarea 
+                  id="reply-textarea"
                   placeholder="Share your thoughts or answer..."
                   className="mb-4"
+                  value={replyContent}
+                  onChange={(e) => setReplyContent(e.target.value)}
                   rows={4}
                 />
-                <Button>Post Reply</Button>
+                <Button onClick={handlePostReply}>Post Reply</Button>
               </CardContent>
             </Card>
           )}

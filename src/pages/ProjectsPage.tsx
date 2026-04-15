@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
@@ -28,9 +29,13 @@ import {
 
 export const ProjectsPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
   const [loading, setLoading] = useState(true);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [activeProjectTitle, setActiveProjectTitle] = useState('');
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
@@ -221,7 +226,7 @@ export const ProjectsPage: React.FC = () => {
                   </select>
                   
                   {user?.role === 'independent_teacher' && (
-                    <Button>
+                    <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="mr-2 h-4 w-4" />
                       Create Project
                     </Button>
@@ -288,7 +293,9 @@ export const ProjectsPage: React.FC = () => {
                           ))}
                         </div>
 
-                        <Button className="w-full mt-4">
+                        <Button className="w-full mt-4" onClick={() => {
+                          navigate(`/projects/${template.id}`);
+                        }}>
                           <Lightbulb className="mr-2 h-4 w-4" />
                           Join Project
                         </Button>
@@ -352,15 +359,15 @@ export const ProjectsPage: React.FC = () => {
                       </div>
                       
                       <div className="flex gap-2">
-                        <Button size="sm" className="flex-1">
+                        <Button size="sm" className="flex-1" onClick={() => navigate(`/projects/${project.id}`)}>
                           <PlayCircle className="mr-2 h-4 w-4" />
                           Continue Working
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => navigate(`/projects/${project.id}?tab=chat`)}>
                           <MessageCircle className="mr-2 h-4 w-4" />
                           Team Chat
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => navigate(`/projects/${project.id}?tab=docs`)}>
                           <FileText className="mr-2 h-4 w-4" />
                           Documents
                         </Button>
@@ -401,11 +408,11 @@ export const ProjectsPage: React.FC = () => {
                       </div>
                       
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="flex-1">
+                        <Button size="sm" variant="outline" className="flex-1" onClick={() => navigate(`/projects/${project.id}?cert=true`)}>
                           <Award className="mr-2 h-4 w-4" />
                           View Certificate
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" onClick={() => navigate(`/projects/${project.id}`)}>
                           <FileText className="mr-2 h-4 w-4" />
                           Portfolio
                         </Button>
@@ -474,6 +481,41 @@ export const ProjectsPage: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {showJoinModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95">
+             <h3 className="font-bold text-xl mb-2 text-slate-800">Join {activeProjectTitle}</h3>
+             <p className="text-sm text-slate-500 mb-6">You will be randomly assigned to a group of 3-5 students who are also joining this project.</p>
+             <div className="flex gap-3">
+               <Button className="flex-1" onClick={() => {
+                 setShowJoinModal(false);
+                 alert('Successfully enrolled in project queue!');
+               }}>Confirm & Join</Button>
+               <Button variant="outline" className="flex-1" onClick={() => setShowJoinModal(false)}>Cancel</Button>
+             </div>
+          </div>
+        </div>
+      )}
+
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl w-full max-w-xl p-6 shadow-2xl animate-in zoom-in-95">
+             <h3 className="font-bold text-xl mb-4 text-slate-800">Create New Project Template</h3>
+             <div className="space-y-4 mb-6">
+               <Input placeholder="Project Title" className="bg-slate-50" />
+               <textarea className="w-full p-3 bg-slate-50 border rounded-lg text-sm" placeholder="Project Description..." rows={3}></textarea>
+             </div>
+             <div className="flex gap-3">
+               <Button className="flex-1" onClick={() => {
+                 setShowCreateModal(false);
+                 navigate('/projects/new');
+               }}>Publish Draft</Button>
+               <Button variant="outline" className="flex-1" onClick={() => setShowCreateModal(false)}>Cancel</Button>
+             </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

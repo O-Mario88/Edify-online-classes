@@ -11,7 +11,7 @@ export const TeacherCollabHub: React.FC = () => {
          <CardTitle className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <Users className="w-5 h-5 text-teal-600" />
             Teacher Collaboration
-            <Badge variant="outline" className="ml-auto bg-slate-100 text-slate-500 text-xs border-slate-200">
+            <Badge variant="outline" className="ml-auto bg-slate-100 text-slate-700 text-xs border-slate-200">
                Institution Hub
             </Badge>
          </CardTitle>
@@ -23,11 +23,11 @@ export const TeacherCollabHub: React.FC = () => {
               <div className="flex justify-between items-start mb-2">
                  <div>
                     <h4 className="font-semibold text-slate-800 text-sm">Mr. Okello shared an Intervention</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">Topic: Organic Chemistry | For: S4</p>
+                    <p className="text-xs text-slate-700 mt-0.5">Topic: Organic Chemistry | For: S4</p>
                  </div>
                  <Badge className="bg-teal-50 text-teal-700 border-teal-200">New</Badge>
               </div>
-              <p className="text-xs text-slate-600 mb-3 bg-white p-2 border border-slate-100 rounded-md">
+              <p className="text-xs text-slate-800 mb-3 bg-white p-2 border border-slate-100 rounded-md">
                 "I put together this bundle of notes and a quick quiz. It worked really well to recover my 8 failing students this morning."
               </p>
               <div className="flex gap-2">
@@ -44,10 +44,10 @@ export const TeacherCollabHub: React.FC = () => {
               <div className="flex justify-between items-start mb-2">
                  <div>
                     <h4 className="font-semibold text-slate-800 text-sm">Department Resource Request</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">From: Head of Sciences</p>
+                    <p className="text-xs text-slate-700 mt-0.5">From: Head of Sciences</p>
                  </div>
               </div>
-              <p className="text-xs text-slate-600 mb-3 bg-red-50 p-2 border border-red-100 rounded-md text-red-800">
+              <p className="text-xs text-slate-800 mb-3 bg-red-50 p-2 border border-red-100 rounded-md text-red-800">
                 "We are missing a good mock exam for S2 Physics. Does anyone have one they can upload to the shared drive?"
               </p>
               <Button size="sm" variant="outline" className="w-full text-xs h-8">

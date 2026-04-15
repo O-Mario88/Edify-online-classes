@@ -47,7 +47,7 @@ except ImportError:
 
 # ── Constants ──────────────────────────────────────────────────────
 
-PASSWORD = 'EdifyTest2026!'
+PASSWORD = 'MapleTest2026!'
 
 SCHOOLS = [
     {'name': 'Kampala High School', 'slug': 'kampala-high', 'level': 'secondary', 'color': '#1E40AF'},
@@ -170,7 +170,9 @@ def seed():
     # Subjects
     subjects = {}
     for s_name in SUBJECTS_LIST:
-        subj, _ = Subject.objects.get_or_create(name=s_name)
+        subj = Subject.objects.filter(name=s_name).first()
+        if not subj:
+            subj = Subject.objects.create(name=s_name)
         subjects[s_name] = subj
 
     # Topics (8 per subject for the top 8 subjects)

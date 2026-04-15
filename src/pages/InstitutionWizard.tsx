@@ -4,18 +4,12 @@ import { CheckCircle, Building2, Palette, BookOpen, Users2, Users, GraduationCap
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useAuth } from '../contexts/AuthContext';
-
+import { apiClient } from '../lib/apiClient';
+import { toast } from 'sonner';
 const steps = [
-  { id: 1, title: 'Institution account', icon: Building2 },
-  { id: 2, title: 'Branding', icon: Palette },
-  { id: 3, title: 'Academic structure', icon: BookOpen },
-  { id: 4, title: 'Roles & permissions', icon: Users2 },
-  { id: 5, title: 'Teachers', icon: Users },
-  { id: 6, title: 'Students', icon: GraduationCap },
-  { id: 7, title: 'Parents', icon: Heart },
-  { id: 8, title: 'Billing & activation', icon: CreditCard },
-  { id: 9, title: 'School setup', icon: Settings },
-  { id: 10, title: 'Go live', icon: Rocket },
+  { id: 1, title: 'Institution profile', icon: Building2 },
+  { id: 2, title: 'Identity & Brand', icon: Palette },
+  { id: 3, title: 'Academic structure', icon: BookOpen }
 ];
 
 export const InstitutionWizard: React.FC = () => {
@@ -42,7 +36,7 @@ export const InstitutionWizard: React.FC = () => {
   });
 
   const nextStep = () => {
-    if (currentStep < 10) setCurrentStep(currentStep + 1);
+    if (currentStep < 3) setCurrentStep(currentStep + 1);
   };
   const prevStep = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
@@ -50,10 +44,20 @@ export const InstitutionWizard: React.FC = () => {
 
   const handleMilestone1Submit = async () => {
     setIsSubmitting(true);
-    // In a real flow, POST to /api/institutions/onboard-basic/ here
-    await new Promise(res => setTimeout(res, 1500));
-    setIsSubmitting(false);
-    nextStep(); // Push to step 4 for now
+    try {
+      const response = await apiClient.post('/institutions/onboard-basic/', {
+         account: accountData,
+         brand: brandData,
+         academic: academicData
+      });
+      toast.success('Institution base infrastructure created successfully.');
+      // Directs the school admin right into their fresh pilot-ready dashboard
+      navigate('/dashboard/institution');
+    } catch (error: any) {
+      toast.error('Onboarding failed: ' + (error?.response?.data?.error || error.message));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -68,10 +72,10 @@ export const InstitutionWizard: React.FC = () => {
             </div>
             {/* Progress Circular Indicator */}
             <div className="w-10 h-10 rounded-full border-4 border-blue-100 flex items-center justify-center relative">
-               <svg className="absolute inset-0 w-full h-full -rotate-90">
-                 <circle cx="50%" cy="50%" r="42%" className="stroke-blue-600" strokeWidth="3" fill="none" strokeDasharray={`${(currentStep/10) * 100} 100`} />
+               <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                 <circle cx="50" cy="50" r="42" className="stroke-blue-600" strokeWidth="8" fill="none" pathLength="100" strokeDasharray={`${(currentStep/3) * 100} 100`} strokeLinecap="round" />
                </svg>
-               <span className="text-[10px] font-bold text-blue-700">{currentStep}/10</span>
+               <span className="text-[10px] font-bold text-blue-700">{currentStep}/3</span>
             </div>
         </div>
 
@@ -113,7 +117,7 @@ export const InstitutionWizard: React.FC = () => {
              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="mb-8">
                    <h1 className="text-3xl font-bold text-slate-900 mb-2">Create Institution Account</h1>
-                   <p className="text-slate-500 text-sm">Welcome! Let's start by establishing your school's unique identity on the Edify OS.</p>
+                   <p className="text-slate-500 text-sm">Welcome! Let's start by establishing your school's unique identity on the Maple OS.</p>
                 </div>
                 
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 space-y-6">
@@ -127,7 +131,6 @@ export const InstitutionWizard: React.FC = () => {
                          <select className="w-full h-11 px-3 border border-slate-300 rounded-[4px] text-sm focus:border-blue-500 outline-none" value={accountData.type} onChange={e => setAccountData({...accountData, type: e.target.value})}>
                             <option value="primary">Primary School</option>
                             <option value="secondary">Secondary School</option>
-                            <option value="mixed">Mixed (Primary & Secondary)</option>
                          </select>
                       </div>
                       <div>
@@ -217,8 +220,7 @@ export const InstitutionWizard: React.FC = () => {
                        <h3 className="text-sm font-semibold text-slate-800 mb-3">Offered Levels</h3>
                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {(accountData.type === 'primary' ? ['Upper Primary (P4-P7)', 'Full Primary', 'Lower Primary Only'] :
-                            accountData.type === 'secondary' ? ['O-Level Only', 'A-Level Only', 'Both O & A Level'] :
-                            ['Full Primary + Secondary', 'Upper Primary + O-Level', 'Custom Matrix']).map(level => (
+                            ['O-Level Only', 'A-Level Only', 'Both O & A Level']).map(level => (
                             <div key={level} onClick={() => setBrandData({...brandData, levels: level})} className={`p-4 rounded-xl border cursor-pointer transition-all ${brandData.levels === level ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-white border-slate-200 hover:border-blue-300'}`}>
                                <div className="flex items-center justify-between pointer-events-none">
                                   <span className="font-medium text-sm text-slate-800">{level}</span>
@@ -248,14 +250,7 @@ export const InstitutionWizard: React.FC = () => {
              </div>
           )}
 
-          {/* Placeholder for phases 4-10 */}
-          {currentStep > 3 && (
-             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col items-center justify-center py-20 text-center">
-                <Settings className="w-16 h-16 text-slate-300 mb-4 animate-spin-slow" />
-                <h2 className="text-2xl font-bold text-slate-800 mb-2">Phase {currentStep} UI Pending</h2>
-                <p className="text-slate-500 max-w-sm">This phase of the onboarding wizard will be implemented in the next scheduled development milestone.</p>
-             </div>
-          )}
+
 
         </div>
         
@@ -264,11 +259,11 @@ export const InstitutionWizard: React.FC = () => {
            <Button variant="outline" onClick={prevStep} disabled={currentStep === 1} className="h-11 px-6 border-slate-300">Back</Button>
            
            {currentStep === 3 ? (
-             <Button onClick={handleMilestone1Submit} disabled={isSubmitting} className="h-11 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-[4px] shadow-sm flex items-center gap-2">
-                {isSubmitting ? 'Committing Architecture...' : 'Save & Continue'} <ArrowRight className="w-4 h-4" />
+             <Button onClick={handleMilestone1Submit} disabled={isSubmitting} className="h-11 px-8 bg-emerald-600 hover:bg-emerald-700 text-white rounded-[4px] shadow-sm flex items-center gap-2">
+                {isSubmitting ? 'Committing Architecture...' : 'Complete & Launch Dashboard'} <ArrowRight className="w-4 h-4" />
              </Button>
            ) : (
-             <Button onClick={nextStep} disabled={currentStep === 10} className="h-11 px-8 bg-slate-900 hover:bg-slate-800 text-white rounded-[4px] shadow-sm flex items-center gap-2">
+             <Button onClick={nextStep} disabled={currentStep === 3} className="h-11 px-8 bg-slate-900 hover:bg-slate-800 text-white rounded-[4px] shadow-sm flex items-center gap-2">
                 Continue <ArrowRight className="w-4 h-4" />
              </Button>
            )}

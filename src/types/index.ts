@@ -1,4 +1,6 @@
 // Enhanced User Types for Hybrid Business Model
+export type SchoolLevel = 'primary' | 'secondary';
+
 export interface User {
   id: string;
   name: string;
@@ -21,13 +23,13 @@ export interface UniversalStudent extends User {
   };
   preferences: {
     subjects: string[];
-    level: 'O-level' | 'A-level';
+    level: 'primary' | 'O-level' | 'A-level';
     learning_style: string;
   };
   payment_methods?: PaymentMethod[];
   uneb_readiness?: {
     overall_score: number; // 0-100
-    exam_target: 'UCE' | 'UACE';
+    exam_target: 'PLE' | 'UCE' | 'UACE';
     topics_confidence: Array<{ subject: string; confidence: number }>;
     rescue_plan_active?: boolean;
     predicted_division?: number;
@@ -60,6 +62,8 @@ export interface Institution {
   admin_id: string;
   countryCode?: 'uganda' | 'kenya' | 'rwanda';
   type: 'primary' | 'secondary' | 'technical' | 'university';
+  school_level: SchoolLevel;
+  grade_offerings: number[]; // Canonical grade numbers e.g. [4,5,6,7] for primary
   registration_number: string;
   location: {
     district: string;
@@ -1031,4 +1035,281 @@ export interface ResourceAnalyticsSummary {
   averageCompletionPercentage: number;
   topEngagedStudentIds: string[];
   leastEngagedStudentIds: string[];
+}
+
+// ─────────────────────────────────────────
+// PRIMARY SCHOOL TYPES
+// ─────────────────────────────────────────
+
+export interface PrimaryClass {
+  id: string;
+  name: string; // "Primary 4", "Primary 5", etc.
+  gradeId: string; // "p4", "p5", "p6", "p7"
+  canonicalGrade: number; // 4, 5, 6, 7
+  isTransitionYear: boolean; // true for P4
+  isExamYear: boolean; // true for P7
+  examType?: string; // "PLE" for P7
+  description: string;
+  subjects: PrimarySubject[];
+  studentCount?: number;
+  teacherCount?: number;
+}
+
+export interface PrimarySubject {
+  id: string;
+  name: string;
+  topics: PrimaryTopic[];
+  progress?: number; // 0-100
+  teacherId?: string;
+  teacherName?: string;
+}
+
+export interface PrimaryTopic {
+  id: string;
+  name: string;
+  description?: string;
+  order: number;
+  subtopics: PrimarySubtopic[];
+  lessonCount?: number;
+  practiceCount?: number;
+  activityCount?: number;
+  completionPct?: number;
+}
+
+export interface PrimarySubtopic {
+  id: string;
+  name: string;
+  lessons: PrimaryLesson[];
+}
+
+export interface PrimaryLesson {
+  id: string;
+  title: string;
+  type: 'lesson' | 'practice' | 'activity' | 'assignment' | 'project';
+  duration?: string;
+  completed?: boolean;
+  resourceType?: 'video' | 'notes' | 'exercise' | 'interactive';
+}
+
+// ─────────────────────────────────────────
+// P7 READINESS TYPES
+// ─────────────────────────────────────────
+
+export type P7ReadinessState =
+  | 'highly_ready'
+  | 'on_track'
+  | 'needs_support'
+  | 'high_risk'
+  | 'critical_exam_risk';
+
+export interface P7ReadinessProfile {
+  studentId: string;
+  studentName: string;
+  institutionId: string;
+
+  overallReadinessScore: number; // 0-100
+  readinessState: P7ReadinessState;
+
+  // Dimension scores (all 0-100)
+  attendanceScore: number;
+  lessonCompletionScore: number;
+  assignmentCompletionScore: number;
+  mockExamScore: number;
+  offlineTestScore: number;
+  resourceEngagementScore: number;
+  interventionCompletionScore: number;
+  parentFollowupScore: number;
+  revisionParticipationScore: number;
+
+  strongestSubject: string;
+  weakestSubject: string;
+  weakSubjectAlerts: string[];
+  weakTopicAlerts: string[];
+  revisionPriorityList: string[];
+}
+
+export interface SubjectReadiness {
+  subjectId: string;
+  subjectName: string;
+  averageScore: number;
+  mockScore: number;
+  offlineScore: number;
+  completionPct: number;
+  resourceEngagementPct: number;
+  interventionExposure: number;
+  teacherSupportCount: number;
+  improvementTrend: number; // positive = improving
+  isWeak: boolean;
+  needsUrgentRevision: boolean;
+}
+
+export interface MockExamRecord {
+  id: string;
+  studentId: string;
+  studentName: string;
+  subjectId: string;
+  subjectName: string;
+  examTitle: string;
+  scorePct: number;
+  maxMarks: number;
+  obtainedMarks: number;
+  examDate: string;
+  term: string;
+  classAverage: number;
+  schoolTestComparison: number;
+  onlineActivityComparison: number;
+}
+
+export interface RevisionTask {
+  id: string;
+  studentId: string;
+  subjectId: string;
+  subjectName: string;
+  topicId?: string;
+  topicName?: string;
+  title: string;
+  description: string;
+  priority: number;
+  status: 'pending' | 'in_progress' | 'completed' | 'overdue';
+  dueDate?: string;
+  linkedResources: string[];
+}
+
+export interface P7InterventionPack {
+  id: string;
+  title: string;
+  packType: 'subject_rescue' | 'weak_topic_revision' | 'attendance_recovery' | 'parent_home_revision' | 'mock_exam_recovery' | 'exam_confidence';
+  subjectId?: string;
+  subjectName?: string;
+  contents: {
+    notes?: string[];
+    videos?: string[];
+    assignments?: string[];
+    activities?: string[];
+    practiceItems?: string[];
+    parentActionNote?: string;
+    teacherFollowupNote?: string;
+  };
+  isActive: boolean;
+}
+
+export interface P7RiskFlag {
+  id: string;
+  riskType: 'learner' | 'subject' | 'class';
+  severity: 'warning' | 'high' | 'critical';
+  studentId?: string;
+  studentName?: string;
+  subjectName?: string;
+  className?: string;
+  signals: string[];
+  recommendedActions: string[];
+  isResolved: boolean;
+  flaggedAt: string;
+}
+
+export interface ParentP7Support {
+  childId: string;
+  childName: string;
+  readinessScore: number;
+  readinessState: P7ReadinessState;
+  strongestSubject: string;
+  weakestSubject: string;
+  latestMockSummary: { subject: string; score: number }[];
+  pendingRevisionTasks: number;
+  attendancePct: number;
+  interventionAlerts: string[];
+  teacherRecommendations: string[];
+  homeSupportSuggestions: string[];
+  urgentActionItems: string[];
+  missedAssignments: number;
+  resourceUsagePct: number;
+}
+
+export interface P7InstitutionSummary {
+  institutionId: string;
+  institutionName: string;
+  totalP7Learners: number;
+  highlyReadyCount: number;
+  onTrackCount: number;
+  needsSupportCount: number;
+  highRiskCount: number;
+  criticalRiskCount: number;
+  averageReadinessScore: number;
+  weakestSubject: string;
+  strongestSubject: string;
+  mockExamAdoptionPct: number;
+  parentEngagementPct: number;
+  interventionCompletionPct: number;
+  revisionEngagementPct: number;
+  readinessTrend: { month: string; score: number }[];
+}
+
+// ─────────────────────────────────────────
+// OFFLINE ASSESSMENT COMPARISON TYPES
+// ─────────────────────────────────────────
+
+export interface OfflineAssessmentRecord {
+  id: string;
+  studentId: string;
+  subjectId: string;
+  subjectName: string;
+  examName: string; // "BOT 1", "Mid Term", "EOT"
+  scorePct: number;
+  onlineMasteryAtTime: number;
+  dateRecorded: string;
+  term?: string;
+}
+
+export interface OfflineOnlineComparison {
+  subjectName: string;
+  offlineAvg: number;
+  onlineAvg: number;
+  gap: number; // positive = online better
+  trend: 'improving' | 'declining' | 'stable';
+  topicsStillDifficult: string[];
+}
+
+// ─────────────────────────────────────────
+// PRIMARY INSTITUTION PROFILE
+// ─────────────────────────────────────────
+
+export interface PrimaryInstitutionProfile {
+  institutionId: string;
+  schoolLevel: 'primary';
+  classesOffered: number[]; // [4, 5, 6, 7]
+  totalStudents: number;
+  totalTeachers: number;
+  totalParentsLinked: number;
+  curriculumPreloaded: boolean;
+  timetableConfigured: boolean;
+  p7Summary?: P7InstitutionSummary;
+}
+
+// ─────────────────────────────────────────
+// MAPLE ADMIN PRIMARY INTELLIGENCE
+// ─────────────────────────────────────────
+
+export interface MapleAdminPrimaryMetrics {
+  totalPrimaryInstitutions: number;
+  activePrimaryInstitutions: number;
+  dormantPrimaryInstitutions: number;
+  totalPrimaryTeachers: number;
+  totalPrimaryStudents: number;
+  totalPrimaryParentsLinked: number;
+  parentEngagementRate: number;
+  primarySubjectPerformance: { subject: string; avgScore: number }[];
+  primaryResourceUsage: number;
+  p7ReadinessIndicators: {
+    totalP7LearnersPlatformWide: number;
+    avgReadinessScore: number;
+    highRiskP7Count: number;
+  };
+  primaryVsSecondaryComparison: {
+    primaryAdoption: number;
+    secondaryAdoption: number;
+    primaryEngagement: number;
+    secondaryEngagement: number;
+  };
+  topPerformingP7Institutions: { id: string; name: string; avgScore: number }[];
+  atRiskP7Institutions: { id: string; name: string; avgScore: number }[];
 }

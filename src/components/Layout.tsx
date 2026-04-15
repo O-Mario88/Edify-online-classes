@@ -66,9 +66,9 @@ export const Layout: React.FC = () => {
             <div>
               <h4 className="font-bold text-sm mb-4 text-white uppercase tracking-wider">Support</h4>
               <ul className="space-y-2.5 text-xs md:text-sm text-white">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><Link to="/institution-onboarding" className="hover:text-white transition-colors">Help Center</Link></li>
+                <li><Link to="/forum" className="hover:text-white transition-colors">Contact Us</Link></li>
+                <li><Link to="/" className="hover:text-white transition-colors">Privacy Policy</Link></li>
               </ul>
             </div>
           </div>
@@ -77,9 +77,9 @@ export const Layout: React.FC = () => {
           <div className="border-t border-white/20 mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
             <p className="text-xs md:text-sm text-white font-medium">&copy; 2025 Maple Online School. All rights reserved.</p>
             <div className="flex justify-center md:justify-end gap-4 text-white text-xs font-medium">
-               <a href="#" className="hover:text-white transition-colors">Terms</a>
-               <a href="#" className="hover:text-white transition-colors">Privacy</a>
-               <a href="#" className="hover:text-white transition-colors">Cookies</a>
+               <Link to="/" className="hover:text-white transition-colors">Terms</Link>
+               <Link to="/" className="hover:text-white transition-colors">Privacy</Link>
+               <Link to="/" className="hover:text-white transition-colors">Cookies</Link>
             </div>
           </div>
         </div>

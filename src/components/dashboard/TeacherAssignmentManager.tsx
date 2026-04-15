@@ -46,13 +46,13 @@ export function TeacherAssignmentManager() {
         <div className="flex justify-between items-start md:items-center flex-col md:flex-row gap-4">
           <div>
              <CardTitle className="flex items-center gap-2">
-               <LayoutGrid className="w-5 h-5 text-indigo-600" /> Subject & Teacher Allocation
+               <LayoutGrid className="w-5 h-5 text-indigo-800" /> Subject & Teacher Allocation
              </CardTitle>
              <CardDescription>Assign teaching staff to specific subjects and classes to build the master academic roster.</CardDescription>
           </div>
           <Select defaultValue={selectedClass} onValueChange={setSelectedClass}>
             <SelectTrigger className="w-[180px] bg-white dark:bg-slate-950 font-medium">
-              <GraduationCap className="w-4 h-4 mr-2 text-slate-500" />
+              <GraduationCap className="w-4 h-4 mr-2 text-slate-700" />
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -74,7 +74,7 @@ export function TeacherAssignmentManager() {
              return (
                <div key={subject} className="p-6 hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className={`p-2 rounded-lg ${assignedTeacher ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-800'}`}>
+                    <div className={`p-2 rounded-lg ${assignedTeacher ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400' : 'bg-slate-100 text-slate-700 dark:bg-slate-800'}`}>
                       <BookOpen className="w-4 h-4" />
                     </div>
                     <h3 className="font-bold text-slate-800 dark:text-slate-200">{subject}</h3>
@@ -88,13 +88,13 @@ export function TeacherAssignmentManager() {
                          </div>
                          <div>
                            <p className="text-sm font-bold text-slate-900 dark:text-white">{assignedTeacher.name}</p>
-                           <p className="text-xs text-slate-500 dark:text-slate-400 truncate w-24 sm:w-32">{assignedTeacher.specialty}</p>
+                           <p className="text-xs text-slate-700 dark:text-slate-800 truncate w-24 sm:w-32">{assignedTeacher.specialty}</p>
                          </div>
                        </div>
                        <Button 
                          variant="ghost" 
                          size="icon" 
-                         className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full h-8 w-8"
+                         className="text-slate-800 hover:text-red-700 hover:bg-red-50 rounded-full h-8 w-8"
                          onClick={() => removeAssignment(subject)}
                        >
                          <X className="w-4 h-4" />
@@ -103,7 +103,7 @@ export function TeacherAssignmentManager() {
                   ) : (
                     <div className="space-y-2">
                       <Select onValueChange={(val) => handleAssign(subject, val)}>
-                        <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-dashed border-slate-300 dark:border-slate-700 text-slate-500">
+                        <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-dashed border-slate-300 dark:border-slate-700 text-slate-700">
                           <SelectValue placeholder="Assign a teacher..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -111,7 +111,7 @@ export function TeacherAssignmentManager() {
                             <SelectItem key={t.id} value={t.id}>
                               <div className="flex items-center justify-between w-full">
                                 <span>{t.name}</span>
-                                <span className="text-xs text-slate-400 ml-2">({t.specialty.split(',')[0]})</span>
+                                <span className="text-xs text-slate-800 ml-2">({t.specialty.split(',')[0]})</span>
                               </div>
                             </SelectItem>
                           ))}

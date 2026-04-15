@@ -5,70 +5,55 @@ import { GraduationCap, MapPin, Share2, ShieldCheck, CheckCircle2 } from 'lucide
 import { BadgeShowcase, AchievementBadge } from '../components/badges/BadgeShowcase';
 import { CertificateCard, Certificate } from '../components/badges/CertificateCard';
 
-// Realistically, this would fetch from a public /api/profile endpoint
-const getMockPublicProfile = (username: string) => {
-  return {
-    name: "Grace Nakato",
-    username: username,
-    bio: "Top-performing science student at Kampala High School. Aspiring software engineer with a passion for algorithms.",
-    location: "Kampala, Uganda",
-    avatar: "/images/students/grace-nakato.jpg",
-    joinedDate: "2024-01-15",
-    badges: [
-      {
-        id: "b-01",
-        name: "Physics Master",
-        description: "Scored 95%+ in 5 consecutive advanced Physics exams.",
-        rarity: "epic",
-        unlockedAt: "2024-02-10T10:00:00Z"
-      },
-      {
-        id: "b-02",
-        name: "Peer Tutor",
-        description: "Verified community tutor with 50+ hours of sessions.",
-        rarity: "rare",
-        unlockedAt: "2024-03-01T10:00:00Z"
-      },
-      {
-        id: "b-03",
-        name: "100 Day Streak",
-        description: "Logged in and learned for 100 days straight.",
-        rarity: "rare",
-        unlockedAt: "2024-04-20T10:00:00Z"
-      },
-      {
-        id: "b-04",
-        name: "First Project",
-        description: "Completed your first collaborative project.",
-        rarity: "common",
-        unlockedAt: "2024-01-20T10:00:00Z"
-      }
-    ] as AchievementBadge[],
-    certificates: [
-      {
-         id: "cert-01",
-         title: "Advanced Mathematics Mastery: Calculus",
-         issuedTo: "Grace Nakato",
-         issuedDate: "2024-03-05T00:00:00Z",
-         issuerLogo: "/icons/maple.png",
-         verificationHash: "0x8F9aC24B2eD9F5b7"
-      }
-    ] as Certificate[]
-  };
-};
+// Profile data shape — will be populated by the public profile API when available
+interface PublicProfileData {
+  name: string;
+  username: string;
+  bio: string;
+  location: string;
+  avatar: string;
+  joinedDate: string;
+  badges: AchievementBadge[];
+  certificates: Certificate[];
+}
 
 export const PublicProfile: React.FC = () => {
   const { username } = useParams<{ username: string }>();
-  const [profile, setProfile] = useState<ReturnType<typeof getMockPublicProfile> | null>(null);
+  const [profile, setProfile] = useState<PublicProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Mocking an API call
-    if (username) {
-      setProfile(getMockPublicProfile(username));
-    }
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/api/v1/users/profile/${username}/`);
+        if (response.ok) {
+          const data = await response.json();
+          setProfile(data);
+        } else {
+          console.warn('Public profile API not available yet');
+          setProfile(null);
+        }
+      } catch (error) {
+        console.error('Error fetching public profile:', error);
+        setProfile(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (username) fetchProfile();
   }, [username]);
 
-  if (!profile) return <div className="p-8 text-center mt-20">Loading profile data...</div>;
+  if (loading) return <div className="p-8 text-center mt-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div><p className="text-gray-600">Loading profile...</p></div>;
+
+  if (!profile) return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center max-w-md">
+        <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-6" />
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Profile Coming Soon</h2>
+        <p className="text-gray-500">Public profiles will be available once the profile system is fully set up.</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">

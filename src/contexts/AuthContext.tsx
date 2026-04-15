@@ -83,7 +83,65 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string, overrideRole?: string): Promise<boolean> => {
     setIsLoading(true);
-    
+
+    // ── Demo account definitions (work without backend) ──
+    const demoAccounts: Record<string, { role: string; name: string; school_level?: string; class_level?: string; password: string; activation_status?: string }> = {
+      // Current LoginPage demo accounts
+      'student1@edify.local':                  { role: 'universal_student',    name: 'Demo Student',        password: 'TestPass123!' },
+      'teacher0@maplesch.com':                 { role: 'independent_teacher',  name: 'Demo Teacher',        password: 'MapleTest2026!' },
+      'admin@edify.local':                     { role: 'platform_admin',       name: 'Demo Admin',          password: 'AdminPass123!' },
+
+      // Legacy demo accounts (keep for backwards compat)
+      'grace.nakato@email.com':                { role: 'universal_student',    name: 'Grace Nakato',        password: 'demo123' },
+      'sarah.nakamya@maplesch.com':            { role: 'independent_teacher',  name: 'Sarah Nakamya',       password: 'demo123' },
+      'christine.namaganda@maplesch.com':      { role: 'platform_admin',       name: 'Christine Namaganda', password: 'demo123' },
+      'parent@email.com':                      { role: 'parent',              name: 'Parent Demo',         password: 'demo123' },
+
+      // Secondary school demo accounts (Core Pilot)
+      'admin@institution.com':                 { role: 'institution_admin',    name: 'Institution Admin',   password: 'demo123', class_level: 'S1-S6', activation_status: 'active' },
+
+      // Commercial Operations / Sales Demo Accounts
+      'setup@institution.local':               { role: 'institution_admin',    name: 'Onboarding Inst',     password: 'demo123', school_level: 'secondary', activation_status: 'setup' },
+      'trial@institution.local':               { role: 'institution_admin',    name: 'Trial Period Inst',   password: 'demo123', school_level: 'secondary', activation_status: 'trial' },
+      'overdue@institution.local':             { role: 'institution_admin',    name: 'Payment Due Inst',    password: 'demo123', school_level: 'secondary', activation_status: 'overdue' },
+      'suspended@institution.local':           { role: 'institution_admin',    name: 'Suspended Inst',      password: 'demo123', school_level: 'primary', activation_status: 'suspended' },
+      'active@institution.local':              { role: 'institution_admin',    name: 'Premium Live Inst',   password: 'demo123', school_level: 'primary', activation_status: 'active' },
+
+      // Primary school demo accounts
+      'primary.student@email.com':             { role: 'institution_student', name: 'Amina Nakato',        password: 'demo123', school_level: 'primary', class_level: 'p7' },
+      'primary.teacher@maplesch.com':          { role: 'institution_teacher', name: 'Janet Nabirye',       password: 'demo123', school_level: 'primary' },
+      'primary.parent@email.com':              { role: 'parent',             name: 'Richard Nakato',      password: 'demo123', school_level: 'primary' },
+      'primary.admin@institution.com':         { role: 'institution_admin',  name: 'Greenhill Admin',     password: 'demo123', school_level: 'primary', activation_status: 'active' },
+      // Bursar / finance demo
+      'bursar@maplesch.com':                   { role: 'institution_admin',  name: 'Bursar Demo',         password: 'demo123', activation_status: 'active' },
+    };
+
+    const lowerEmail = email.toLowerCase();
+    const demoMatch = demoAccounts[lowerEmail];
+
+    // Helper to set session from a demo definition
+    const setDemoSession = (demo: { role: string; name: string; school_level?: string; class_level?: string; password: string; activation_status?: string }) => {
+      const role = overrideRole || demo.role;
+      const sessionUser = {
+        id: lowerEmail,
+        email: lowerEmail,
+        name: demo.name,
+        first_name: demo.name.split(' ')[0],
+        last_name: demo.name.split(' ').slice(1).join(' '),
+        role,
+        school_level: demo.school_level || '',
+        class_level: demo.class_level || '',
+        countryCode: 'uganda',
+        activation_status: demo.activation_status || 'active', // Default legacy to active
+      };
+      setUser(sessionUser as any);
+      setUserProfile(sessionUser as any);
+      setCurrentContext('mixed');
+      localStorage.setItem('maple-auth-user', JSON.stringify(sessionUser));
+      localStorage.setItem('maple-auth-profile', JSON.stringify(sessionUser));
+      localStorage.setItem('maple-auth-context', 'mixed');
+    };
+
     try {
       // Send login request to real API
       const response = await loginUser(email, password);
@@ -92,17 +150,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Successfully logged in - tokens are stored by loginUser function
         // Fetch user profile from backend
         try {
-          // The backend returns user info in the token payload
-          // For now, create user object from email and role inference
-          const lowerEmail = email.toLowerCase();
+          // Use demo account data if available, otherwise infer from email
+          if (demoMatch) {
+            setDemoSession(demoMatch);
+            setIsLoading(false);
+            return true;
+          }
+
+          const lowerEmail2 = email.toLowerCase();
           let inferredRole = overrideRole;
           
           if (!inferredRole) {
-            if (lowerEmail.includes('teacher') || lowerEmail.includes('nakamya')) {
+            if (lowerEmail2.includes('teacher') || lowerEmail2.includes('nakamya')) {
               inferredRole = 'independent_teacher';
-            } else if (lowerEmail.includes('admin') || lowerEmail.includes('namaganda')) {
+            } else if (lowerEmail2.includes('admin') || lowerEmail2.includes('namaganda')) {
               inferredRole = 'platform_admin';
-            } else if (lowerEmail.includes('parent')) {
+            } else if (lowerEmail2.includes('parent')) {
               inferredRole = 'parent';
             } else {
               inferredRole = 'universal_student';
@@ -133,13 +196,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return false;
         }
       } else {
-        // Login failed
+        // Login failed from API — try demo fallback
+        console.warn('API login failed, trying demo fallback');
+        if (demoMatch && password === demoMatch.password) {
+          setDemoSession(demoMatch);
+          setIsLoading(false);
+          return true;
+        }
         console.error('Login failed:', response.error);
         setIsLoading(false);
         return false;
       }
     } catch (error) {
-      console.error('Login authentication error:', error);
+      console.warn('Backend unreachable, trying demo fallback:', error);
+      // Offline / backend-down fallback: allow demo accounts with matching password
+      if (demoMatch && password === demoMatch.password) {
+        setDemoSession(demoMatch);
+        setIsLoading(false);
+        return true;
+      }
+      console.error('Login authentication error (no demo match):', error);
       setIsLoading(false);
       return false;
     }

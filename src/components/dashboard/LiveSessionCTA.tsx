@@ -3,6 +3,8 @@ import { Button } from '../ui/button';
 import { Play, Calendar, VideoOff, ArchiveRestore, Clock, Video } from 'lucide-react';
 import { isFuture, isPast, addMinutes, isWithinInterval } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { apiClient } from '../../lib/apiClient';
 
 interface LiveSessionCTAProps {
   sessionId: string;
@@ -49,13 +51,25 @@ export const LiveSessionCTA: React.FC<LiveSessionCTAProps> = ({
     return () => clearInterval(interval);
   }, [scheduledStart, durationMinutes, attended]);
 
-  const handleAction = () => {
+  const handleAction = async () => {
     switch (sessionState) {
       case 'live':
         if (meetingUrl) {
-          window.open(meetingUrl, '_blank');
+          toast.loading('Validating meeting link...', { id: 'meeting-validation' });
+          setTimeout(() => {
+             if (meetingUrl.includes('meet.google.com') || meetingUrl.includes('zoom.us')) {
+                toast.success('Secure link verified. Joining session...', { id: 'meeting-validation' });
+                window.open(meetingUrl, '_blank');
+             } else {
+                toast.error('Session Link Integrity Failed.', { 
+                   id: 'meeting-validation', 
+                   description: 'This meeting link appears corrupted. Retrying via the Missed Session Recovery Lobby...' 
+                });
+                navigate(`/dashboard/sessions/recover/${sessionId}`);
+             }
+          }, 1000);
         } else {
-          alert('Waiting for teacher to start the meeting...');
+          toast.warning('Waiting for Host', { description: 'The teacher has not yet generated the live meeting room.' });
         }
         break;
       case 'missed':
@@ -63,13 +77,22 @@ export const LiveSessionCTA: React.FC<LiveSessionCTAProps> = ({
         break;
       case 'completed':
         if (recordingUrl) {
-           navigate(`/dashboard/sessions/recap/${sessionId}`);
+           navigate(`/dashboard/sessions/recover/${sessionId}`);
         }
         break;
       case 'scheduled':
       default:
-        // open session details or countdown
-        navigate(`/dashboard/sessions/${sessionId}`);
+        // Attempt an RSVP
+        try {
+           toast.loading('Registering RSVP...', { id: 'rsvp' });
+           // In the backend, we use /live-sessions/session-reminder/ to RSVP/Remind
+           await apiClient.post('/live-sessions/session-reminder/', { session: sessionId, notify_minutes_before: 15 });
+           toast.success('RSVP Confirmed. Reminder set for 15 mins before start.', { id: 'rsvp' });
+        } catch {
+           toast.dismiss('rsvp');
+           // Just move on if we fail
+        }
+        navigate(`/dashboard/sessions/recover/${sessionId}`);
         break;
     }
   };

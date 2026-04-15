@@ -36,10 +36,10 @@ export const CertificateCard: React.FC<CertificateCardProps> = ({ certificate, i
           <h2 className="text-sm font-bold tracking-widest text-muted-foreground uppercase mb-2">Certificate of Completion</h2>
           <h3 className="text-2xl font-serif font-bold text-gray-900 mb-6 px-4">{certificate.title}</h3>
           
-          <p className="text-gray-500 mb-1">This is to certify that</p>
+          <p className="text-gray-700 mb-1">This is to certify that</p>
           <p className="text-xl font-bold text-primary mb-6 border-b pb-2 px-8 inline-block">{certificate.issuedTo}</p>
           
-          <p className="text-sm text-gray-500 max-w-sm mb-8">
+          <p className="text-sm text-gray-700 max-w-sm mb-8">
             has successfully completed all requirements and passed the final assessments for this module.
           </p>
 
@@ -50,7 +50,7 @@ export const CertificateCard: React.FC<CertificateCardProps> = ({ certificate, i
              </div>
              <div className="text-right">
                <p className="text-xs text-muted-foreground uppercase tracking-widest">Verify ID</p>
-               <p className="text-xs font-mono text-gray-400">{certificate.verificationHash.substring(0, 12)}</p>
+               <p className="text-xs font-mono text-gray-800">{certificate.verificationHash.substring(0, 12)}</p>
              </div>
           </div>
         </div>

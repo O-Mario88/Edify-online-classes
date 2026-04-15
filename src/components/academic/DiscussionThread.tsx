@@ -212,7 +212,7 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({ contextType,
     <div className="space-y-4">
       {error && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-5 h-5 text-amber-800 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-medium text-amber-900">{error}</p>
           </div>
@@ -232,7 +232,7 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({ contextType,
                 <MessageSquare className="h-5 w-5 text-teal-600" />
                 {contextType === 'topic' ? 'Topic' : 'Lesson'} Discussion
               </h3>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-700 mt-1">
                 {contextType === 'topic'
                   ? 'Broader questions, revision support, and peer help for this topic'
                   : 'Questions and clarification specific to this lesson'}
@@ -282,12 +282,12 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({ contextType,
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          {post.isPinned && <Pin className="h-3.5 w-3.5 text-amber-500" />}
-                          {post.isSolved && <CheckCircle className="h-3.5 w-3.5 text-green-500" />}
+                          {post.isPinned && <Pin className="h-3.5 w-3.5 text-amber-700" />}
+                          {post.isSolved && <CheckCircle className="h-3.5 w-3.5 text-emerald-700" />}
                           <h4 className="font-semibold text-gray-900">{post.title}</h4>
                         </div>
-                        <p className="text-sm text-gray-600 line-clamp-1 mt-1">{post.content}</p>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                        <p className="text-sm text-gray-800 line-clamp-1 mt-1">{post.content}</p>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-700">
                           <span className="flex items-center gap-1"><User className="h-3 w-3" /> {post.authorName}</span>
                           <Badge variant="outline" className="text-[10px] px-1.5 py-0">{post.authorRole}</Badge>
                           <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {timeAgo(post.createdAt)}</span>
@@ -295,7 +295,7 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({ contextType,
                           <span className="flex items-center gap-1"><Heart className="h-3 w-3" /> {post.likes}</span>
                         </div>
                       </div>
-                      {expandedPost === post.id ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
+                      {expandedPost === post.id ? <ChevronUp className="h-4 w-4 text-gray-800" /> : <ChevronDown className="h-4 w-4 text-gray-800" />}
                     </div>
                   </div>
 
@@ -315,7 +315,7 @@ export const DiscussionThread: React.FC<DiscussionThreadProps> = ({ contextType,
                                     <Star className="h-2.5 w-2.5 mr-0.5" /> Approved
                                   </Badge>
                                 )}
-                                <span className="text-xs text-gray-400">{timeAgo(reply.createdAt)}</span>
+                                <span className="text-xs text-gray-800">{timeAgo(reply.createdAt)}</span>
                               </div>
                               <p className="text-sm text-gray-700">{reply.content}</p>
                             </div>

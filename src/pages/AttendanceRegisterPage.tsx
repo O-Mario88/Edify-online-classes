@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, Calendar as CalendarIcon, CheckCircle, XCircle, Clock, Save, UserCheck, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient, API_ENDPOINTS } from '@/lib/apiClient';
+import { toast } from 'sonner';
+import { OfflineSyncEngine } from '@/lib/offlineSync';
 
 export const AttendanceRegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -65,6 +67,14 @@ export const AttendanceRegisterPage: React.FC = () => {
     setSaving(true);
     try {
       const today = new Date().toISOString().split('T')[0];
+      
+      if (!OfflineSyncEngine.isOnline()) {
+        toast.warning('Offline mode: Register queued for background sync.');
+        OfflineSyncEngine.queueJob('upload_assignment', { type: 'attendance', date: today, students });
+        setSaving(false);
+        return;
+      }
+      
       const promises = students.map(s => {
         const payload: any = {
           record_date: today,
@@ -74,16 +84,16 @@ export const AttendanceRegisterPage: React.FC = () => {
         if ((s as any).studentUserId) {
           payload.student = (s as any).studentUserId;
         }
-        // If record already exists (has numeric backend id), PATCH; otherwise POST
         if ((s as any).studentUserId) {
           return apiClient.patch(`${API_ENDPOINTS.DAILY_ATTENDANCE}${s.id}/`, payload);
         }
         return apiClient.post(API_ENDPOINTS.DAILY_ATTENDANCE, payload);
       });
       await Promise.allSettled(promises);
-      alert('Attendance Saved Successfully for ' + date);
+      toast.success(`Attendance securely saved for ${date}`);
     } catch {
-      alert('Attendance Saved Successfully for ' + date + ' (offline mode)');
+      toast.error('Network error. Attendance saved locally pending sync.');
+      OfflineSyncEngine.queueJob('upload_assignment', { type: 'attendance', date, students });
     } finally {
       setSaving(false);
     }

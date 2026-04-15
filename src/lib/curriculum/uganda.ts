@@ -1,6 +1,26 @@
 import { CurriculumConfig, SubjectGroup } from './types';
 
-// Uganda Lower Secondary (O-Level) - UNEB
+// ─────────────────────────────────────────
+// UGANDA PRIMARY (P4–P7) - NCDC Upper Primary
+// ─────────────────────────────────────────
+
+const primaryCore: SubjectGroup = {
+  id: "ug-pri-core",
+  name: "Core Subjects",
+  isRequired: true,
+  subjects: [
+    { id: "ug-pri-eng", name: "English", category: "compulsory", subjectType: "languages", isCore: true },
+    { id: "ug-pri-math", name: "Mathematics", category: "compulsory", subjectType: "sciences", isCore: true },
+    { id: "ug-pri-sst", name: "Social Studies", category: "compulsory", subjectType: "humanities", isCore: true },
+    { id: "ug-pri-sci", name: "Integrated Science", category: "compulsory", subjectType: "sciences", isCore: true },
+    { id: "ug-pri-re", name: "Religious Education", category: "compulsory", subjectType: "humanities", isCore: true },
+    { id: "ug-pri-ll", name: "Local Language", category: "compulsory", subjectType: "languages", isCore: true },
+    { id: "ug-pri-cape", name: "Creative Arts and Physical Education", category: "compulsory", subjectType: "arts", isCore: true },
+  ]
+};
+
+// ─────────────────────────────────────────
+// UGANDA SECONDARY O-Level - UNEB
 const oLevelCore: SubjectGroup = {
   id: "ug-ol-core",
   name: "Core Subjects",
@@ -77,27 +97,59 @@ export const ugandaConfig: CurriculumConfig = {
   examBody: "UNEB",
   educationLevels: [
     {
-      id: "ug-olevel",
-      name: "O'level (Ordinary Level)",
-      description: "Senior 1-4 standard UNEB curriculum",
+      id: "ug-primary",
+      name: "Upper Primary (P4–P7)",
+      description: "Uganda NCDC Upper Primary curriculum. P4 is a transition year; P7 is the PLE national examination year.",
+      schoolLevel: "primary",
       isLegacy: false,
       durationYears: 4,
       grades: [
-        { id: "senior-1", name: "Senior 1", description: "First year of O-Level", isExamYear: false, subjectGroups: [oLevelCore, oLevelElectives] },
-        { id: "senior-2", name: "Senior 2", description: "Second year of O-Level", isExamYear: false, subjectGroups: [oLevelCore, oLevelElectives] },
-        { id: "senior-3", name: "Senior 3", description: "O-Level Subject Selection Focus", isExamYear: false, subjectGroups: [oLevelCore, oLevelElectives] },
-        { id: "senior-4", name: "Senior 4", description: "UCE National Examination Year", isExamYear: true, examType: "UCE", subjectGroups: [oLevelCore, oLevelElectives] }
+        {
+          id: "p4", name: "Primary 4", description: "Transition year from lower to upper primary. More guided academic structure.",
+          isExamYear: false, isTransitionYear: true, canonicalGrade: 4,
+          subjectGroups: [primaryCore]
+        },
+        {
+          id: "p5", name: "Primary 5", description: "Second year of upper primary",
+          isExamYear: false, canonicalGrade: 5,
+          subjectGroups: [primaryCore]
+        },
+        {
+          id: "p6", name: "Primary 6", description: "Third year of upper primary",
+          isExamYear: false, canonicalGrade: 6,
+          subjectGroups: [primaryCore]
+        },
+        {
+          id: "p7", name: "Primary 7", description: "PLE National Examination Year. Final year of primary education.",
+          isExamYear: true, examType: "PLE", canonicalGrade: 7,
+          subjectGroups: [primaryCore]
+        }
+      ]
+    },
+    {
+      id: "ug-olevel",
+      name: "O'level (Ordinary Level)",
+      description: "Senior 1-4 standard UNEB curriculum",
+      schoolLevel: "secondary",
+      isLegacy: false,
+      durationYears: 4,
+      grades: [
+        { id: "senior-1", name: "Senior 1", description: "First year of O-Level", isExamYear: false, canonicalGrade: 8, subjectGroups: [oLevelCore, oLevelElectives] },
+        { id: "senior-2", name: "Senior 2", description: "Second year of O-Level", isExamYear: false, canonicalGrade: 9, subjectGroups: [oLevelCore, oLevelElectives] },
+        { id: "senior-3", name: "Senior 3", description: "O-Level Subject Selection Focus", isExamYear: false, canonicalGrade: 10, subjectGroups: [oLevelCore, oLevelElectives] },
+        { id: "senior-4", name: "Senior 4", description: "UCE National Examination Year", isExamYear: true, examType: "UCE", canonicalGrade: 11, subjectGroups: [oLevelCore, oLevelElectives] }
       ]
     },
     {
       id: "ug-alevel",
       name: "A'level (Advanced Level)",
       description: "Senior 5-6 UACE preparation",
+      schoolLevel: "secondary",
       isLegacy: false,
       durationYears: 2,
       grades: [
-        { id: "senior-5", name: "Senior 5", description: "First year of A-Level Subject Combinations", isExamYear: false, subjectGroups: [aLevelPrincipals, aLevelSubsidiaries] },
-        { id: "senior-6", name: "Senior 6", description: "UACE National Examination Year", isExamYear: true, examType: "UACE", subjectGroups: [aLevelPrincipals, aLevelSubsidiaries] }
+        { id: "senior-5", name: "Senior 5", description: "First year of A-Level Subject Combinations", isExamYear: false, canonicalGrade: 12, subjectGroups: [aLevelPrincipals, aLevelSubsidiaries] },
+        { id: "senior-6", name: "Senior 6", description: "UACE National Examination Year", isExamYear: true, examType: "UACE", canonicalGrade: 13, subjectGroups: [aLevelPrincipals, aLevelSubsidiaries] }
       ]
     }
   ]

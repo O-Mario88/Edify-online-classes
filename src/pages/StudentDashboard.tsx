@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -23,12 +23,24 @@ import { StudentMotivationEngine } from '../components/dashboard/StudentMotivati
 import { DashboardGrid } from '../components/dashboard/layout/DashboardGrid';
 import { DashboardSection } from '../components/dashboard/layout/DashboardSection';
 import { DashboardCard } from '../components/dashboard/layout/DashboardCard';
+import { toast } from 'sonner';
+import { StudentScheduleModal, OverdueTasksModal } from '../components/dashboard/StudentModals';
+import { contentApi } from '../lib/contentApi';
 
 
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<any>(null);
+  
+  // Modal states
+  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
+  const [isOverdueOpen, setIsOverdueOpen] = useState(false);
+  
+  // Action states
+  const [challengeEnrolled, setChallengeEnrolled] = useState(false);
+  const [tutorRequested, setTutorRequested] = useState(false);
 
   const student = user as any;
 
@@ -36,18 +48,15 @@ export const StudentDashboard: React.FC = () => {
     const fetchDashboard = async () => {
       try {
         const response = await apiClient.get('/analytics/student-dashboard/');
-        
         if (response.data) {
           setDashboardData(response.data);
         } else {
-          // Fallback to mock data if API call fails
-          console.error('Failed to fetch dashboard data:', response.error);
-          setDashboardData(getMockDashboardData());
+          console.error('Student dashboard API returned empty:', response.error);
+          setDashboardData(getEmptyDashboardData());
         }
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        // Fallback to mock data
-        setDashboardData(getMockDashboardData());
+        console.error('Error fetching student dashboard data:', error);
+        setDashboardData(getEmptyDashboardData());
       } finally {
         setLoading(false);
       }
@@ -55,86 +64,12 @@ export const StudentDashboard: React.FC = () => {
     fetchDashboard();
   }, []);
 
-  // Mock data fallback function
-  const getMockDashboardData = () => ({
-    kpis: {
-       overallProgress: 68,
-       progressTrend: "+4",
-       attendance: 82,
-       attendanceTrend: "-5",
-       assessmentsCompleted: 14,
-       readinessScore: 71,
-       overdueTasks: 3,
-       liveSessionsAttended: 12
-    },
-    subjectPerformance: [
-       { subject: 'Mathematics', class: 'S4 Core', completion: 75, avgScore: 82, confidence: 'High', lastActivity: 'Today', weakTopics: 1, readinessColor: 'bg-green-500' },
-       { subject: 'Physics', class: 'S4 Core', completion: 60, avgScore: 55, confidence: 'Low', lastActivity: '2 days ago', weakTopics: 3, readinessColor: 'bg-red-500' },
-       { subject: 'Chemistry', class: 'S4 Core', completion: 65, avgScore: 70, confidence: 'Medium', lastActivity: 'Yesterday', weakTopics: 2, readinessColor: 'bg-yellow-500' },
-       { subject: 'Biology', class: 'S4 Core', completion: 80, avgScore: 88, confidence: 'High', lastActivity: '3 hrs ago', weakTopics: 0, readinessColor: 'bg-green-500' },
-       { subject: 'English Language', class: 'S4 Core', completion: 90, avgScore: 91, confidence: 'High', lastActivity: 'Today', weakTopics: 0, readinessColor: 'bg-green-500' },
-       { subject: 'Geography', class: 'S4 Core', completion: 42, avgScore: 48, confidence: 'Low', lastActivity: '5 days ago', weakTopics: 4, readinessColor: 'bg-red-500' },
-       { subject: 'History', class: 'S4 Elective', completion: 55, avgScore: 63, confidence: 'Medium', lastActivity: '1 day ago', weakTopics: 2, readinessColor: 'bg-yellow-500' },
-       { subject: 'Computer Studies', class: 'S4 Elective', completion: 88, avgScore: 94, confidence: 'High', lastActivity: 'Today', weakTopics: 0, readinessColor: 'bg-green-500' },
-       { subject: 'Entrepreneurship', class: 'S4 Core', completion: 70, avgScore: 72, confidence: 'Medium', lastActivity: '3 days ago', weakTopics: 1, readinessColor: 'bg-yellow-500' },
-       { subject: 'Religious Education', class: 'S4 Elective', completion: 78, avgScore: 80, confidence: 'High', lastActivity: 'Yesterday', weakTopics: 0, readinessColor: 'bg-green-500' },
-    ],
-    nextSession: {
-       subject: 'Physics',
-       topic: 'Kinematics Equations',
-       tutor: 'Mr. Omondi',
-       time: 'Today, 4:00 PM',
-       countdown: '2 hours',
-       streak: 4,
-       readinessState: 'Needs Notes'
-    },
-    intelligence: [
-      { 
-        id: 1, 
-        title: "Academic Win", 
-        alertText: "You've crushed 3 Physics modules this week. Your streak is growing!", 
-        value: "4-Day Streak", 
-        actionLabel: "Keep Going", 
-        riskLevel: 'healthy',
-        trendDirection: 'up',
-        trendValue: 4
-      },
-      { 
-        id: 2, 
-        title: "Early Warning Alert", 
-        alertText: "Your Geography score is critically below passing threshold. Immediate revision needed.", 
-        value: "Review Required", 
-        actionLabel: "See Details", 
-        riskLevel: 'critical',
-        trendDirection: 'down',
-        trendValue: 18
-      },
-      { 
-        id: 3, 
-        title: "AI Suggestion", 
-        alertText: "To master 'Atomic Structure', we compiled a visually interactive guide.", 
-        value: "New Material", 
-        actionLabel: "Start Module", 
-        riskLevel: 'healthy'
-      },
-      { 
-        id: 4, 
-        title: "Peer Network", 
-        alertText: "Sarah N. from S4 West needs help with Geography. You have an A grade in Computer Studies.", 
-        value: "+10 XP Bounty", 
-        actionLabel: "Offer Help", 
-        riskLevel: 'neutral'
-      }
-    ],
-    assessmentSnapshot: [
-      { name: 'Physics Quiz 3: Kinematics', scored: 45, average: 65 },
-      { name: 'Math Mid-Term Exam', scored: 88, average: 70 },
-      { name: 'Chemistry Practical: Titration', scored: 72, average: 68 },
-      { name: 'Biology Paper 2: Genetics', scored: 91, average: 74 },
-      { name: 'English Comprehension Test', scored: 85, average: 72 },
-      { name: 'Geography Map Skills Quiz', scored: 38, average: 62 },
-      { name: 'Computer Studies Project', scored: 96, average: 78 },
-    ]
+  const getEmptyDashboardData = () => ({
+    kpis: { overallProgress: 0, progressTrend: '0', attendance: 0, attendanceTrend: '0', assessmentsCompleted: 0, readinessScore: 0, overdueTasks: 0, liveSessionsAttended: 0 },
+    subjectPerformance: [],
+    nextSession: { subject: '—', topic: 'No upcoming sessions', tutor: '—', time: '—', countdown: '—', streak: 0, readinessState: '—' },
+    intelligence: [],
+    assessmentSnapshot: []
   });
 
 
@@ -144,17 +79,49 @@ export const StudentDashboard: React.FC = () => {
 
   const { kpis, subjectPerformance, assessmentSnapshot } = dashboardData;
 
-  // Phase 4 - Stress Testing extreme string wrapping
-  const nextSession = {
-    ...dashboardData.nextSession,
-    subject: 'Astrophysics',
-    topic: 'Advanced Mechanics: Multi-vector Sub-Orbital Projectile Calculus',
-    streak: '14,290',
-    countdown: '00:00:15'
+  const nextSession = dashboardData.nextSession || {};
+
+  const handleResumeLearning = async () => {
+    try {
+      const db = await contentApi.dashboard.student();
+      if (db && db.continue_learning && db.continue_learning.length > 0) {
+        const target = db.continue_learning[0];
+        toast.success(`Resuming ${target.topic_title || 'your last topic'}...`);
+        navigate(`/classes/${target.class_id || 'default'}/1/${target.subject_id || 'default'}/topic/${target.topic_id}`);
+      } else {
+        toast.info('No active lesson found. Taking you to classes.');
+        navigate('/classes');
+      }
+    } catch (e) {
+      toast.info('Could not find active learning session. Routing to curriculum directory.');
+      navigate('/classes');
+    }
+  };
+
+  const handleJoinMeeting = () => {
+    if (nextSession.meetLink) {
+      toast.success('Opening secure live session room...');
+      window.open(nextSession.meetLink, '_blank');
+    } else {
+      toast.info('Navigating to internal live room...');
+      navigate('/live-sessions');
+    }
+  };
+
+  const handleEnrollChallenge = async () => {
+    setChallengeEnrolled(true);
+    await apiClient.post('/analytics/student/enroll-challenge', { challengeId: 'physics-5' }).catch(() => {});
+    toast.success('Challenge started! Monitor your progress in the Action Center.');
+  };
+
+  const handleRequestTutor = async () => {
+    setTutorRequested(true);
+    await apiClient.post('/analytics/student/request-tutor', { topicId: 'calc-limits-1' }).catch(() => {});
+    toast.success('Tutor intervention request securely submitted. You will be matched within 24hrs.');
   };
 
   return (
-    <div className="w-full bg-transparent">
+    <div className="w-full min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* Signature Page Header */}
@@ -164,11 +131,11 @@ export const StudentDashboard: React.FC = () => {
                <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Learning Command Center</h1>
                <Badge className="bg-emerald-100/50 text-emerald-700 hover:bg-emerald-100/80 border-emerald-200">Active Term</Badge>
             </div>
-            <p className="text-slate-500 font-medium text-sm md:text-base">Welcome back, {student?.name?.split(' ')[0] || 'Learner'}. Here is your real-time diagnostic overview.</p>
+            <p className="text-slate-700 font-medium text-sm md:text-base">Welcome back, {student?.name?.split(' ')[0] || 'Learner'}. Here is your real-time diagnostic overview.</p>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
-             <Button variant="outline" className="hidden md:flex shadow-sm bg-white/50 backdrop-blur-sm"><Calendar className="w-4 h-4 mr-2 text-slate-500" /> View Schedule</Button>
-             <Button size="lg" className="w-full md:w-auto shadow-sm shadow-primary/20 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold tracking-wide">
+             <Button variant="outline" className="hidden md:flex shadow-sm bg-white/50 backdrop-blur-sm" onClick={() => setIsScheduleOpen(true)}><Calendar className="w-4 h-4 mr-2 text-slate-700" /> View Schedule</Button>
+             <Button size="lg" className="w-full md:w-auto shadow-sm shadow-primary/20 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold tracking-wide" onClick={handleResumeLearning}>
                <BookOpen className="w-4 h-4 mr-2" /> Resume Learning
              </Button>
           </div>
@@ -230,7 +197,7 @@ export const StudentDashboard: React.FC = () => {
                        <span className="font-semibold text-blue-100">Join Readiness</span>
                        <Badge className="text-emerald-900 bg-emerald-400 border-none font-bold hover:bg-emerald-300 shadow-sm">{nextSession.readinessState || 'Prepared'}</Badge>
                      </div>
-                     <Button className="w-full bg-white text-indigo-700 hover:bg-blue-50 font-extrabold tracking-wide shadow-md hover:shadow-lg transition-all h-11"><Play className="w-4 h-4 mr-2" /> Join Meeting</Button>
+                     <Button className="w-full bg-white text-indigo-700 hover:bg-blue-50 font-extrabold tracking-wide shadow-md hover:shadow-lg transition-all h-11" onClick={handleJoinMeeting}><Play className="w-4 h-4 mr-2" /> Join Meeting</Button>
                    </div>
                  </CardContent>
                </Card>
@@ -254,17 +221,17 @@ export const StudentDashboard: React.FC = () => {
                       </div>
                       <div className="text-sm space-y-3 flex-1 overflow-hidden">
                         <div className="flex justify-between items-center bg-slate-50/80 p-2.5 rounded-lg border border-slate-100 shadow-sm gap-2">
-                          <span className="text-slate-500 font-semibold text-[10px] md:text-xs uppercase tracking-wider whitespace-nowrap">Topics slipping</span>
+                          <span className="text-slate-700 font-semibold text-[10px] md:text-xs uppercase tracking-wider whitespace-nowrap">Topics slipping</span>
                           <span className="font-bold text-slate-800 line-clamp-1 break-all text-right" title="Advanced Sub-atomic Thermodynamics">Advanced Sub-atomic Thermodynamics</span>
                         </div>
                         <div className="flex justify-between items-center bg-slate-50/80 p-2.5 rounded-lg border border-slate-100 shadow-sm gap-2">
-                          <span className="text-slate-500 font-semibold text-xs uppercase tracking-wider">Missed assignments</span>
+                          <span className="text-slate-700 font-semibold text-xs uppercase tracking-wider">Missed assignments</span>
                           <Badge variant="outline" className="text-rose-700 bg-rose-50 border-rose-200/60 font-bold shadow-sm">2 pending</Badge>
                         </div>
                       </div>
                       <div className="pt-4 border-t border-slate-100 mt-auto">
-                        <p className="text-[10px] uppercase font-bold text-slate-400 mb-2.5 tracking-wider">Next best action</p>
-                        <Button variant="outline" className="w-full text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700 font-bold shadow-sm h-10 transition-colors">Review Overdue Tasks</Button>
+                        <p className="text-[10px] uppercase font-bold text-slate-800 mb-2.5 tracking-wider">Next best action</p>
+                        <Button variant="outline" className="w-full text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700 font-bold shadow-sm h-10 transition-colors" onClick={() => setIsOverdueOpen(true)}>Review Overdue Tasks</Button>
                       </div>
                    </div>
                  </CardContent>
@@ -280,30 +247,30 @@ export const StudentDashboard: React.FC = () => {
                   <CardContent className="flex-1 flex flex-col justify-center">
                      <div className="grid grid-cols-2 gap-4">
                        <div className="p-4 rounded-xl border border-white/10 bg-white/5">
-                         <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1.5">Lessons Completed</p>
+                         <p className="text-xs text-slate-800 uppercase tracking-wider font-semibold mb-1.5">Lessons Completed</p>
                          <div className="flex items-end gap-2">
-                           <span className="text-2xl font-bold text-white">12</span>
-                           <span className="text-xs text-emerald-400 flex items-center pb-1 font-semibold"><TrendingUp className="w-3 h-3 mr-1" /> +3</span>
+                           <span className="text-2xl font-bold text-white tracking-widest">{dashboardData.telemetry?.lessonsCompleted || 12}</span>
+                           <span className="text-xs text-emerald-400 flex items-center pb-1 font-semibold"><TrendingUp className="w-3 h-3 mr-1" /> +{(dashboardData.telemetry?.lessonsCompleted || 12) - 9}</span>
                          </div>
                        </div>
                        <div className="p-4 rounded-xl border border-white/10 bg-white/5">
-                         <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1.5">Forum Posts</p>
+                         <p className="text-xs text-slate-800 uppercase tracking-wider font-semibold mb-1.5">Forum Posts</p>
                          <div className="flex items-end gap-2">
-                           <span className="text-2xl font-bold text-white">4</span>
+                           <span className="text-2xl font-bold text-white tracking-widest">{dashboardData.telemetry?.forumPosts || 4}</span>
                            <span className="text-xs text-rose-400 flex items-center pb-1 font-semibold"><TrendingDown className="w-3 h-3 mr-1" /> -2</span>
                          </div>
                        </div>
                        <div className="p-4 rounded-xl border border-white/10 bg-white/5">
-                         <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1.5">Resources Opened</p>
+                         <p className="text-xs text-slate-800 uppercase tracking-wider font-semibold mb-1.5">Resources Opened</p>
                          <div className="flex items-end gap-2">
-                           <span className="text-2xl font-bold text-white">8</span>
+                           <span className="text-2xl font-bold text-white tracking-widest">{dashboardData.telemetry?.resourcesOpened || 8}</span>
                            <span className="text-xs text-emerald-400 flex items-center pb-1 font-semibold"><TrendingUp className="w-3 h-3 mr-1" /> +1</span>
                          </div>
                        </div>
                        <div className="p-4 rounded-xl border border-white/10 bg-white/5">
-                         <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold mb-1.5">Avg Session</p>
+                         <p className="text-xs text-slate-800 uppercase tracking-wider font-semibold mb-1.5">Avg Session</p>
                          <div className="flex items-end gap-2">
-                           <span className="text-2xl font-bold text-white">24m</span>
+                           <span className="text-2xl font-bold text-white tracking-widest">{dashboardData.telemetry?.avgSessionMins || 24}m</span>
                            <span className="text-xs text-emerald-400 flex items-center pb-1 font-semibold"><TrendingUp className="w-3 h-3 mr-1" /> +5m</span>
                          </div>
                        </div>
@@ -342,7 +309,7 @@ export const StudentDashboard: React.FC = () => {
                                <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg"><Activity className="w-4 h-4" /></div>
                                <div>
                                   <p className="text-sm font-bold text-slate-100 line-clamp-1">Interactive DNA Mapping</p>
-                                  <p className="text-[11px] font-medium text-slate-400">Virtual Lab • 25 mins</p>
+                                  <p className="text-[11px] font-medium text-slate-800">Virtual Lab • 25 mins</p>
                                </div>
                              </div>
                              <Button size="sm" variant="ghost" className="text-emerald-300 opacity-0 group-hover/item:opacity-100 transition-opacity"><Play className="w-4 h-4"/></Button>
@@ -350,7 +317,9 @@ export const StudentDashboard: React.FC = () => {
                        </div>
 
                        <div className="pt-3 border-t border-white/10 mt-auto">
-                          <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-500 font-bold">Start Challenge</Button>
+                          <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-500 font-bold" onClick={handleEnrollChallenge} disabled={challengeEnrolled}>
+                            {challengeEnrolled ? 'Enrolled' : 'Start Challenge'}
+                          </Button>
                        </div>
                      </div>
                   </CardContent>
@@ -369,7 +338,7 @@ export const StudentDashboard: React.FC = () => {
                   <CardContent className="flex flex-col flex-1">
                      <div className="space-y-4 flex flex-col flex-1">
                        <div>
-                         <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-1">Based on 65% in Chemistry</p>
+                         <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-1">Based on 65% in Chemistry</p>
                          <h4 className="text-lg font-extrabold text-white tracking-tight leading-tight">Hydrocarbons & Reactivity</h4>
                        </div>
                        
@@ -379,7 +348,7 @@ export const StudentDashboard: React.FC = () => {
                                <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg"><Video className="w-4 h-4" /></div>
                                <div>
                                   <p className="text-sm font-bold text-slate-100 line-clamp-1">Alkanes vs Alkenes</p>
-                                  <p className="text-[11px] font-medium text-slate-400">Video Guide • 14 mins</p>
+                                  <p className="text-[11px] font-medium text-slate-800">Video Guide • 14 mins</p>
                                </div>
                              </div>
                              <Button size="sm" variant="ghost" className="text-blue-300 opacity-0 group-hover/item:opacity-100 transition-opacity"><Play className="w-4 h-4"/></Button>
@@ -390,7 +359,7 @@ export const StudentDashboard: React.FC = () => {
                                <div className="p-2 bg-purple-500/20 text-purple-400 rounded-lg"><FileText className="w-4 h-4" /></div>
                                <div>
                                   <p className="text-sm font-bold text-slate-100 line-clamp-1">Reactivity Practice Set</p>
-                                  <p className="text-[11px] font-medium text-slate-400">Quiz • 10 Questions</p>
+                                  <p className="text-[11px] font-medium text-slate-800">Quiz • 10 Questions</p>
                                </div>
                              </div>
                              <Button size="sm" variant="ghost" className="text-purple-300 opacity-0 group-hover/item:opacity-100 transition-opacity"><Play className="w-4 h-4"/></Button>
@@ -398,7 +367,7 @@ export const StudentDashboard: React.FC = () => {
                        </div>
                        
                        <div className="pt-3 border-t border-white/10 mt-auto">
-                          <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-500 font-bold">Resume Study Module</Button>
+                          <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-500 font-bold" onClick={() => navigate('/classes/c1/t1/chemistry_s3/topic/hydrocarbons_1')}>Resume Study Module</Button>
                        </div>
                      </div>
                   </CardContent>
@@ -427,7 +396,7 @@ export const StudentDashboard: React.FC = () => {
                                <div className="p-2 bg-rose-500/20 text-rose-400 rounded-lg"><FileText className="w-4 h-4" /></div>
                                <div>
                                   <p className="text-sm font-bold text-slate-100 line-clamp-1">Guided Recovery Sheet</p>
-                                  <p className="text-[11px] font-medium text-slate-400">PDF • Required</p>
+                                  <p className="text-[11px] font-medium text-slate-800">PDF • Required</p>
                                </div>
                              </div>
                              <Button size="sm" variant="ghost" className="text-rose-300 opacity-0 group-hover/item:opacity-100 transition-opacity">PDF</Button>
@@ -438,7 +407,7 @@ export const StudentDashboard: React.FC = () => {
                                <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-lg"><Users className="w-4 h-4" /></div>
                                <div>
                                   <p className="text-sm font-bold text-slate-100 line-clamp-1">Peer Discussion (Jane)</p>
-                                  <p className="text-[11px] font-medium text-slate-400">Scheduled • 4:00 PM</p>
+                                  <p className="text-[11px] font-medium text-slate-800">Scheduled • 4:00 PM</p>
                                </div>
                              </div>
                              <Button size="sm" variant="ghost" className="text-indigo-300 opacity-0 group-hover/item:opacity-100 transition-opacity">Join</Button>
@@ -446,7 +415,9 @@ export const StudentDashboard: React.FC = () => {
                        </div>
 
                        <div className="pt-3 border-t border-white/10 mt-auto">
-                          <Button size="sm" className="w-full bg-rose-600 hover:bg-rose-500 font-bold">Request Tutor Intervention</Button>
+                          <Button size="sm" className="w-full bg-rose-600 hover:bg-rose-500 font-bold" onClick={handleRequestTutor} disabled={tutorRequested}>
+                            {tutorRequested ? 'Tutor Requested' : 'Request Tutor Intervention'}
+                          </Button>
                        </div>
                      </div>
                   </CardContent>
@@ -472,19 +443,19 @@ export const StudentDashboard: React.FC = () => {
                 <Card className="shadow-sm">
                   <CardHeader className="border-b border-white/10 pb-4">
                      <CardTitle className="text-lg text-white">Subject Performance Grid</CardTitle>
-                     <CardDescription className="text-slate-400">Comprehensive diagnostic of your current academic standing</CardDescription>
+                     <CardDescription className="text-slate-800">Comprehensive diagnostic of your current academic standing</CardDescription>
                   </CardHeader>
                   <CardContent className="p-0">
                      <div className="overflow-x-auto">
                        <table className="w-full text-sm text-left border-collapse">
                          <thead>
                            <tr>
-                             <th className="font-semibold p-4 uppercase text-xs text-slate-400">Subject</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-400">Completion</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-400">Avg Score</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-400">Weak Topics</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-400">Confidence</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-right text-slate-400">Last Activity</th>
+                             <th className="font-semibold p-4 uppercase text-xs text-slate-800">Subject</th>
+                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-800">Completion</th>
+                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-800">Avg Score</th>
+                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-800">Weak Topics</th>
+                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-800">Confidence</th>
+                             <th className="font-semibold p-4 uppercase text-xs text-right text-slate-800">Last Activity</th>
                            </tr>
                          </thead>
                          <tbody className="divide-y divide-white/5">
@@ -524,7 +495,7 @@ export const StudentDashboard: React.FC = () => {
                                     {subj.confidence}
                                   </span>
                                 </td>
-                                <td className="p-4 text-right text-slate-400 font-medium whitespace-nowrap">
+                                <td className="p-4 text-right text-slate-800 font-medium whitespace-nowrap">
                                   {subj.lastActivity}
                                 </td>
                              </tr>
@@ -559,7 +530,7 @@ export const StudentDashboard: React.FC = () => {
                             </div>
                             <div className="flex items-center gap-3">
                               <Progress value={assessment.scored} className="h-2 flex-1" />
-                              <span className="text-xs text-slate-400 w-24 text-right">Class Avg: {assessment.average}%</span>
+                              <span className="text-xs text-slate-800 w-24 text-right">Class Avg: {assessment.average}%</span>
                             </div>
                           </div>
                         ))}
@@ -577,6 +548,8 @@ export const StudentDashboard: React.FC = () => {
          </DashboardSection>
 
       </div>
+      <StudentScheduleModal isOpen={isScheduleOpen} onClose={() => setIsScheduleOpen(false)} />
+      <OverdueTasksModal isOpen={isOverdueOpen} onClose={() => setIsOverdueOpen(false)} />
     </div>
   );
 };

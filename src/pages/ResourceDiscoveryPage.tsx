@@ -6,7 +6,6 @@ import ResourceCard from '../components/academic/ResourceCard';
 import ResourceFilter from '../components/academic/ResourceFilter';
 import VideoPlayer from '../components/academic/VideoPlayer';
 import { Button } from '../components/ui/button';
-import { ResourceUploadModal } from '../components/academic/ResourceUploadModal';
 
 interface Resource {
   id: number;
@@ -47,7 +46,6 @@ export const ResourceDiscoveryPage: React.FC = () => {
   });
 
   const [selectedVideo, setSelectedVideo] = useState<{ id: number; title: string; vimeoId: string } | null>(null);
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(0);
 
@@ -93,38 +91,11 @@ export const ResourceDiscoveryPage: React.FC = () => {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load resources');
       console.error('Error fetching resources:', err);
-      setResources(getMockResources());
+      setResources([]);
     } finally {
       setLoading(false);
     }
   };
-
-  const getMockResources = (): Resource[] => [
-    {
-      id: 1,
-      title: "Senior 4 Mathematics Revision Notes",
-      description: "Complete coverage of O-level geometry, algebra, and statistics",
-      author: "Sarah Nakamya",
-      category: "Notes",
-      price: 9.99,
-      rating: 4.8,
-      visibility: "platform_shared",
-      subject: 1,
-    },
-    {
-      id: 2,
-      title: "Physics: Mechanics Complete Guide",
-      description: "Video tutorial series on Newtonian mechanics",
-      author: "Dr. Kaggwa",
-      category: "Video",
-      price: 0,
-      rating: 4.9,
-      vimeo_video_id: "123456789",
-      external_url: "https://vimeo.com/123456789",
-      visibility: "platform_shared",
-      subject: 2,
-    },
-  ];
 
   const handleFilterChange = (newFilters: any) => {
     setFilters(newFilters);
@@ -164,14 +135,7 @@ export const ResourceDiscoveryPage: React.FC = () => {
               <h1 className="text-3xl font-bold text-gray-900">Resource Library</h1>
               <p className="text-gray-600 mt-1">Discover educational resources</p>
             </div>
-            {user && (
-              <Button
-                onClick={() => setShowUploadModal(true)}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                Upload Resource
-              </Button>
-            )}
+
           </div>
         </div>
       </div>
@@ -232,13 +196,6 @@ export const ResourceDiscoveryPage: React.FC = () => {
         />
       )}
 
-      <ResourceUploadModal
-        isOpen={showUploadModal}
-        onClose={() => {
-          setShowUploadModal(false);
-          fetchResources();
-        }}
-      />
     </div>
   );
 };

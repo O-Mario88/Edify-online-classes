@@ -78,25 +78,27 @@ export const kenyaConfig: CurriculumConfig = {
       id: "ke-cbc-jss",
       name: "Junior Secondary (CBC)",
       description: "Grades 7, 8, and 9 under the new Competency-Based Curriculum",
+      schoolLevel: "secondary",
       isLegacy: false,
       durationYears: 3,
       grades: [
-        { id: "grade-7", name: "Grade 7", description: "First year of JSS", isExamYear: false, subjectGroups: jssSubjects },
-        { id: "grade-8", name: "Grade 8", description: "Second year of JSS", isExamYear: false, subjectGroups: jssSubjects },
-        { id: "grade-9", name: "Grade 9", description: "Final year of JSS with National Assessment", isExamYear: true, examType: "JSS Assessment", subjectGroups: jssSubjects }
+        { id: "grade-7", name: "Grade 7", description: "First year of JSS", isExamYear: false, canonicalGrade: 7, subjectGroups: jssSubjects },
+        { id: "grade-8", name: "Grade 8", description: "Second year of JSS", isExamYear: false, canonicalGrade: 8, subjectGroups: jssSubjects },
+        { id: "grade-9", name: "Grade 9", description: "Final year of JSS with National Assessment", isExamYear: true, examType: "JSS Assessment", canonicalGrade: 9, subjectGroups: jssSubjects }
       ]
     },
     {
       id: "ke-844-secondary",
       name: "KCSE Secondary (8-4-4)",
       description: "Forms 1-4 leading to the Kenya Certificate of Secondary Education",
+      schoolLevel: "secondary",
       isLegacy: true,
       durationYears: 4,
       grades: [
-        { id: "form-1", name: "Form 1", description: "Broad foundation year", isExamYear: false, subjectGroups: [kcseCore, kcseSciences, kcseHumanities, kcseTechnical] },
-        { id: "form-2", name: "Form 2", description: "Continued foundation", isExamYear: false, subjectGroups: [kcseCore, kcseSciences, kcseHumanities, kcseTechnical] },
-        { id: "form-3", name: "Form 3", description: "Subject selection focus", isExamYear: false, subjectGroups: [kcseCore, kcseSciences, kcseHumanities, kcseTechnical] },
-        { id: "form-4", name: "Form 4", description: "KCSE examination year", isExamYear: true, examType: "KCSE", subjectGroups: [kcseCore, kcseSciences, kcseHumanities, kcseTechnical] }
+        { id: "form-1", name: "Form 1", description: "Broad foundation year", isExamYear: false, canonicalGrade: 9, subjectGroups: [kcseCore, kcseSciences, kcseHumanities, kcseTechnical] },
+        { id: "form-2", name: "Form 2", description: "Continued foundation", isExamYear: false, canonicalGrade: 10, subjectGroups: [kcseCore, kcseSciences, kcseHumanities, kcseTechnical] },
+        { id: "form-3", name: "Form 3", description: "Subject selection focus", isExamYear: false, canonicalGrade: 11, subjectGroups: [kcseCore, kcseSciences, kcseHumanities, kcseTechnical] },
+        { id: "form-4", name: "Form 4", description: "KCSE examination year", isExamYear: true, examType: "KCSE", canonicalGrade: 12, subjectGroups: [kcseCore, kcseSciences, kcseHumanities, kcseTechnical] }
       ]
     }
   ]

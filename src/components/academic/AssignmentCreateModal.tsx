@@ -70,7 +70,7 @@ export const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between z-10">
           <div>
             <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <ClipboardList className="h-5 w-5 text-indigo-600" /> Create Assignment
+              <ClipboardList className="h-5 w-5 text-indigo-800" /> Create Assignment
             </h2>
             <div className="flex items-center gap-2 mt-1">
               <Badge variant="outline" className="text-[10px]">{classLabel}</Badge>
@@ -81,16 +81,16 @@ export const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg">
-            <X className="h-5 w-5 text-gray-400" />
+            <X className="h-5 w-5 text-gray-800" />
           </button>
         </div>
 
         <CardContent className="p-6 space-y-5">
           {submitted ? (
             <div className="text-center py-12">
-              <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+              <CheckCircle className="h-16 w-16 text-emerald-700 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900">Assignment Created!</h3>
-              <p className="text-gray-500 mt-2">Students can now see it under this {contextType}.</p>
+              <p className="text-gray-700 mt-2">Students can now see it under this {contextType}.</p>
             </div>
           ) : (
             <>
@@ -156,10 +156,10 @@ export const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
                           : `${t.color} hover:border-gray-400`
                       }`}
                     >
-                      <t.icon className="h-4 w-4 text-gray-600 flex-shrink-0" />
+                      <t.icon className="h-4 w-4 text-gray-800 flex-shrink-0" />
                       <div>
                         <p className="text-sm font-semibold text-gray-900">{t.label}</p>
-                        <p className="text-xs text-gray-500">{t.desc}</p>
+                        <p className="text-xs text-gray-700">{t.desc}</p>
                       </div>
                     </button>
                   ))}
@@ -168,8 +168,8 @@ export const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
 
               {/* Attach Files */}
               <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-indigo-400 transition-all cursor-pointer">
-                <FileUp className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-500">Attach files (optional)</p>
+                <FileUp className="h-8 w-8 text-gray-800 mx-auto mb-2" />
+                <p className="text-sm text-gray-700">Attach files (optional)</p>
               </div>
 
               <div className="flex gap-3 pt-2">
