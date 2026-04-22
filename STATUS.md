@@ -22,6 +22,7 @@
 
 **End-to-end (E2E)**
 - `verified` — a human has driven this flow in a browser against a freshly-seeded DB, start to finish, and it worked. No mocks in the path.
+- `api-verified` — the backend path is covered by an automated test (`manage.py test`). Frontend-to-backend in a browser is still untested.
 - `unverified` — frontend and backend both exist but nobody has proven the wire between them. **Default state for everything.**
 - `broken` — has been tried and does not work. Needs fixing.
 - `n/a` — one side is missing; E2E not possible.
@@ -32,8 +33,8 @@
 
 | Feature | Frontend | Backend | E2E | Notes |
 |---|---|---|---|---|
-| **Auth — Login** | live ([LoginPage.tsx](src/pages/LoginPage.tsx)) | live (`accounts`) | unverified | JWT via `djangorestframework_simplejwt`; `useAuth().login` |
-| **Auth — Register** | live ([RegisterPage.tsx](src/pages/RegisterPage.tsx)) | live (`accounts`) | unverified | `UserRegistrationView` is `AllowAny` — audit before shipping |
+| **Auth — Login** | live ([LoginPage.tsx](src/pages/LoginPage.tsx)) | live (`accounts`) | **api-verified** | JWT roundtrip covered by `accounts.tests.StudentSliceTests`; browser path still unverified |
+| **Auth — Register** | live ([RegisterPage.tsx](src/pages/RegisterPage.tsx)) | live (`accounts`) | **api-verified** | Student path covered by `StudentSliceTests`. Still `AllowAny` — see [KNOWN_ISSUES #5](docs/KNOWN_ISSUES.md) |
 | **Auth — Forgot password** | live ([ForgotPasswordPage.tsx](src/pages/ForgotPasswordPage.tsx)) | live (`accounts`) | unverified | Verify email delivery is actually configured |
 | **Student onboarding** | live (via Register flow) | live (`accounts` — `StudentOnboardingAPIView`) | unverified | `AllowAny` endpoint; validate phone/email guard rails |
 | **Independent teacher onboarding** | live ([IndependentTeacherWizard.tsx](src/pages/IndependentTeacherWizard.tsx)) | live (`accounts`) | unverified | |
@@ -55,7 +56,7 @@
 | **Class syllabus** | live ([ClassSyllabusPage.tsx](src/pages/ClassSyllabusPage.tsx)) | live (`curriculum`) | unverified | |
 | **Subject topics** | live ([SubjectTopicsPage.tsx](src/pages/SubjectTopicsPage.tsx)) | live (`curriculum`) | unverified | Uses cached `getCurriculumTree` |
 | **Topic detail** | live ([TopicDetailPage.tsx](src/pages/TopicDetailPage.tsx)) | live (`resources`) | unverified | |
-| **Academic library** | live ([AcademicLibraryPage.tsx](src/pages/AcademicLibraryPage.tsx)) | live (`resources`) | unverified | |
+| **Academic library** | live ([AcademicLibraryPage.tsx](src/pages/AcademicLibraryPage.tsx)) | live (`resources`) | **api-verified** | `/content/items/` listing + visibility filter covered by `StudentSliceTests` |
 | **Resource discovery** | live ([ResourceDiscoveryPage.tsx](src/pages/ResourceDiscoveryPage.tsx)) | live (`resources`) | unverified | |
 | **Dashboard library** | stub ([DashboardLibraryPage.tsx](src/pages/dashboard/DashboardLibraryPage.tsx)) | live (`resources`) | unverified | Hardcoded cards |
 | **Library (legacy)** | stub ([LibraryPage.tsx](src/pages/LibraryPage.tsx)) | live (`resources`) | n/a | Placeholder — delete, superseded by AcademicLibrary |
@@ -110,7 +111,12 @@
 
 **Backend apps (21 total):** all live by structural criteria (installed, wired, migrated). This does **not** mean end-to-end tested.
 
-**End-to-end verified:** **0.** Nothing has been proven to work through the full stack. This is the work of Phase 1.
+**End-to-end status:**
+- `verified` (full browser path): **0**
+- `api-verified` (backend path locked by a test): **3** — Auth-Login, Auth-Register, Academic library. See [edify_backend/apps/accounts/tests.py](edify_backend/apps/accounts/tests.py) — `StudentSliceTests` covers register → login → list content → record engagement → mark complete → persist. Run: `cd edify_backend && ./venv/bin/python manage.py test accounts.tests`.
+- `unverified`: all the rest.
+
+**Known non-blocking issues:** see [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) — 6 items, including `/lessons/lesson/` filter regression and 79 baseline TS errors.
 
 ---
 
