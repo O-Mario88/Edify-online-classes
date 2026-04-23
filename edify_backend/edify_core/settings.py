@@ -88,6 +88,10 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    # Whitenoise serves collected static files directly from the gunicorn
+    # process. No-op when running `runserver` in dev (staticfiles app wins),
+    # active in prod/Docker where collectstatic populates STATIC_ROOT.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -119,13 +123,22 @@ WSGI_APPLICATION = 'edify_core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+#
+# Local dev: no DATABASE_URL -> fall back to the committed sqlite file.
+# Docker / prod: DATABASE_URL=postgres://... is parsed into a full config.
+_DATABASE_URL = os.environ.get('DATABASE_URL')
+if _DATABASE_URL:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.parse(_DATABASE_URL, conn_max_age=600, ssl_require=False),
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -163,6 +176,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # populated by `manage.py collectstatic` in Docker / prod
+# Manifest storage requires `collectstatic` to have run and produces broken
+# URLs if a template references a file that isn't in the manifest. In DEBUG
+# we use Django's default so `runserver` works without a collectstatic step.
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'

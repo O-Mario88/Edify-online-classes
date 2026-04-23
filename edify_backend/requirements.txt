@@ -47,3 +47,7 @@ wcwidth==0.6.0
 PyVimeo==1.1.2
 google-api-python-client
 google-auth-oauthlib
+# Deployment additions (Docker / prod)
+gunicorn==23.0.0
+whitenoise==6.8.2
+dj-database-url==2.3.0
