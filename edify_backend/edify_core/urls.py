@@ -19,6 +19,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from edify_core.health import HealthView
+
 from curriculum.views import CountryViewSet, SubjectViewSet, ClassLevelViewSet, TopicViewSet
 from marketplace.views import ListingViewSet
 from ai_services.views import CopilotInferenceView
@@ -176,6 +178,7 @@ from tutoring.views import PeerTutoringDashboardView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/health/', HealthView.as_view(), name='health'),
     path('api/v1/', include(router.urls)),
     path('api/v1/ai/copilot/ask/', CopilotInferenceView.as_view(), name='copilot_ask'),
     path('api/v1/auth/', include('accounts.urls')),

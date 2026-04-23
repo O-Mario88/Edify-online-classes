@@ -219,6 +219,38 @@ CORS_ALLOW_CREDENTIALS = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Structured logging. JSON in prod (machine-parseable for log aggregators);
+# human-readable in dev. Everything routes to stdout; deployment layer can
+# tail or ship further.
+_LOG_FORMAT_JSON = (
+    '{"time":"%(asctime)s","level":"%(levelname)s","logger":"%(name)s",'
+    '"module":"%(module)s","message":"%(message)s"}'
+)
+_LOG_FORMAT_HUMAN = '[%(asctime)s] %(levelname)s %(name)s: %(message)s'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'json': {'format': _LOG_FORMAT_JSON},
+        'human': {'format': _LOG_FORMAT_HUMAN},
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'human' if DEBUG else 'json',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG' if DEBUG else 'INFO',
+    },
+    'loggers': {
+        'django': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
+        'django.request': {'handlers': ['console'], 'level': 'WARNING', 'propagate': False},
+        'edify': {'handlers': ['console'], 'level': 'DEBUG' if DEBUG else 'INFO', 'propagate': False},
+    },
+}
+
 # CELERY CONFIGURATION
 # Production-ready Celery settings with fallback to local defaults
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
