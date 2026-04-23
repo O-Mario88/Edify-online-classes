@@ -66,11 +66,10 @@ export function useResourceEngagement({
 
   // ── Session lifecycle: start on mount, end on unmount ──
   useEffect(() => {
-    contentApi.engagement.startSession({
-      content_item_id: resourceId,
-      interaction_type: interactionType,
-    }).then((session) => {
-      setSessionId(session.id);
+    // startSession only accepts content_item_id today; interactionType is
+    // tracked client-side until the backend exposes it as a session field.
+    contentApi.engagement.startSession(resourceId).then((session) => {
+      setSessionId(session.session_id);
     }).catch(() => {
       // Session start is non-critical; continue without session
     });
@@ -79,7 +78,8 @@ export function useResourceEngagement({
       // End session on unmount
       const sid = sessionIdRef.current;
       if (sid) {
-        contentApi.engagement.endSession(sid, {
+        contentApi.engagement.endSession({
+          session_id: sid,
           progress_at_end: completionPercentage,
         }).catch(() => {});
       }

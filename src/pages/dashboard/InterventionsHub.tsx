@@ -12,7 +12,7 @@ export const InterventionsHub = () => {
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
-        const { data, error } = await apiClient.get('/interventions/alerts/');
+        const { data, error } = await apiClient.get<any[] | { results?: any[] }>('/interventions/alerts/');
         if (!error && data) {
            setAlerts(Array.isArray(data) ? data : data.results || []);
         }

@@ -43,8 +43,8 @@ export function TeacherInterventionPanel() {
   useEffect(() => {
     const fetchInterventions = async () => {
       try {
-        const { data, error } = await apiClient.get('/intelligence/actions/');
-        if (!error && data?.results?.length > 0) {
+        const { data, error } = await apiClient.get<{ results?: any[] }>('/intelligence/actions/');
+        if (!error && data?.results && data.results.length > 0) {
           // Map backend format if available
           setSuggestions(data.results.slice(0, 2));
         } else {

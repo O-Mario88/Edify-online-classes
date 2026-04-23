@@ -94,7 +94,7 @@ export const ExercisePage: React.FC = () => {
       <div className="px-4 sm:px-6 lg:px-8 pt-8">
         <InteractivePracticeEngine 
           resource={exerciseData as any} 
-          studentId={user?.pk?.toString() || 'student-1'} 
+          studentId={user?.id?.toString() || 'student-1'}
           onComplete={() => {
             setTimeout(() => {
               navigate('/dashboard/student');

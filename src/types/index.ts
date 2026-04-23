@@ -1,11 +1,20 @@
 // Enhanced User Types for Hybrid Business Model
 export type SchoolLevel = 'primary' | 'secondary';
 
+export type UserRole =
+  | 'platform_admin'
+  | 'institution_admin'
+  | 'independent_teacher'
+  | 'institution_teacher'
+  | 'universal_student'
+  | 'institution_student'
+  | 'parent';
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'platform_admin' | 'institution_admin' | 'independent_teacher' | 'universal_student' | 'parent';
+  role: UserRole;
   avatar: string;
   phone?: string;
   location?: string;
@@ -265,12 +274,12 @@ export interface Term {
 export interface UgandaClass {
   id: string;
   name: string;
-  level: 'O\'level' | 'A\'level';
+  level: 'O\'level' | 'A\'level' | 'Upper Primary';
   description: string;
   price: number;
   priceUGX: number;
   isExamYear?: boolean;
-  examType?: 'UCE' | 'UACE';
+  examType?: 'UCE' | 'UACE' | 'PLE';
   subjectCombinations?: string[];
   terms: Term[];
 }

@@ -22,7 +22,7 @@ export const InstitutionIntelligence = () => {
   useEffect(() => {
     // Assuming the user is accessing their own institution's metrics 
     // In production, we'd pass institution ID params here or filter server-side
-    apiClient.get('/analytics/daily-institution-metric/')
+    apiClient.get<any[]>('/analytics/daily-institution-metric/')
       .then(res => {
         if (res.error) throw res.error;
         setMetrics(res.data);

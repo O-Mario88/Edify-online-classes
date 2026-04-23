@@ -141,7 +141,7 @@ export const PaymentPage: React.FC = () => {
     const amount = getTotalAmount().ugx;
     
     try {
-      const { data, error } = await apiClient.post('/marketplace/pesapal-checkout/', {
+      const { data, error } = await apiClient.post<{ redirect_url?: string }>('/marketplace/pesapal-checkout/', {
         amount,
         description: `Payment for ${selectedPlan.name || 'Maple Plan'}`,
       });

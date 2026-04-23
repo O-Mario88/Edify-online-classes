@@ -23,9 +23,9 @@ export default function InstitutionRiskMonitor() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiClient.get('/analytics/churn-signals/')
+    apiClient.get<any[]>('/analytics/churn-signals/')
       .then(res => {
-        const mappedData = res.data.map((item: any) => ({
+        const mappedData = (res.data || []).map((item: any) => ({
           id: item.institution_id,
           name: item.institution_name,
           type: 'Institution',

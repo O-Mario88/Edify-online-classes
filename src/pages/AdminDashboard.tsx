@@ -35,7 +35,7 @@ export const AdminDashboard: React.FC = () => {
     setSyncing(true);
     toast.info('Data sync started across all global nodes...');
     try {
-      await apiClient.post('/admin/sync-data');
+      await apiClient.post('/admin/sync-data', {});
       toast.success('Sync complete — all nodes up to date and replicated.');
     } catch {
       toast.success('Sync complete — all nodes up to date and replicated.');

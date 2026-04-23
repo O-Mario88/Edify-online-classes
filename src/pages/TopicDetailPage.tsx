@@ -98,7 +98,11 @@ export const TopicDetailPage: React.FC = () => {
         // 2. Fetch real engagement progress
         if (topicId && classId && subjectId) {
           const [contentResp, progressResp] = await Promise.all([
-            contentApi.classroom({ topic: topicId, subject: subjectId, class_level: classId }).catch(() => ({ results: [] as ContentItem[] })),
+            contentApi.classroom({
+              topic: Number(topicId),
+              subject: Number(subjectId),
+              class_level: Number(classId),
+            }).catch(() => ({ results: [] as ContentItem[] })),
             contentApi.engagement.myProgress().catch(() => ([]))
           ]);
 
@@ -259,7 +263,7 @@ export const TopicDetailPage: React.FC = () => {
                   <span className="text-sm font-bold text-slate-700">Pathway Progress</span>
                   <span className="text-sm font-black text-blue-600">{progressPercent}%</span>
                 </div>
-                <Progress value={progressPercent} className="h-2.5 bg-slate-200 mb-2" indicatorColor="bg-blue-600" />
+                <Progress value={progressPercent} className="h-2.5 bg-slate-200 mb-2" />
                 <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">
                   {completedItems.size} of {totalLessons} items completed
                 </p>

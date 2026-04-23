@@ -116,7 +116,8 @@ export const PrimaryTeacherDashboard: React.FC = () => {
         
         const dashData: any = dashRes.data || {};
         const kpis = dashData.kpis || {};
-        const classesList = Array.isArray(classesRes.data) ? classesRes.data : (classesRes.data?.results || []);
+        const classesData = classesRes.data as any;
+        const classesList = Array.isArray(classesData) ? classesData : (classesData?.results || []);
         
         // Calculate teacher stats mapped from backend
         const teacherStats: TeacherStats = {
@@ -868,7 +869,7 @@ export const PrimaryTeacherDashboard: React.FC = () => {
                       </div>
                       
                       <div className="pt-4">
-                        <Button className="w-full rounded-full h-14 text-base shadow-lg hover:-translate-y-0.5 transition-all" onClick={() => { toast.success('Live session scheduled successfully!'); setShowScheduleSheet(false); }}>
+                        <Button className="w-full rounded-full h-14 text-base shadow-lg hover:-translate-y-0.5 transition-all" onClick={() => toast.success('Live session scheduled successfully!')}>
                           <Calendar className="mr-2 h-5 w-5" />
                           Confirm Schedule
                         </Button>

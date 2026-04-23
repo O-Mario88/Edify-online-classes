@@ -63,7 +63,7 @@ export const ParentDashboard: React.FC = () => {
 
   const fetchAISummary = async () => {
     try {
-      const res = await apiClient.post('/ai/copilot/ask/', {
+      const res = await apiClient.post<{ reply?: string }>('/ai/copilot/ask/', {
          content: "Generate parent weekly summary.",
          context: "parent_weekly_summary"
       });

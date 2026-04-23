@@ -19,7 +19,7 @@ export const ErrorLogsPanel: React.FC<{ isOpen: boolean; onClose: () => void; }>
   useEffect(() => {
     if (isOpen) {
       setLoading(true);
-      apiClient.get('/admin/logs')
+      apiClient.get<LogEntry[]>('/admin/logs')
         .then(res => {
           if (res.data) setLogs(res.data);
           else {
@@ -41,7 +41,7 @@ export const ErrorLogsPanel: React.FC<{ isOpen: boolean; onClose: () => void; }>
   const handleClearLogs = async () => {
     setClearing(true);
     try {
-      await apiClient.post('/admin/logs/clear');
+      await apiClient.post('/admin/logs/clear', {});
       setLogs([]);
       toast.success('System logs cleared successfully.');
     } catch {

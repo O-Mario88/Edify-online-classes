@@ -283,7 +283,7 @@ export function StudentOnboardingForm() {
         clearInterval(pollInterval);
         setPollInterval(null);
       }
-      await apiClient.post(`/institutions/learner-registrations/${registrationId}/simulate_payment_success/`);
+      await apiClient.post(`/institutions/learner-registrations/${registrationId}/simulate_payment_success/`, {});
       setPaymentState('success');
       setPaymentMessage('Payment confirmed! Ready to create student account.');
       toast({ title: 'Payment Simulated', description: 'Sandbox payment marked as successful.' });

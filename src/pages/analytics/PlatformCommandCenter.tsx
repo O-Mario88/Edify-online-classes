@@ -10,7 +10,7 @@ export const PlatformCommandCenter = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiClient.get('/analytics/daily-platform-metric/')
+    apiClient.get<any[]>('/analytics/daily-platform-metric/')
       .then(res => {
         if (res.error) throw res.error;
         setMetrics(res.data);

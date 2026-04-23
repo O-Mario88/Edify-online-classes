@@ -59,10 +59,9 @@ export const InteractivePracticeEngine: React.FC<InteractivePracticeEngineProps>
       formData.append('studentId', studentId);
       formData.append('mcqScore', mcqSubmitted ? mcqScore.toString() : '0');
       
-      // Perform genuine API upload
-      await apiClient.post('/academic/submissions/upload/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      // Perform genuine API upload. apiClient.post only takes (url, body);
+      // for FormData the underlying fetch handles multipart boundaries.
+      await apiClient.post('/academic/submissions/upload/', formData);
 
       // Synchronize context hooks if applicable
       addSubmission({

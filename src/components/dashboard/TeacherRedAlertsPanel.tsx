@@ -36,7 +36,7 @@ export function TeacherRedAlertsPanel() {
     const fetchAlerts = async () => {
       try {
          // This will hook into Epic 9's InterventionViewSet
-         const { data, error } = await apiClient.get('/interventions/plans/');
+         const { data, error } = await apiClient.get<any[]>('/interventions/plans/');
          if (data && data.length > 0) {
             setAlerts(data);
          } else {

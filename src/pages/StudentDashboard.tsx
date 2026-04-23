@@ -86,8 +86,11 @@ export const StudentDashboard: React.FC = () => {
       const db = await contentApi.dashboard.student();
       if (db && db.continue_learning && db.continue_learning.length > 0) {
         const target = db.continue_learning[0];
-        toast.success(`Resuming ${target.topic_title || 'your last topic'}...`);
-        navigate(`/classes/${target.class_id || 'default'}/1/${target.subject_id || 'default'}/topic/${target.topic_id}`);
+        toast.success(`Resuming ${target.topic_name || target.title}...`);
+        // ContinueLearningItem doesn't carry class/subject/topic IDs, so the
+        // Academic Library is the most faithful landing place for now. Adding
+        // those IDs to the API response would let us deep-link further.
+        navigate('/library');
       } else {
         toast.info('No active lesson found. Taking you to classes.');
         navigate('/classes');

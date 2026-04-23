@@ -1,4 +1,5 @@
 import { toast } from 'sonner';
+import { apiClient } from '../apiClient';
 
 export type NotificationChannel = 'sms' | 'email' | 'push' | 'in_app';
 export type NotificationStatus = 'queued' | 'sent' | 'failed' | 'delivered';
