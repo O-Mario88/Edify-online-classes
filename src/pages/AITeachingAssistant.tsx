@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -347,7 +348,7 @@ export const AITeachingAssistant: React.FC = () => {
                   <div className="mt-8 pt-6 border-t border-gray-100">
                      <h3 className="text-sm font-semibold flex items-center gap-2 text-gray-500 mb-4 cursor-pointer" onClick={async () => {
                         const { apiClient } = await import('@/lib/apiClient');
-                        const res = await apiClient.get('/ai/copilot/ask/');
+                        const res = await apiClient.get<{ history?: unknown[] }>('/ai/copilot/ask/');
                         if (res.data?.history) {
                            setAutoQuizzes(prev => prev); // Hacky way to force re-render if we stored history in state
                            toast.success(`Loaded ${res.data.history.length} historical AI threads.`);

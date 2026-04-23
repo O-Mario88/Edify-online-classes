@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { BrainCircuit, BookOpen, PenTool, Search, MessageSquare, Send, HelpCircle, FileText, RefreshCw } from 'lucide-react';
@@ -20,13 +21,13 @@ export const AITeachingPartner: React.FC = () => {
         plan: "Create a 45 minute lesson plan on Kinematics"
       };
       
-      const { data, error } = await apiClient.post('/ai/copilot/ask/', {
+      const { data, error } = await apiClient.post<{ reply?: string }>('/ai/copilot/ask/', {
         content: promptMap[type] || "Hello",
         context: 'teaching_analytics'
       });
       
       if (error) throw error;
-      setOutput(data.reply || 'No response from AI.');
+      setOutput(data?.reply || 'No response from AI.');
     } catch {
       setOutput("Failed to generate AI response. Using offline fallback:\n\n[Fallback Placeholder for " + type + "]");
     } finally {
@@ -38,12 +39,12 @@ export const AITeachingPartner: React.FC = () => {
     if (!prompt) return;
     setIsGenerating(true);
     try {
-      const { data, error } = await apiClient.post('/ai/copilot/ask/', {
+      const { data, error } = await apiClient.post<{ reply?: string }>('/ai/copilot/ask/', {
         content: prompt,
         context: 'general'
       });
       if (error) throw error;
-      setOutput(data.reply || 'No response from AI.');
+      setOutput(data?.reply || 'No response from AI.');
       setPrompt('');
     } catch {
       setOutput(`Failed to connect to AI server. Mock response to "${prompt}"\n\n...[Contextual AI Output]...`);

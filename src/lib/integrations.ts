@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient } from './apiClient';
 import { WebinarSession } from '../types'; // Adjust typing if needed
 
 // Types 
@@ -15,7 +15,13 @@ export const IntegrationsService = {
    */
   sendWhatsAppTemplate: async (msg: WhatsAppMessage): Promise<{ id: string; status: 'sent' | 'failed' }> => {
     try {
-      const resp = await apiClient.post('/notifications/notification/send-whatsapp/', msg);
+      const resp = await apiClient.post<{ id: string; status: 'sent' | 'failed' }>(
+        '/notifications/notification/send-whatsapp/',
+        msg,
+      );
+      if (!resp.data) {
+        throw new Error('WhatsApp proxy returned no payload');
+      }
       return resp.data;
     } catch (e) {
       console.error("Failed to route WhatsApp to Backend Proxy", e);

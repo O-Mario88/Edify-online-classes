@@ -86,7 +86,7 @@ const PrimaryClassLanding = lazy(() => import('./pages/primary/PrimaryClassLandi
 const PrimaryClassDetail = lazy(() => import('./pages/primary/PrimaryClassDetail').then(m => ({ default: m.PrimaryClassDetail })));
 const P7ReadinessDashboard = lazy(() => import('./pages/primary/P7ReadinessDashboard'));
 const PrimaryStudentDashboard = lazy(() => import('./pages/primary/PrimaryStudentDashboard'));
-const PrimaryTeacherDashboard = lazy(() => import('./pages/primary/PrimaryTeacherDashboard'));
+const PrimaryTeacherDashboard = lazy(() => import('./pages/primary/PrimaryTeacherDashboard').then(m => ({ default: m.PrimaryTeacherDashboard })));
 const PrimaryParentDashboard = lazy(() => import('./pages/primary/PrimaryParentDashboard'));
 
 // Suspense fallback

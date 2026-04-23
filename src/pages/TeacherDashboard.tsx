@@ -85,6 +85,30 @@ interface ClassOverview {
   lastActive: string;
 }
 
+// Shape consumed from GET /analytics/teacher-dashboard/. Fields match only what
+// the dashboard actually reads; extend as the backend contract grows.
+interface TeacherDashboardData {
+  kpis?: {
+    totalLearners?: number;
+    activeClasses?: number;
+    monthlyEarnings?: number;
+    avgRating?: number;
+    markingBacklog?: number;
+  };
+  contentPerformance?: Array<{ views?: number; [key: string]: unknown }>;
+  teachingIntelligence?: {
+    hardestTopic?: string;
+    aiSummary?: string;
+    lowestEngagementClass?: string;
+  };
+  classHealth?: Array<{
+    name: string;
+    enrolled: number;
+    attendance: number;
+    riskCount?: number;
+  }>;
+}
+
 export const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -106,12 +130,12 @@ export const TeacherDashboard: React.FC = () => {
     const fetchData = async () => {
       try {
         const [dashRes, classesRes, subjectsRes] = await Promise.all([
-          apiClient.get('/analytics/teacher-dashboard/'),
+          apiClient.get<TeacherDashboardData>('/analytics/teacher-dashboard/'),
           apiClient.get('/classes/').catch(() => ({ data: [] })),
           apiClient.get('/curriculum/subjects/').catch(() => ({ data: [] }))
         ]);
-        
-        const dashData = dashRes.data || {};
+
+        const dashData: TeacherDashboardData = dashRes.data || {};
         const kpis = dashData.kpis || {};
         const classesList = Array.isArray(classesRes.data) ? classesRes.data : [];
         

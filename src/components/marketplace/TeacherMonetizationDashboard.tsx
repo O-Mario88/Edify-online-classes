@@ -24,7 +24,7 @@ interface QualificationRecord {
 }
 
 interface Profile {
-  id: string;
+  id: number;
   mobile_number: string;
   network: string;
 }
@@ -57,16 +57,17 @@ export const TeacherMonetizationDashboard: React.FC = () => {
         try {
             const [overviewRes, recordsRes, profileRes, eligRes] = await Promise.all([
                 apiClient.get('/marketplace/monetization-overview/').catch(() => ({ data: null })),
-                apiClient.get('/marketplace/lesson-qualifications/').catch(() => ({ data: [] })),
-                apiClient.get('/marketplace/payout-profile/').catch(() => ({ data: [] })),
+                apiClient.get<QualificationRecord[]>('/marketplace/lesson-qualifications/').catch(() => ({ data: [] as QualificationRecord[] })),
+                apiClient.get<Array<{ id: number; mobile_number: string; network: string }>>('/marketplace/payout-profile/').catch(() => ({ data: [] as Array<{ id: number; mobile_number: string; network: string }> })),
                 apiClient.get('/marketplace/payouts/eligibility/').catch(() => ({ data: null }))
             ]);
             if (overviewRes.data) setOverview(overviewRes.data);
             if (recordsRes.data) setRecords(recordsRes.data);
-            if (profileRes.data && profileRes.data.length > 0) {
-                setProfile(profileRes.data[0]);
-                setMobileNumber(profileRes.data[0].mobile_number);
-                setNetwork(profileRes.data[0].network);
+            const profiles = profileRes.data;
+            if (profiles && profiles.length > 0) {
+                setProfile(profiles[0]);
+                setMobileNumber(profiles[0].mobile_number);
+                setNetwork(profiles[0].network);
             }
             if (eligRes.data) setEligibility(eligRes.data);
         } catch (err) {
@@ -104,7 +105,7 @@ export const TeacherMonetizationDashboard: React.FC = () => {
         setLoadingPayout(true);
         setPayoutMessage(null);
         try {
-            await apiClient.post('/marketplace/payouts/');
+            await apiClient.post('/marketplace/payouts/', {});
             setPayoutMessage("Payout successfully queued via MoMo!");
             await load(); // Refresh eligibility & status
         } catch (err: any) {

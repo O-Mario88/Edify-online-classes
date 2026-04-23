@@ -28,7 +28,7 @@ export function InstitutionBillingPortal({ activeStudents = 120, unpaidSeats = 1
     setTransactionState('pending_callback');
     
     try {
-      const { data, error } = await apiClient.post('/marketplace/pesapal-checkout/', {
+      const { data, error } = await apiClient.post<{ redirect_url?: string }>('/marketplace/pesapal-checkout/', {
         amount: totalDue,
         description: `Institution ${currentPlan.name} for ${unpaidSeats} seats`
       });
@@ -181,8 +181,9 @@ export function InstitutionBillingPortal({ activeStudents = 120, unpaidSeats = 1
                          <div className="flex items-center gap-2 text-amber-400 font-bold justify-center mb-2">
                             <Loader2 className="w-4 h-4 animate-spin"/> Awaiting Mobile Callback...
                          </div>
-                         <Button size="sm" onClick={() => simulateWebhook('success')} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">Simulate Payment Success</Button>
-                         <Button size="sm" variant="destructive" onClick={() => simulateWebhook('failure')} className="w-full">Simulate Delivery Failure</Button>
+                         <p className="text-xs text-slate-400 text-center">
+                           Complete payment on your mobile device. This screen will update when the gateway callback fires.
+                         </p>
                        </>
                     ) : transactionState === 'failed' ? (
                        <>

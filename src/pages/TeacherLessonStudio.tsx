@@ -59,28 +59,25 @@ export const TeacherLessonStudio: React.FC = () => {
   };
 
   const [lessonTimeline, setLessonTimeline] = useState<any[]>([]);
+  const [timelineError, setTimelineError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!classId) return;
     const fetchTimeline = async () => {
       try {
-        const { data, error } = await apiClient.get('/lessons/lessons/');
+        const { data, error } = await apiClient.get(`/lessons/lesson/?parent_class=${encodeURIComponent(classId)}`);
         if (error) throw error;
-        if (data && data.length > 0) {
-           setLessonTimeline(data);
-        } else {
-           // Fallback for visual mock if none returned
-           setLessonTimeline([
-             { id: 1, title: 'Introduction to Cell Structure', status: 'published', date: 'Oct 02', hasNotes: true, hasVideo: true, attachments: 2 },
-             { id: 2, title: 'Plant vs Animal Cells', status: 'published', date: 'Oct 04', hasNotes: true, hasVideo: false, attachments: 1 },
-             { id: 3, title: 'Cellular Respiration (Theory)', status: 'draft', date: 'Oct 09', hasNotes: false, hasVideo: false, attachments: 0 }
-           ]);
-        }
+        const results: any[] = Array.isArray(data) ? data : ((data as any)?.results ?? []);
+        setLessonTimeline(results);
+        setTimelineError(null);
       } catch (err) {
         console.error("Failed to fetch lessons", err);
+        setTimelineError('Failed to load lessons for this class.');
+        setLessonTimeline([]);
       }
     };
     fetchTimeline();
-  }, []);
+  }, [classId]);
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-16">

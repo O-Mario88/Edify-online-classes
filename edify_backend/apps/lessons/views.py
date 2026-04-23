@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
 from institutions.models import InstitutionMembership
 from django.db.models import Q
 
@@ -18,6 +19,8 @@ class TenantFilterMixin:
 class LessonViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['parent_class', 'topic', 'access_mode']
 
     def get_queryset(self):
         inst_ids = self.get_user_institutions()

@@ -51,9 +51,9 @@ export const PremiumGate: React.FC<PremiumGateProps> = ({
     <PremiumLockState
       title={`Unlock ${featureName}`}
       description={description}
-      actionLabel={role === 'institution_admin' || role === 'headteacher' ? 'Upgrade Institution Plan' : 'Ask Admin to Upgrade'}
+      actionLabel={role === 'institution_admin' ? 'Upgrade Institution Plan' : 'Ask Admin to Upgrade'}
       onAction={() => {
-        if (role === 'institution_admin' || role === 'headteacher') {
+        if (role === 'institution_admin') {
           navigate('/dashboard/institution/finance');
         } else {
            // Provide a soft landing for non-admins

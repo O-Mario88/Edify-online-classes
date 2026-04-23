@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth import get_user_model
 import logging
 
@@ -7,8 +8,8 @@ User = get_user_model()
 def seed_base_users():
     """Generates the fundamental platform personas required for a unified demo experience."""
     logger.info("Seeding Level 1: Core System Avatars and Users")
-    
-    password = "DemoAccount2025!"
+
+    password = os.environ.get("SEED_PASSWORD", "DemoAccount2025!")
     profiles = [
         {"email": "super.demo@edify.ug", "full_name": "Oliver Root", "role": "admin"},
         {"email": "admin.demo@edify.ug", "full_name": "Nalwoga Admin", "role": "admin"},

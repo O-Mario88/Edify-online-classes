@@ -103,8 +103,8 @@ export const CourseDetail: React.FC = () => {
     const fetchContent = async () => {
       try {
         const response = await contentApi.library({
-          subject: subjectId,
-          class_level: classId,
+          subject: subjectId ? Number(subjectId) : undefined,
+          class_level: classId ? Number(classId) : undefined,
           content_type: undefined,
           search: undefined
         });
