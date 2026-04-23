@@ -16,6 +16,7 @@ import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 import { CareerGuidanceWidget } from '../components/dashboard/CareerGuidanceWidget';
 import { StudentResourceEngagementPanel } from '../components/dashboard/StudentResourceEngagementPanel';
+import { StudentAssignmentsPanel } from '../components/students/StudentAssignmentsPanel';
 import { StudentActionCenter } from '../components/dashboard/StudentActionCenter';
 import { StudentPlatformLaunchpad } from '../components/dashboard/StudentPlatformLaunchpad';
 import { StudentMotivationEngine } from '../components/dashboard/StudentMotivationEngine';
@@ -158,6 +159,11 @@ export const StudentDashboard: React.FC = () => {
         {/* Phase 8 Resource Engagement */}
         <DashboardSection>
            <StudentResourceEngagementPanel />
+        </DashboardSection>
+
+        {/* Phase 4.3 — assignments + grades */}
+        <DashboardSection title="My assignments">
+           <StudentAssignmentsPanel />
         </DashboardSection>
 
         {/* Global Action Center - Surfacing critical pending tasks & collaborative duties */}

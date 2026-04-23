@@ -11,6 +11,8 @@ import { apiClient } from '@/lib/apiClient';
 import { toast } from 'sonner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { TeacherQuickNote } from '@/components/teachers/TeacherQuickNote';
+import { TeacherQuickAssignment } from '@/components/teachers/TeacherQuickAssignment';
+import { TeacherGradingPanel } from '@/components/teachers/TeacherGradingPanel';
 
 export const TeacherLessonStudio: React.FC = () => {
   const { classId } = useParams();
@@ -111,8 +113,16 @@ export const TeacherLessonStudio: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Phase 4 slice #1: quick-publish a text note visible to students. */}
-        <div className="mb-6">
+        {/* Phase 4.3: quick-publish an assignment + grade submissions inline. */}
+        <div className="mb-6 flex flex-wrap gap-3">
           <TeacherQuickNote />
+          <TeacherQuickAssignment />
+        </div>
+        <div className="mb-8">
+          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+            Assignments &amp; grading
+          </h2>
+          <TeacherGradingPanel />
         </div>
 
         <Tabs defaultValue="timeline" className="w-full">
