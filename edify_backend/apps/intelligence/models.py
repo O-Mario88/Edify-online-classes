@@ -35,7 +35,6 @@ class NextBestAction(models.Model):
         ('resource', 'Resource'),
         ('engagement', 'Engagement'),
         ('operational', 'Operational'),
-        ('finance', 'Finance'),
         ('communication', 'Communication'),
         ('system', 'System'),
     ]

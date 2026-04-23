@@ -21,7 +21,6 @@ import { SmartStudyPlanner } from '../components/students/SmartStudyPlanner';
 import { useStudyPlanner } from '../hooks/useIntelligence';
 import { ParentSettingsModal, MessageTutorModal, BookMeetingModal } from '../components/dashboard/ParentModals';
 import { WhatsAppCommunicationHub } from '../components/dashboard/WhatsAppCommunicationHub';
-// InstitutionBillingPortal removed — finance not managed on platform
 import { NotificationEngine } from '../lib/integrations/NotificationEngine';
 
 export const ParentDashboard: React.FC = () => {

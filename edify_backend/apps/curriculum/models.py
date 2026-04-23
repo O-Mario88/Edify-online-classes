@@ -4,8 +4,7 @@ from django.db import models
 class AcademicYear(models.Model):
     """
     Represents a school academic year (e.g. 2024, 2024/2025).
-    Used by the Finance ERP for scoping fee templates, invoices,
-    and student financial profiles.
+    Used to scope enrolments, classes, and term-level analytics.
     """
     year_label = models.CharField(
         max_length=20,

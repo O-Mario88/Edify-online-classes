@@ -14,7 +14,6 @@ const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
 // LibraryPage / AnalyticsPage / InterventionsPage / EarningsPage stubs removed in
 // Phase 3 — their routes now use DashboardLibraryPage, AnalyticsLayout,
 // InterventionsHub, and TeacherEarningsPage respectively.
-// InstitutionFinancePage removed — institutions no longer manage finance on platform
 
 // Lazy-load all page components for code splitting
 const HomePage = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
@@ -78,7 +77,6 @@ const SystemHealthAnalytics = lazy(() => import('./pages/analytics/PlatformAnaly
 const DashboardLibraryPage = lazy(() => import('./pages/dashboard/DashboardLibraryPage'));
 const InterventionsHub = lazy(() => import('./pages/dashboard/InterventionsHub'));
 const TeacherEarningsPage = lazy(() => import('./pages/dashboard/TeacherEarningsPage'));
-// InstitutionFinanceHub removed — institutions no longer manage finance on platform
 
 // Primary School Pages
 const PrimaryClassLanding = lazy(() => import('./pages/primary/PrimaryClassLanding').then(m => ({ default: m.PrimaryClassLanding })));
