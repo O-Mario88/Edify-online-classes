@@ -111,20 +111,21 @@ export const PaymentPage: React.FC = () => {
 
     if (planType === 'student') {
       if (planId === 'all_access') {
-        return pricingData.studentPricing.specialOffers?.allAccess;
+        return pricingData.studentPricing?.specialOffers?.allAccess ?? null;
       }
-      
-      const levelPricing = pricingData.studentPricing.byLevel.find((level: any) => 
-        level.classes.some((cls: any) => cls.id === classId || cls.id === planId)
+
+      const byLevel = pricingData.studentPricing?.byLevel ?? [];
+      const levelPricing = byLevel.find((level: any) =>
+        (level?.classes ?? []).some((cls: any) => cls.id === classId || cls.id === planId)
       );
-      
+
       if (levelPricing) {
-        return levelPricing.classes.find((cls: any) => cls.id === classId || cls.id === planId);
+        return (levelPricing.classes ?? []).find((cls: any) => cls.id === classId || cls.id === planId) ?? null;
       }
     }
-    
+
     if (planType === 'teacher') {
-      return pricingData.teacherMembership.plans.find((plan: any) => plan.id === planId);
+      return (pricingData.teacherMembership?.plans ?? []).find((plan: any) => plan.id === planId) ?? null;
     }
 
     return null;
@@ -172,7 +173,9 @@ export const PaymentPage: React.FC = () => {
             parsed.activation_status = 'active';
             localStorage.setItem('maple-auth-user', JSON.stringify(parsed));
           }
-       } catch (e) {}
+       } catch {
+         // Malformed local storage blob — non-fatal; user just won't get the optimistic update.
+       }
        setTransactionState('confirmed');
        setPaymentComplete(true);
        setProcessing(false);

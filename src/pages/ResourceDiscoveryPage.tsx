@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Loader } from 'lucide-react';
-import { apiClient, API_ENDPOINTS } from '../lib/apiClient';
+import { apiClient, API_ENDPOINTS, API_BASE_URL } from '../lib/apiClient';
 import { useAuth } from '../contexts/AuthContext';
 import ResourceCard from '../components/academic/ResourceCard';
 import ResourceFilter from '../components/academic/ResourceFilter';
@@ -119,7 +119,7 @@ export const ResourceDiscoveryPage: React.FC = () => {
       handleResourceClick(resource);
     } else if (resource.file_path) {
       const link = document.createElement('a');
-      link.href = `http://localhost:8000${resource.file_path}`;
+      link.href = `${API_BASE_URL}${resource.file_path}`;
       link.download = resource.title;
       link.click();
     }

@@ -46,7 +46,9 @@ export const useAssignmentSubmissions = () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(mockInit));
         setSubmissions(mockInit);
       }
-    } catch (err) {}
+    } catch {
+      // localStorage unavailable or JSON corrupt — leave submissions empty.
+    }
   }, []);
 
   const addSubmission = (sub: Omit<AssignmentSubmission, 'id'>) => {

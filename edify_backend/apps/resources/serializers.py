@@ -15,10 +15,16 @@ class ResourceSerializer(serializers.ModelSerializer):
         read_only_fields = ['uploaded_by', 'created_at', 'author_name']
     
     def get_author_name(self, obj):
-        """Return author field or uploaded_by user's name if author not specified"""
+        """Return manual `author` field if set, else the uploader's full_name,
+        else their email. Note: accounts.User stores the name in `full_name`;
+        there is no Django-default `get_full_name()` method on this custom user.
+        """
         if obj.author:
             return obj.author
-        return obj.uploaded_by.get_full_name() or obj.uploaded_by.email
+        uploader = obj.uploaded_by
+        if uploader is None:
+            return ''
+        return getattr(uploader, 'full_name', '') or uploader.email
 
 class SharedResourceLinkSerializer(serializers.ModelSerializer):
     class Meta:

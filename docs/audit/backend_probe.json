@@ -1,0 +1,668 @@
+{
+  "health": {
+    "status": 200,
+    "elapsed_ms": 23,
+    "body": null,
+    "preview": "{\"status\":\"ok\",\"db\":\"ok\",\"cache\":\"ok\"}",
+    "error": null
+  },
+  "endpoints_probed": 82,
+  "results": [
+    {
+      "url": "/api/v1/analytics/analytics-event/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/analytics/daily-institution-metric/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 6,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/analytics/daily-platform-metric/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":14,\"next\":null,\"previous\":null,\"results\":[{\"id\":1,\"date\":\"2026-04-12\",\"total_active_users\":1875,\"dau\":734,\"acti",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/analytics/subject-performance-snapshot/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/analytics/system-health-snapshot/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/assessments/assessment-window/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/assessments/assessment/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/assessments/question/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/assessments/submission/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/attendance/daily/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/attendance/lesson/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/class-enrollments/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/classes/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/content/admin/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 6,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/content/assignments/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 8,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/content/engagement/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 9,
+      "authed_preview": "{\"count\":8,\"next\":null,\"previous\":null,\"results\":[{\"id\":\"312abb07-2afa-4855-9e80-78faf36231bf\",\"student\":610,\"student_na",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/content/institution/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 6,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/content/items/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 42,
+      "authed_preview": "{\"count\":19,\"next\":null,\"previous\":null,\"results\":[{\"id\":\"6db1b2e9-fb28-4528-8057-0ac1932cc1ce\",\"title\":\"Slice 4 e2e not",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/content/recommendations/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 7,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/content/tags/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/content/teacher/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/curriculum/class-levels/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":11,\"next\":null,\"previous\":null,\"results\":[{\"id\":1,\"name\":\"P4\",\"internal_canonical_grade\":4,\"level\":3},{\"id\":2,\"",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/curriculum/countries/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":4,\"next\":null,\"previous\":null,\"results\":[{\"id\":1,\"code\":\"uganda\",\"name\":\"Uganda\",\"active\":true},{\"id\":2,\"code\":",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/curriculum/resource-reviews/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/curriculum/subjects/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 19,
+      "authed_preview": "{\"count\":15,\"next\":null,\"previous\":null,\"results\":[{\"id\":1,\"name\":\"Mathematics\",\"code\":null,\"category\":\"Compulsory\",\"top",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/curriculum/topic-competencies/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/curriculum/topics/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 9,
+      "authed_preview": "{\"count\":224,\"next\":\"http://127.0.0.1:8765/api/v1/curriculum/topics/?page=2\",\"previous\":null,\"results\":[{\"id\":1,\"name\":\"",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/discussions/post/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 3,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/discussions/thread/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 3,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/exams/board-submission-batch/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/exams/candidate-registration/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/exams/exam-center/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/exams/subject-selection/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/grading/records/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 6,
+      "authed_preview": "{\"count\":1,\"next\":null,\"previous\":null,\"results\":[{\"id\":1,\"submission\":2475,\"score\":\"92.00\",\"teacher_feedback\":\"Great ex",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/grading/reports/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 7,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/grading/subjects/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 6,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/institution-memberships/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/institutions/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/institutions/learner-registrations/",
+      "anon_status": 401,
+      "authed_status": 404,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"detail\":\"Not found.\"}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/actions/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/badges/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/challenges/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/health-history/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/houses/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/impact/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/intervention-assignments/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/intervention-packs/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 6,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/learning-progress/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/my-badges/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/national-exams/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/parent-actions/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/points/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/story-cards/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/study-plans/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/intelligence/study-tasks/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/interventions/actions/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/interventions/alerts/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/interventions/plans/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/lessons/lesson-attendance/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/lessons/lesson-note/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 9,
+      "authed_preview": "{\"count\":271,\"next\":\"http://127.0.0.1:8765/api/v1/lessons/lesson-note/?page=2\",\"previous\":null,\"results\":[{\"id\":1,\"conte",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/lessons/lesson-recording/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/lessons/lesson/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 10,
+      "authed_preview": "{\"count\":451,\"next\":\"http://127.0.0.1:8765/api/v1/lessons/lesson/?page=2\",\"previous\":null,\"results\":[{\"id\":1,\"title\":\"Me",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/live-sessions/live-session/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 18,
+      "authed_preview": "{\"count\":25,\"next\":\"http://127.0.0.1:8765/api/v1/live-sessions/live-session/?page=2\",\"previous\":null,\"results\":[{\"id\":1,",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/live-sessions/missed-recovery/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/live-sessions/session-reminder/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/marketplace/lesson-qualifications/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/marketplace/listings/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 16,
+      "authed_preview": "{\"count\":20,\"next\":null,\"previous\":null,\"results\":[{\"id\":20,\"title\":\"Literature in English Mastery Course by Allan Engor",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/marketplace/payout-profile/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/marketplace/payouts/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/marketplace/teacher-batches/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/notifications/notification/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 3,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/parent-portal/parent-student-link/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":1,\"next\":null,\"previous\":null,\"results\":[{\"id\":1,\"student_data\":{\"id\":\"616\",\"name\":\"Amina Student\",\"avatar\":\"ht",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/parent-portal/risk-alert/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/parent-portal/weekly-summary/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 3,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/resources-upload/",
+      "anon_status": 404,
+      "authed_status": 404,
+      "authed_elapsed_ms": 19,
+      "authed_preview": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\">\n  <title>P",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/resources/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 15,
+      "authed_preview": "{\"count\":16,\"next\":null,\"previous\":null,\"results\":[{\"id\":30,\"title\":\"Demand & Supply (S2) Study Notes\",\"description\":\"Co",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/resources/shared-resource-link/",
+      "anon_status": 401,
+      "authed_status": 404,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"detail\":\"Not found.\"}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/scheduling/timetable/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/tutoring/bounties/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 5,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/tutoring/match-request/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 3,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/tutoring/peer-points-ledger/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 3,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    },
+    {
+      "url": "/api/v1/tutoring/tutor-profiles/",
+      "anon_status": 401,
+      "authed_status": 200,
+      "authed_elapsed_ms": 4,
+      "authed_preview": "{\"count\":0,\"next\":null,\"previous\":null,\"results\":[]}",
+      "authed_error": null
+    }
+  ]
+}

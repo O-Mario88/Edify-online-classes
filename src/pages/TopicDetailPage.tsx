@@ -62,7 +62,6 @@ export const TopicDetailPage: React.FC = () => {
 
     // Fetch the core structural metadata (topic name, subject context)
     const fetchStructureAndContent = async () => {
-      let found = false;
       const findInLevels = (levels: any[]) => {
         for (const level of levels) {
           for (const cls of level.classes) {

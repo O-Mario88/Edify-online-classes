@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PremiumLockState } from './PremiumLockState';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface PremiumGateProps {
   requiredTier?: 'flex_monthly' | 'termly' | 'yearly';
@@ -58,8 +59,8 @@ export const PremiumGate: React.FC<PremiumGateProps> = ({
           // dashboard where subscription status lives.
           navigate('/dashboard/institution');
         } else {
-           // Provide a soft landing for non-admins
-           window.alert("Your institution has not unlocked this feature. Please contact your administrator.");
+           // Soft landing for non-admins — toast is non-blocking, matches the rest of the app.
+           toast.info("Your institution has not unlocked this feature. Please contact your administrator.");
         }
       }}
       mockContent={mockContent}

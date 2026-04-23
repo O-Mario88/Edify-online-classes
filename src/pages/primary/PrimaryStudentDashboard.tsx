@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { DashboardGrid } from '../../components/dashboard/layout/DashboardGrid';
 import { DashboardSection } from '../../components/dashboard/layout/DashboardSection';
+import { apiGet } from '../../lib/apiClient';
 import { DashboardCard } from '../../components/dashboard/layout/DashboardCard';
 import { IntelligenceCard } from '../../components/dashboard/IntelligenceCard';
 import { DashboardSkeleton } from '../../components/dashboard/DashboardSkeleton';
@@ -38,13 +39,11 @@ export const PrimaryStudentDashboard: React.FC = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/v1/analytics/primary-student-dashboard/');
-        if (response.ok) {
-          const apiData = await response.json();
-          setData(apiData);
-        } else {
-          console.warn('Primary student dashboard API not available');
+        const { data: apiData, error } = await apiGet<typeof data>('/analytics/primary-student-dashboard/');
+        if (error || !apiData) {
           setData(getEmptyDashboardData());
+        } else {
+          setData(apiData);
         }
       } catch (error) {
         console.error('Error fetching primary student dashboard:', error);

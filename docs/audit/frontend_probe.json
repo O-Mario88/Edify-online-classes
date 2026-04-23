@@ -1,0 +1,340 @@
+{
+  "base_url": "http://127.0.0.1:5173",
+  "routes_tested": 35,
+  "findings": [
+    {
+      "route": "/",
+      "status": 200,
+      "load_ms": 3164,
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Error fetching listings: TypeError: Failed to fetch\n    at fetchListings (http://127.0.0.1:5173/src/pages/HomePage.tsx:48:13)\n    at http://127.0.0.1:5173/src/pages/HomePage.tsx:82:5\n    at commitHookEffectListMount (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-KDCVS43I.js?v=e7097bc4:16963:34",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Error fetching listings: TypeError: Failed to fetch\n    at fetchListings (http://127.0.0.1:5173/src/pages/HomePage.tsx:48:13)\n    at http://127.0.0.1:5173/src/pages/HomePage.tsx:82:5\n    at commitHookEffectListMount (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-KDCVS43I.js?v=e7097bc4:16963:34"
+      ],
+      "failed_requests": [
+        {
+          "url": "http://localhost:8000/api/v1/curriculum/full-tree/",
+          "status": "failed",
+          "failure": "net::ERR_CONNECTION_REFUSED"
+        },
+        {
+          "url": "http://localhost:8000/api/v1/curriculum/full-tree/",
+          "status": "failed",
+          "failure": "net::ERR_CONNECTION_REFUSED"
+        }
+      ]
+    },
+    {
+      "route": "/about",
+      "status": 200,
+      "load_ms": 1452,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/login",
+      "status": 200,
+      "load_ms": 1439,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/register",
+      "status": 200,
+      "load_ms": 1436,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/forgot-password",
+      "status": 200,
+      "load_ms": 1418,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/classes",
+      "status": 200,
+      "load_ms": 1445,
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
+      "failed_requests": [
+        {
+          "url": "http://127.0.0.1:5173/api/v1/curriculum/full-tree/",
+          "status": 500
+        },
+        {
+          "url": "http://127.0.0.1:5173/api/v1/curriculum/full-tree/",
+          "status": 500
+        }
+      ]
+    },
+    {
+      "route": "/live-sessions",
+      "status": 200,
+      "load_ms": 1446,
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      ],
+      "failed_requests": [
+        {
+          "url": "http://127.0.0.1:5173/api/v1/live-sessions/live-session/",
+          "status": 500
+        },
+        {
+          "url": "http://127.0.0.1:5173/api/v1/live-sessions/live-session/",
+          "status": 500
+        }
+      ]
+    },
+    {
+      "route": "/library",
+      "status": 200,
+      "load_ms": 1443,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/resources",
+      "status": 200,
+      "load_ms": 1438,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/payment",
+      "status": 200,
+      "load_ms": 1429,
+      "console_errors": [
+        "The above error occurred in the <PaymentPage> component:\n\n    at PaymentPage (http://127.0.0.1:5173/src/pages/PaymentPage.tsx:41:20)\n    at RenderedRoute (http://127.0.0.1:5173/node_modules/.vite/deps/react-router-dom.js?v=e7097bc4:4131:5)\n    at Outlet (http://127.0.0.1:5173/node_modules/.vite/deps",
+        "[ErrorBoundary] TypeError: Cannot read properties of undefined (reading 'find')\n    at getSelectedPlan (http://127.0.0.1:5173/src/pages/PaymentPage.tsx:132:63)\n    at PaymentPage (http://127.0.0.1:5173/src/pages/PaymentPage.tsx:144:24)\n    at renderWithHooks (http://127.0.0.1:5173/node_modules/.vite"
+      ],
+      "failed_requests": []
+    },
+    {
+      "route": "/p/student1",
+      "status": 200,
+      "load_ms": 1437,
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Error fetching public profile: TypeError: Failed to fetch\n    at fetchProfile (http://127.0.0.1:5173/src/pages/PublicProfile.tsx:32:32)\n    at http://127.0.0.1:5173/src/pages/PublicProfile.tsx:47:19\n    at commitHookEffectListMount (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-KDCVS43I.js?v=e",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Error fetching public profile: TypeError: Failed to fetch\n    at fetchProfile (http://127.0.0.1:5173/src/pages/PublicProfile.tsx:32:32)\n    at http://127.0.0.1:5173/src/pages/PublicProfile.tsx:47:19\n    at commitHookEffectListMount (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-KDCVS43I.js?v=e"
+      ],
+      "failed_requests": [
+        {
+          "url": "http://localhost:8000/api/v1/users/profile/student1/",
+          "status": "failed",
+          "failure": "net::ERR_CONNECTION_REFUSED"
+        },
+        {
+          "url": "http://localhost:8000/api/v1/users/profile/student1/",
+          "status": "failed",
+          "failure": "net::ERR_CONNECTION_REFUSED"
+        }
+      ]
+    },
+    {
+      "route": "/t/teacher1",
+      "status": 200,
+      "load_ms": 6888,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/marketplace",
+      "status": 200,
+      "load_ms": 1456,
+      "console_errors": [
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "API Connectivity Error (Backend may be offline): TypeError: Cannot read properties of null (reading 'map')\n    at http://127.0.0.1:5173/src/pages/MarketplacePage.tsx:37:31",
+        "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "API Connectivity Error (Backend may be offline): TypeError: Cannot read properties of null (reading 'map')\n    at http://127.0.0.1:5173/src/pages/MarketplacePage.tsx:37:31"
+      ],
+      "failed_requests": [
+        {
+          "url": "http://127.0.0.1:5173/api/v1/curriculum/subjects/",
+          "status": 500
+        },
+        {
+          "url": "http://127.0.0.1:5173/api/v1/curriculum/subjects/",
+          "status": 500
+        }
+      ]
+    },
+    {
+      "route": "/peer-tutoring",
+      "status": 200,
+      "load_ms": 1460,
+      "console_errors": [
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to fetch tutoring dashboard TypeError: Failed to fetch\n    at fetchDashboard (http://127.0.0.1:5173/src/pages/PeerTutoringHub.tsx:39:32)\n    at http://127.0.0.1:5173/src/pages/PeerTutoringHub.tsx:54:5\n    at commitHookEffectListMount (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-KDCVS4",
+        "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+        "Failed to fetch tutoring dashboard TypeError: Failed to fetch\n    at fetchDashboard (http://127.0.0.1:5173/src/pages/PeerTutoringHub.tsx:39:32)\n    at http://127.0.0.1:5173/src/pages/PeerTutoringHub.tsx:54:5\n    at commitHookEffectListMount (http://127.0.0.1:5173/node_modules/.vite/deps/chunk-KDCVS4"
+      ],
+      "failed_requests": [
+        {
+          "url": "http://localhost:8000/api/v1/tutoring/dashboard/",
+          "status": "failed",
+          "failure": "net::ERR_CONNECTION_REFUSED"
+        },
+        {
+          "url": "http://localhost:8000/api/v1/tutoring/dashboard/",
+          "status": "failed",
+          "failure": "net::ERR_CONNECTION_REFUSED"
+        }
+      ]
+    },
+    {
+      "route": "/exam-registration",
+      "status": 200,
+      "load_ms": 1451,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/institution-management",
+      "status": 200,
+      "load_ms": 1450,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/learning-path",
+      "status": 200,
+      "load_ms": 1446,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/projects",
+      "status": 200,
+      "load_ms": 1439,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/ai-assistant",
+      "status": 200,
+      "load_ms": 1445,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/student",
+      "status": 200,
+      "load_ms": 1448,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/teacher",
+      "status": 200,
+      "load_ms": 1453,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/parent",
+      "status": 200,
+      "load_ms": 1459,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/admin",
+      "status": 200,
+      "load_ms": 1450,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/institution",
+      "status": 200,
+      "load_ms": 1451,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/library",
+      "status": 200,
+      "load_ms": 1441,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/interventions",
+      "status": 200,
+      "load_ms": 1445,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/earnings",
+      "status": 200,
+      "load_ms": 1430,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/analytics",
+      "status": 200,
+      "load_ms": 1456,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/analytics/platform",
+      "status": 200,
+      "load_ms": 1445,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/analytics/institution",
+      "status": 200,
+      "load_ms": 1437,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/admin/intelligence",
+      "status": 200,
+      "load_ms": 1443,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/dashboard/admin/intelligence/risk",
+      "status": 200,
+      "load_ms": 1464,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/primary",
+      "status": 200,
+      "load_ms": 1457,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/primary/p7-readiness",
+      "status": 200,
+      "load_ms": 1514,
+      "console_errors": [],
+      "failed_requests": []
+    },
+    {
+      "route": "/primary/class/p7",
+      "status": 200,
+      "load_ms": 1455,
+      "console_errors": [],
+      "failed_requests": []
+    }
+  ]
+}

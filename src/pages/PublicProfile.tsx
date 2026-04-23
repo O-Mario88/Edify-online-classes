@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button';
 import { GraduationCap, MapPin, Share2, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { BadgeShowcase, AchievementBadge } from '../components/badges/BadgeShowcase';
 import { CertificateCard, Certificate } from '../components/badges/CertificateCard';
+import { apiGet } from '../lib/apiClient';
 
 // Profile data shape — will be populated by the public profile API when available
 interface PublicProfileData {
@@ -25,14 +26,9 @@ export const PublicProfile: React.FC = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/api/v1/users/profile/${username}/`);
-        if (response.ok) {
-          const data = await response.json();
-          setProfile(data);
-        } else {
-          console.warn('Public profile API not available yet');
-          setProfile(null);
-        }
+        const { data, error } = await apiGet<PublicProfileData>(`/users/profile/${username}/`);
+        if (error) throw error;
+        setProfile(data ?? null);
       } catch (error) {
         console.error('Error fetching public profile:', error);
         setProfile(null);

@@ -1,0 +1,1388 @@
+{
+  "counts": {
+    "frontend_routes": 33,
+    "frontend_api_call_sites": 116,
+    "frontend_distinct_endpoints": 74,
+    "backend_router_endpoints": 82,
+    "backend_path_endpoints": 29,
+    "allow_any_views": 11,
+    "open_queryset_views": 14,
+    "coming_soon_buttons": 4,
+    "window_alerts": 1,
+    "pages_with_mock_data": 5
+  },
+  "routes": [
+    {
+      "path": "/login",
+      "element": "LoginPage",
+      "line": 110
+    },
+    {
+      "path": "/register",
+      "element": "RegisterPage",
+      "line": 111
+    },
+    {
+      "path": "/forgot-password",
+      "element": "ForgotPasswordPage",
+      "line": 112
+    },
+    {
+      "path": "/",
+      "element": "Layout",
+      "line": 123
+    },
+    {
+      "path": "feedback",
+      "element": "FeedbackPage",
+      "line": 124
+    },
+    {
+      "path": "about",
+      "element": "AboutUsPage",
+      "line": 126
+    },
+    {
+      "path": "classes",
+      "element": "CourseCatalog",
+      "line": 127
+    },
+    {
+      "path": "classes/:classId",
+      "element": "ClassSyllabusPage",
+      "line": 128
+    },
+    {
+      "path": "classes/:classId/:termId/:subjectId",
+      "element": "CourseDetail",
+      "line": 129
+    },
+    {
+      "path": "classes/:classId/subject/:subjectId",
+      "element": "SubjectTopicsPage",
+      "line": 130
+    },
+    {
+      "path": "classes/:classId/:termId/:subjectId/topic/:topicId",
+      "element": "TopicDetailPage",
+      "line": 131
+    },
+    {
+      "path": "forum/*",
+      "element": "ForumPage",
+      "line": 132
+    },
+    {
+      "path": "live-sessions",
+      "element": "LiveSessionsPage",
+      "line": 133
+    },
+    {
+      "path": "payment",
+      "element": "PaymentPage",
+      "line": 144
+    },
+    {
+      "path": "p/:username",
+      "element": "PublicProfile",
+      "line": 145
+    },
+    {
+      "path": "t/:username",
+      "element": "TeacherStorefront",
+      "line": 146
+    },
+    {
+      "path": "marketplace",
+      "element": "MarketplacePage",
+      "line": 149
+    },
+    {
+      "path": "marketplace/:country/:subjectId",
+      "element": "MarketplaceSubjectPage",
+      "line": 150
+    },
+    {
+      "path": "marketplace/:country/:subjectId/:classId/:topicId",
+      "element": "MarketplaceTopicPage",
+      "line": 151
+    },
+    {
+      "path": "exercises/:exerciseId",
+      "element": "ExercisePage",
+      "line": 181
+    },
+    {
+      "path": "projects/:projectId/submit",
+      "element": "ExercisePage",
+      "line": 182
+    },
+    {
+      "path": "assignments/:assignmentId",
+      "element": "ExercisePage",
+      "line": 183
+    },
+    {
+      "path": "peer-tutoring",
+      "element": "PeerTutoringHub",
+      "line": 184
+    },
+    {
+      "path": "/dashboard",
+      "element": "GlassDashboardLayout",
+      "line": 195
+    },
+    {
+      "path": "platform",
+      "element": "PlatformCommandCenter",
+      "line": 219
+    },
+    {
+      "path": "institution",
+      "element": "InstitutionIntelligence",
+      "line": 220
+    },
+    {
+      "path": "learning",
+      "element": "LearningAnalytics",
+      "line": 221
+    },
+    {
+      "path": "exams",
+      "element": "ExamsAnalytics",
+      "line": 222
+    },
+    {
+      "path": "marketplace",
+      "element": "MarketplaceAnalytics",
+      "line": 223
+    },
+    {
+      "path": "system",
+      "element": "SystemHealthAnalytics",
+      "line": 224
+    },
+    {
+      "path": "/primary",
+      "element": "Layout",
+      "line": 324
+    },
+    {
+      "path": "class/:classId",
+      "element": "PrimaryClassDetail",
+      "line": 326
+    },
+    {
+      "path": "p7-readiness",
+      "element": "P7ReadinessDashboard",
+      "line": 327
+    }
+  ],
+  "api_calls": [
+    {
+      "file": "src/contexts/AICopilotContext.tsx",
+      "line": 70,
+      "method": "POST",
+      "endpoint": "/ai/copilot/ask/"
+    },
+    {
+      "file": "src/components/ActiveAssessment.tsx",
+      "line": 33,
+      "method": "GET",
+      "endpoint": "/assessments/assessment/:var/"
+    },
+    {
+      "file": "src/components/ActiveAssessment.tsx",
+      "line": 51,
+      "method": "POST",
+      "endpoint": "/assessments/submission/"
+    },
+    {
+      "file": "src/components/PilotFeedbackButton.tsx",
+      "line": 36,
+      "method": "POST",
+      "endpoint": "/feedback/"
+    },
+    {
+      "file": "src/components/institutions/StudentOnboardingForm.tsx",
+      "line": 93,
+      "method": "GET",
+      "endpoint": "/institutions/learner-registrations/subscription_plans/"
+    },
+    {
+      "file": "src/components/institutions/StudentOnboardingForm.tsx",
+      "line": 145,
+      "method": "POST",
+      "endpoint": "/institutions/learner-registrations/start_registration/"
+    },
+    {
+      "file": "src/components/institutions/StudentOnboardingForm.tsx",
+      "line": 184,
+      "method": "POST",
+      "endpoint": "/institutions/learner-registrations/:var/select_subscription/"
+    },
+    {
+      "file": "src/components/institutions/StudentOnboardingForm.tsx",
+      "line": 209,
+      "method": "POST",
+      "endpoint": "/institutions/learner-registrations/:var/initiate_payment/"
+    },
+    {
+      "file": "src/components/institutions/StudentOnboardingForm.tsx",
+      "line": 249,
+      "method": "GET",
+      "endpoint": "/institutions/learner-registrations/:var/check_payment_status/"
+    },
+    {
+      "file": "src/components/institutions/StudentOnboardingForm.tsx",
+      "line": 286,
+      "method": "POST",
+      "endpoint": "/institutions/learner-registrations/:var/simulate_payment_success/"
+    },
+    {
+      "file": "src/components/institutions/StudentOnboardingForm.tsx",
+      "line": 306,
+      "method": "POST",
+      "endpoint": "/institutions/learner-registrations/:var/activate_account/"
+    },
+    {
+      "file": "src/components/institutions/InstitutionBillingPortal.tsx",
+      "line": 31,
+      "method": "POST",
+      "endpoint": "/marketplace/pesapal-checkout/"
+    },
+    {
+      "file": "src/components/parents/ParentActionCenter.tsx",
+      "line": 79,
+      "method": "POST",
+      "endpoint": ":var:var/acknowledge/"
+    },
+    {
+      "file": "src/components/copilot/AITeacherCopilotWidget.tsx",
+      "line": 24,
+      "method": "POST",
+      "endpoint": "/ai/copilot/ask/"
+    },
+    {
+      "file": "src/components/marketplace/MarketplaceUploadModal.tsx",
+      "line": 47,
+      "method": "GET",
+      "endpoint": "/curriculum/subjects/"
+    },
+    {
+      "file": "src/components/marketplace/MarketplaceUploadModal.tsx",
+      "line": 90,
+      "method": "POST",
+      "endpoint": "/marketplace/listing/"
+    },
+    {
+      "file": "src/components/marketplace/TeacherMonetizationDashboard.tsx",
+      "line": 59,
+      "method": "GET",
+      "endpoint": "/marketplace/monetization-overview/"
+    },
+    {
+      "file": "src/components/marketplace/TeacherMonetizationDashboard.tsx",
+      "line": 60,
+      "method": "GET",
+      "endpoint": "/marketplace/lesson-qualifications/"
+    },
+    {
+      "file": "src/components/marketplace/TeacherMonetizationDashboard.tsx",
+      "line": 62,
+      "method": "GET",
+      "endpoint": "/marketplace/payouts/eligibility/"
+    },
+    {
+      "file": "src/components/marketplace/TeacherMonetizationDashboard.tsx",
+      "line": 86,
+      "method": "PUT",
+      "endpoint": "/marketplace/payout-profile/:var/"
+    },
+    {
+      "file": "src/components/marketplace/TeacherMonetizationDashboard.tsx",
+      "line": 91,
+      "method": "POST",
+      "endpoint": "/marketplace/payout-profile/"
+    },
+    {
+      "file": "src/components/marketplace/TeacherMonetizationDashboard.tsx",
+      "line": 108,
+      "method": "POST",
+      "endpoint": "/marketplace/payouts/"
+    },
+    {
+      "file": "src/components/admin/PlatformAnalyticsTabs.tsx",
+      "line": 141,
+      "method": "GET",
+      "endpoint": "/analytics/admin-dashboard/"
+    },
+    {
+      "file": "src/components/teachers/TeacherQuickNote.tsx",
+      "line": 37,
+      "method": "POST",
+      "endpoint": "/content/items/"
+    },
+    {
+      "file": "src/components/teachers/TeacherGradingPanel.tsx",
+      "line": 63,
+      "method": "GET",
+      "endpoint": "/assessments/assessment/"
+    },
+    {
+      "file": "src/components/teachers/TeacherGradingPanel.tsx",
+      "line": 64,
+      "method": "GET",
+      "endpoint": "/assessments/submission/"
+    },
+    {
+      "file": "src/components/teachers/TeacherGradingPanel.tsx",
+      "line": 65,
+      "method": "GET",
+      "endpoint": "/grading/records/"
+    },
+    {
+      "file": "src/components/teachers/TeacherGradingPanel.tsx",
+      "line": 92,
+      "method": "POST",
+      "endpoint": "/grading/records/"
+    },
+    {
+      "file": "src/components/teachers/TeacherQuickAssignment.tsx",
+      "line": 45,
+      "method": "POST",
+      "endpoint": "/assessments/assessment/"
+    },
+    {
+      "file": "src/components/teachers/AITeachingPartner.tsx",
+      "line": 24,
+      "method": "POST",
+      "endpoint": "/ai/copilot/ask/"
+    },
+    {
+      "file": "src/components/teachers/AITeachingPartner.tsx",
+      "line": 42,
+      "method": "POST",
+      "endpoint": "/ai/copilot/ask/"
+    },
+    {
+      "file": "src/components/teachers/AITeachingPartner.tsx",
+      "line": 115,
+      "method": "POST",
+      "endpoint": "/assessments/assessment/"
+    },
+    {
+      "file": "src/components/academic/AssignmentCreateModal.tsx",
+      "line": 44,
+      "method": "POST",
+      "endpoint": "/assessments/assessment/"
+    },
+    {
+      "file": "src/components/academic/DiscussionThread.tsx",
+      "line": 102,
+      "method": "GET",
+      "endpoint": "/discussions/thread/"
+    },
+    {
+      "file": "src/components/academic/DiscussionThread.tsx",
+      "line": 146,
+      "method": "POST",
+      "endpoint": "/discussions/thread/"
+    },
+    {
+      "file": "src/components/academic/DiscussionThread.tsx",
+      "line": 181,
+      "method": "POST",
+      "endpoint": "/discussions/post/"
+    },
+    {
+      "file": "src/components/academic/InteractivePracticeEngine.tsx",
+      "line": 64,
+      "method": "POST",
+      "endpoint": "/academic/submissions/upload/"
+    },
+    {
+      "file": "src/components/dashboard/LiveSessionCTA.tsx",
+      "line": 89,
+      "method": "POST",
+      "endpoint": "/live-sessions/session-reminder/"
+    },
+    {
+      "file": "src/components/dashboard/ParentModals.tsx",
+      "line": 67,
+      "method": "POST",
+      "endpoint": "/notifications/notification/send/"
+    },
+    {
+      "file": "src/components/dashboard/ParentModals.tsx",
+      "line": 122,
+      "method": "POST",
+      "endpoint": "/notifications/meetings/request/"
+    },
+    {
+      "file": "src/components/dashboard/AdminModals.tsx",
+      "line": 22,
+      "method": "GET",
+      "endpoint": "/admin/logs"
+    },
+    {
+      "file": "src/components/dashboard/AdminModals.tsx",
+      "line": 44,
+      "method": "POST",
+      "endpoint": "/admin/logs/clear"
+    },
+    {
+      "file": "src/components/dashboard/BulkInviteModal.tsx",
+      "line": 66,
+      "method": "POST",
+      "endpoint": "/institutions/:var/bulk_invite/"
+    },
+    {
+      "file": "src/components/dashboard/TeacherRedAlertsPanel.tsx",
+      "line": 39,
+      "method": "GET",
+      "endpoint": "/interventions/plans/"
+    },
+    {
+      "file": "src/components/dashboard/WhatsAppCommunicationHub.tsx",
+      "line": 43,
+      "method": "GET",
+      "endpoint": "/notifications/notification/whatsapp-history/"
+    },
+    {
+      "file": "src/components/dashboard/WhatsAppCommunicationHub.tsx",
+      "line": 76,
+      "method": "POST",
+      "endpoint": "/notifications/notification/send/"
+    },
+    {
+      "file": "src/components/dashboard/TeacherInterventionPanel.tsx",
+      "line": 46,
+      "method": "GET",
+      "endpoint": "/intelligence/actions/"
+    },
+    {
+      "file": "src/components/students/StudentAssignmentsPanel.tsx",
+      "line": 58,
+      "method": "GET",
+      "endpoint": "/assessments/assessment/"
+    },
+    {
+      "file": "src/components/students/StudentAssignmentsPanel.tsx",
+      "line": 59,
+      "method": "GET",
+      "endpoint": "/assessments/submission/"
+    },
+    {
+      "file": "src/components/students/StudentAssignmentsPanel.tsx",
+      "line": 60,
+      "method": "GET",
+      "endpoint": "/grading/records/"
+    },
+    {
+      "file": "src/components/students/StudentAssignmentsPanel.tsx",
+      "line": 92,
+      "method": "POST",
+      "endpoint": "/assessments/submission/"
+    },
+    {
+      "file": "src/hooks/useIntelligence.ts",
+      "line": 131,
+      "method": "POST",
+      "endpoint": ":var:var/dismiss/"
+    },
+    {
+      "file": "src/hooks/useIntelligence.ts",
+      "line": 138,
+      "method": "POST",
+      "endpoint": ":var:var/complete/"
+    },
+    {
+      "file": "src/hooks/useIntelligence.ts",
+      "line": 212,
+      "method": "POST",
+      "endpoint": ":var:var/complete/"
+    },
+    {
+      "file": "src/hooks/useIntelligence.ts",
+      "line": 243,
+      "method": "POST",
+      "endpoint": ":var:var/acknowledge/"
+    },
+    {
+      "file": "src/hooks/useIntelligence.ts",
+      "line": 275,
+      "method": "POST",
+      "endpoint": ":var:var/mark_read/"
+    },
+    {
+      "file": "src/hooks/useIntelligence.ts",
+      "line": 297,
+      "method": "GET",
+      "endpoint": ":var"
+    },
+    {
+      "file": "src/hooks/useIntelligence.ts",
+      "line": 411,
+      "method": "POST",
+      "endpoint": ":var:var/join/"
+    },
+    {
+      "file": "src/lib/integrations.ts",
+      "line": 18,
+      "method": "POST",
+      "endpoint": "/notifications/notification/send-whatsapp/"
+    },
+    {
+      "file": "src/lib/integrations.ts",
+      "line": 37,
+      "method": "POST",
+      "endpoint": "/live-sessions/live-session/provision-webinar/"
+    },
+    {
+      "file": "src/lib/integrations/NotificationEngine.ts",
+      "line": 53,
+      "method": "POST",
+      "endpoint": "/notifications/"
+    },
+    {
+      "file": "src/lib/integrations/NotificationEngine.ts",
+      "line": 63,
+      "method": "POST",
+      "endpoint": "/notifications/"
+    },
+    {
+      "file": "src/pages/InstitutionWizard.tsx",
+      "line": 48,
+      "method": "POST",
+      "endpoint": "/institutions/onboard-basic/"
+    },
+    {
+      "file": "src/pages/ForgotPasswordPage.tsx",
+      "line": 21,
+      "method": "POST",
+      "endpoint": "/auth/forgot-password/"
+    },
+    {
+      "file": "src/pages/InstitutionManagementPage.tsx",
+      "line": 68,
+      "method": "GET",
+      "endpoint": "/analytics/institution-dashboard/"
+    },
+    {
+      "file": "src/pages/AttendanceRegisterPage.tsx",
+      "line": 35,
+      "method": "GET",
+      "endpoint": ":var"
+    },
+    {
+      "file": "src/pages/AttendanceRegisterPage.tsx",
+      "line": 88,
+      "method": "PATCH",
+      "endpoint": ":var:var/"
+    },
+    {
+      "file": "src/pages/StudentDashboard.tsx",
+      "line": 52,
+      "method": "GET",
+      "endpoint": "/analytics/student-dashboard/"
+    },
+    {
+      "file": "src/pages/StudentDashboard.tsx",
+      "line": 118,
+      "method": "POST",
+      "endpoint": "/analytics/student/enroll-challenge"
+    },
+    {
+      "file": "src/pages/StudentDashboard.tsx",
+      "line": 124,
+      "method": "POST",
+      "endpoint": "/analytics/student/request-tutor"
+    },
+    {
+      "file": "src/pages/AssignmentTargetingStudio.tsx",
+      "line": 39,
+      "method": "POST",
+      "endpoint": "/assessments/assessment/"
+    },
+    {
+      "file": "src/pages/MarketplaceSubjectPage.tsx",
+      "line": 40,
+      "method": "GET",
+      "endpoint": "/curriculum/subjects/:var/"
+    },
+    {
+      "file": "src/pages/MarketplaceSubjectPage.tsx",
+      "line": 44,
+      "method": "GET",
+      "endpoint": "/curriculum/topics/"
+    },
+    {
+      "file": "src/pages/LiveSessionsPage.tsx",
+      "line": 42,
+      "method": "GET",
+      "endpoint": "/live-sessions/live-session/"
+    },
+    {
+      "file": "src/pages/MarketplaceTopicPage.tsx",
+      "line": 54,
+      "method": "GET",
+      "endpoint": "/curriculum/subjects/:var/"
+    },
+    {
+      "file": "src/pages/MarketplaceTopicPage.tsx",
+      "line": 55,
+      "method": "GET",
+      "endpoint": "/curriculum/topics/:var/"
+    },
+    {
+      "file": "src/pages/MarketplaceTopicPage.tsx",
+      "line": 56,
+      "method": "GET",
+      "endpoint": "/marketplace/listing/"
+    },
+    {
+      "file": "src/pages/MarketplaceTopicPage.tsx",
+      "line": 58,
+      "method": "GET",
+      "endpoint": "/marketplace/listings/"
+    },
+    {
+      "file": "src/pages/ForumPage.tsx",
+      "line": 82,
+      "method": "GET",
+      "endpoint": "/discussions/thread/"
+    },
+    {
+      "file": "src/pages/ForumPage.tsx",
+      "line": 167,
+      "method": "POST",
+      "endpoint": "/discussions/thread/"
+    },
+    {
+      "file": "src/pages/ForumPage.tsx",
+      "line": 173,
+      "method": "POST",
+      "endpoint": "/discussions/post/"
+    },
+    {
+      "file": "src/pages/CourseCatalog.tsx",
+      "line": 27,
+      "method": "GET",
+      "endpoint": "/curriculum/full-tree/"
+    },
+    {
+      "file": "src/pages/MissedSessionRecoveryPage.tsx",
+      "line": 19,
+      "method": "GET",
+      "endpoint": "/live-sessions/missed-recovery/"
+    },
+    {
+      "file": "src/pages/CourseDetail.tsx",
+      "line": 69,
+      "method": "GET",
+      "endpoint": "/curriculum/full-tree/"
+    },
+    {
+      "file": "src/pages/TeacherDashboard.tsx",
+      "line": 134,
+      "method": "GET",
+      "endpoint": "/analytics/teacher-dashboard/"
+    },
+    {
+      "file": "src/pages/TeacherDashboard.tsx",
+      "line": 135,
+      "method": "GET",
+      "endpoint": "/classes/"
+    },
+    {
+      "file": "src/pages/TeacherDashboard.tsx",
+      "line": 136,
+      "method": "GET",
+      "endpoint": "/curriculum/subjects/"
+    },
+    {
+      "file": "src/pages/MarketplacePage.tsx",
+      "line": 31,
+      "method": "GET",
+      "endpoint": "/curriculum/subjects/"
+    },
+    {
+      "file": "src/pages/AITeachingAssistant.tsx",
+      "line": 68,
+      "method": "POST",
+      "endpoint": "/ai/copilot/ask/"
+    },
+    {
+      "file": "src/pages/AITeachingAssistant.tsx",
+      "line": 86,
+      "method": "POST",
+      "endpoint": "/ai/copilot/ask/"
+    },
+    {
+      "file": "src/pages/AITeachingAssistant.tsx",
+      "line": 103,
+      "method": "POST",
+      "endpoint": "/ai/copilot/ask/"
+    },
+    {
+      "file": "src/pages/AITeachingAssistant.tsx",
+      "line": 129,
+      "method": "POST",
+      "endpoint": "/assessments/assessment/"
+    },
+    {
+      "file": "src/pages/AITeachingAssistant.tsx",
+      "line": 328,
+      "method": "POST",
+      "endpoint": "/notifications/"
+    },
+    {
+      "file": "src/pages/AITeachingAssistant.tsx",
+      "line": 351,
+      "method": "GET",
+      "endpoint": "/ai/copilot/ask/"
+    },
+    {
+      "file": "src/pages/IndependentTeacherWizard.tsx",
+      "line": 35,
+      "method": "POST",
+      "endpoint": "/marketplace/onboard-teacher/"
+    },
+    {
+      "file": "src/pages/TeacherLessonStudio.tsx",
+      "line": 36,
+      "method": "POST",
+      "endpoint": "/live-sessions/provision-webinar/"
+    },
+    {
+      "file": "src/pages/TeacherLessonStudio.tsx",
+      "line": 71,
+      "method": "GET",
+      "endpoint": "/lessons/lesson/"
+    },
+    {
+      "file": "src/pages/ClassSyllabusPage.tsx",
+      "line": 30,
+      "method": "GET",
+      "endpoint": "/curriculum/full-tree/"
+    },
+    {
+      "file": "src/pages/ParentDashboard.tsx",
+      "line": 43,
+      "method": "GET",
+      "endpoint": "/grading/reports/"
+    },
+    {
+      "file": "src/pages/ParentDashboard.tsx",
+      "line": 66,
+      "method": "POST",
+      "endpoint": "/ai/copilot/ask/"
+    },
+    {
+      "file": "src/pages/ParentDashboard.tsx",
+      "line": 87,
+      "method": "GET",
+      "endpoint": "/analytics/parent-dashboard/"
+    },
+    {
+      "file": "src/pages/AdminDashboard.tsx",
+      "line": 38,
+      "method": "POST",
+      "endpoint": "/admin/sync-data"
+    },
+    {
+      "file": "src/pages/AdminDashboard.tsx",
+      "line": 81,
+      "method": "GET",
+      "endpoint": "/analytics/admin-dashboard/"
+    },
+    {
+      "file": "src/pages/PaymentPage.tsx",
+      "line": 144,
+      "method": "POST",
+      "endpoint": "/marketplace/pesapal-checkout/"
+    },
+    {
+      "file": "src/pages/ExamRegistrationPage.tsx",
+      "line": 122,
+      "method": "GET",
+      "endpoint": "/exams/exam-center/"
+    },
+    {
+      "file": "src/pages/ExamRegistrationPage.tsx",
+      "line": 182,
+      "method": "POST",
+      "endpoint": "/exams/candidate-registration/"
+    },
+    {
+      "file": "src/pages/admin/intelligence/InstitutionRiskMonitor.tsx",
+      "line": 26,
+      "method": "GET",
+      "endpoint": "/analytics/churn-signals/"
+    },
+    {
+      "file": "src/pages/dashboard/InterventionsHub.tsx",
+      "line": 15,
+      "method": "GET",
+      "endpoint": "/interventions/alerts/"
+    },
+    {
+      "file": "src/pages/dashboard/TeacherEarningsPage.tsx",
+      "line": 20,
+      "method": "GET",
+      "endpoint": "/marketplace/payouts/eligibility/"
+    },
+    {
+      "file": "src/pages/dashboard/TeacherEarningsPage.tsx",
+      "line": 32,
+      "method": "POST",
+      "endpoint": "/marketplace/payouts/"
+    },
+    {
+      "file": "src/pages/institution/academics/OfflineResultUpload.tsx",
+      "line": 76,
+      "method": "POST",
+      "endpoint": "/analytics/institution/upload-results"
+    },
+    {
+      "file": "src/pages/primary/PrimaryTeacherDashboard.tsx",
+      "line": 112,
+      "method": "GET",
+      "endpoint": "/analytics/teacher-dashboard/"
+    },
+    {
+      "file": "src/pages/primary/PrimaryTeacherDashboard.tsx",
+      "line": 113,
+      "method": "GET",
+      "endpoint": "/classes/"
+    },
+    {
+      "file": "src/pages/primary/PrimaryTeacherDashboard.tsx",
+      "line": 114,
+      "method": "GET",
+      "endpoint": "/curriculum/subjects/"
+    },
+    {
+      "file": "src/pages/analytics/InstitutionIntelligence.tsx",
+      "line": 25,
+      "method": "GET",
+      "endpoint": "/analytics/daily-institution-metric/"
+    },
+    {
+      "file": "src/pages/analytics/PlatformCommandCenter.tsx",
+      "line": 13,
+      "method": "GET",
+      "endpoint": "/analytics/daily-platform-metric/"
+    }
+  ],
+  "frontend_distinct_endpoints": [
+    "/academic/submissions/upload/",
+    "/admin/logs",
+    "/admin/logs/clear",
+    "/admin/sync-data",
+    "/ai/copilot/ask/",
+    "/analytics/admin-dashboard/",
+    "/analytics/churn-signals/",
+    "/analytics/daily-institution-metric/",
+    "/analytics/daily-platform-metric/",
+    "/analytics/institution-dashboard/",
+    "/analytics/institution/upload-results",
+    "/analytics/parent-dashboard/",
+    "/analytics/student-dashboard/",
+    "/analytics/student/enroll-challenge",
+    "/analytics/student/request-tutor",
+    "/analytics/teacher-dashboard/",
+    "/assessments/assessment/",
+    "/assessments/assessment/:var/",
+    "/assessments/submission/",
+    "/auth/forgot-password/",
+    "/classes/",
+    "/content/items/",
+    "/curriculum/full-tree/",
+    "/curriculum/subjects/",
+    "/curriculum/subjects/:var/",
+    "/curriculum/topics/",
+    "/curriculum/topics/:var/",
+    "/discussions/post/",
+    "/discussions/thread/",
+    "/exams/candidate-registration/",
+    "/exams/exam-center/",
+    "/feedback/",
+    "/grading/records/",
+    "/grading/reports/",
+    "/institutions/:var/bulk_invite/",
+    "/institutions/learner-registrations/:var/activate_account/",
+    "/institutions/learner-registrations/:var/check_payment_status/",
+    "/institutions/learner-registrations/:var/initiate_payment/",
+    "/institutions/learner-registrations/:var/select_subscription/",
+    "/institutions/learner-registrations/:var/simulate_payment_success/",
+    "/institutions/learner-registrations/start_registration/",
+    "/institutions/learner-registrations/subscription_plans/",
+    "/institutions/onboard-basic/",
+    "/intelligence/actions/",
+    "/interventions/alerts/",
+    "/interventions/plans/",
+    "/lessons/lesson/",
+    "/live-sessions/live-session/",
+    "/live-sessions/live-session/provision-webinar/",
+    "/live-sessions/missed-recovery/",
+    "/live-sessions/provision-webinar/",
+    "/live-sessions/session-reminder/",
+    "/marketplace/lesson-qualifications/",
+    "/marketplace/listing/",
+    "/marketplace/listings/",
+    "/marketplace/monetization-overview/",
+    "/marketplace/onboard-teacher/",
+    "/marketplace/payout-profile/",
+    "/marketplace/payout-profile/:var/",
+    "/marketplace/payouts/",
+    "/marketplace/payouts/eligibility/",
+    "/marketplace/pesapal-checkout/",
+    "/notifications/",
+    "/notifications/meetings/request/",
+    "/notifications/notification/send-whatsapp/",
+    "/notifications/notification/send/",
+    "/notifications/notification/whatsapp-history/",
+    ":var",
+    ":var:var/",
+    ":var:var/acknowledge/",
+    ":var:var/complete/",
+    ":var:var/dismiss/",
+    ":var:var/join/",
+    ":var:var/mark_read/"
+  ],
+  "backend_router_urls": [
+    "/api/v1/analytics/analytics-event/",
+    "/api/v1/analytics/daily-institution-metric/",
+    "/api/v1/analytics/daily-platform-metric/",
+    "/api/v1/analytics/subject-performance-snapshot/",
+    "/api/v1/analytics/system-health-snapshot/",
+    "/api/v1/assessments/assessment-window/",
+    "/api/v1/assessments/assessment/",
+    "/api/v1/assessments/question/",
+    "/api/v1/assessments/submission/",
+    "/api/v1/attendance/daily/",
+    "/api/v1/attendance/lesson/",
+    "/api/v1/class-enrollments/",
+    "/api/v1/classes/",
+    "/api/v1/content/admin/",
+    "/api/v1/content/assignments/",
+    "/api/v1/content/engagement/",
+    "/api/v1/content/institution/",
+    "/api/v1/content/items/",
+    "/api/v1/content/recommendations/",
+    "/api/v1/content/tags/",
+    "/api/v1/content/teacher/",
+    "/api/v1/curriculum/class-levels/",
+    "/api/v1/curriculum/countries/",
+    "/api/v1/curriculum/resource-reviews/",
+    "/api/v1/curriculum/subjects/",
+    "/api/v1/curriculum/topic-competencies/",
+    "/api/v1/curriculum/topics/",
+    "/api/v1/discussions/post/",
+    "/api/v1/discussions/thread/",
+    "/api/v1/exams/board-submission-batch/",
+    "/api/v1/exams/candidate-registration/",
+    "/api/v1/exams/exam-center/",
+    "/api/v1/exams/subject-selection/",
+    "/api/v1/grading/records/",
+    "/api/v1/grading/reports/",
+    "/api/v1/grading/subjects/",
+    "/api/v1/institution-memberships/",
+    "/api/v1/institutions/",
+    "/api/v1/institutions/learner-registrations/",
+    "/api/v1/intelligence/actions/",
+    "/api/v1/intelligence/badges/",
+    "/api/v1/intelligence/challenges/",
+    "/api/v1/intelligence/health-history/",
+    "/api/v1/intelligence/houses/",
+    "/api/v1/intelligence/impact/",
+    "/api/v1/intelligence/intervention-assignments/",
+    "/api/v1/intelligence/intervention-packs/",
+    "/api/v1/intelligence/learning-progress/",
+    "/api/v1/intelligence/my-badges/",
+    "/api/v1/intelligence/national-exams/",
+    "/api/v1/intelligence/parent-actions/",
+    "/api/v1/intelligence/points/",
+    "/api/v1/intelligence/story-cards/",
+    "/api/v1/intelligence/study-plans/",
+    "/api/v1/intelligence/study-tasks/",
+    "/api/v1/interventions/actions/",
+    "/api/v1/interventions/alerts/",
+    "/api/v1/interventions/plans/",
+    "/api/v1/lessons/lesson-attendance/",
+    "/api/v1/lessons/lesson-note/",
+    "/api/v1/lessons/lesson-recording/",
+    "/api/v1/lessons/lesson/",
+    "/api/v1/live-sessions/live-session/",
+    "/api/v1/live-sessions/missed-recovery/",
+    "/api/v1/live-sessions/session-reminder/",
+    "/api/v1/marketplace/lesson-qualifications/",
+    "/api/v1/marketplace/listings/",
+    "/api/v1/marketplace/payout-profile/",
+    "/api/v1/marketplace/payouts/",
+    "/api/v1/marketplace/teacher-batches/",
+    "/api/v1/notifications/notification/",
+    "/api/v1/parent-portal/parent-student-link/",
+    "/api/v1/parent-portal/risk-alert/",
+    "/api/v1/parent-portal/weekly-summary/",
+    "/api/v1/resources-upload/",
+    "/api/v1/resources/",
+    "/api/v1/resources/shared-resource-link/",
+    "/api/v1/scheduling/timetable/",
+    "/api/v1/tutoring/bounties/",
+    "/api/v1/tutoring/match-request/",
+    "/api/v1/tutoring/peer-points-ledger/",
+    "/api/v1/tutoring/tutor-profiles/"
+  ],
+  "backend_paths": [
+    {
+      "url": "/api/health/",
+      "view": "HealthView.as_view"
+    },
+    {
+      "url": "/api/v1/",
+      "view": "include"
+    },
+    {
+      "url": "/api/v1/ai/copilot/ask/",
+      "view": "CopilotInferenceView.as_view"
+    },
+    {
+      "url": "/api/v1/auth/",
+      "view": "include"
+    },
+    {
+      "url": "/api/v1/auth/token/",
+      "view": "TokenObtainPairView.as_view"
+    },
+    {
+      "url": "/api/v1/auth/token/refresh/",
+      "view": "TokenRefreshView.as_view"
+    },
+    {
+      "url": "/api/v1/tutoring/dashboard/",
+      "view": "PeerTutoringDashboardView.as_view"
+    },
+    {
+      "url": "/api/v1/users/profile/<str:username>/",
+      "view": "PublicProfileView.as_view"
+    },
+    {
+      "url": "/api/v1/feedback/",
+      "view": "PilotFeedbackCreateView.as_view"
+    },
+    {
+      "url": "/api/v1/analytics/student-dashboard/",
+      "view": "StudentDashboardView.as_view"
+    },
+    {
+      "url": "/api/v1/analytics/teacher-dashboard/",
+      "view": "TeacherDashboardView.as_view"
+    },
+    {
+      "url": "/api/v1/analytics/parent-dashboard/",
+      "view": "ParentDashboardView.as_view"
+    },
+    {
+      "url": "/api/v1/analytics/admin-dashboard/",
+      "view": "AdminDashboardView.as_view"
+    },
+    {
+      "url": "/api/v1/analytics/institution-dashboard/",
+      "view": "InstitutionDashboardView.as_view"
+    },
+    {
+      "url": "/api/v1/analytics/churn-signals/",
+      "view": "CustomerSuccessChurnView.as_view"
+    },
+    {
+      "url": "/api/v1/institutions/admin-pin-reset/",
+      "view": "AdminPinResetView.as_view"
+    },
+    {
+      "url": "/api/v1/institutions/onboard-basic/",
+      "view": "InstitutionOnboardingAPIView.as_view"
+    },
+    {
+      "url": "/api/v1/curriculum/full-tree/",
+      "view": "CurriculumTreeView.as_view"
+    },
+    {
+      "url": "/api/v1/intelligence/passport/student/",
+      "view": "StudentPassportView.as_view"
+    },
+    {
+      "url": "/api/v1/intelligence/passport/teacher/",
+      "view": "TeacherPassportView.as_view"
+    },
+    {
+      "url": "/api/v1/intelligence/health/",
+      "view": "InstitutionHealthView.as_view"
+    },
+    {
+      "url": "/api/v1/marketplace/onboard-teacher/",
+      "view": "IndependentTeacherOnboardingView.as_view"
+    },
+    {
+      "url": "/api/v1/marketplace/pesapal-checkout/",
+      "view": "PesapalCheckoutInitView.as_view"
+    },
+    {
+      "url": "/api/v1/marketplace/pesapal-ipn/",
+      "view": "PesapalIPNWebhookView.as_view"
+    },
+    {
+      "url": "/api/v1/content/library/",
+      "view": "ContentDeliveryView.as_view"
+    },
+    {
+      "url": "/api/v1/content/classroom/",
+      "view": "ClassContentView.as_view"
+    },
+    {
+      "url": "/api/v1/content/dashboard/student/",
+      "view": "StudentContentDashboardView.as_view"
+    },
+    {
+      "url": "/api/v1/content/dashboard/teacher/",
+      "view": "TeacherContentDashboardView.as_view"
+    },
+    {
+      "url": "/api/v1/content/dashboard/parent/",
+      "view": "ParentContentDashboardView.as_view"
+    }
+  ],
+  "permission_findings": [
+    {
+      "file": "edify_backend/apps/institutions/views.py",
+      "line": 614,
+      "class": "AdminPinResetView",
+      "kind": "AllowAny"
+    },
+    {
+      "file": "edify_backend/apps/tutoring/views.py",
+      "line": 12,
+      "class": "MatchRequestViewSet",
+      "kind": "AllowAny"
+    },
+    {
+      "file": "edify_backend/apps/tutoring/views.py",
+      "line": 30,
+      "class": "TutoringBountyViewSet",
+      "kind": "AllowAny"
+    },
+    {
+      "file": "edify_backend/apps/tutoring/views.py",
+      "line": 45,
+      "class": "PeerTutoringDashboardView",
+      "kind": "AllowAny"
+    },
+    {
+      "file": "edify_backend/apps/intelligence/views.py",
+      "line": 35,
+      "class": "NextBestActionViewSet",
+      "model": "InterventionPack",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/intelligence/views.py",
+      "line": 132,
+      "class": "InterventionPackAssignmentViewSet",
+      "model": "InterventionPackAssignment",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/intelligence/views.py",
+      "line": 191,
+      "class": "ParentActionViewSet",
+      "model": "HouseTeam",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/intelligence/views.py",
+      "line": 311,
+      "class": "LearningProgressViewSet",
+      "model": "NationalExamResult",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/intelligence/views.py",
+      "line": 363,
+      "class": "StoryCardViewSet",
+      "model": "ImpactComparison",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/live_sessions/views.py",
+      "line": 92,
+      "class": "SessionReminderViewSet",
+      "kind": "AllowAny"
+    },
+    {
+      "file": "edify_backend/apps/resources/content_views.py",
+      "line": 57,
+      "class": "ContentItemViewSet",
+      "model": "ContentItem",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/resources/content_views.py",
+      "line": 278,
+      "class": "InstitutionContentViewSet",
+      "model": "ContentItem",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/resources/content_views.py",
+      "line": 479,
+      "class": "ContentEngagementViewSet",
+      "model": "ContentEngagement",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/resources/content_views.py",
+      "line": 646,
+      "class": "ContentTagViewSet",
+      "model": "ContentAssignment",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/resources/content_views.py",
+      "line": 824,
+      "class": "ContentRecommendationViewSet",
+      "model": "ContentRecommendation",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/marketplace/views.py",
+      "line": 123,
+      "class": "PayoutBatchViewSet",
+      "kind": "AllowAny"
+    },
+    {
+      "file": "edify_backend/apps/marketplace/views.py",
+      "line": 11,
+      "class": "ListingViewSet",
+      "model": "PayoutRequest",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/accounts/views.py",
+      "line": 10,
+      "class": "UserRegistrationView",
+      "kind": "AllowAny"
+    },
+    {
+      "file": "edify_backend/apps/accounts/views.py",
+      "line": 40,
+      "class": "StudentOnboardingAPIView",
+      "kind": "AllowAny"
+    },
+    {
+      "file": "edify_backend/apps/accounts/views.py",
+      "line": 114,
+      "class": "PublicProfileView",
+      "kind": "AllowAny"
+    },
+    {
+      "file": "edify_backend/apps/accounts/views.py",
+      "line": 178,
+      "class": "AccountActivationView",
+      "kind": "AllowAny"
+    },
+    {
+      "file": "edify_backend/apps/accounts/views.py",
+      "line": 201,
+      "class": "VerifiedEmailTokenObtainPairSerializer",
+      "kind": "AllowAny"
+    },
+    {
+      "file": "edify_backend/apps/analytics/views.py",
+      "line": 26,
+      "class": "AnalyticsEventViewSet",
+      "model": "AnalyticsEvent",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/analytics/views.py",
+      "line": 35,
+      "class": "DailyPlatformMetricViewSet",
+      "model": "DailyInstitutionMetric",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/analytics/views.py",
+      "line": 49,
+      "class": "SubjectPerformanceSnapshotViewSet",
+      "model": "SubjectPerformanceSnapshot",
+      "kind": "open_queryset"
+    }
+  ],
+  "dead_buttons": [
+    {
+      "file": "src/components/ui/PremiumGate.tsx",
+      "line": 62,
+      "kind": "window_alert",
+      "text": ""
+    },
+    {
+      "file": "src/components/dashboard/WhatsAppCommunicationHub.tsx",
+      "line": 164,
+      "kind": "coming_soon_toast",
+      "text": "File attachments coming soon."
+    },
+    {
+      "file": "src/pages/TeacherLessonStudio.tsx",
+      "line": 106,
+      "kind": "coming_soon_toast",
+      "text": "Lesson creation wizard coming soon \u2014 use the Assessment Engine below to create assessments."
+    },
+    {
+      "file": "src/pages/TeacherLessonStudio.tsx",
+      "line": 216,
+      "kind": "coming_soon_toast",
+      "text": "Quiz creator coming soon \u2014 auto-graded MCQ assessments with UNEB Readiness scoring."
+    },
+    {
+      "file": "src/pages/primary/P7ReadinessDashboard.tsx",
+      "line": 429,
+      "kind": "coming_soon_toast",
+      "text": "File picker coming soon \u2014 upload CSV/XLSX mock exam results."
+    }
+  ],
+  "mock_pages": [
+    {
+      "file": "src/pages/AssignmentTargetingStudio.tsx",
+      "mock_arrays": [],
+      "fake_loaders": 1
+    },
+    {
+      "file": "src/pages/CourseDetail.tsx",
+      "mock_arrays": [],
+      "fake_loaders": 1
+    },
+    {
+      "file": "src/pages/ExamRegistrationPage.tsx",
+      "mock_arrays": [
+        "mockDocuments"
+      ],
+      "fake_loaders": 0
+    },
+    {
+      "file": "src/pages/institution/academics/OfflineResultUpload.tsx",
+      "mock_arrays": [],
+      "fake_loaders": 1
+    },
+    {
+      "file": "src/pages/primary/P7ReadinessDashboard.tsx",
+      "mock_arrays": [
+        "mockReadinessProfiles",
+        "mockSubjectReadiness",
+        "mockRiskFlags"
+      ],
+      "fake_loaders": 0
+    }
+  ]
+}

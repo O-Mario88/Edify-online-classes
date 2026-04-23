@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Search, MapPin, Star, GraduationCap, Video, Users, CheckCircle, Flame, Plus } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { toast } from 'sonner';
+import { apiGet } from '../lib/apiClient';
 
 export default function PeerTutoringHub() {
   const [activeTab, setActiveTab] = useState('find-tutor');
@@ -20,15 +21,9 @@ export default function PeerTutoringHub() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/v1/tutoring/dashboard/', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('access')}` }
-        });
-        if (response.ok) {
-          const apiData = await response.json();
-          setData(apiData);
-        } else {
-          console.warn('API not ready, using empty state');
-        }
+        const { data: apiData, error } = await apiGet<typeof data>('/tutoring/dashboard/');
+        if (error) throw error;
+        if (apiData) setData(apiData);
       } catch (err) {
         console.error('Failed to fetch tutoring dashboard', err);
       } finally {
