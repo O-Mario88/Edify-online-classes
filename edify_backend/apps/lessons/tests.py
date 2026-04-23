@@ -4,6 +4,7 @@ Pre-fix, `GET /api/v1/lessons/lesson/?parent_class=X` returned every lesson
 in the DB because no filter_backends were configured. These tests lock in
 the filtering so the teacher UI can narrow to one class.
 """
+from django.core.cache import cache
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -22,6 +23,7 @@ class LessonFilterTests(TestCase):
     LIST_URL = '/api/v1/lessons/lesson/'
 
     def setUp(self):
+        cache.clear()  # isolate throttle buckets across tests
         self.teacher = User.objects.create_user(
             email='lesson.teacher@edify.test',
             full_name='Lesson Teacher',

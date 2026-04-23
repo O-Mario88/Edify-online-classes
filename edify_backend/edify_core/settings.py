@@ -24,13 +24,26 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-pcbj15-f@m)2vi&5#elyp)-wvclek=saa$ceubch&a#=38kr%y'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes', 'on')
 
-ALLOWED_HOSTS = []
+# SECURITY WARNING: keep the secret key used in production secret!
+# In DEBUG mode we fall back to the historical dev key so local workflows and
+# existing test fixtures keep working. In production DJANGO_SECRET_KEY must be
+# supplied; we raise loudly if it is missing so nothing silently deploys with
+# the insecure default.
+_DEV_INSECURE_SECRET = 'django-insecure-pcbj15-f@m)2vi&5#elyp)-wvclek=saa$ceubch&a#=38kr%y'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY') or (_DEV_INSECURE_SECRET if DEBUG else '')
+if not SECRET_KEY:
+    raise RuntimeError(
+        'DJANGO_SECRET_KEY is required when DEBUG=False. Generate one via: '
+        'python -c "from django.core.management.utils import get_random_secret_key; '
+        'print(get_random_secret_key())"'
+    )
+
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',') if h.strip()]
+if DEBUG and not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', 'testserver']
 
 
 # Application definition
@@ -171,6 +184,17 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+    # Throttling defaults. AllowAny endpoints (register, onboarding) carry a
+    # stricter ScopedRateThrottle — see apps.accounts.views.
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '60/min',
+        'user': '600/min',
+        'registration': '20/hour',
+    },
 }
 
 from datetime import timedelta
@@ -185,7 +209,9 @@ SIMPLE_JWT = {
 }
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = True # Change to False in production
+# Wide-open in dev; in prod the origin list must be supplied explicitly.
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOWED_ORIGINS = [o.strip() for o in os.environ.get('DJANGO_CORS_ORIGINS', '').split(',') if o.strip()]
 CORS_ALLOW_CREDENTIALS = True
 
 # Default primary key field type

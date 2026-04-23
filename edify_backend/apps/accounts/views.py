@@ -1,5 +1,6 @@
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
+from rest_framework.throttling import ScopedRateThrottle
 from django.contrib.auth import get_user_model
 from .serializers import UserRegistrationSerializer
 
@@ -8,6 +9,8 @@ User = get_user_model()
 class UserRegistrationView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'registration'
     serializer_class = UserRegistrationSerializer
 
 from rest_framework.views import APIView
@@ -19,6 +22,8 @@ from parent_portal.models import ParentStudentLink
 
 class StudentOnboardingAPIView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'registration'
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):

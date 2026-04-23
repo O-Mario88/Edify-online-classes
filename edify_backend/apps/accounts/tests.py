@@ -3,14 +3,23 @@
 Journey: register -> JWT login -> browse content -> record engagement -> mark complete.
 Every step here was verified end-to-end by hand on 2026-04-22; this file locks it in.
 """
+from unittest.mock import patch
+from django.core.cache import cache
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient
+from rest_framework.throttling import SimpleRateThrottle
 
 from resources.content_models import ContentItem
 
 User = get_user_model()
+
+
+def _clear_throttle_cache():
+    """DRF stores throttle buckets in the default cache, which persists across
+    tests inside a single process. Call this in setUp to isolate tests."""
+    cache.clear()
 
 
 class StudentSliceTests(TestCase):
@@ -26,6 +35,7 @@ class StudentSliceTests(TestCase):
     PASSWORD = 'Phase1TestPass!'
 
     def setUp(self):
+        _clear_throttle_cache()
         self.client = APIClient()
         # A teacher so ContentItem.uploaded_by has something to point at.
         self.teacher = User.objects.create_user(
@@ -139,3 +149,45 @@ class StudentSliceTests(TestCase):
             format='json',
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class RegistrationThrottleTests(TestCase):
+    """Verify the anon throttle on the registration scope actually trips at 429.
+
+    Guards the AllowAny endpoints against bot-driven account spam. Uses a very
+    tight rate override so the test is deterministic and fast.
+    """
+
+    REGISTER_URL = '/api/v1/auth/register/'
+
+    def setUp(self):
+        _clear_throttle_cache()
+
+    def _payload(self, n):
+        return {
+            'email': f'throttle.{n}@edify.test',
+            'full_name': f'Throttle {n}',
+            'country_code': 'UG',
+            'password': 'ThrottleTestPass!',
+            'role': 'student',
+        }
+
+    def test_registration_throttle_returns_429_after_limit(self):
+        """Patch the class-level THROTTLE_RATES so we can force a 429 quickly.
+
+        (override_settings doesn't help here: SimpleRateThrottle caches
+        THROTTLE_RATES at class body time, not per-request.)
+        """
+        tight = {'anon': '60/min', 'user': '600/min', 'registration': '2/hour'}
+        with patch.object(SimpleRateThrottle, 'THROTTLE_RATES', tight):
+            client = APIClient()
+
+            r1 = client.post(self.REGISTER_URL, self._payload(1), format='json')
+            self.assertEqual(r1.status_code, status.HTTP_201_CREATED, r1.content)
+
+            r2 = client.post(self.REGISTER_URL, self._payload(2), format='json')
+            self.assertEqual(r2.status_code, status.HTTP_201_CREATED, r2.content)
+
+            r3 = client.post(self.REGISTER_URL, self._payload(3), format='json')
+            self.assertEqual(r3.status_code, status.HTTP_429_TOO_MANY_REQUESTS, r3.content)
+            self.assertFalse(User.objects.filter(email='throttle.3@edify.test').exists())
