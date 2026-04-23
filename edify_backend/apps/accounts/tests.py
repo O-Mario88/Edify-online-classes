@@ -293,3 +293,52 @@ class EmailVerificationTests(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK, resp.content)
         self.assertIn('access', resp.data)
+
+
+class PilotFeedbackTests(TestCase):
+    """POST /api/v1/feedback/ — pilot user bug/feedback capture."""
+
+    URL = '/api/v1/feedback/'
+
+    def setUp(self):
+        _clear_throttle_cache()
+        self.student = User.objects.create_user(
+            email='feedback.student@edify.test',
+            full_name='Feedback Tester',
+            country_code='UG',
+            password='FeedbackPass!',
+            role='student',
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.student)
+
+    def test_anonymous_cannot_submit(self):
+        resp = APIClient().post(self.URL, {'severity': 'bug', 'message': 'broken'}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_post_records_feedback(self):
+        from accounts.models import PilotFeedback
+        resp = self.client.post(
+            self.URL,
+            {
+                'severity': 'bug',
+                'message': 'Dashboard spinner never stops on my phone.',
+                'page_url': '/dashboard/student',
+            },
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED, resp.content)
+        row = PilotFeedback.objects.get()
+        self.assertEqual(row.user, self.student)
+        self.assertEqual(row.user_role, 'student')
+        self.assertEqual(row.severity, 'bug')
+        self.assertEqual(row.page_url, '/dashboard/student')
+        self.assertIn('spinner', row.message)
+
+    def test_empty_message_is_rejected(self):
+        resp = self.client.post(
+            self.URL,
+            {'severity': 'bug', 'message': '   '},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)

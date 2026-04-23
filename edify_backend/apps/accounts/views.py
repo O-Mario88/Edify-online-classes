@@ -233,5 +233,34 @@ class ForgotPasswordView(APIView):
             # Dispatch email asynchronously via Celery
             from .tasks import send_password_reset_email_task
             send_password_reset_email_task.delay(email, reset_url)
-            
+
         return Response({'message': 'If an account with that email exists, we have sent a password reset link.'}, status=status.HTTP_200_OK)
+
+
+from rest_framework.permissions import IsAuthenticated
+from .models import PilotFeedback
+from .serializers import PilotFeedbackSerializer
+
+
+class PilotFeedbackCreateView(APIView):
+    """POST /api/v1/feedback/ — capture bug reports + comments from pilot users.
+
+    Authenticated-only (so we always know who it came from and can follow
+    up). Read is via Django admin at /admin/accounts/pilotfeedback/ —
+    there's no list endpoint by design; we don't want a 'see everyone's
+    complaints' leak.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = PilotFeedbackSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        PilotFeedback.objects.create(
+            user=request.user,
+            user_role=getattr(request.user, 'role', '') or '',
+            severity=serializer.validated_data['severity'],
+            message=serializer.validated_data['message'],
+            page_url=serializer.validated_data.get('page_url', '')[:500],
+            user_agent=(request.META.get('HTTP_USER_AGENT') or '')[:500],
+        )
+        return Response({'message': 'Thanks — logged.'}, status=status.HTTP_201_CREATED)

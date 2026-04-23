@@ -22,6 +22,7 @@ import { useStudyPlanner } from '../hooks/useIntelligence';
 import { ParentSettingsModal, MessageTutorModal, BookMeetingModal } from '../components/dashboard/ParentModals';
 import { WhatsAppCommunicationHub } from '../components/dashboard/WhatsAppCommunicationHub';
 import { NotificationEngine } from '../lib/integrations/NotificationEngine';
+import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
 
 export const ParentDashboard: React.FC = () => {
   const { userProfile } = useAuth();
@@ -368,6 +369,7 @@ export const ParentDashboard: React.FC = () => {
       <ParentSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <WhatsAppCommunicationHub isOpen={isMessageOpen} onClose={() => setIsMessageOpen(false)} />
       <BookMeetingModal isOpen={isBookOpen} onClose={() => setIsBookOpen(false)} />
+      <PilotFeedbackButton />
     </div>
   );
 };
