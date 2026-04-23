@@ -8,6 +8,7 @@ import { DashboardRouter } from './components/DashboardRouter';
 import { AICopilotProvider } from './contexts/AICopilotContext';
 import { GlassDashboardLayout } from './components/dashboard/layout/GlassDashboardLayout';
 import { Toaster } from './components/ui/sonner';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
 // Dashboard placeholder pages for missing routes
@@ -101,6 +102,7 @@ const PageLoader = () => (
 
 function App() {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <AICopilotProvider>
         <NetworkStatusWidget />
@@ -336,6 +338,7 @@ function App() {
       <Toaster />
       </AICopilotProvider>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
