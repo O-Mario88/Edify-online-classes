@@ -110,7 +110,7 @@
 **Backend apps (21 total):** all live by structural criteria (installed, wired, migrated). This does **not** mean end-to-end tested.
 
 **End-to-end status:**
-- `verified` (HTTP-level e2e via Playwright + backend unit-level coverage): **1** — Academic library content loop.
+- `verified` (HTTP-level e2e via Playwright + backend unit-level coverage): **2** — Academic library content loop; Grading loop (teacher assigns → student submits → teacher grades → student reads grade).
 - `api-verified` (backend path locked by a test, no browser coverage yet): **2** — Auth-Login, Auth-Register. Covered by [accounts.tests.StudentSliceTests](edify_backend/apps/accounts/tests.py).
 - `unverified`: all the rest.
 
