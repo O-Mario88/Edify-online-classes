@@ -197,6 +197,26 @@ REST_FRAMEWORK = {
     },
 }
 
+# Email verification gate. When True, JWT issuance requires a verified email.
+# Default False in dev so local workflows and the existing test suite keep
+# running; flip to True in production via env var.
+REQUIRE_EMAIL_VERIFICATION = os.environ.get('REQUIRE_EMAIL_VERIFICATION', 'false').lower() in ('1', 'true', 'yes', 'on')
+
+# Email backend: console in dev so activation links show up in the server log;
+# real SMTP in prod via env vars.
+EMAIL_BACKEND = os.environ.get(
+    'DJANGO_EMAIL_BACKEND',
+    'django.core.mail.backends.console.EmailBackend' if DEBUG else 'django.core.mail.backends.smtp.EmailBackend',
+)
+EMAIL_HOST = os.environ.get('DJANGO_EMAIL_HOST', 'localhost')
+EMAIL_PORT = int(os.environ.get('DJANGO_EMAIL_PORT', '25'))
+EMAIL_HOST_USER = os.environ.get('DJANGO_EMAIL_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('DJANGO_EMAIL_PASSWORD', '')
+EMAIL_USE_TLS = os.environ.get('DJANGO_EMAIL_USE_TLS', 'true').lower() in ('1', 'true', 'yes', 'on')
+DEFAULT_FROM_EMAIL = os.environ.get('DJANGO_FROM_EMAIL', 'no-reply@maple.edify')
+# Base URL used to construct links in activation emails (frontend route).
+FRONTEND_BASE_URL = os.environ.get('FRONTEND_BASE_URL', 'http://localhost:5173')
+
 from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),

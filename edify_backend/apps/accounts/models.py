@@ -35,6 +35,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    # Email verification. Existing users get verified=True via data migration
+    # so they aren't locked out; new registrations start False and flip True
+    # only after the activation link is consumed.
+    email_verified = models.BooleanField(default=False)
+    email_verified_at = models.DateTimeField(null=True, blank=True)
     date_joined = models.DateTimeField(default=timezone.now)
 
     objects = UserManager()
