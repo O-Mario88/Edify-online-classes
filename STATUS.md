@@ -120,16 +120,20 @@
 
 ---
 
-## Pages to delete in Phase 3
+## Phase 3 deletions (done)
 
-These are safe to remove now — they are either unrouted or superseded by a newer page:
+Deleted in the Phase 3 prune pass:
 
-- [src/pages/PeerTutoringPage.tsx](src/pages/PeerTutoringPage.tsx) — superseded by `PeerTutoringHub`
-- [src/pages/analytics/PlatformAnalyticsViews.tsx](src/pages/analytics/PlatformAnalyticsViews.tsx) — not routed
-- [src/pages/LibraryPage.tsx](src/pages/LibraryPage.tsx) — placeholder, superseded by `AcademicLibraryPage`
-- [src/pages/AnalyticsPage.tsx](src/pages/AnalyticsPage.tsx) — placeholder, superseded by `PlatformCommandCenter`
-- [src/pages/InterventionsPage.tsx](src/pages/InterventionsPage.tsx) — placeholder, superseded by `InterventionsHub`
-- [src/pages/EarningsPage.tsx](src/pages/EarningsPage.tsx) — placeholder, superseded by `TeacherEarningsPage`
+- ~~src/pages/PeerTutoringPage.tsx~~ — had zero imports
+- ~~src/pages/LibraryPage.tsx~~ — route rewired to `DashboardLibraryPage`
+- ~~src/pages/AnalyticsPage.tsx~~ — route rewired to `AnalyticsLayout`
+- ~~src/pages/InterventionsPage.tsx~~ — orphan import, no JSX use
+- ~~src/pages/EarningsPage.tsx~~ — route rewired to `TeacherEarningsPage`
+
+Not deleted after all:
+- `src/pages/analytics/PlatformAnalyticsViews.tsx` — STATUS.md originally flagged as "not routed" but it exports four sub-views (`LearningAnalytics`, `ExamsAnalytics`, `MarketplaceAnalytics`, `SystemHealthAnalytics`) that ARE routed under `/dashboard/analytics/*`. Kept.
+
+Bundle delta: 2,179,661 → 2,172,688 bytes total JS; 99 → 95 files.
 
 ## Orphaned frontend (no backend) — decide in Phase 5
 

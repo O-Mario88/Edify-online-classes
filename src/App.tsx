@@ -11,11 +11,9 @@ import { Toaster } from './components/ui/sonner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
-// Dashboard placeholder pages for missing routes
-const LibraryPage = lazy(() => import('./pages/LibraryPage'));
-const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
-const InterventionsPage = lazy(() => import('./pages/InterventionsPage'));
-const EarningsPage = lazy(() => import('./pages/EarningsPage'));
+// LibraryPage / AnalyticsPage / InterventionsPage / EarningsPage stubs removed in
+// Phase 3 — their routes now use DashboardLibraryPage, AnalyticsLayout,
+// InterventionsHub, and TeacherEarningsPage respectively.
 // InstitutionFinancePage removed — institutions no longer manage finance on platform
 
 // Lazy-load all page components for code splitting
@@ -202,7 +200,7 @@ function App() {
           {/* Global Dashboard Navigation Hubs */}
             <Route path="library" element={
               <ProtectedRoute allowedRoles={['student', 'universal_student', 'parent']}>
-                <LibraryPage />
+                <DashboardLibraryPage />
               </ProtectedRoute>
             } />
             <Route path="interventions" element={
@@ -212,12 +210,12 @@ function App() {
             } />
             <Route path="earnings" element={
               <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'teacher', 'independent_teacher']}>
-                <EarningsPage />
+                <TeacherEarningsPage />
               </ProtectedRoute>
             } />
             <Route path="analytics" element={
               <ProtectedRoute allowedRoles={['platform_admin', 'institution_admin']}>
-                <AnalyticsPage />
+                <AnalyticsLayout />
               </ProtectedRoute>
             }>
              <Route path="platform" element={<PlatformCommandCenter />} />
