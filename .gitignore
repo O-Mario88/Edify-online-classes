@@ -59,3 +59,8 @@ edify_backend/media/*
 
 # Office temp / lock files
 ~$*
+
+# Playwright / test artifacts
+playwright-report/
+test-results/
+playwright/.cache/
