@@ -15,3 +15,18 @@ When you fix one, delete the entry.
 **Impact:** future refactors won't fail loudly when API shapes change — same failure mode we fixed in TopicDetailPage/StudentDashboard earlier but still latent elsewhere.
 **Severity:** low — cosmetic today, compounding.
 **Fix sketch:** type them in concentric rings: API response types (`src/lib/*.ts`) first, then hooks, then page-level. One PR per module; don't try to do them all at once.
+
+## Phase 4.3 — grading loop UI still to ship
+
+### 2. Teacher "assign" + student "submit" + teacher "grade" UIs
+
+**Where:** frontend only. Backend contract and tests already shipped in the Phase 4.3 PR.
+**Symptom:** the full grading loop is proven at the HTTP layer (`grading.tests.GradingLoopTests` — 5 tests green) and the endpoints enforce the right permission model, but there's no UI that drives it. The existing `AssignmentTargetingStudio` page is a mock.
+**Impact:** teachers and students can't use the flow without writing API calls by hand.
+**Severity:** medium — next session's work.
+**Fix sketch:**
+
+- Teacher form on `TeacherLessonStudio` or a new page: title + instructions + `is_published` toggle → `POST /api/v1/assessments/assessment/`.
+- Student page that lists `/api/v1/assessments/assessment/`, shows one, and POSTs a text answer to `/api/v1/assessments/submission/`.
+- Teacher-grade form reachable from the student's submission list; POSTs to `/api/v1/grading/records/` with `{submission, score, teacher_feedback}`.
+- Playwright e2e spec replaying the full loop over HTTP.

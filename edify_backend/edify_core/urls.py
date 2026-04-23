@@ -29,7 +29,7 @@ from institutions.views import InstitutionViewSet, InstitutionMembershipViewSet,
 from classes.views import ClassViewSet, ClassEnrollmentViewSet
 from scheduling.views import TimetableSlotViewSet
 from attendance.views import DailyRegisterViewSet, LessonAttendanceViewSet
-from grading.views import SubjectGradeViewSet, ReportCardViewSet
+from grading.views import SubjectGradeViewSet, ReportCardViewSet, GradeRecordViewSet
 from analytics.views import AnalyticsEventViewSet, DailyPlatformMetricViewSet, DailyInstitutionMetricViewSet, SubjectPerformanceSnapshotViewSet, SystemHealthSnapshotViewSet, StudentDashboardView, TeacherDashboardView, ParentDashboardView, AdminDashboardView, InstitutionDashboardView, CustomerSuccessChurnView
 from assessments.views import AssessmentWindowViewSet, AssessmentViewSet, QuestionViewSet, SubmissionViewSet
 from discussions.views import ThreadViewSet, PostViewSet
@@ -92,6 +92,7 @@ router.register(r'attendance/daily', DailyRegisterViewSet, basename='daily-regis
 router.register(r'attendance/lesson', LessonAttendanceViewSet, basename='lesson-attendance')
 router.register(r'grading/subjects', SubjectGradeViewSet, basename='subject-grade')
 router.register(r'grading/reports', ReportCardViewSet, basename='report-card')
+router.register(r'grading/records', GradeRecordViewSet, basename='grade-record')
 
 # Analytics
 router.register(r'analytics/analytics-event', AnalyticsEventViewSet, basename='analytics-analytics-event')
