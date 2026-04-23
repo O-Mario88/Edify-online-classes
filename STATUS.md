@@ -56,7 +56,7 @@
 | **Class syllabus** | live ([ClassSyllabusPage.tsx](src/pages/ClassSyllabusPage.tsx)) | live (`curriculum`) | unverified | |
 | **Subject topics** | live ([SubjectTopicsPage.tsx](src/pages/SubjectTopicsPage.tsx)) | live (`curriculum`) | unverified | Uses cached `getCurriculumTree` |
 | **Topic detail** | live ([TopicDetailPage.tsx](src/pages/TopicDetailPage.tsx)) | live (`resources`) | unverified | |
-| **Academic library** | live ([AcademicLibraryPage.tsx](src/pages/AcademicLibraryPage.tsx)) | live (`resources`) | **api-verified** | `/content/items/` listing + visibility filter covered by `StudentSliceTests` |
+| **Academic library** | live ([AcademicLibraryPage.tsx](src/pages/AcademicLibraryPage.tsx)) | live (`resources`) | **verified** | Covered by Django `StudentSliceTests` + `TeacherCreatesContentStudentEngagesTests` + Playwright `teacher-creates-content.spec.ts` |
 | **Resource discovery** | live ([ResourceDiscoveryPage.tsx](src/pages/ResourceDiscoveryPage.tsx)) | live (`resources`) | unverified | |
 | **Dashboard library** | stub ([DashboardLibraryPage.tsx](src/pages/dashboard/DashboardLibraryPage.tsx)) | live (`resources`) | unverified | Hardcoded cards |
 | **Library (legacy)** | stub ([LibraryPage.tsx](src/pages/LibraryPage.tsx)) | live (`resources`) | n/a | Placeholder — delete, superseded by AcademicLibrary |
@@ -112,9 +112,19 @@
 **Backend apps (21 total):** all live by structural criteria (installed, wired, migrated). This does **not** mean end-to-end tested.
 
 **End-to-end status:**
-- `verified` (full browser path): **0**
-- `api-verified` (backend path locked by a test): **3** — Auth-Login, Auth-Register, Academic library. See [edify_backend/apps/accounts/tests.py](edify_backend/apps/accounts/tests.py) — `StudentSliceTests` covers register → login → list content → record engagement → mark complete → persist. Run: `cd edify_backend && ./venv/bin/python manage.py test accounts.tests`.
+- `verified` (HTTP-level e2e via Playwright + backend unit-level coverage): **1** — Academic library content loop.
+- `api-verified` (backend path locked by a test, no browser coverage yet): **2** — Auth-Login, Auth-Register. Covered by [accounts.tests.StudentSliceTests](edify_backend/apps/accounts/tests.py).
 - `unverified`: all the rest.
+
+Run everything:
+
+```sh
+cd edify_backend && ./venv/bin/python manage.py test accounts.tests lessons.tests resources.tests edify_core.test_health
+npm test
+npm run test:e2e
+```
+
+All three suites are green as of the last commit on `phase-4-teacher-creates-content`.
 
 **Known non-blocking issues:** see [docs/KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) — 6 items, including `/lessons/lesson/` filter regression and 79 baseline TS errors.
 

@@ -297,6 +297,7 @@ class ContentItemUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentItem
         fields = [
+            'id',
             'title', 'description', 'content_type',
             'owner_type', 'owner_institution',
             'school_level', 'country', 'curriculum', 'education_level',
@@ -307,6 +308,7 @@ class ContentItemUploadSerializer(serializers.ModelSerializer):
             'language', 'is_featured', 'tags',
             'duration_seconds',
         ]
+        read_only_fields = ['id']
 
     def validate_file(self, value):
         if not value:
@@ -322,8 +324,22 @@ class ContentItemUploadSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"File type '{ext}' is not allowed for security reasons.")
         return value
 
+    # Text-first content types where the body lives in `description` and no
+    # file/external link is required.
+    TEXT_ONLY_CONTENT_TYPES = {'notes', 'revision'}
+
     def validate(self, attrs):
-        # Must have file or external_url
+        content_type = attrs.get('content_type')
+        if content_type in self.TEXT_ONLY_CONTENT_TYPES:
+            # Notes / revision posts are inline text; skip the file/URL gate
+            # but require meaningful body content.
+            if not (attrs.get('description') or '').strip():
+                raise serializers.ValidationError(
+                    {'description': 'Description is required for text-only content.'}
+                )
+            return attrs
+        # All other content types must carry either an uploaded file or an
+        # external link to the underlying media.
         if not attrs.get('file') and not attrs.get('external_url'):
             raise serializers.ValidationError(
                 "Either a file or external URL must be provided."

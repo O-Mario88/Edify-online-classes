@@ -10,6 +10,7 @@ import {
 import { apiClient } from '@/lib/apiClient';
 import { toast } from 'sonner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { TeacherQuickNote } from '@/components/teachers/TeacherQuickNote';
 
 export const TeacherLessonStudio: React.FC = () => {
   const { classId } = useParams();
@@ -108,7 +109,12 @@ export const TeacherLessonStudio: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
+        {/* Phase 4 slice #1: quick-publish a text note visible to students. */}
+        <div className="mb-6">
+          <TeacherQuickNote />
+        </div>
+
         <Tabs defaultValue="timeline" className="w-full">
           <TabsList className="bg-gray-100/80 mb-6">
             <TabsTrigger value="timeline" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6">Lesson Delivery Timeline</TabsTrigger>
