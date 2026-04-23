@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework.throttling import ScopedRateThrottle
 from django.contrib.auth import get_user_model
+from .activation import consume_activation, send_activation_email
 from .serializers import UserRegistrationSerializer
 
 User = get_user_model()
@@ -12,6 +13,22 @@ class UserRegistrationView(generics.CreateAPIView):
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = 'registration'
     serializer_class = UserRegistrationSerializer
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        # Fire an activation email even when REQUIRE_EMAIL_VERIFICATION is off
+        # in dev -- the console backend surfaces the link in server logs, which
+        # is the fastest way to exercise the flow end-to-end locally. In prod
+        # this goes to the real SMTP backend configured via env.
+        try:
+            send_activation_email(user)
+        except Exception:
+            # Don't block registration on mail-layer failure; admin can
+            # re-trigger via management command or the user can use forgot-password.
+            import logging
+            logging.getLogger('edify.accounts').exception(
+                'activation_email_send_failed email=%s', user.email,
+            )
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -157,6 +174,46 @@ class PublicProfileView(APIView):
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+
+class AccountActivationView(APIView):
+    """POST /api/v1/auth/activate/ with {uid, token} -> flips email_verified."""
+    permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'registration'
+
+    def post(self, request, *args, **kwargs):
+        uid = request.data.get('uid')
+        token = request.data.get('token')
+        if not uid or not token:
+            return Response({'error': 'uid and token are required.'}, status=status.HTTP_400_BAD_REQUEST)
+        user = consume_activation(uid, token)
+        if not user:
+            return Response({'error': 'Invalid or expired activation link.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Email verified. You can now sign in.', 'email': user.email}, status=status.HTTP_200_OK)
+
+
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from django.conf import settings as dj_settings
+from rest_framework.exceptions import AuthenticationFailed
+
+
+class VerifiedEmailTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """JWT login serializer that enforces email verification when REQUIRE_EMAIL_VERIFICATION is on."""
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        if getattr(dj_settings, 'REQUIRE_EMAIL_VERIFICATION', False) and not self.user.email_verified:
+            raise AuthenticationFailed(
+                detail={'code': 'email_not_verified', 'detail': 'Please verify your email before signing in.'},
+            )
+        return data
+
+
+class VerifiedEmailTokenObtainPairView(TokenObtainPairView):
+    """Drop-in replacement for the default JWT login view."""
+    serializer_class = VerifiedEmailTokenObtainPairSerializer
+
 
 class ForgotPasswordView(APIView):
     permission_classes = [AllowAny]
