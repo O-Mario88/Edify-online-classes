@@ -59,6 +59,7 @@ import { Teacher, UgandaLevel, Student } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { MarketplaceUploadModal } from '../components/marketplace/MarketplaceUploadModal';
 import { ResourceUploadModal } from '../components/academic/ResourceUploadModal';
+import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
 import { TeacherMonetizationDashboard } from '../components/marketplace/TeacherMonetizationDashboard';
 import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
@@ -906,10 +907,11 @@ export const TeacherDashboard: React.FC = () => {
          onClose={() => setIsUploadModalOpen(false)} 
          defaultCountry={user?.countryCode || 'uganda'} 
       />
-      <ResourceUploadModal 
-         isOpen={isLibraryUploadOpen} 
-         onClose={() => setIsLibraryUploadOpen(false)} 
+      <ResourceUploadModal
+         isOpen={isLibraryUploadOpen}
+         onClose={() => setIsLibraryUploadOpen(false)}
       />
+      <PilotFeedbackButton />
     </div>
   );
 };

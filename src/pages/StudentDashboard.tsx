@@ -17,6 +17,7 @@ import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 import { CareerGuidanceWidget } from '../components/dashboard/CareerGuidanceWidget';
 import { StudentResourceEngagementPanel } from '../components/dashboard/StudentResourceEngagementPanel';
 import { StudentAssignmentsPanel } from '../components/students/StudentAssignmentsPanel';
+import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
 import { StudentActionCenter } from '../components/dashboard/StudentActionCenter';
 import { StudentPlatformLaunchpad } from '../components/dashboard/StudentPlatformLaunchpad';
 import { StudentMotivationEngine } from '../components/dashboard/StudentMotivationEngine';
@@ -559,6 +560,7 @@ export const StudentDashboard: React.FC = () => {
       </div>
       <StudentScheduleModal isOpen={isScheduleOpen} onClose={() => setIsScheduleOpen(false)} />
       <OverdueTasksModal isOpen={isOverdueOpen} onClose={() => setIsOverdueOpen(false)} />
+      <PilotFeedbackButton />
     </div>
   );
 };

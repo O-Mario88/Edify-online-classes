@@ -175,7 +175,7 @@ router.register(r'interventions/actions', InterventionActionViewSet, basename='i
 from institutions.views import InstitutionOnboardingAPIView
 from marketplace.views import IndependentTeacherOnboardingView
 
-from accounts.views import PublicProfileView
+from accounts.views import PublicProfileView, PilotFeedbackCreateView
 from tutoring.views import PeerTutoringDashboardView
 
 urlpatterns = [
@@ -189,6 +189,9 @@ urlpatterns = [
     
     path('api/v1/tutoring/dashboard/', PeerTutoringDashboardView.as_view(), name='tutoring-dashboard'),
     path('api/v1/users/profile/<str:username>/', PublicProfileView.as_view(), name='public-profile'),
+
+    # Pilot feedback capture — see docs/PILOT.md.
+    path('api/v1/feedback/', PilotFeedbackCreateView.as_view(), name='pilot-feedback'),
     
     # Custom dashboard routes
     path('api/v1/analytics/student-dashboard/', StudentDashboardView.as_view(), name='student_dashboard_api'),

@@ -82,3 +82,40 @@ class InstitutionAdminProfile(models.Model):
 
     def __str__(self):
         return f"Inst Admin: {self.user.full_name}"
+
+
+class PilotFeedback(models.Model):
+    """A user-submitted bug or comment from the in-app Report-an-issue button.
+
+    Deliberately shallow: no triage workflow, no labels, no status transitions.
+    The point is to capture everything a pilot user hits, ordered by time, read
+    via Django admin or a shell query. Upgrade once a real process exists.
+    """
+    SEVERITY_CHOICES = [
+        ('bug', 'Bug / broken thing'),
+        ('confusing', 'Confusing / unclear'),
+        ('idea', 'Feature idea'),
+        ('other', 'Other'),
+    ]
+
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='feedback_items',
+    )
+    # Snapshot of the user's role at submission time — role can change
+    # and we want the historical value.
+    user_role = models.CharField(max_length=50, blank=True, default='')
+    severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES, default='bug')
+    message = models.TextField()
+    page_url = models.CharField(max_length=500, blank=True, default='')
+    user_agent = models.CharField(max_length=500, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Pilot feedback'
+        verbose_name_plural = 'Pilot feedback'
+
+    def __str__(self):
+        who = self.user.email if self.user else 'anonymous'
+        return f"[{self.severity}] {who} — {self.message[:60]}"
