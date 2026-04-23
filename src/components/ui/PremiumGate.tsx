@@ -54,7 +54,9 @@ export const PremiumGate: React.FC<PremiumGateProps> = ({
       actionLabel={role === 'institution_admin' ? 'Upgrade Institution Plan' : 'Ask Admin to Upgrade'}
       onAction={() => {
         if (role === 'institution_admin') {
-          navigate('/dashboard/institution/finance');
+          // Finance/billing module removed; point admins at the institution
+          // dashboard where subscription status lives.
+          navigate('/dashboard/institution');
         } else {
            // Provide a soft landing for non-admins
            window.alert("Your institution has not unlocked this feature. Please contact your administrator.");

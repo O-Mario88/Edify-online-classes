@@ -94,7 +94,6 @@ const NBA_TYPE_MAP: Record<string, ActionQueueItem['type']> = {
   resource: 'peer_support',
   engagement: 'peer_support',
   operational: 'grading_blocker',
-  finance: 'payout_blocker',
 };
 
 export function useNextBestActions() {

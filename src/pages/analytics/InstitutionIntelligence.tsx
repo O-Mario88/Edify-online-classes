@@ -147,21 +147,8 @@ export const InstitutionIntelligence = () => {
           </div>
         </div>
 
-        {/* Finance & Parent Ops */}
+        {/* Parent Ops */}
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-            <h3 className="text-sm font-semibold text-gray-400 capitalize mb-4 tracking-wider">Financial Health</h3>
-            
-            <div className="flex justify-between items-end mb-2">
-              <span className="text-3xl font-bold text-gray-900">{latest ? parseFloat(latest.fee_collection_rate).toFixed(0) : "0"}%</span>
-              <span className="text-sm font-medium text-amber-600">Active Arrears</span>
-            </div>
-            <div className="w-full bg-gray-100 rounded-full h-2">
-              <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${latest ? latest.fee_collection_rate : 0}%` }}></div>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">Term Fee Collection Progress</p>
-          </div>
-
           <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
             <h3 className="text-sm font-semibold text-gray-400 capitalize mb-4 tracking-wider">Parent Engagement</h3>
             

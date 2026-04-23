@@ -1,7 +1,7 @@
 # STATUS.md — Single source of truth
 
 > This file is the **only** authoritative inventory of what exists in the Edify platform.
-> It supersedes every `PHASE_*.md`, `*_AUDIT*.md`, `*_TESTING_*.md`, `FINANCE_*.md`, and other report file at the repo root.
+> It supersedes every `PHASE_*.md`, `*_AUDIT*.md`, `*_TESTING_*.md`, and other report file that used to live at the repo root.
 > Those files are stale marketing; this file is reality.
 >
 > **Last verified:** 2026-04-22 (Phase 0.1 inventory).
@@ -88,8 +88,6 @@
 | **Institution timetable studio** | live ([InstitutionTimetableStudio.tsx](src/pages/InstitutionTimetableStudio.tsx)) | live (`scheduling`) | unverified | |
 | **Institution health view** | live ([InstitutionHealthView.tsx](src/pages/institution/dashboard/InstitutionHealthView.tsx)) | live (`institutions`) | unverified | |
 | **Offline result upload** | live ([OfflineResultUpload.tsx](src/pages/institution/academics/OfflineResultUpload.tsx)) | live (`grading`) | unverified | |
-| **Institution finance hub** | dead ([InstitutionFinanceHub.tsx](src/pages/institution/dashboard/InstitutionFinanceHub.tsx)) | — | n/a | **Finance has no backend.** Decide per Phase 5 |
-| **Institution finance page** | dead ([InstitutionFinancePage.tsx](src/pages/InstitutionFinancePage.tsx)) | — | n/a | Same as above |
 | **Teacher lesson studio** | live ([TeacherLessonStudio.tsx](src/pages/TeacherLessonStudio.tsx)) | live (`lessons`) | unverified | |
 | **Assignment targeting studio** | live ([AssignmentTargetingStudio.tsx](src/pages/AssignmentTargetingStudio.tsx)) | live (`assessments`) | unverified | |
 | **Teacher earnings** | live ([TeacherEarningsPage.tsx](src/pages/dashboard/TeacherEarningsPage.tsx)) | live (`marketplace` — wallet/payouts) | unverified | |
@@ -147,7 +145,7 @@ Bundle delta: 2,179,661 → 2,172,688 bytes total JS; 99 → 95 files.
 
 ## Orphaned frontend (no backend) — decide in Phase 5
 
-- **Finance** (2 pages): `InstitutionFinanceHub`, `InstitutionFinancePage`. No `finance` Django app exists. Either build it small (per Phase 5 Option B) or delete the pages and the ~40KB of Finance markdown.
+- **Finance** — **removed from scope** (institution finance / ERP module). The two orphan pages, the `finance_factory` seeder, and the `docs/archive/FINANCE_*.md` marketing packet were deleted in the finance-removal PR.
 - **Projects** (2 pages): `ProjectsPage`, `ProjectWorkspace`. No `projects` Django app. Cut unless the product needs it.
 - **Feedback** (1 page): `FeedbackPage`. No backend. Trivial to build (a form → email) or cut.
 

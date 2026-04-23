@@ -30,9 +30,9 @@ PERM_VIEW_OWN_GRADES = "VIEW_OWN_GRADES"
 PERM_VIEW_ALL_GRADES = "VIEW_ALL_GRADES"
 PERM_MANAGE_EXAMS = "MANAGE_EXAMS"
 
-# Billing & Finance
-PERM_MANAGE_BILLING = "MANAGE_BILLING"
-PERM_VIEW_INVOICES = "VIEW_INVOICES"
+# Billing & invoicing permissions removed along with the institution
+# finance module. Restore them here if the finance ERP is ever scoped
+# back in.
 
 # PLATFORM ROLE MATRIX
 PLATFORM_ROLE_MATRIX = {
@@ -51,8 +51,6 @@ PLATFORM_ROLE_MATRIX = {
         PERM_MANAGE_CLASSES,
         PERM_MANAGE_ACADEMIC_TERMS,
         PERM_VIEW_ALL_GRADES,
-        PERM_MANAGE_BILLING,
-        PERM_VIEW_INVOICES,
     ],
     "teacher": [
         PERM_CREATE_COURSE,
@@ -77,8 +75,6 @@ INSTITUTIONAL_ROLE_MATRIX = {
         PERM_MANAGE_CLASSES,
         PERM_MANAGE_ACADEMIC_TERMS,
         PERM_VIEW_ALL_GRADES,
-        PERM_MANAGE_BILLING,
-        PERM_VIEW_INVOICES,
     ],
     "deputy": [
         PERM_VIEW_INSTITUTION_DASHBOARD,
@@ -102,8 +98,6 @@ INSTITUTIONAL_ROLE_MATRIX = {
     ],
     "bursar": [
         PERM_VIEW_INSTITUTION_DASHBOARD,
-        PERM_MANAGE_BILLING,
-        PERM_VIEW_INVOICES,
     ],
     "ict_admin": [
         PERM_VIEW_INSTITUTION_DASHBOARD,
