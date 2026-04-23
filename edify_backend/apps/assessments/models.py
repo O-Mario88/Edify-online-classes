@@ -25,25 +25,33 @@ class Assessment(models.Model):
         ('oral', 'Oral'),
         ('imported_csv', 'Imported CSV'),
     ]
-    
+
     # Optional window since external physical tests don't have online windows
     window = models.ForeignKey(AssessmentWindow, on_delete=models.SET_NULL, null=True, blank=True, related_name='assessments')
     topic = models.ForeignKey('curriculum.Topic', on_delete=models.SET_NULL, null=True, blank=True, related_name='assessments')
-    
+
+    # Human-visible fields — required for the student UI to render anything useful.
+    title = models.CharField(max_length=255, default='Untitled assignment')
+    instructions = models.TextField(blank=True, default='', help_text='Prompt / question body the student reads')
+
     type = models.CharField(max_length=50, choices=ASSESSMENT_TYPES)
     source = models.CharField(max_length=50, choices=ASSESSMENT_SOURCES, default='platform_quiz')
     max_score = models.DecimalField(max_digits=5, decimal_places=2, default=100.0, help_text="Used for weighting external exams")
-    
+
+    # Authorship + publishing gate. Students only see is_published=True assessments.
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='authored_assessments')
+    is_published = models.BooleanField(default=False, help_text='Students only see published assessments')
+
     # Track the term this assessment officially belongs to
     term = models.ForeignKey('scheduling.AcademicTerm', on_delete=models.SET_NULL, null=True, blank=True, related_name='assessments')
-    
+
     # Optional targeting for remedial/enrichment logic
     target_group = models.ForeignKey('AssignmentTargetGroup', on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_assessments')
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.type.title()} ({self.get_source_display()})"
+        return f"{self.title} ({self.get_type_display()})"
 
 class Question(models.Model):
     QUESTION_TYPES = [

@@ -49,14 +49,47 @@ class AssessmentWindowViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     serializer_class = AssessmentWindowSerializer
     permission_classes = [IsAuthenticated]
 
-class AssessmentViewSet(TenantFilterMixin, viewsets.ModelViewSet):
+class AssessmentViewSet(viewsets.ModelViewSet):
+    # Bypasses TenantFilterMixin — Assessments are scoped via the creator's
+    # institution memberships, which covers creations with no window/target_group.
     queryset = Assessment.objects.select_related('window', 'topic', 'term', 'target_group').prefetch_related('questions')
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        base = self.queryset
+        if user.is_superuser:
+            return base
+
+        user_inst_ids = list(
+            InstitutionMembership.objects.filter(user=user, status='active')
+            .values_list('institution_id', flat=True)
+        )
+        # Assessment is in-scope if its author shares at least one active
+        # institution membership with the viewer. This lets teachers see
+        # each other's work inside the same school and students see
+        # anything their teachers publish.
+        qs = base.filter(
+            Q(created_by=user)
+            | Q(created_by__institution_memberships__institution_id__in=user_inst_ids,
+               created_by__institution_memberships__status='active')
+        ).distinct()
+
+        if getattr(user, 'role', '') == 'student':
+            qs = qs.filter(is_published=True)
+        return qs
 
     def get_serializer_class(self):
         if self.request.user.role in ['teacher', 'school_admin', 'platform_admin']:
             return AssessmentAdminSerializer
         return AssessmentSerializer
+
+    def perform_create(self, serializer):
+        # Only teachers/admins can create assessments.
+        if getattr(self.request.user, 'role', '') not in ('teacher', 'admin', 'institution'):
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only teachers or admins can create assessments.")
+        serializer.save(created_by=self.request.user)
 
 class QuestionViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     queryset = Question.objects.select_related('assessment').all()
