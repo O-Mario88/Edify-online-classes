@@ -46,6 +46,7 @@ env/
 .env
 .env.*
 !.env.example
+!.env.docker.example
 
 # Django local state
 edify_backend/db.sqlite3
