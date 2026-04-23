@@ -14,6 +14,7 @@ import {
   Star, Eye, Phone
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { apiGet } from '../../lib/apiClient';
 import { DashboardGrid } from '../../components/dashboard/layout/DashboardGrid';
 import { DashboardSection } from '../../components/dashboard/layout/DashboardSection';
 import { DashboardCard } from '../../components/dashboard/layout/DashboardCard';
@@ -41,13 +42,11 @@ export const PrimaryParentDashboard: React.FC = () => {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/v1/analytics/primary-parent-dashboard/');
-        if (response.ok) {
-          const apiData = await response.json();
-          setData(apiData);
-        } else {
-          console.warn('Primary parent dashboard API not available');
+        const { data: apiData, error } = await apiGet<typeof data>('/analytics/primary-parent-dashboard/');
+        if (error || !apiData) {
           setData(getEmptyData());
+        } else {
+          setData(apiData);
         }
       } catch (error) {
         console.error('Error fetching primary parent dashboard:', error);

@@ -24,12 +24,15 @@ class PeerPointsLedgerViewSet(viewsets.ModelViewSet):
 class TutorProfileViewSet(viewsets.ModelViewSet):
     queryset = TutorProfile.objects.filter(is_active=True).select_related('user').prefetch_related('subjects')
     serializer_class = TutorProfileSerializer
-    permission_classes = [AllowAny]
+    # Was AllowAny — fully open CRUD was a hole. Authenticated now; any logged-in
+    # user can browse tutors, which is the marketplace discovery use case.
+    permission_classes = [IsAuthenticated]
 
 
 class TutoringBountyViewSet(viewsets.ModelViewSet):
     serializer_class = TutoringBountySerializer
-    permission_classes = [AllowAny]
+    # Was AllowAny — bounty CRUD must be gated behind a login.
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         qs = TutoringBounty.objects.select_related('requester', 'accepted_by').order_by('-created_at')
@@ -47,7 +50,9 @@ class PeerTutoringDashboardView(APIView):
     Aggregate endpoint for the PeerTutoringHub page.
     Returns tutors, community bounties, teacher-directed bounties, and user's reputation points.
     """
-    permission_classes = [AllowAny]
+    # Was AllowAny — this endpoint reads the current user's reputation_points,
+    # which must not be reachable without auth.
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         # Reputation points for current user

@@ -30,7 +30,11 @@ const MarketplacePage: React.FC = () => {
     // Phase 2/3: Live Database Feed
     apiClient.get('/curriculum/subjects/')
       .then(res => {
-         const mapped = (res.data as any).map((subject: any) => ({
+         // Backend paginates; unwrap either shape.
+         const rows = Array.isArray(res.data)
+           ? res.data
+           : ((res.data as { results?: unknown[] } | null)?.results ?? []);
+         const mapped = (rows as any[]).map((subject: any) => ({
              ...subject,
              category: 'Core Syllabus'
          }));

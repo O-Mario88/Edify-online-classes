@@ -107,7 +107,8 @@ class MissedSessionRecoveryViewSet(viewsets.ModelViewSet):
     Filter by ?session=<id> to get recovery for a specific session.
     """
     serializer_class = MissedSessionRecoverySerializer
-    permission_classes = [AllowAny]
+    # Was AllowAny — session recovery records expose who missed which class.
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         qs = MissedSessionRecovery.objects.select_related(

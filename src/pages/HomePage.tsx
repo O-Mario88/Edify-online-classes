@@ -48,7 +48,7 @@ export const HomePage: React.FC = () => {
         );
         
         const response = await Promise.race([
-          fetch('http://localhost:8000/api/v1/curriculum/full-tree/').then(res => res.json()),
+          apiGet('/curriculum/full-tree/').then(r => ({ data: r.data })),
           timeoutPromise as any
         ]);
         
