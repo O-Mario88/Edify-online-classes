@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   userProfile: UniversalStudent | IndependentTeacher | Institution | ParentUser | null;
   login: (email: string, password: string, overrideRole?: string) => Promise<boolean>;
-  register: (email: string, fullName: string, countryCode: string, password: string, role: string) => Promise<boolean>;
+  register: (email: string, fullName: string, countryCode: string, password: string, role: string, stage?: 'primary' | 'secondary') => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
   switchStudentContext: (institutionId?: string) => void;
@@ -172,12 +172,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           }
           
+          // The backend JWT login response carries stage/role/full_name
+          // (see VerifiedEmailTokenObtainPairSerializer.validate).
+          const respStage = (response.data as any)?.stage as ('primary' | 'secondary' | undefined);
+          const respRole = (response.data as any)?.role as (string | undefined);
+          const respName = (response.data as any)?.full_name as (string | undefined);
           const sessionUser = {
             id: email,
             email: email,
-            name: email.split('@')[0],
-            role: inferredRole,
-            countryCode: 'uganda'
+            name: respName || email.split('@')[0],
+            role: respRole || inferredRole,
+            countryCode: 'uganda',
+            stage: respStage || 'secondary',
+            school_level: respStage || 'secondary',
           };
           
           setUser(sessionUser as any);
@@ -221,7 +228,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const registerUser = async (email: string, full_name: string, country_code: string, password: string, role: string): Promise<boolean> => {
+  const registerUser = async (
+    email: string, full_name: string, country_code: string, password: string, role: string,
+    stage: 'primary' | 'secondary' = 'secondary',
+  ): Promise<boolean> => {
     setIsLoading(true);
     try {
       // Map simple role names to backend format if needed
@@ -232,17 +242,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         'institution': 'institution',
         'admin': 'admin'
       };
-      
+
       const apiRole = roleMap[role.toLowerCase()] || role.toLowerCase();
-      
+
       // Call real registration API
       const response = await registerUserAPI({
         email,
         full_name,
         password,
         country_code: country_code || 'uganda',
-        role: apiRole as 'student' | 'teacher' | 'institution' | 'admin'
-      });
+        role: apiRole as 'student' | 'teacher' | 'institution' | 'admin',
+        stage,
+      } as any);
       
       if (response.data) {
         // Auto-login after successful registration
@@ -268,8 +279,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         full_name: studentData.full_name,
         password: studentData.password || 'DefaultPass123!',
         country_code: studentData.country_code || 'uganda',
-        role: 'student'
-      });
+        role: 'student',
+        stage: studentData.stage || 'secondary',
+      } as any);
       
       if (!registrationResponse.data) {
         throw new Error('Student registration failed');
@@ -288,7 +300,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           email: email,
           name: studentData.full_name,
           role: 'universal_student',
-          countryCode: studentData.country_code || 'uganda'
+          countryCode: studentData.country_code || 'uganda',
+          stage: studentData.stage || 'secondary',
+          school_level: studentData.stage || 'secondary',
         };
         
         setUser(sessionUser as any);

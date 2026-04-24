@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from apps.curriculum.stage_filter import filter_queryset_by_stage
 from .models import Cohort, CohortEnrollment
 from .serializers import CohortCardSerializer, CohortDetailSerializer, CohortEnrollmentSerializer
 
@@ -13,7 +14,8 @@ class CohortViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'slug'
 
     def get_queryset(self):
-        return Cohort.objects.filter(is_published=True).select_related('teacher_lead', 'subject', 'class_level')
+        qs = Cohort.objects.filter(is_published=True).select_related('teacher_lead', 'subject', 'class_level')
+        return filter_queryset_by_stage(qs, self.request.user)
 
     def get_serializer_class(self):
         return CohortDetailSerializer if self.action == 'retrieve' else CohortCardSerializer

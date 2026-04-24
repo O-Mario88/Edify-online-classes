@@ -47,6 +47,8 @@ class Command(BaseCommand):
         primary_level, _ = EducationLevel.objects.get_or_create(track=track, name='Primary', defaults={'is_primary': True})
         s1, _ = ClassLevel.objects.get_or_create(level=level, name='S1', defaults={'internal_canonical_grade': 8})
         s3, _ = ClassLevel.objects.get_or_create(level=level, name='S3', defaults={'internal_canonical_grade': 10})
+        p5, _ = ClassLevel.objects.get_or_create(level=primary_level, name='P5', defaults={'internal_canonical_grade': 5})
+        p6, _ = ClassLevel.objects.get_or_create(level=primary_level, name='P6', defaults={'internal_canonical_grade': 6})
         p7, _ = ClassLevel.objects.get_or_create(level=primary_level, name='P7', defaults={'internal_canonical_grade': 7})
 
         math, _ = Subject.objects.get_or_create(name='Mathematics')
@@ -76,10 +78,10 @@ class Command(BaseCommand):
         )
 
         # ── Mastery Tracks ────────────────────────────────────────
-        self._seed_mastery_tracks(teacher, math, english, reading, biology, p7, s1, s3, t_fractions, t_essay, t_comprehension, t_cells)
+        self._seed_mastery_tracks(teacher, math, english, reading, biology, p5, p7, s1, s3, t_fractions, t_essay, t_comprehension, t_cells)
 
         # ── Practice Labs ─────────────────────────────────────────
-        self._seed_practice_labs(teacher, math, english, reading, p7, s1, t_fractions, t_essay, t_comprehension)
+        self._seed_practice_labs(teacher, math, english, reading, p5, p6, p7, s1, t_fractions, t_essay, t_comprehension)
 
         # ── Mastery Projects ──────────────────────────────────────
         self._seed_mastery_projects(teacher, english, math, biology, s1, s3, t_essay, t_cells)
@@ -105,10 +107,22 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('✔ Pilot content seeded.'))
 
     # ──────────────────────────────────────────────────────────────
-    def _seed_mastery_tracks(self, teacher, math, english, reading, biology, p7, s1, s3, t_fractions, t_essay, t_comprehension, t_cells):
+    def _seed_mastery_tracks(self, teacher, math, english, reading, biology, p5, p7, s1, s3, t_fractions, t_essay, t_comprehension, t_cells):
         from mastery.models import MasteryTrack, MasteryTrackModule, MasteryTrackItem
 
         tracks = [
+            {
+                'slug': 'number-sense-p5', 'title': 'Number Sense — P5',
+                'tagline': 'Learn to count, compare, and reason with numbers.',
+                'outcome_statement': 'Confidently order, compare, and add numbers up to 10,000.',
+                'target_role': 'student', 'class_level': p5, 'subject': math,
+                'level': 'beginner', 'exam_track': 'PLE', 'estimated_duration_weeks': 4,
+                'is_featured': True,
+                'modules': [
+                    ('Week 1 — Counting & Place Value', [('content', 'Place value intro'), ('practice_lab', 'Counting money lab'), ('assessment', 'Place value check')]),
+                    ('Week 2 — Adding Bigger Numbers', [('content', 'Regrouping'), ('practice_lab', 'Column addition')]),
+                ],
+            },
             {
                 'slug': 'reading-mastery-p7', 'title': 'Reading Mastery — P7',
                 'tagline': 'Read smoothly. Understand deeply.', 'outcome_statement': 'Read grade-level text fluently with strong comprehension.',
@@ -160,10 +174,38 @@ class Command(BaseCommand):
         self.stdout.write(f'  · Mastery Tracks: {MasteryTrack.objects.filter(is_published=True).count()}')
 
     # ──────────────────────────────────────────────────────────────
-    def _seed_practice_labs(self, teacher, math, english, reading, p7, s1, t_fractions, t_essay, t_comprehension):
+    def _seed_practice_labs(self, teacher, math, english, reading, p5, p6, p7, s1, t_fractions, t_essay, t_comprehension):
         from practice_labs.models import PracticeLab, PracticeLabStep
 
         labs = [
+            {
+                'slug': 'counting-money-p5', 'title': 'Counting Money',
+                'description': 'Add coins and notes to make exact amounts.',
+                'instructions': 'Work through each shopping scene and give the right amount.',
+                'subject': math, 'class_level': p5, 'topic': None,
+                'difficulty': 'beginner', 'estimated_minutes': 10,
+                'badge_label': 'Money Counter',
+                'steps': [
+                    ('mcq', 'Which coins add up to 500 UGX?', ['200 + 200 + 100', '100 + 100', '500 + 200'], '200 + 200 + 100', 'Add them slowly.'),
+                    ('short_answer', 'You have 1000 UGX. A mango costs 700 UGX. How much change?', [], '300', 'Subtract 700 from 1000.'),
+                    ('mcq', 'Two 500 UGX coins = ?', ['500', '1000', '1500'], '1000', ''),
+                    ('reflection', 'Was any question tricky?', [], '', ''),
+                ],
+            },
+            {
+                'slug': 'my-first-paragraph-p6', 'title': 'My First Paragraph',
+                'description': 'Write a short paragraph about something you love.',
+                'instructions': 'Pick a favourite thing. Write 3 sentences: what it is, why you love it, one example.',
+                'subject': english, 'class_level': p6, 'topic': None,
+                'difficulty': 'beginner', 'estimated_minutes': 12,
+                'badge_label': 'Young Writer',
+                'steps': [
+                    ('instruction', 'A paragraph answers: What? Why? Example.', [], '', ''),
+                    ('short_answer', 'Write a topic sentence: "My favourite ____ is ____."', [], '', ''),
+                    ('short_answer', 'Why do you love it? One sentence.', [], '', ''),
+                    ('reflection', 'Would you share this with a friend?', [], '', ''),
+                ],
+            },
             {
                 'slug': 'fractions-step-by-step', 'title': 'Fractions: Step by Step',
                 'description': 'Add, subtract, and simplify fractions with instant feedback.',
@@ -416,9 +458,44 @@ class Command(BaseCommand):
                     'typical_roles': roles,
                     'education_levels': edu,
                     'is_published': True,
+                    'stage': 'secondary',
                 },
             )
-        self.stdout.write(f'  · Career Pathways: {CareerPathway.objects.filter(is_published=True).count()}')
+
+        # Primary-stage exploration pathways. Framing is age-appropriate:
+        # "people who…" rather than "careers in…". No specific qualifications.
+        primary_pathways = [
+            ('explore-caring-for-people', 'Caring for People', '❤️', 'People who help others stay healthy and safe.',
+             ['Science', 'Reading', 'Social Studies'],
+             ['Kindness', 'Listening', 'Working in teams'],
+             ['Nurse', 'Doctor', 'Teacher', 'Police officer']),
+            ('explore-making-things', 'Making and Building', '🔧', 'People who design, build, and fix things.',
+             ['Mathematics', 'Science', 'Art'],
+             ['Curiosity', 'Patience', 'Drawing'],
+             ['Engineer', 'Carpenter', 'Architect', 'Inventor']),
+            ('explore-telling-stories', 'Telling Stories', '📖', 'People who use words, pictures, and music to share ideas.',
+             ['English', 'Reading', 'Art'],
+             ['Imagination', 'Speaking clearly', 'Reading a lot'],
+             ['Writer', 'Journalist', 'Artist', 'Musician']),
+            ('explore-growing-food', 'Growing Food', '🌱', 'People who feed communities and take care of the land.',
+             ['Science', 'Geography'],
+             ['Observation', 'Patience', 'Hard work'],
+             ['Farmer', 'Vet', 'Food scientist']),
+        ]
+        for slug, title, emoji, tagline, subjects, skills, roles in primary_pathways:
+            CareerPathway.objects.update_or_create(
+                slug=slug,
+                defaults={
+                    'title': title, 'icon_emoji': emoji, 'tagline': tagline,
+                    'recommended_subjects': subjects,
+                    'required_skills': skills,
+                    'typical_roles': roles,
+                    'education_levels': [],
+                    'is_published': True,
+                    'stage': 'primary',
+                },
+            )
+        self.stdout.write(f'  · Career Pathways: {CareerPathway.objects.filter(is_published=True).count()} (both stages)')
 
     # ──────────────────────────────────────────────────────────────
     def _seed_discovery(self, pilot_inst):

@@ -14,6 +14,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from apps.curriculum.stage_filter import filter_queryset_by_stage
 from .models import PracticeLab, PracticeLabStep, PracticeLabAttempt, PracticeLabStepResponse
 from .serializers import (
     PracticeLabCardSerializer, PracticeLabDetailSerializer,
@@ -26,9 +27,10 @@ class PracticeLabViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'slug'
 
     def get_queryset(self):
-        return PracticeLab.objects.filter(is_published=True).select_related(
+        qs = PracticeLab.objects.filter(is_published=True).select_related(
             'subject', 'class_level', 'topic',
         ).prefetch_related('steps')
+        return filter_queryset_by_stage(qs, self.request.user)
 
     def get_serializer_class(self):
         if self.action == 'retrieve':

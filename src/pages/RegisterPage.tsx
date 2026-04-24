@@ -14,7 +14,12 @@ export const RegisterPage: React.FC = () => {
   // signup; any other role falls through to the default redirect.
   const intent = searchParams.get('intent');
   const { register, onboardStudent } = useAuth();
-  
+
+  // Stage gate: Primary (P4–P7) vs Secondary (S1–S6). Chosen FIRST so every
+  // downstream content surface is locked to the right platform. Cannot be
+  // changed after registration (would require an account migration).
+  const [stage, setStage] = useState<'primary' | 'secondary' | null>(null);
+
   // Selection Screen State
   const [roleMode, setRoleMode] = useState<'selection' | 'learner' | 'teacher' | 'institution'>('selection');
   
@@ -61,8 +66,12 @@ export const RegisterPage: React.FC = () => {
   const handleLearnerSubmit = async () => {
     setError('');
     setIsLoading(true);
-    
-    const result = await onboardStudent(studentData, parentData, paymentData);
+
+    const result = await onboardStudent(
+      { ...studentData, stage: stage || 'secondary' },
+      parentData,
+      paymentData,
+    );
     if (result.success) {
       if (intent === 'diagnostic') {
         navigate('/diagnostic');
@@ -74,14 +83,21 @@ export const RegisterPage: React.FC = () => {
     } else {
       setError(result.error || 'Failed to onboard student. Please verify the parent phone number.');
     }
-    
+
     setIsLoading(false);
   };
 
   const handleStandardRegister = async (e: React.FormEvent, role: string) => {
     e.preventDefault();
     setIsLoading(true);
-    const success = await register(studentData.email || 'test@edify.local', studentData.full_name || role, 'uganda', studentData.password || 'password123', role);
+    const success = await register(
+      studentData.email || 'test@edify.local',
+      studentData.full_name || role,
+      'uganda',
+      studentData.password || 'password123',
+      role,
+      stage || 'secondary',
+    );
     if (success) {
       if (role === 'institution') {
         navigate('/institution-onboarding');
@@ -124,15 +140,57 @@ export const RegisterPage: React.FC = () => {
       {/* RIGHT COLUMN: Form Area */}
       <div className="w-full md:w-[45%] lg:w-[45%] xl:w-[45%] flex items-center justify-center p-6 md:px-10 md:py-12 relative bg-white">
         
-        {/* Selection State */}
-        {roleMode === 'selection' && (
+        {/* Stage Gate — must pick Primary or Secondary before anything else. */}
+        {stage === null && (
           <div className="max-w-md w-full space-y-6 relative mt-8 md:mt-0">
-            <button 
-              onClick={() => navigate(-1)} 
+            <button
+              onClick={() => navigate(-1)}
               className="absolute -top-10 -left-2 text-slate-400 hover:text-slate-800 font-medium text-sm flex items-center gap-1 hover:underline transition-colors"
             >
               <ArrowLeft className="w-4 h-4" /> Go Back
             </button>
+            <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-3 tracking-tight mt-4">Which platform are you joining?</h2>
+            <p className="text-sm text-slate-500 font-normal mb-6">Pick the stage that matches the learner. Content, classes, and assessments are kept separate — you cannot mix primary and secondary inside one account.</p>
+
+            <div className="space-y-4">
+              <button onClick={() => setStage('primary')} className="w-full bg-[#f8f9fa] hover:bg-emerald-50 border border-emerald-100/70 rounded-xl p-5 flex items-start gap-4 transition-colors group text-left">
+                <span className="text-2xl" aria-hidden="true">🧒</span>
+                <div className="flex-1">
+                  <div className="font-semibold text-slate-700 group-hover:text-emerald-700">Primary (P4 – P7)</div>
+                  <div className="text-xs text-slate-500 mt-0.5">For learners in Primary Four through Primary Seven.</div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-emerald-500 group-hover:translate-x-1 transition-transform mt-1" />
+              </button>
+
+              <button onClick={() => setStage('secondary')} className="w-full bg-[#f8f9fa] hover:bg-blue-50 border border-blue-100/70 rounded-xl p-5 flex items-start gap-4 transition-colors group text-left">
+                <span className="text-2xl" aria-hidden="true">🎓</span>
+                <div className="flex-1">
+                  <div className="font-semibold text-slate-700 group-hover:text-blue-700">Secondary (S1 – S6)</div>
+                  <div className="text-xs text-slate-500 mt-0.5">For learners in Senior One through Senior Six (O-level + A-level).</div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-blue-500 group-hover:translate-x-1 transition-transform mt-1" />
+              </button>
+            </div>
+
+            <p className="mt-8 text-sm text-slate-500 font-medium">
+              Already have a Maple account? <Link to="/login" className="text-blue-600 font-semibold hover:underline">Log in</Link>
+            </p>
+          </div>
+        )}
+
+        {/* Selection State */}
+        {stage !== null && roleMode === 'selection' && (
+          <div className="max-w-md w-full space-y-6 relative mt-8 md:mt-0">
+            <button
+              onClick={() => setStage(null)}
+              className="absolute -top-10 -left-2 text-slate-400 hover:text-slate-800 font-medium text-sm flex items-center gap-1 hover:underline transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" /> Change stage
+            </button>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+              <span aria-hidden="true">{stage === 'primary' ? '🧒' : '🎓'}</span>
+              {stage === 'primary' ? 'Primary (P4 – P7)' : 'Secondary (S1 – S6)'}
+            </div>
             <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-8 tracking-tight mt-4">Start learning today by signing up!</h2>
             
             <div className="space-y-4">

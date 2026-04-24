@@ -90,9 +90,15 @@ class StudentOnboardingAPIView(APIView):
             full_name=student_data.get('full_name'),
             country_code=student_data.get('country_code'),
             password=student_data.get('password'),
-            role='student'
+            role='student',
+            stage=student_data.get('stage', 'secondary'),
         )
         student_profile = StudentProfile.objects.create(user=student_user)
+        # Parent inherits the student's stage so their dashboard doesn't
+        # mix primary/secondary content either.
+        if student_user.stage != parent_user.stage:
+            parent_user.stage = student_user.stage
+            parent_user.save(update_fields=['stage'])
 
         # 3. Create Parent-Student Link
         ParentStudentLink.objects.create(
@@ -201,12 +207,28 @@ from rest_framework.exceptions import AuthenticationFailed
 class VerifiedEmailTokenObtainPairSerializer(TokenObtainPairSerializer):
     """JWT login serializer that enforces email verification when REQUIRE_EMAIL_VERIFICATION is on."""
 
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Embed stage + role in the JWT so the frontend can gate nav
+        # without an extra /me roundtrip.
+        token['stage'] = user.stage
+        token['role'] = user.role
+        token['email'] = user.email
+        return token
+
     def validate(self, attrs):
         data = super().validate(attrs)
         if getattr(dj_settings, 'REQUIRE_EMAIL_VERIFICATION', False) and not self.user.email_verified:
             raise AuthenticationFailed(
                 detail={'code': 'email_not_verified', 'detail': 'Please verify your email before signing in.'},
             )
+        # Surface stage in the login response body too (frontend reads this
+        # directly into AuthContext).
+        data['stage'] = self.user.stage
+        data['role'] = self.user.role
+        data['email'] = self.user.email
+        data['full_name'] = self.user.full_name
         return data
 
 

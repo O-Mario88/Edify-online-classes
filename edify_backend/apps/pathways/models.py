@@ -28,6 +28,15 @@ class CareerPathway(models.Model):
 
     icon_emoji = models.CharField(max_length=8, blank=True, default='🧭')
     is_published = models.BooleanField(default=True)
+    # Which platform this pathway belongs to. Primary learners see
+    # age-appropriate exploration; secondary learners see subject-driven
+    # career mapping. 'both' shows up for everyone (use sparingly).
+    STAGE_CHOICES = [
+        ('primary', 'Primary (P4–P7)'),
+        ('secondary', 'Secondary (S1–S6)'),
+        ('both', 'Both stages'),
+    ]
+    stage = models.CharField(max_length=10, choices=STAGE_CHOICES, default='secondary')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

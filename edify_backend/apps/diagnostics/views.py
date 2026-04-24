@@ -55,6 +55,17 @@ class DiagnosticSessionViewSet(viewsets.ViewSet):
         class_level = None
         if class_level_id:
             class_level = ClassLevel.objects.filter(id=class_level_id).first()
+            # Strict stage guard — a primary user cannot diagnose on secondary
+            # material and vice versa.
+            if class_level and request.user.stage in ('primary', 'secondary'):
+                is_primary = class_level.level.is_primary
+                expected = 'primary' if is_primary else 'secondary'
+                if expected != request.user.stage:
+                    return Response(
+                        {'detail': f'This class level belongs to the {expected} platform. '
+                                   f'Your account is registered for the {request.user.stage} platform.'},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
         questions = sample_questions_for_class_level(class_level)
         session = DiagnosticSession.objects.create(

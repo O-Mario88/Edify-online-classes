@@ -14,6 +14,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from apps.curriculum.stage_filter import filter_queryset_by_stage
 from .models import MasteryTrack, MasteryTrackItem, MasteryEnrollment
 from .serializers import (
     MasteryTrackCardSerializer,
@@ -29,9 +30,10 @@ class MasteryTrackViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'slug'
 
     def get_queryset(self):
-        return MasteryTrack.objects.filter(is_published=True).select_related(
+        qs = MasteryTrack.objects.filter(is_published=True).select_related(
             'subject', 'class_level',
         ).prefetch_related('modules__items')
+        return filter_queryset_by_stage(qs, self.request.user)
 
     def get_serializer_class(self):
         if self.action == 'retrieve':

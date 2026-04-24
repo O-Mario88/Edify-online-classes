@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from apps.curriculum.stage_filter import filter_queryset_by_stage
 from .models import ExamSimulation, ExamSimulationAttempt, MistakeNotebookEntry
 from .serializers import (
     ExamCardSerializer, DeliveredQuestionSerializer,
@@ -27,7 +28,8 @@ class ExamSimulationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ExamCardSerializer
 
     def get_queryset(self):
-        return ExamSimulation.objects.filter(is_published=True).select_related('subject', 'class_level')
+        qs = ExamSimulation.objects.filter(is_published=True).select_related('subject', 'class_level')
+        return filter_queryset_by_stage(qs, self.request.user)
 
     def retrieve(self, request, slug=None):
         exam = get_object_or_404(self.get_queryset(), slug=slug)

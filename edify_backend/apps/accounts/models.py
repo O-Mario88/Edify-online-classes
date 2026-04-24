@@ -29,7 +29,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('institution', 'Institution'),
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
-    
+
+    # Primary (P4–P7) vs Secondary (S1–S6) — the two parallel platforms.
+    # Chosen at registration; used to filter every content surface.
+    STAGE_CHOICES = [
+        ('primary', 'Primary (P4–P7)'),
+        ('secondary', 'Secondary (S1–S6)'),
+    ]
+    stage = models.CharField(
+        max_length=10, choices=STAGE_CHOICES, default='secondary',
+        help_text='Which platform this user sees. Set at registration; cannot mix.',
+    )
+
     phone = models.CharField(max_length=20, blank=True, null=True)
     whatsapp_opt_in = models.BooleanField(default=False)
     
