@@ -33,6 +33,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { toast } from 'sonner';
 import { 
   BookOpen, 
   Calendar, 
@@ -110,6 +111,17 @@ interface TeacherDashboardData {
   }>;
 }
 
+interface UpcomingSession {
+  id: string;
+  title: string;
+  subject: string;
+  date: string;
+  time: string;
+  students: number;
+  duration: number;
+  meeting_link?: string;
+}
+
 export const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -121,6 +133,12 @@ export const TeacherDashboard: React.FC = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isLibraryUploadOpen, setIsLibraryUploadOpen] = useState(false);
 
+  // Live upcoming-sessions state. Fetched from /live-sessions/live-session/
+  // and filtered by the subject chip. No more hardcoded mocks.
+  const [upcomingSessions, setUpcomingSessions] = useState<UpcomingSession[]>([]);
+  const [sessionSubjectFilter, setSessionSubjectFilter] = useState<string>('all');
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
   // Intelligence hooks
   const { actions: nbaActions } = useNextBestActions();
   const { dailyPlan: studyPlanDays } = useStudyPlanner();
@@ -130,11 +148,36 @@ export const TeacherDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [dashRes, classesRes, subjectsRes] = await Promise.all([
+        const [dashRes, classesRes, subjectsRes, sessionsRes] = await Promise.all([
           apiClient.get<TeacherDashboardData>('/analytics/teacher-dashboard/'),
           apiClient.get('/classes/').catch(() => ({ data: [] })),
-          apiClient.get('/curriculum/subjects/').catch(() => ({ data: [] }))
+          apiClient.get('/curriculum/subjects/').catch(() => ({ data: [] })),
+          apiClient.get('/live-sessions/live-session/').catch(() => ({ data: [] })),
         ]);
+
+        // Map live sessions — only future + non-cancelled — into the card shape.
+        const rawSessions: any[] = Array.isArray(sessionsRes.data) ? sessionsRes.data : [];
+        const now = Date.now();
+        const mapped: UpcomingSession[] = rawSessions
+          .filter((s: any) => s.status !== 'cancelled')
+          .filter((s: any) => !s.scheduled_start || new Date(s.scheduled_start).getTime() >= now)
+          .map((s: any) => {
+            const start = s.scheduled_start ? new Date(s.scheduled_start) : null;
+            const lessonTitle = s.lesson?.title || s.lesson_title || 'Live Session';
+            const subject = s.lesson?.subject_name || s.lesson?.parent_class?.subject?.name || 'General';
+            return {
+              id: String(s.id),
+              title: lessonTitle,
+              subject,
+              date: start ? start.toISOString().slice(0, 10) : '',
+              time: start ? start.toTimeString().slice(0, 5) : '',
+              students: s.enrolled_count ?? 0,
+              duration: s.duration_minutes ?? 60,
+              meeting_link: s.meeting_link,
+            };
+          })
+          .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+        setUpcomingSessions(mapped);
 
         const dashData: TeacherDashboardData = dashRes.data || {};
         const kpis = dashData.kpis || {};
@@ -279,24 +322,34 @@ export const TeacherDashboard: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teacher.id]);
 
-  const upcomingSessions = [
-    {
-      id: '1',
-      title: 'Senior 2 Mathematics - Quadratic Equations',
-      date: '2025-07-03',
-      time: '15:00',
-      students: 28,
-      duration: 90
-    },
-    {
-      id: '2', 
-      title: 'Senior 5 Physics - Circular Motion Lab',
-      date: '2025-07-04',
-      time: '14:00',
-      students: 18,
-      duration: 120
+  // Derive the list of subject chips from whatever the backend actually
+  // returned — avoids hardcoding "Mathematics / Physics" forever.
+  const sessionSubjects = Array.from(
+    new Set(upcomingSessions.map((s) => s.subject).filter(Boolean)),
+  );
+  const filteredSessions = sessionSubjectFilter === 'all'
+    ? upcomingSessions
+    : upcomingSessions.filter((s) => s.subject === sessionSubjectFilter);
+
+  const cancelSession = async (sessionId: string) => {
+    if (cancellingId) return;
+    if (!window.confirm('Cancel this live session? Enrolled students will be notified.')) return;
+    setCancellingId(sessionId);
+    try {
+      const { error } = await apiClient.patch(
+        `/live-sessions/live-session/${sessionId}/`,
+        { status: 'cancelled' },
+      );
+      if (error) throw error;
+      setUpcomingSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      toast.success('Session cancelled. Reminders to students have been disabled.');
+    } catch (err) {
+      console.error('Cancel session failed', err);
+      toast.error('Could not cancel the session. Please try again.');
+    } finally {
+      setCancellingId(null);
     }
-  ];
+  };
 
   const recentContent = [
     {
@@ -334,7 +387,13 @@ export const TeacherDashboard: React.FC = () => {
             <p className="text-slate-300 font-medium text-sm md:text-base">Welcome back, {teacher.name}. Teach, grade, and grow your reputation.</p>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
-             <Button variant="outline" className="hidden md:flex shadow-sm bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 text-white"><Calendar className="w-4 h-4 mr-2 text-slate-300" /> My Calendar</Button>
+             <Button
+               variant="outline"
+               onClick={() => navigate('/live-sessions')}
+               className="hidden md:flex shadow-sm bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 text-white"
+             >
+               <Calendar className="w-4 h-4 mr-2 text-slate-300" /> My Calendar
+             </Button>
              <Button onClick={() => navigate('/dashboard/teacher/marks-upload')} size="lg" className="w-full md:w-auto shadow-lg shadow-blue-900/50 bg-blue-600 hover:bg-blue-500 font-semibold tracking-wide border border-blue-400/50">
                 Upload Target Grades
              </Button>
@@ -696,10 +755,19 @@ export const TeacherDashboard: React.FC = () => {
                             Last active: {new Date(classItem.lastActive).toLocaleDateString()}
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" className="flex-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1"
+                              onClick={() => navigate(`/classes/${classItem.id}`)}
+                            >
                               View Details
                             </Button>
-                            <Button size="sm" className="flex-1">
+                            <Button
+                              size="sm"
+                              className="flex-1"
+                              onClick={() => navigate(`/dashboard/teacher/marks-upload?class=${classItem.id}`)}
+                            >
                               Manage
                             </Button>
                           </div>
@@ -786,11 +854,33 @@ export const TeacherDashboard: React.FC = () => {
               <div>
                  <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-slate-800 tracking-tight">Upcoming Sessions</h3>
-                    <Button variant="ghost" className="text-primary hover:bg-primary/5 rounded-full px-4 h-9">See all</Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => navigate('/live-sessions')}
+                      className="text-primary hover:bg-primary/5 rounded-full px-4 h-9"
+                    >
+                      See all
+                    </Button>
                  </div>
-                 
+
+                 {filteredSessions.length === 0 && (
+                   <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center">
+                     <Calendar className="w-8 h-8 mx-auto mb-3 text-slate-400" />
+                     <p className="text-sm font-semibold text-slate-700 mb-1">
+                       {upcomingSessions.length === 0
+                         ? 'No upcoming live sessions yet.'
+                         : `No ${sessionSubjectFilter} sessions scheduled.`}
+                     </p>
+                     <p className="text-xs text-slate-500">
+                       {upcomingSessions.length === 0
+                         ? 'Use the Schedule Session panel on the right to add one.'
+                         : 'Pick another subject or clear the filter to see everything.'}
+                     </p>
+                   </div>
+                 )}
+
                  <div className="space-y-6">
-                    {upcomingSessions.map((session) => (
+                    {filteredSessions.map((session) => (
                       <div key={session.id} className="relative bg-primary rounded-[2rem] p-6 text-white shadow-[0_16px_40px_-16px_rgba(30,60,110,0.4)] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_50px_-16px_rgba(30,60,110,0.5)] hover:-translate-y-1">
                         
                         {/* Decorative background shape */}
@@ -825,12 +915,17 @@ export const TeacherDashboard: React.FC = () => {
                         
                         {/* Pill Controls */}
                         <div className="flex gap-3">
-                          <Button className="flex-1 bg-white/[0.15] hover:bg-white/25 text-white rounded-full border-0 backdrop-blur-md h-12" variant="outline">
-                            Cancel
+                          <Button
+                            className="flex-1 bg-white/[0.15] hover:bg-white/25 text-white rounded-full border-0 backdrop-blur-md h-12"
+                            variant="outline"
+                            disabled={cancellingId === session.id}
+                            onClick={() => cancelSession(session.id)}
+                          >
+                            {cancellingId === session.id ? 'Cancelling…' : 'Cancel'}
                           </Button>
-                          <Button 
+                          <Button
                             className="flex-1 bg-white text-primary hover:bg-slate-50 rounded-full shadow-lg h-12 text-sm font-bold tracking-wide"
-                            onClick={() => window.open('https://meet.google.com/new', '_blank')}
+                            onClick={() => window.open(session.meeting_link || 'https://meet.google.com/new', '_blank')}
                           >
                             Start Session
                           </Button>
@@ -839,12 +934,37 @@ export const TeacherDashboard: React.FC = () => {
                     ))}
                  </div>
                  
-                 {/* Secondary Segmented Chips (Like Tab filters under Appointment) */}
-                 <div className="mt-8 flex gap-3 overflow-x-auto pb-4 hide-scrollbar">
-                    <Button className="rounded-full bg-primary text-white shadow-md w-auto h-10 px-6 shrink-0 border-0">All</Button>
-                    <Button variant="outline" className="rounded-full bg-white text-slate-600 border-none shadow-sm h-10 px-6 hover:bg-slate-50 shrink-0">Mathematics</Button>
-                    <Button variant="outline" className="rounded-full bg-white text-slate-600 border-none shadow-sm h-10 px-6 hover:bg-slate-50 shrink-0">Physics</Button>
-                 </div>
+                 {/* Subject filter chips — built from whatever subjects this
+                     teacher's upcoming sessions actually cover. */}
+                 {sessionSubjects.length > 0 && (
+                   <div className="mt-8 flex gap-3 overflow-x-auto pb-4 hide-scrollbar">
+                      <Button
+                        onClick={() => setSessionSubjectFilter('all')}
+                        className={
+                          sessionSubjectFilter === 'all'
+                            ? 'rounded-full bg-primary text-white shadow-md w-auto h-10 px-6 shrink-0 border-0'
+                            : 'rounded-full bg-white text-slate-600 border-none shadow-sm h-10 px-6 hover:bg-slate-50 shrink-0'
+                        }
+                        variant={sessionSubjectFilter === 'all' ? 'default' : 'outline'}
+                      >
+                        All
+                      </Button>
+                      {sessionSubjects.map((subj) => (
+                        <Button
+                          key={subj}
+                          onClick={() => setSessionSubjectFilter(subj)}
+                          className={
+                            sessionSubjectFilter === subj
+                              ? 'rounded-full bg-primary text-white shadow-md w-auto h-10 px-6 shrink-0 border-0'
+                              : 'rounded-full bg-white text-slate-600 border-none shadow-sm h-10 px-6 hover:bg-slate-50 shrink-0'
+                          }
+                          variant={sessionSubjectFilter === subj ? 'default' : 'outline'}
+                        >
+                          {subj}
+                        </Button>
+                      ))}
+                   </div>
+                 )}
               </div>
 
               {/* Schedule New Session (Right Panel) */}

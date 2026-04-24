@@ -401,7 +401,7 @@ export const StudentDashboard: React.FC = () => {
                        </div>
                        
                        <div className="pt-3 border-t border-white/10 mt-auto">
-                          <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-500 font-bold" onClick={() => navigate('/classes/c1/t1/chemistry_s3/topic/hydrocarbons_1')}>Resume Study Module</Button>
+                          <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-500 font-bold" onClick={() => navigate('/classes')}>Resume Study Module</Button>
                        </div>
                      </div>
                   </CardContent>

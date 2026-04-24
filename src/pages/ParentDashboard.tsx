@@ -38,27 +38,29 @@ export const ParentDashboard: React.FC = () => {
   const [isMessageOpen, setIsMessageOpen] = useState(false);
   const [isBookOpen, setIsBookOpen] = useState(false);
 
-  const handleDownloadReport = async () => {
-    toast.info('Fetching report data from server...');
+  // Inline reports viewer — honest replacement for the old "download PDF"
+  // flow, which fabricated a .pdf file whose bytes were raw JSON. Now we
+  // fetch /grading/reports/, render it readably, and let the user use
+  // browser Print-to-PDF if they want a file.
+  const [isReportsOpen, setIsReportsOpen] = useState(false);
+  const [reports, setReports] = useState<any[] | null>(null);
+  const [reportsLoading, setReportsLoading] = useState(false);
+
+  const handleViewFullReport = async () => {
+    setIsReportsOpen(true);
+    if (reports !== null) return; // already loaded; just re-open
+    setReportsLoading(true);
     try {
-      // First verify and fetch the report from the backend API
       const { data, error } = await apiClient.get('/grading/reports/');
       if (error) throw error;
-      
-      toast.success('Compiling academic report...');
-      setTimeout(() => {
-        // Generate PDF payload now that data is verified
-        const stringifiedReport = JSON.stringify(data, null, 2);
-        const link = document.createElement('a');
-        const blob = new Blob([`Report Data Payload:\n${stringifiedReport}`], { type: 'application/pdf' });
-        link.href = URL.createObjectURL(blob);
-        link.download = `${childPerformance?.name || 'Student'}_Report.pdf`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-        toast.success('Report downloaded successfully!');
-      }, 1000);
+      const rows = Array.isArray(data) ? data : (data as any)?.results || [];
+      setReports(rows);
     } catch (err) {
-      toast.error('Failed to connect to reporting module.');
+      console.error('Load reports failed', err);
+      toast.error('Could not load the latest reports. Please try again shortly.');
+      setReports([]);
+    } finally {
+      setReportsLoading(false);
     }
   };
 
@@ -303,7 +305,7 @@ export const ParentDashboard: React.FC = () => {
                   </CardTitle>
                   <CardDescription className="ml-10">{childPerformance.grade}</CardDescription>
                </div>
-               <Button variant="outline" size="sm" className="border-indigo-200 text-indigo-700 bg-white/50 hover:bg-indigo-50 shadow-sm transition-all rounded-lg" onClick={handleDownloadReport}><FileText className="w-4 h-4 mr-2"/> Download Report</Button>
+               <Button variant="outline" size="sm" className="border-indigo-200 text-indigo-700 bg-white/50 hover:bg-indigo-50 shadow-sm transition-all rounded-lg" onClick={handleViewFullReport}><FileText className="w-4 h-4 mr-2"/> View Full Report</Button>
              </div>
           </CardHeader>
           <CardContent className="p-0">
@@ -378,7 +380,7 @@ export const ParentDashboard: React.FC = () => {
                  <Button variant="outline" className="h-16 flex flex-col justify-center items-center gap-1 border-indigo-100 text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 hover:-translate-y-1 transition-all duration-300 shadow-sm rounded-xl" onClick={() => navigate('/classes?context=parent')}>
                    <BookOpen className="w-4 h-4 text-blue-800" /> View Curriculum
                  </Button>
-                 <Button variant="outline" className="h-16 flex flex-col justify-center items-center gap-1 border-indigo-100 text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 hover:-translate-y-1 transition-all duration-300 shadow-sm rounded-xl" onClick={handleDownloadReport}>
+                 <Button variant="outline" className="h-16 flex flex-col justify-center items-center gap-1 border-indigo-100 text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 hover:-translate-y-1 transition-all duration-300 shadow-sm rounded-xl" onClick={handleViewFullReport}>
                    <FileText className="w-4 h-4" /> View Full Report
                  </Button>
               </div>
@@ -421,6 +423,107 @@ export const ParentDashboard: React.FC = () => {
       <ParentSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <WhatsAppCommunicationHub isOpen={isMessageOpen} onClose={() => setIsMessageOpen(false)} />
       <BookMeetingModal isOpen={isBookOpen} onClose={() => setIsBookOpen(false)} />
+
+      {isReportsOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setIsReportsOpen(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {childPerformance?.name ? `${childPerformance.name}'s Full Report` : 'Full Academic Report'}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  All graded work your child has completed, most recent first.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.print()}
+                  className="text-slate-700"
+                >
+                  Print / Save as PDF
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsReportsOpen(false)}
+                  className="text-slate-500"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-6 py-5">
+              {reportsLoading && (
+                <div className="py-10 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-3" />
+                  <p className="text-sm text-slate-600">Loading reports…</p>
+                </div>
+              )}
+
+              {!reportsLoading && (reports?.length ?? 0) === 0 && (
+                <div className="py-10 text-center">
+                  <FileText className="w-10 h-10 mx-auto mb-3 text-slate-300" />
+                  <p className="text-sm font-semibold text-slate-700 mb-1">No reports yet.</p>
+                  <p className="text-xs text-slate-500">
+                    Reports appear here once teachers publish grades for completed work.
+                  </p>
+                </div>
+              )}
+
+              {!reportsLoading && (reports?.length ?? 0) > 0 && (
+                <div className="space-y-3">
+                  {reports!.map((r: any, i: number) => {
+                    const title = r.title || r.assessment_title || r.assessment?.title || r.name || 'Graded item';
+                    const subject = r.subject_name || r.subject?.name || r.assessment?.subject?.name || '';
+                    const score = r.score ?? r.marks ?? r.grade ?? null;
+                    const total = r.max_score ?? r.total ?? r.assessment?.max_score ?? null;
+                    const dateStr = r.graded_at || r.submitted_at || r.created_at || r.date;
+                    const feedback = r.feedback || r.teacher_feedback || '';
+                    return (
+                      <div key={r.id ?? i} className="border border-slate-200 rounded-xl p-4 hover:bg-slate-50 transition-colors">
+                        <div className="flex items-start justify-between gap-3 mb-1">
+                          <div>
+                            <h4 className="text-sm font-semibold text-slate-900">{title}</h4>
+                            {subject && <p className="text-xs text-slate-500">{subject}</p>}
+                          </div>
+                          {score != null && (
+                            <Badge className="bg-indigo-100 text-indigo-800 border-none shrink-0">
+                              {score}{total != null ? ` / ${total}` : ''}
+                            </Badge>
+                          )}
+                        </div>
+                        {dateStr && (
+                          <p className="text-[11px] text-slate-400 mt-1">
+                            {new Date(dateStr).toLocaleDateString(undefined, {
+                              year: 'numeric', month: 'short', day: 'numeric',
+                            })}
+                          </p>
+                        )}
+                        {feedback && (
+                          <p className="text-xs text-slate-700 mt-2 leading-relaxed">
+                            <span className="font-semibold text-slate-800">Teacher note: </span>{feedback}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <PilotFeedbackButton />
     </div>
   );
