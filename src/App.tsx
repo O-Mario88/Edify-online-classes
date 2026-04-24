@@ -41,6 +41,7 @@ const PracticeLabPlayer = lazy(() => import('./pages/practice-labs/PracticeLabPl
 const TeacherProjectReviewQueue = lazy(() => import('./pages/mastery-projects/TeacherProjectReviewQueue'));
 const LearningPassportPage = lazy(() => import('./pages/passport/LearningPassportPage'));
 const ExamSimulatorPage = lazy(() => import('./pages/exam-simulator/ExamSimulatorPage'));
+const InstitutionAdmissionInbox = lazy(() => import('./pages/admissions/InstitutionAdmissionInbox'));
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace'));
 const AITeachingAssistant = lazy(() => import('./pages/AITeachingAssistant'));
@@ -208,6 +209,11 @@ function App() {
           <Route path="exam-simulator" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student']}>
               <ExamSimulatorPage />
+            </ProtectedRoute>
+          } />
+          <Route path="dashboard/institution/admissions" element={
+            <ProtectedRoute allowedRoles={['institution_admin', 'platform_admin']}>
+              <InstitutionAdmissionInbox />
             </ProtectedRoute>
           } />
 
