@@ -139,8 +139,12 @@ class MasteryTrackItem(models.Model):
         'live_sessions.LiveSession', on_delete=models.SET_NULL,
         null=True, blank=True, related_name='mastery_track_items',
     )
-    # Phase 2/3 will add FKs for practice_lab and project. Until then we
-    # accept a placeholder title so a track can be authored end-to-end.
+    practice_lab = models.ForeignKey(
+        'practice_labs.PracticeLab', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='mastery_track_items',
+    )
+    # Phase 3 will add the project FK. Until then we accept a placeholder
+    # title so a track can be authored end-to-end.
     placeholder_title = models.CharField(
         max_length=255, blank=True,
         help_text='Used for practice_lab/project items until their models land.',
@@ -163,6 +167,8 @@ class MasteryTrackItem(models.Model):
             return self.assessment.title
         if self.live_session_id:
             return getattr(self.live_session, 'title', f'Live session #{self.live_session_id}')
+        if self.practice_lab_id:
+            return self.practice_lab.title
         return self.placeholder_title or self.get_item_type_display()
 
 
