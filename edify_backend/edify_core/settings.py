@@ -343,3 +343,24 @@ FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, 'tmp')
 # Ensure upload directories exist
 os.makedirs(MEDIA_ROOT, exist_ok=True)
 os.makedirs(FILE_UPLOAD_TEMP_DIR, exist_ok=True)
+
+# --- Error tracking (Sentry) -------------------------------------
+# Env-gated: if SENTRY_DSN is unset, initialization is skipped entirely.
+# No network calls, no import cost in local dev or tests.
+_SENTRY_DSN = os.environ.get('SENTRY_DSN', '').strip()
+if _SENTRY_DSN and not DEBUG:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+        sentry_sdk.init(
+            dsn=_SENTRY_DSN,
+            integrations=[DjangoIntegration()],
+            # Conservative sampling — pilot has low volume; increase post-launch.
+            traces_sample_rate=0.1,
+            send_default_pii=False,
+            environment=os.environ.get('SENTRY_ENVIRONMENT', 'production'),
+            release=os.environ.get('GIT_SHA', ''),
+        )
+    except ImportError:
+        # sentry-sdk not installed — don't crash the app for this.
+        pass
