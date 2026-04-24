@@ -16,6 +16,7 @@ import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 import { CareerGuidanceWidget } from '../components/dashboard/CareerGuidanceWidget';
 import { StudentResourceEngagementPanel } from '../components/dashboard/StudentResourceEngagementPanel';
+import { StudentRecommendedInstitutions } from '../components/students/StudentRecommendedInstitutions';
 import { StudentAssignmentsPanel } from '../components/students/StudentAssignmentsPanel';
 import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
 import { StudentActionCenter } from '../components/dashboard/StudentActionCenter';
@@ -160,6 +161,11 @@ export const StudentDashboard: React.FC = () => {
         {/* Phase 8 Resource Engagement */}
         <DashboardSection>
            <StudentResourceEngagementPanel />
+        </DashboardSection>
+
+        {/* Institution Discovery — recommended schools for in-person learning */}
+        <DashboardSection title="Recommended Schools for In-Person Learning">
+           <StudentRecommendedInstitutions />
         </DashboardSection>
 
         {/* Phase 4.3 — assignments + grades */}
