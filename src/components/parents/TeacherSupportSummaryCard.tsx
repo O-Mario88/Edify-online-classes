@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { FolderCheck, MessageCircle, Video, UserCheck, Loader2 } from 'lucide-react';
 import { apiGet } from '../../lib/apiClient';
+import { DEMO_SAMPLES, isDemoModeOn } from '../../lib/demoSamples';
 
 interface SupportSummary {
   projects_reviewed: number;
@@ -22,20 +23,33 @@ interface SupportSummary {
 export const TeacherSupportSummaryCard: React.FC = () => {
   const [s, setS] = useState<SupportSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showingDemo, setShowingDemo] = useState(false);
 
   useEffect(() => {
     (async () => {
-      // Teacher support summary endpoint may not exist in main yet; we
-      // fall back to the parent dashboard payload and synthesize zeros.
       const { data } = await apiGet<any>('/analytics/parent-dashboard/');
       const teacher_support = data?.teacher_support || {};
-      setS({
-        projects_reviewed: teacher_support.projects_reviewed || 0,
-        questions_answered: teacher_support.questions_answered || 0,
-        live_classes_attended: teacher_support.live_classes_attended || 0,
-        most_recent_reviewer: teacher_support.most_recent_reviewer || null,
-        week_of: teacher_support.week_of || undefined,
-      });
+      const any_activity = (teacher_support.projects_reviewed || 0)
+        + (teacher_support.questions_answered || 0)
+        + (teacher_support.live_classes_attended || 0) > 0;
+
+      if (!any_activity && isDemoModeOn()) {
+        setS({
+          projects_reviewed: DEMO_SAMPLES.teacherSupport.projects_reviewed,
+          questions_answered: DEMO_SAMPLES.teacherSupport.questions_answered,
+          live_classes_attended: DEMO_SAMPLES.teacherSupport.live_classes_attended,
+          most_recent_reviewer: DEMO_SAMPLES.teacherSupport.most_recent_reviewer,
+        });
+        setShowingDemo(true);
+      } else {
+        setS({
+          projects_reviewed: teacher_support.projects_reviewed || 0,
+          questions_answered: teacher_support.questions_answered || 0,
+          live_classes_attended: teacher_support.live_classes_attended || 0,
+          most_recent_reviewer: teacher_support.most_recent_reviewer || null,
+          week_of: teacher_support.week_of || undefined,
+        });
+      }
       setLoading(false);
     })();
   }, []);
@@ -54,6 +68,11 @@ export const TeacherSupportSummaryCard: React.FC = () => {
 
   return (
     <Card className="border-emerald-100">
+      {showingDemo && (
+        <div className="bg-emerald-600 text-white text-xs font-semibold px-4 py-1.5 tracking-wide">
+          Preview — this is what the Teacher Support Summary looks like after a normal week.
+        </div>
+      )}
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-base">
           <UserCheck className="w-4 h-4 text-emerald-600" /> Teacher Support Summary

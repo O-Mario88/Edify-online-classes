@@ -5,6 +5,7 @@ import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { useStudyPlanner } from '../../hooks/useIntelligence';
+import { DEMO_SAMPLES, isDemoModeOn } from '../../lib/demoSamples';
 
 /**
  * Today's Learning Plan — the hero card at the top of the Student Dashboard.
@@ -32,14 +33,16 @@ const DEFAULT_META = { icon: Sparkles, tint: 'bg-slate-50 text-slate-600 border-
 export const TodaysLearningPlanCard: React.FC = () => {
   const { dailyPlan } = useStudyPlanner();
   const [today, setToday] = useState<any[]>([]);
+  const [showingDemo, setShowingDemo] = useState(false);
 
   useEffect(() => {
-    // dailyPlan is an array keyed by day. "Today" is the first entry the
-    // hook emits. If shape differs we fall back to flattening all tasks.
     if (Array.isArray(dailyPlan) && dailyPlan.length > 0) {
       const first = dailyPlan[0];
       const tasks = Array.isArray(first?.tasks) ? first.tasks : (Array.isArray(first) ? first : []);
       setToday(tasks.slice(0, 5));
+    } else if (isDemoModeOn()) {
+      setToday(DEMO_SAMPLES.todaysPlan);
+      setShowingDemo(true);
     }
   }, [dailyPlan]);
 
@@ -47,6 +50,11 @@ export const TodaysLearningPlanCard: React.FC = () => {
 
   return (
     <Card className="border-indigo-100 bg-gradient-to-br from-white via-indigo-50/40 to-blue-50/40 shadow-sm overflow-hidden">
+      {showingDemo && (
+        <div className="bg-indigo-600 text-white text-xs font-semibold px-4 py-1.5 tracking-wide">
+          Preview — this is what Today's Learning Plan looks like once you start.
+        </div>
+      )}
       <CardContent className="p-6 md:p-7">
         <div className="flex items-start justify-between gap-4 mb-5">
           <div>

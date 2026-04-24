@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Smartphone, MessageCircle, Download, Headphones, Loader2, ArrowLeft, Mail } from 'lucide-react';
+import { Smartphone, MessageCircle, Download, Headphones, Loader2, ArrowLeft, Mail, Eye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -8,9 +8,11 @@ import { Input } from '../../components/ui/input';
 import { Switch } from '../../components/ui/switch';
 import { toast } from 'sonner';
 import { useLearnerSettings } from '../../hooks/useLearnerSettings';
+import { isDemoModeOn, setDemoMode } from '../../lib/demoSamples';
 
 export const LearnerSettingsPage: React.FC = () => {
   const { settings, loading, update } = useLearnerSettings();
+  const [demoOn, setDemoOn] = React.useState<boolean>(isDemoModeOn());
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
@@ -35,6 +37,25 @@ export const LearnerSettingsPage: React.FC = () => {
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900">My settings</h1>
           <p className="text-sm text-slate-600">Make Maple fit how you learn and how your network holds up.</p>
         </header>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2"><Eye className="w-4 h-4 text-indigo-600" /> Preview mode</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SettingRow
+              title="Show a preview on empty cards"
+              description="When a card has no real data yet (e.g. your first week), Maple will fill it with a realistic example labeled 'Preview' so you can see what it will look like."
+              control={
+                <Switch checked={demoOn} onCheckedChange={v => {
+                  setDemoMode(v);
+                  setDemoOn(v);
+                  toast.success(v ? 'Preview mode on — refresh to see examples.' : 'Preview mode off.');
+                }} />
+              }
+            />
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
