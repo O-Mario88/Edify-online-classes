@@ -187,6 +187,8 @@ urlpatterns = [
     path('api/v1/institution-discovery/', include('institution_discovery.urls')),
     path('api/v1/mastery/', include('mastery.urls')),
     path('api/v1/practice-labs/', include('practice_labs.urls')),
+    path('api/v1/mastery-projects/', include('mastery_projects.urls')),
+    path('api/v1/mentor-reviews/', include('mentor_reviews.urls')),
     path('api/v1/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/auth/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),

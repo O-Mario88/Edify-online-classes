@@ -88,6 +88,8 @@ INSTALLED_APPS = [
     'institution_discovery.apps.InstitutionDiscoveryConfig',
     'mastery.apps.MasteryConfig',
     'practice_labs.apps.PracticeLabsConfig',
+    'mastery_projects.apps.MasteryProjectsConfig',
+    'mentor_reviews.apps.MentorReviewsConfig',
 ]
 
 MIDDLEWARE = [

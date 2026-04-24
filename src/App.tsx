@@ -38,6 +38,7 @@ const InstitutionProfilePage = lazy(() => import('./pages/institution-discovery/
 const MasteryTracksPage = lazy(() => import('./pages/mastery/MasteryTracksPage'));
 const MasteryTrackDetailPage = lazy(() => import('./pages/mastery/MasteryTrackDetailPage'));
 const PracticeLabPlayer = lazy(() => import('./pages/practice-labs/PracticeLabPlayer'));
+const TeacherProjectReviewQueue = lazy(() => import('./pages/mastery-projects/TeacherProjectReviewQueue'));
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace'));
 const AITeachingAssistant = lazy(() => import('./pages/AITeachingAssistant'));
@@ -190,6 +191,11 @@ function App() {
           <Route path="practice-labs/:slug" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student']}>
               <PracticeLabPlayer />
+            </ProtectedRoute>
+          } />
+          <Route path="dashboard/mentor-studio/reviews" element={
+            <ProtectedRoute allowedRoles={['teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
+              <TeacherProjectReviewQueue />
             </ProtectedRoute>
           } />
 

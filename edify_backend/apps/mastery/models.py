@@ -143,8 +143,11 @@ class MasteryTrackItem(models.Model):
         'practice_labs.PracticeLab', on_delete=models.SET_NULL,
         null=True, blank=True, related_name='mastery_track_items',
     )
-    # Phase 3 will add the project FK. Until then we accept a placeholder
-    # title so a track can be authored end-to-end.
+    project = models.ForeignKey(
+        'mastery_projects.MasteryProject', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='mastery_track_items',
+    )
+    # Placeholder title still available for drafts or unlinked item types.
     placeholder_title = models.CharField(
         max_length=255, blank=True,
         help_text='Used for practice_lab/project items until their models land.',
@@ -169,6 +172,8 @@ class MasteryTrackItem(models.Model):
             return getattr(self.live_session, 'title', f'Live session #{self.live_session_id}')
         if self.practice_lab_id:
             return self.practice_lab.title
+        if self.project_id:
+            return self.project.title
         return self.placeholder_title or self.get_item_type_display()
 
 
