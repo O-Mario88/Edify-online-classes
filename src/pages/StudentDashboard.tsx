@@ -16,6 +16,7 @@ import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 import { CareerGuidanceWidget } from '../components/dashboard/CareerGuidanceWidget';
 import { StudentResourceEngagementPanel } from '../components/dashboard/StudentResourceEngagementPanel';
+import { TodaysLearningPlanCard } from '../components/dashboard/TodaysLearningPlanCard';
 import { StudentAssignmentsPanel } from '../components/students/StudentAssignmentsPanel';
 import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
 import { StudentActionCenter } from '../components/dashboard/StudentActionCenter';
@@ -145,6 +146,11 @@ export const StudentDashboard: React.FC = () => {
              </Button>
           </div>
         </div>
+
+        {/* Priority 1: Today's Learning Plan — the first thing a learner sees. */}
+        <DashboardSection>
+           <TodaysLearningPlanCard />
+        </DashboardSection>
 
         {/* Row 1: KPI Strip (Intelligence Cards) */}
         <DashboardSection>

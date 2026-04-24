@@ -15,6 +15,7 @@ import { ParentResourceEngagementPanel } from '../components/dashboard/ParentRes
 import { StreakTracker } from '../components/competition/StreakTracker';
 import { AchievementShowcase } from '../components/competition/AchievementShowcase';
 import { ParentActionCenter } from '../components/parents/ParentActionCenter';
+import { TeacherSupportSummaryCard } from '../components/parents/TeacherSupportSummaryCard';
 import { CelebrationEngineWidget } from '../components/dashboard/CelebrationEngineWidget';
 import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { SmartStudyPlanner } from '../components/students/SmartStudyPlanner';
@@ -165,6 +166,47 @@ export const ParentDashboard: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="academics" className="space-y-8 mt-0">
+        {/* Priority 1: Weekly Child Progress Brief + Teacher Support Summary
+            — surface proof of progress above everything else. */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+           <Card className="lg:col-span-2 border border-indigo-100/50 bg-white/90 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardHeader className="pb-2 border-b border-indigo-50/50">
+                 <CardTitle className="text-lg font-bold text-indigo-900 flex items-center">
+                   <Activity className="w-5 h-5 mr-2 text-indigo-700" /> Weekly Child Progress Brief
+                 </CardTitle>
+                 <CardDescription>Your clearest view of what happened this week — backed by real evidence from Maple.</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4 space-y-4">
+                 <p className="text-sm text-gray-700 leading-relaxed">
+                   {weeklySummary.aiNarrative}
+                 </p>
+                 <div className="grid grid-cols-3 gap-3 text-sm bg-white p-3 rounded-md border border-indigo-100 shadow-sm">
+                   <div>
+                     <p className="text-xs uppercase tracking-wider text-slate-500">Strongest</p>
+                     <p className="font-semibold text-green-700 mt-0.5">{weeklySummary.strongestSubject}</p>
+                   </div>
+                   <div>
+                     <p className="text-xs uppercase tracking-wider text-slate-500">Weakest</p>
+                     <p className="font-semibold text-red-700 mt-0.5">{weeklySummary.weakestTopic}</p>
+                   </div>
+                   <div>
+                     <p className="text-xs uppercase tracking-wider text-slate-500">Trend</p>
+                     <p className="font-medium text-gray-900 mt-0.5 text-sm">{weeklySummary.assessmentTrend}</p>
+                   </div>
+                 </div>
+                 <div className="pt-1 border-t border-indigo-50 text-xs">
+                   <p className="text-indigo-800 font-bold uppercase mb-1">Recommended focus</p>
+                   <p className="text-gray-700">{weeklySummary.recommendedFocus}</p>
+                 </div>
+                 <p className="text-[11px] text-slate-500 pt-3 border-t border-slate-100">
+                   Built from lessons completed, practice activity, attendance, assessments, project reviews, and teacher feedback.
+                 </p>
+              </CardContent>
+            </Card>
+
+           <TeacherSupportSummaryCard />
+        </div>
+
         {/* Row 1: KPI Strip (Intelligence Cards) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {dashboardData.intelligence?.map((card: any, i: number) => (
@@ -172,42 +214,9 @@ export const ParentDashboard: React.FC = () => {
           ))}
         </div>
 
-        {/* Row 2: Pillar 4 Action & Ecosystem Layer */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-           <div className="lg:col-span-2">
-             <ParentActionCenter />
-           </div>
-
-           <Card className="border border-indigo-100/50 bg-white/80 backdrop-blur-xl hover:shadow-xl shadow-lg transition-all duration-300">
-              <CardHeader className="pb-2 border-b border-indigo-50/50">
-                 <CardTitle className="text-md font-semibold text-indigo-900 flex items-center">
-                   <Activity className="w-4 h-4 mr-2 text-indigo-700" /> AI Weekly Summary
-                 </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4 space-y-4">
-                 <p className="text-sm text-gray-700 leading-relaxed">
-                   {weeklySummary.aiNarrative}
-                 </p>
-                 <div className="space-y-2 text-sm bg-white p-3 rounded-md border border-indigo-100 shadow-sm">
-                   <div className="flex justify-between border-b pb-1">
-                     <span className="text-gray-700">Strongest</span>
-                     <span className="font-medium text-green-700">{weeklySummary.strongestSubject}</span>
-                   </div>
-                   <div className="flex justify-between border-b pb-1">
-                     <span className="text-gray-700">Weakest</span>
-                     <span className="font-medium text-red-700">{weeklySummary.weakestTopic}</span>
-                   </div>
-                   <div className="flex justify-between pb-1">
-                     <span className="text-gray-700">Trend</span>
-                     <span className="font-medium text-gray-900 text-right max-w-[60%]">{weeklySummary.assessmentTrend}</span>
-                   </div>
-                 </div>
-                 <div className="pt-2">
-                   <p className="text-xs text-indigo-800 font-bold uppercase mb-1">Focus Request</p>
-                   <p className="text-xs text-gray-700">{weeklySummary.recommendedFocus}</p>
-                 </div>
-              </CardContent>
-            </Card>
+        {/* Parent Action Center (moved below the Weekly Brief). */}
+        <div>
+           <ParentActionCenter />
         </div>
 
         <div className="mt-8 mb-4">
