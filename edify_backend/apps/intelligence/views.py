@@ -1,3 +1,4 @@
+from django.db import models
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.views import APIView
@@ -137,7 +138,19 @@ class InterventionPackAssignmentViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if user.role == 'student':
             return InterventionPackAssignment.objects.filter(student=user)
-        return InterventionPackAssignment.objects.all()
+        if user.role in ('platform_admin',):
+            return InterventionPackAssignment.objects.all()
+        # Teachers/institution admins only see assignments whose pack
+        # belongs to an institution they're a member of, or where they
+        # authored the pack.
+        from institutions.models import InstitutionMembership
+        inst_ids = InstitutionMembership.objects.filter(
+            user=user, status='active'
+        ).values_list('institution_id', flat=True)
+        return InterventionPackAssignment.objects.filter(
+            models.Q(pack__institution_id__in=inst_ids) |
+            models.Q(pack__created_by=user)
+        )
 
 
 # ─── Study Planner ───
@@ -352,7 +365,14 @@ class NationalExamResultViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return NationalExamResult.objects.all()
+        user = self.request.user
+        if getattr(user, 'role', '') == 'platform_admin':
+            return NationalExamResult.objects.all()
+        from institutions.models import InstitutionMembership
+        inst_ids = InstitutionMembership.objects.filter(
+            user=user, status='active'
+        ).values_list('institution_id', flat=True)
+        return NationalExamResult.objects.filter(institution_id__in=inst_ids)
 
     def perform_create(self, serializer):
         serializer.save(uploaded_by=self.request.user)
@@ -430,9 +450,18 @@ class InstitutionHealthHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         institution_id = self.request.query_params.get('institution')
-        if institution_id:
+        if not institution_id:
+            return InstitutionHealthSnapshot.objects.none()
+        user = self.request.user
+        if getattr(user, 'role', '') == 'platform_admin':
             return InstitutionHealthSnapshot.objects.filter(institution_id=institution_id)
-        return InstitutionHealthSnapshot.objects.none()
+        from institutions.models import InstitutionMembership
+        is_member = InstitutionMembership.objects.filter(
+            user=user, institution_id=institution_id, status='active',
+        ).exists()
+        if not is_member:
+            return InstitutionHealthSnapshot.objects.none()
+        return InstitutionHealthSnapshot.objects.filter(institution_id=institution_id)
 
 
 # ─── Impact Comparison ───
@@ -442,4 +471,11 @@ class ImpactComparisonViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return ImpactComparison.objects.all()
+        user = self.request.user
+        if getattr(user, 'role', '') == 'platform_admin':
+            return ImpactComparison.objects.all()
+        from institutions.models import InstitutionMembership
+        inst_ids = InstitutionMembership.objects.filter(
+            user=user, status='active'
+        ).values_list('institution_id', flat=True)
+        return ImpactComparison.objects.filter(institution_id__in=inst_ids)

@@ -161,8 +161,8 @@ export const WhatsAppCommunicationHub: React.FC<WhatsAppCommunicationHubProps> =
         {/* Action Panel */}
         <div className="bg-[#f0f2f5] p-3 flex items-center gap-2">
            <Smile className="w-6 h-6 text-slate-700 cursor-pointer hover:text-slate-900 transition-colors shrink-0" onClick={() => setInputValue(prev => prev + ' 😊')} />
-           <Paperclip className="w-6 h-6 text-slate-700 cursor-pointer hover:text-slate-900 transition-colors shrink-0" onClick={() => toast.info('File attachments coming soon.')} />
-           <Input 
+           {/* Attachment icon removed — backend has no file-send path yet. */}
+           <Input
              className="flex-1 bg-white border-none rounded-lg h-10 shadow-sm"
              placeholder="Type a message or use /ai for auto-reply"
              value={inputValue}

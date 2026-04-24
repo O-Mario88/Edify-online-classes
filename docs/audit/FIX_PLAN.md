@@ -57,15 +57,27 @@ These are broken today. Any pilot user will hit them.
 - **Add tests:** one per viewset asserting anonymous = 401.
 - **Effort:** 30 min
 
-### 2.2 Expose token-blacklist on logout
-- **File:** `edify_backend/edify_core/urls.py`
-- **Change:** add `path('api/v1/auth/token/blacklist/', TokenBlacklistView.as_view())` from `rest_framework_simplejwt.views`; update `src/lib/apiClient.ts::logoutUser` to POST the stored refresh token to it before clearing localStorage.
-- **Effort:** 30 min (incl. one test)
+### 2.2 Expose token-blacklist on logout — **DONE**
+- **Files:** `edify_backend/edify_core/settings.py` (added `rest_framework_simplejwt.token_blacklist` to `INSTALLED_APPS`), `edify_backend/edify_core/urls.py` (wired `TokenBlacklistView` at `/api/v1/auth/token/blacklist/`), `src/lib/apiClient.ts::logoutUser` (now posts refresh to the endpoint before clearing localStorage).
+- **Test:** `apps/accounts/tests.py::TokenBlacklistTests` — confirms a blacklisted refresh returns 401 on subsequent use.
 
-### 2.3 Per-viewset tenant test (sampling)
-For the 14 viewsets with open `.objects.all()` querysets, write one test each that asserts user A cannot see user B's rows. Don't rewrite the views yet; just codify the current behavior so we know which are bugs and which are intentional "marketplace is public" cases.
-- **Effort:** 2–3 hours (14 tests)
-- **Outcome:** a list of "actual leaks to fix" as a follow-up.
+### 2.3 Per-viewset tenant test + leak fixes — **DONE**
+Covered the 14 `.objects.all()` viewsets with one HTTP-layer test each in `apps/{intelligence,resources,analytics,marketplace}/test_tenant_isolation.py`.
+
+**Actual leaks found and fixed** (writing the tests surfaced them):
+- `InterventionPackAssignmentViewSet` — non-student roles saw every tenant's assignments. Now scoped by pack institution-membership (or pack authorship).
+- `NationalExamResultViewSet` — every authenticated user saw every school's exam results. Now scoped to institution-membership; platform-admin override.
+- `ImpactComparisonViewSet` — same pattern as above. Same fix.
+- `InstitutionHealthHistoryViewSet` — accepted any `?institution=<id>`. Now requires active membership (or platform-admin).
+- `ContentEngagementViewSet` — teachers/institution admins saw every tenant's student engagement. Now scoped to user's institutions.
+- `DailyPlatformMetricViewSet`, `SystemHealthSnapshotViewSet` — any authenticated user saw platform-wide metrics. Now platform-admin-only (empty qs for everyone else).
+
+**False positives confirmed safe** (static probe flagged, real code scopes correctly):
+- `NextBestActionViewSet`, `ParentActionViewSet`, `LearningProgressViewSet`, `StoryCardViewSet` — all filter by `user=request.user`.
+- `ContentItemViewSet`, `InstitutionContentViewSet`, `ContentAssignmentViewSet`, `ContentRecommendationViewSet` — role+institution gated in `get_queryset`.
+- `AnalyticsEventViewSet`, `SubjectPerformanceSnapshotViewSet` — use `TenantFilterMixin`.
+- `ContentTagViewSet` — shared platform-wide tag catalog (by design; test pins the contract).
+- `ListingViewSet` — marketplace catalog is intentionally cross-tenant for published rows; drafts stay hidden (test pins this).
 
 **Phase 2 exit gate:** `manage.py check --deploy` clean; the 3 known AllowAny holes returning 401 anonymous.
 

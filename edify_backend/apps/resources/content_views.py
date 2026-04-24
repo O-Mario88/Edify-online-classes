@@ -483,8 +483,12 @@ class ContentEngagementViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if getattr(user, 'role', '') in ('admin', 'teacher', 'institution'):
+        role = getattr(user, 'role', '')
+        if role == 'admin':
             return ContentEngagement.objects.all()
+        if role in ('teacher', 'institution'):
+            inst_ids = get_user_institution_ids(user)
+            return ContentEngagement.objects.filter(institution_id__in=inst_ids)
         return ContentEngagement.objects.filter(student=user)
 
     @action(detail=False, methods=['post'])
