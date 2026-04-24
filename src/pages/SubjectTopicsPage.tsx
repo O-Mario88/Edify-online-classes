@@ -117,7 +117,7 @@ export const SubjectTopicsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#fbfaf8] font-sans pb-24 relative">
-      <div className="fixed inset-0 bg-white/40 pointer-events-none" />
+      <div className="absolute inset-0 bg-white/40 pointer-events-none" />
 
       {/* Header */}
       <div className="relative z-10 pt-16 pb-12">

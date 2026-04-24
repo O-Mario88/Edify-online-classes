@@ -159,10 +159,10 @@ export function AcademicLibraryPage() {
   return (
     <div className="min-h-screen bg-[#e2ddd1] font-sans pb-24 relative">
       <div 
-        className="fixed inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
         style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
       />
-      <div className="fixed inset-0 bg-white/40 pointer-events-none" />
+      <div className="absolute inset-0 bg-white/40 pointer-events-none" />
 
       {/* 1. Top Header Zone */}
       <div className="relative z-10 sticky top-0 bg-[#e2ddd1]/90 backdrop-blur-md border-b border-white z-50 py-4">
