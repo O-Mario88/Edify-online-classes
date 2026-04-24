@@ -33,6 +33,7 @@ const LiveSessionsPage = lazy(() => import('./pages/LiveSessionsPage').then(m =>
 const PaymentPage = lazy(() => import('./pages/PaymentPage').then(m => ({ default: m.PaymentPage })));
 const ExercisePage = lazy(() => import('./pages/ExercisePage').then(m => ({ default: m.ExercisePage })));
 const LearningPathPage = lazy(() => import('./pages/LearningPathPage'));
+const DiagnosticFlow = lazy(() => import('./pages/diagnostic/DiagnosticFlow'));
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace'));
 const AITeachingAssistant = lazy(() => import('./pages/AITeachingAssistant'));
@@ -162,6 +163,13 @@ function App() {
           } />
 
           
+          {/* Flagship diagnostic flow — signup → diagnostic → report */}
+          <Route path="diagnostic" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student']}>
+              <DiagnosticFlow />
+            </ProtectedRoute>
+          } />
+
           {/* AI-Powered Features */}
           <Route path="learning-path" element={
             <ProtectedRoute allowedRoles={['universal_student']}>

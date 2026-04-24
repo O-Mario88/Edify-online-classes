@@ -187,7 +187,11 @@ urlpatterns = [
     path('api/v1/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/auth/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
-    
+
+    # Flagship diagnostic flow — see apps/diagnostics/
+    path('api/v1/diagnostic/', include('diagnostics.urls')),
+
+
     path('api/v1/tutoring/dashboard/', PeerTutoringDashboardView.as_view(), name='tutoring-dashboard'),
     path('api/v1/users/profile/<str:username>/', PublicProfileView.as_view(), name='public-profile'),
 
