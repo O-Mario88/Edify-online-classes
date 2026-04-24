@@ -184,6 +184,7 @@ urlpatterns = [
     path('api/v1/', include(router.urls)),
     path('api/v1/ai/copilot/ask/', CopilotInferenceView.as_view(), name='copilot_ask'),
     path('api/v1/auth/', include('accounts.urls')),
+<<<<<<< HEAD
     path('api/v1/institution-discovery/', include('institution_discovery.urls')),
     path('api/v1/mastery/', include('mastery.urls')),
     path('api/v1/practice-labs/', include('practice_labs.urls')),
@@ -192,6 +193,9 @@ urlpatterns = [
     path('api/v1/passport/', include('passport.urls')),
     path('api/v1/exam-simulator/', include('exam_simulator.urls')),
     path('api/v1/admission-passport/', include('admission_passport.urls')),
+=======
+    path('api/v1/standby-teachers/', include('standby_teachers.urls')),
+>>>>>>> origin/independent-school-standby-pricing
     path('api/v1/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/auth/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),

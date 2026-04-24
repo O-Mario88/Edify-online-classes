@@ -439,6 +439,7 @@ export const HomePage: React.FC = () => {
                   <p className="text-blue-200 text-lg max-w-xl">Take a free diagnostic as a learner, preview a parent report, open a teacher storefront, or book a walk-through of Maple School OS — each path takes under five minutes.</p>
                </div>
                <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+<<<<<<< HEAD
                   <Link to="/register?intent=diagnostic">
                     <Button size="lg" className="bg-white hover:bg-slate-50 text-slate-900 rounded-2xl h-14 px-8 text-base font-bold shadow-lg">
                        Take Free Diagnostic
@@ -447,6 +448,16 @@ export const HomePage: React.FC = () => {
                   <Link to="/institution-onboarding">
                     <Button size="lg" variant="outline" className="bg-transparent hover:bg-white/10 border-white/40 text-white rounded-2xl h-14 px-8 text-base font-medium">
                        Book a School Demo
+=======
+                  <Link to="/register">
+                    <Button size="lg" className="bg-white hover:bg-slate-50 text-slate-900 rounded-2xl h-14 px-10 text-base font-bold shadow-lg">
+                       Get Started Now
+>>>>>>> origin/independent-school-standby-pricing
+                    </Button>
+                  </Link>
+                  <Link to="/pricing">
+                    <Button size="lg" variant="outline" className="bg-transparent hover:bg-white/10 border-white/40 text-white rounded-2xl h-14 px-8 text-base font-medium">
+                       View Pricing
                     </Button>
                   </Link>
                </div>

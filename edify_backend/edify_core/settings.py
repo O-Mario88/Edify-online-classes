@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     'scheduling.apps.SchedulingConfig',
     'attendance.apps.AttendanceConfig',
     'intelligence.apps.IntelligenceConfig',
+<<<<<<< HEAD
     'diagnostics.apps.DiagnosticsConfig',
     'institution_discovery.apps.InstitutionDiscoveryConfig',
     'mastery.apps.MasteryConfig',
@@ -93,6 +94,9 @@ INSTALLED_APPS = [
     'passport.apps.PassportConfig',
     'exam_simulator.apps.ExamSimulatorConfig',
     'admission_passport.apps.AdmissionPassportConfig',
+=======
+    'standby_teachers.apps.StandbyTeachersConfig',
+>>>>>>> origin/independent-school-standby-pricing
 ]
 
 MIDDLEWARE = [
