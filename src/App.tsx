@@ -33,6 +33,8 @@ const LiveSessionsPage = lazy(() => import('./pages/LiveSessionsPage').then(m =>
 const PaymentPage = lazy(() => import('./pages/PaymentPage').then(m => ({ default: m.PaymentPage })));
 const ExercisePage = lazy(() => import('./pages/ExercisePage').then(m => ({ default: m.ExercisePage })));
 const LearningPathPage = lazy(() => import('./pages/LearningPathPage'));
+const FuturePathwaysPage = lazy(() => import('./pages/pathways/FuturePathwaysPage'));
+const SchoolComparePage = lazy(() => import('./pages/schools/SchoolComparePage'));
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace'));
 const AITeachingAssistant = lazy(() => import('./pages/AITeachingAssistant'));
@@ -124,6 +126,16 @@ function App() {
                     <Route path="feedback" element={<FeedbackPage />} />
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutUsPage />} />
+          <Route path="pathways" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent']}>
+              <FuturePathwaysPage />
+            </ProtectedRoute>
+          } />
+          <Route path="schools/compare" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'institution_admin', 'platform_admin']}>
+              <SchoolComparePage />
+            </ProtectedRoute>
+          } />
           <Route path="classes" element={<CourseCatalog />} />
           <Route path="classes/:classId" element={<ClassSyllabusPage />} />
           <Route path="classes/:classId/:termId/:subjectId" element={<CourseDetail />} />
