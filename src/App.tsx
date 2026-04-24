@@ -142,6 +142,8 @@ function App() {
           <Route path="cohorts" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
               <CohortsPage />
+            </ProtectedRoute>
+          } />
           <Route path="pathways" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent']}>
               <FuturePathwaysPage />
@@ -150,6 +152,8 @@ function App() {
           <Route path="schools/compare" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'institution_admin', 'platform_admin']}>
               <SchoolComparePage />
+            </ProtectedRoute>
+          } />
           <Route path="settings" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
               <LearnerSettingsPage />
@@ -208,6 +212,8 @@ function App() {
           <Route path="diagnostic" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student']}>
               <DiagnosticFlow />
+            </ProtectedRoute>
+          } />
           {/* Maple Mastery Studio — phase 1: tracks */}
           <Route path="mastery" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'institution_teacher', 'teacher', 'independent_teacher', 'institution_admin', 'platform_admin']}>

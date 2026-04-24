@@ -447,6 +447,8 @@ export const HomePage: React.FC = () => {
                   <Link to="/institution-onboarding">
                     <Button size="lg" variant="outline" className="bg-transparent hover:bg-white/10 border-white/40 text-white rounded-2xl h-14 px-8 text-base font-medium">
                        Book a School Demo
+                    </Button>
+                  </Link>
                   <Link to="/register">
                     <Button size="lg" className="bg-white hover:bg-slate-50 text-slate-900 rounded-2xl h-14 px-10 text-base font-bold shadow-lg">
                        Get Started Now

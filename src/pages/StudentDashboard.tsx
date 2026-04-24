@@ -174,9 +174,13 @@ export const StudentDashboard: React.FC = () => {
         {/* Institution Discovery — recommended schools for in-person learning */}
         <DashboardSection title="Recommended Schools for In-Person Learning">
            <StudentRecommendedInstitutions />
+        </DashboardSection>
+
         {/* Maple Mastery Studio entry point */}
         <DashboardSection title="Maple Mastery Studio">
            <StudentMasteryTracksCard />
+        </DashboardSection>
+
         {/* Standby Teacher Network — real teachers on call */}
         <DashboardSection title="Real Teachers, On Call">
            <AskStandbyTeacherCard />

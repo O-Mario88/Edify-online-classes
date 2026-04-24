@@ -328,7 +328,6 @@ export const TeacherDashboard: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 pb-6 border-b border-white/10">
           <div className="space-y-1.5">
             <div className="flex items-center gap-3">
-               <h1 className="text-3xl font-extrabold tracking-tight text-white">Teacher Studio</h1>
                <h1 className="text-3xl font-extrabold tracking-tight text-white">Maple Teacher Studio</h1>
                <Badge className="bg-blue-900/50 text-blue-200 hover:bg-blue-900/80 border-blue-500/30 backdrop-blur-sm">Uganda Curriculum</Badge>
             </div>
@@ -388,7 +387,6 @@ export const TeacherDashboard: React.FC = () => {
         </DashboardSection>
 
         {/* Phase 2: Interventions & Rapid Actions */}
-        <DashboardSection title="Interventions & Parent Outreach">
         <DashboardSection title="Mentor Studio — Reviews & Parent Outreach">
            <DashboardGrid className="!items-stretch">
              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={5} variant="glass">
@@ -413,7 +411,6 @@ export const TeacherDashboard: React.FC = () => {
         </DashboardSection>
 
         {/* Phase 3: AI Partner & Reputation */}
-        <DashboardSection title="Verified Teaching Delivery">
         <DashboardSection title="Verified Teaching Delivery & Quality Score">
            <DashboardGrid>
              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={7} variant="glass">

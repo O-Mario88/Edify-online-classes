@@ -251,9 +251,6 @@ export const ParentDashboard: React.FC = () => {
                  </div>
               </CardContent>
             </Card>
-        {/* Parent Action Center (moved below the Weekly Brief). */}
-        <div>
-           <ParentActionCenter />
         </div>
 
         <div className="mt-8 mb-4">
