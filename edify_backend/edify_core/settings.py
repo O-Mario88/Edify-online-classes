@@ -89,6 +89,7 @@ INSTALLED_APPS = [
     'mentor_reviews.apps.MentorReviewsConfig',
     'passport.apps.PassportConfig',
     'exam_simulator.apps.ExamSimulatorConfig',
+    'admission_passport.apps.AdmissionPassportConfig',
 ]
 
 MIDDLEWARE = [
