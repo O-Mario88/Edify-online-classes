@@ -87,6 +87,7 @@ INSTALLED_APPS = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     'diagnostics.apps.DiagnosticsConfig',
     'institution_discovery.apps.InstitutionDiscoveryConfig',
     'mastery.apps.MasteryConfig',
@@ -105,6 +106,9 @@ INSTALLED_APPS = [
 =======
     'pathways.apps.PathwaysConfig',
 >>>>>>> origin/pathways-and-compare
+=======
+    'learner_settings.apps.LearnerSettingsConfig',
+>>>>>>> origin/low-data-mode
 ]
 
 MIDDLEWARE = [

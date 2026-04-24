@@ -187,6 +187,7 @@ urlpatterns = [
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     path('api/v1/institution-discovery/', include('institution_discovery.urls')),
     path('api/v1/mastery/', include('mastery.urls')),
     path('api/v1/practice-labs/', include('practice_labs.urls')),
@@ -204,6 +205,9 @@ urlpatterns = [
 =======
     path('api/v1/pathways/', include('pathways.urls')),
 >>>>>>> origin/pathways-and-compare
+=======
+    path('api/v1/learner-settings/', include('learner_settings.urls')),
+>>>>>>> origin/low-data-mode
     path('api/v1/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/auth/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),

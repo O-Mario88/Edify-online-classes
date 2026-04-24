@@ -36,6 +36,7 @@ const LearningPathPage = lazy(() => import('./pages/LearningPathPage'));
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 const DiagnosticFlow = lazy(() => import('./pages/diagnostic/DiagnosticFlow'));
 const InstitutionProfilePage = lazy(() => import('./pages/institution-discovery/InstitutionProfilePage'));
 const MasteryTracksPage = lazy(() => import('./pages/mastery/MasteryTracksPage'));
@@ -56,6 +57,9 @@ const CohortsPage = lazy(() => import('./pages/cohorts/CohortsPage'));
 const FuturePathwaysPage = lazy(() => import('./pages/pathways/FuturePathwaysPage'));
 const SchoolComparePage = lazy(() => import('./pages/schools/SchoolComparePage'));
 >>>>>>> origin/pathways-and-compare
+=======
+const LearnerSettingsPage = lazy(() => import('./pages/settings/LearnerSettingsPage'));
+>>>>>>> origin/low-data-mode
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace'));
 const AITeachingAssistant = lazy(() => import('./pages/AITeachingAssistant'));
@@ -148,6 +152,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutUsPage />} />
 <<<<<<< HEAD
+<<<<<<< HEAD
           <Route path="cohorts" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
               <CohortsPage />
@@ -161,6 +166,11 @@ function App() {
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'institution_admin', 'platform_admin']}>
               <SchoolComparePage />
 >>>>>>> origin/pathways-and-compare
+=======
+          <Route path="settings" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
+              <LearnerSettingsPage />
+>>>>>>> origin/low-data-mode
             </ProtectedRoute>
           } />
           <Route path="classes" element={<CourseCatalog />} />
