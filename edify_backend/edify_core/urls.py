@@ -196,6 +196,7 @@ urlpatterns = [
     path('api/v1/cohorts/', include('cohorts.urls')),
     path('api/v1/pathways/', include('pathways.urls')),
     path('api/v1/learner-settings/', include('learner_settings.urls')),
+    path('api/v1/pilot-payments/', include('pilot_payments.urls')),
     path('api/v1/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/auth/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),

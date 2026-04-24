@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     'cohorts.apps.CohortsConfig',
     'pathways.apps.PathwaysConfig',
     'learner_settings.apps.LearnerSettingsConfig',
+    'pilot_payments.apps.PilotPaymentsConfig',
 ]
 
 MIDDLEWARE = [

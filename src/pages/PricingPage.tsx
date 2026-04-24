@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   CheckCircle2, Sparkles, GraduationCap, Heart, BriefcaseBusiness, School,
-  ArrowRight, ShieldCheck, Award,
+  ArrowRight, ShieldCheck, Award, Loader2,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { useAuth } from '../contexts/AuthContext';
+import { apiPost } from '../lib/apiClient';
+import { toast } from 'sonner';
 
 interface Tier {
   id: string;
@@ -147,7 +152,36 @@ const AUDIENCE_META: Record<Tier['audience'], { icon: any; tint: string; label: 
 };
 
 
+const PAID_PLAN_IDS = new Set(['learner_plus', 'parent_premium']);
+
+
 export const PricingPage: React.FC = () => {
+  const { user } = useAuth();
+  const [activeTier, setActiveTier] = useState<Tier | null>(null);
+  const [phone, setPhone] = useState('');
+  const [method, setMethod] = useState('mtn_momo');
+  const [note, setNote] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const submit = async () => {
+    if (!activeTier) return;
+    setSubmitting(true);
+    const { error } = await apiPost('/pilot-payments/upgrade-requests/', {
+      plan: activeTier.id,
+      contact_phone: phone,
+      preferred_method: method,
+      note,
+    });
+    setSubmitting(false);
+    if (error) {
+      toast.error("Couldn't send the request. Please try again.");
+      return;
+    }
+    toast.success("Request received. Maple will confirm your payment and unlock your plan shortly.");
+    setActiveTier(null);
+    setPhone(''); setNote('');
+  };
+
   return (
     <div className="bg-gradient-to-br from-slate-50 to-indigo-50/30 min-h-screen pb-20">
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
@@ -193,11 +227,21 @@ export const PricingPage: React.FC = () => {
                     ))}
                   </ul>
 
-                  <Link to={t.cta.to} className="mt-6">
-                    <Button className={`w-full ${t.featured ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`} variant={t.featured ? 'default' : 'outline'}>
+                  {user && PAID_PLAN_IDS.has(t.id) ? (
+                    <Button
+                      onClick={() => setActiveTier(t)}
+                      className={`w-full mt-6 ${t.featured ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
+                      variant={t.featured ? 'default' : 'outline'}
+                    >
                       {t.cta.label} <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
-                  </Link>
+                  ) : (
+                    <Link to={t.cta.to} className="mt-6">
+                      <Button className={`w-full ${t.featured ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`} variant={t.featured ? 'default' : 'outline'}>
+                        {t.cta.label} <ArrowRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </Link>
+                  )}
                 </CardContent>
               </Card>
             );
@@ -233,6 +277,58 @@ export const PricingPage: React.FC = () => {
           Maple does not promise guaranteed exam outcomes. Pricing reflects access to teacher-supported learning tools that have been shown to help learners prepare more consistently.
         </p>
       </section>
+
+      {activeTier && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setActiveTier(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <div className="p-6 border-b border-slate-100">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <h3 className="font-bold text-lg">Unlock {activeTier.name}</h3>
+              </div>
+              <p className="text-sm text-slate-600">
+                {activeTier.promise} We'll confirm your payment and activate your plan within 24 hours.
+              </p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wider">Your phone (for confirmation)</label>
+                <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+256 700 000 000" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wider">Preferred payment method</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {([['mtn_momo', 'MTN Mobile Money'], ['airtel_money', 'Airtel Money'], ['cash', 'Cash / Transfer'], ['other', 'Other']] as const).map(([val, label]) => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setMethod(val)}
+                      className={`px-3 py-2 rounded-lg text-sm border text-left transition-colors ${method === val ? 'border-indigo-500 bg-indigo-50 text-indigo-700 font-semibold' : 'border-slate-200 hover:border-slate-300'}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-700 mb-1 block uppercase tracking-wider">Anything we should know (optional)</label>
+                <Textarea rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. Preparing for PLE in November." />
+              </div>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Maple confirms every upgrade manually during the pilot — no surprise charges. You can cancel anytime by emailing us.
+              </p>
+            </div>
+            <div className="p-6 border-t border-slate-100 flex items-center justify-between">
+              <Button variant="outline" onClick={() => setActiveTier(null)}>Cancel</Button>
+              <Button onClick={submit} disabled={submitting || !phone.trim()} className="bg-indigo-600 hover:bg-indigo-700">
+                {submitting ? <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Sending…</> : 'Send upgrade request'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
