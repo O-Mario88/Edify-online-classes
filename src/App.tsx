@@ -35,6 +35,7 @@ const ExercisePage = lazy(() => import('./pages/ExercisePage').then(m => ({ defa
 const LearningPathPage = lazy(() => import('./pages/LearningPathPage'));
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 const DiagnosticFlow = lazy(() => import('./pages/diagnostic/DiagnosticFlow'));
 const InstitutionProfilePage = lazy(() => import('./pages/institution-discovery/InstitutionProfilePage'));
 const MasteryTracksPage = lazy(() => import('./pages/mastery/MasteryTracksPage'));
@@ -51,6 +52,10 @@ const StandbyRequestsPage = lazy(() => import('./pages/standby/StandbyRequestsPa
 =======
 const CohortsPage = lazy(() => import('./pages/cohorts/CohortsPage'));
 >>>>>>> origin/cohorts-and-demo-mode
+=======
+const FuturePathwaysPage = lazy(() => import('./pages/pathways/FuturePathwaysPage'));
+const SchoolComparePage = lazy(() => import('./pages/schools/SchoolComparePage'));
+>>>>>>> origin/pathways-and-compare
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace'));
 const AITeachingAssistant = lazy(() => import('./pages/AITeachingAssistant'));
@@ -142,9 +147,20 @@ function App() {
                     <Route path="feedback" element={<FeedbackPage />} />
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutUsPage />} />
+<<<<<<< HEAD
           <Route path="cohorts" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
               <CohortsPage />
+=======
+          <Route path="pathways" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent']}>
+              <FuturePathwaysPage />
+            </ProtectedRoute>
+          } />
+          <Route path="schools/compare" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'institution_admin', 'platform_admin']}>
+              <SchoolComparePage />
+>>>>>>> origin/pathways-and-compare
             </ProtectedRoute>
           } />
           <Route path="classes" element={<CourseCatalog />} />

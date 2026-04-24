@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     'intelligence.apps.IntelligenceConfig',
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     'diagnostics.apps.DiagnosticsConfig',
     'institution_discovery.apps.InstitutionDiscoveryConfig',
     'mastery.apps.MasteryConfig',
@@ -101,6 +102,9 @@ INSTALLED_APPS = [
 =======
     'cohorts.apps.CohortsConfig',
 >>>>>>> origin/cohorts-and-demo-mode
+=======
+    'pathways.apps.PathwaysConfig',
+>>>>>>> origin/pathways-and-compare
 ]
 
 MIDDLEWARE = [
