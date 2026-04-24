@@ -473,6 +473,12 @@ body:not(.dark) a.text-slate-800:hover {
   color: #0a1c2e;
 }
 
+body:not(.dark) footer a,
+body:not(.dark) footer a:hover {
+  color: inherit;
+  filter: none;
+}
+
 body:not(.dark) ::selection {
   background-color: #0f2a45 !important;
   color: #ffffff !important;
