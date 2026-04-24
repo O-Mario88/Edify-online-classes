@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'scheduling.apps.SchedulingConfig',
     'attendance.apps.AttendanceConfig',
     'intelligence.apps.IntelligenceConfig',
+    'learner_settings.apps.LearnerSettingsConfig',
 ]
 
 MIDDLEWARE = [
