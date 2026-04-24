@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     'attendance.apps.AttendanceConfig',
     'intelligence.apps.IntelligenceConfig',
 <<<<<<< HEAD
+<<<<<<< HEAD
     'diagnostics.apps.DiagnosticsConfig',
     'institution_discovery.apps.InstitutionDiscoveryConfig',
     'mastery.apps.MasteryConfig',
@@ -97,6 +98,9 @@ INSTALLED_APPS = [
 =======
     'standby_teachers.apps.StandbyTeachersConfig',
 >>>>>>> origin/independent-school-standby-pricing
+=======
+    'cohorts.apps.CohortsConfig',
+>>>>>>> origin/cohorts-and-demo-mode
 ]
 
 MIDDLEWARE = [
