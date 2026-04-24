@@ -328,7 +328,7 @@ export const TeacherDashboard: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 pb-6 border-b border-white/10">
           <div className="space-y-1.5">
             <div className="flex items-center gap-3">
-               <h1 className="text-3xl font-extrabold tracking-tight text-white">Teaching Command Center</h1>
+               <h1 className="text-3xl font-extrabold tracking-tight text-white">Maple Teacher Studio</h1>
                <Badge className="bg-blue-900/50 text-blue-200 hover:bg-blue-900/80 border-blue-500/30 backdrop-blur-sm">Uganda Curriculum</Badge>
             </div>
             <p className="text-slate-300 font-medium text-sm md:text-base">Welcome back, {teacher.name}. Here is your command center.</p>
@@ -342,7 +342,7 @@ export const TeacherDashboard: React.FC = () => {
         </div>
 
         {/* Phase 0: Payout & Earnings Priority */}
-        <DashboardSection title="Earnings & Payouts Tracking">
+        <DashboardSection title="Teacher Earnings Studio">
            <DashboardGrid className="!items-stretch">
              <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={6} variant="glass">
                 <TeacherPayoutStatusCard />
@@ -365,7 +365,7 @@ export const TeacherDashboard: React.FC = () => {
         </DashboardSection>
 
         {/* Teacher Personal Planner & Resource Effectiveness */}
-        <DashboardSection title="Planning & Resource Impact">
+        <DashboardSection title="Today's Planner & Resource Impact">
            <DashboardGrid className="!items-stretch">
              <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={7} variant="glass">
                 <SmartStudyPlanner 
@@ -387,7 +387,7 @@ export const TeacherDashboard: React.FC = () => {
         </DashboardSection>
 
         {/* Phase 2: Interventions & Rapid Actions */}
-        <DashboardSection title="Support Operations">
+        <DashboardSection title="Mentor Studio — Reviews & Parent Outreach">
            <DashboardGrid className="!items-stretch">
              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={5} variant="glass">
                <SmartInterventionBuilder data={{
@@ -411,7 +411,7 @@ export const TeacherDashboard: React.FC = () => {
         </DashboardSection>
 
         {/* Phase 3: AI Partner & Reputation */}
-        <DashboardSection title="Professional Growth Hub">
+        <DashboardSection title="Verified Teaching Delivery & Quality Score">
            <DashboardGrid>
              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={7} variant="glass">
                  <TeacherPerformanceStory />
