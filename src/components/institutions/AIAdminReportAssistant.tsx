@@ -35,7 +35,7 @@ This week, the institution maintained an overall health score of 74%, with notab
 Key Highlights:
 1. Syllabus coverage tracks exactly to the NCDC mandate (82%).
 2. The Term 2 Study Sprint challenge has 850 active participants.
-3. Exam War Room metrics indicate 42 unpaid candidates causing seating risks.
+3. Exam Readiness Tracker flags 42 unpaid candidates as a seating risk.
 
 Action items have been dispatched to department heads.
 

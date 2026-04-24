@@ -214,7 +214,7 @@ export const InstitutionManagementPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-white tracking-tight">Kampala Model High School</h1>
-            <p className="text-slate-400 font-medium tracking-wide text-sm mt-1">Institution Analytics & Management Hub</p>
+            <p className="text-slate-400 font-medium tracking-wide text-sm mt-1">School Growth & Quality Dashboard — powered by Maple School OS</p>
           </div>
         </div>
         <div className="flex items-center gap-3">

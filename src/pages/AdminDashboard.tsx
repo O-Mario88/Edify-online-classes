@@ -132,8 +132,8 @@ export const AdminDashboard: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Platform Intelligence Center</h1>
-            <p className="text-gray-600 mt-1">Global EMIS Operations & Infrastructure Telemetry</p>
+            <h1 className="text-3xl font-bold text-gray-900">Maple Intelligence — Platform View</h1>
+            <p className="text-gray-600 mt-1">Growth, quality, and risk signals across every school on Maple.</p>
           </div>
           <div className="flex justify-center gap-3 w-full md:w-auto">
              <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => setIsLogsOpen(true)}><ServerCrash className="w-4 h-4 mr-2" /> View Error Logs</Button>
