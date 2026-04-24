@@ -33,10 +33,6 @@ const LiveSessionsPage = lazy(() => import('./pages/LiveSessionsPage').then(m =>
 const PaymentPage = lazy(() => import('./pages/PaymentPage').then(m => ({ default: m.PaymentPage })));
 const ExercisePage = lazy(() => import('./pages/ExercisePage').then(m => ({ default: m.ExercisePage })));
 const LearningPathPage = lazy(() => import('./pages/LearningPathPage'));
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 const DiagnosticFlow = lazy(() => import('./pages/diagnostic/DiagnosticFlow'));
 const InstitutionProfilePage = lazy(() => import('./pages/institution-discovery/InstitutionProfilePage'));
 const MasteryTracksPage = lazy(() => import('./pages/mastery/MasteryTracksPage'));
@@ -46,20 +42,12 @@ const TeacherProjectReviewQueue = lazy(() => import('./pages/mastery-projects/Te
 const LearningPassportPage = lazy(() => import('./pages/passport/LearningPassportPage'));
 const ExamSimulatorPage = lazy(() => import('./pages/exam-simulator/ExamSimulatorPage'));
 const InstitutionAdmissionInbox = lazy(() => import('./pages/admissions/InstitutionAdmissionInbox'));
-=======
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const StandbyRequestsPage = lazy(() => import('./pages/standby/StandbyRequestsPage'));
->>>>>>> origin/independent-school-standby-pricing
-=======
 const CohortsPage = lazy(() => import('./pages/cohorts/CohortsPage'));
->>>>>>> origin/cohorts-and-demo-mode
-=======
 const FuturePathwaysPage = lazy(() => import('./pages/pathways/FuturePathwaysPage'));
 const SchoolComparePage = lazy(() => import('./pages/schools/SchoolComparePage'));
->>>>>>> origin/pathways-and-compare
-=======
 const LearnerSettingsPage = lazy(() => import('./pages/settings/LearnerSettingsPage'));
->>>>>>> origin/low-data-mode
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace'));
 const AITeachingAssistant = lazy(() => import('./pages/AITeachingAssistant'));
@@ -151,12 +139,9 @@ function App() {
                     <Route path="feedback" element={<FeedbackPage />} />
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutUsPage />} />
-<<<<<<< HEAD
-<<<<<<< HEAD
           <Route path="cohorts" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
               <CohortsPage />
-=======
           <Route path="pathways" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent']}>
               <FuturePathwaysPage />
@@ -165,12 +150,9 @@ function App() {
           <Route path="schools/compare" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'institution_admin', 'platform_admin']}>
               <SchoolComparePage />
->>>>>>> origin/pathways-and-compare
-=======
           <Route path="settings" element={
             <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
               <LearnerSettingsPage />
->>>>>>> origin/low-data-mode
             </ProtectedRoute>
           } />
           <Route path="classes" element={<CourseCatalog />} />

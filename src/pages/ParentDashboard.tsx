@@ -215,7 +215,6 @@ export const ParentDashboard: React.FC = () => {
           ))}
         </div>
 
-<<<<<<< HEAD
         {/* Row 2: Pillar 4 Action & Ecosystem Layer */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
            <div className="lg:col-span-2">
@@ -252,11 +251,9 @@ export const ParentDashboard: React.FC = () => {
                  </div>
               </CardContent>
             </Card>
-=======
         {/* Parent Action Center (moved below the Weekly Brief). */}
         <div>
            <ParentActionCenter />
->>>>>>> origin/dashboard-priority-reorder
         </div>
 
         <div className="mt-8 mb-4">

@@ -84,10 +84,6 @@ INSTALLED_APPS = [
     'scheduling.apps.SchedulingConfig',
     'attendance.apps.AttendanceConfig',
     'intelligence.apps.IntelligenceConfig',
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     'diagnostics.apps.DiagnosticsConfig',
     'institution_discovery.apps.InstitutionDiscoveryConfig',
     'mastery.apps.MasteryConfig',
@@ -97,18 +93,10 @@ INSTALLED_APPS = [
     'passport.apps.PassportConfig',
     'exam_simulator.apps.ExamSimulatorConfig',
     'admission_passport.apps.AdmissionPassportConfig',
-=======
     'standby_teachers.apps.StandbyTeachersConfig',
->>>>>>> origin/independent-school-standby-pricing
-=======
     'cohorts.apps.CohortsConfig',
->>>>>>> origin/cohorts-and-demo-mode
-=======
     'pathways.apps.PathwaysConfig',
->>>>>>> origin/pathways-and-compare
-=======
     'learner_settings.apps.LearnerSettingsConfig',
->>>>>>> origin/low-data-mode
 ]
 
 MIDDLEWARE = [

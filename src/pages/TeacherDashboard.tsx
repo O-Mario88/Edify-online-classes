@@ -328,11 +328,8 @@ export const TeacherDashboard: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 pb-6 border-b border-white/10">
           <div className="space-y-1.5">
             <div className="flex items-center gap-3">
-<<<<<<< HEAD
                <h1 className="text-3xl font-extrabold tracking-tight text-white">Teacher Studio</h1>
-=======
                <h1 className="text-3xl font-extrabold tracking-tight text-white">Maple Teacher Studio</h1>
->>>>>>> origin/dashboard-priority-reorder
                <Badge className="bg-blue-900/50 text-blue-200 hover:bg-blue-900/80 border-blue-500/30 backdrop-blur-sm">Uganda Curriculum</Badge>
             </div>
             <p className="text-slate-300 font-medium text-sm md:text-base">Welcome back, {teacher.name}. Teach, grade, and grow your reputation.</p>
@@ -391,11 +388,8 @@ export const TeacherDashboard: React.FC = () => {
         </DashboardSection>
 
         {/* Phase 2: Interventions & Rapid Actions */}
-<<<<<<< HEAD
         <DashboardSection title="Interventions & Parent Outreach">
-=======
         <DashboardSection title="Mentor Studio — Reviews & Parent Outreach">
->>>>>>> origin/dashboard-priority-reorder
            <DashboardGrid className="!items-stretch">
              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={5} variant="glass">
                <SmartInterventionBuilder data={{
@@ -419,11 +413,8 @@ export const TeacherDashboard: React.FC = () => {
         </DashboardSection>
 
         {/* Phase 3: AI Partner & Reputation */}
-<<<<<<< HEAD
         <DashboardSection title="Verified Teaching Delivery">
-=======
         <DashboardSection title="Verified Teaching Delivery & Quality Score">
->>>>>>> origin/dashboard-priority-reorder
            <DashboardGrid>
              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={7} variant="glass">
                  <TeacherPerformanceStory />
