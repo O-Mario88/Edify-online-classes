@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     'practice_labs.apps.PracticeLabsConfig',
     'mastery_projects.apps.MasteryProjectsConfig',
     'mentor_reviews.apps.MentorReviewsConfig',
+    'passport.apps.PassportConfig',
 ]
 
 MIDDLEWARE = [
