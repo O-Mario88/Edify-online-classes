@@ -33,6 +33,7 @@ const LiveSessionsPage = lazy(() => import('./pages/LiveSessionsPage').then(m =>
 const PaymentPage = lazy(() => import('./pages/PaymentPage').then(m => ({ default: m.PaymentPage })));
 const ExercisePage = lazy(() => import('./pages/ExercisePage').then(m => ({ default: m.ExercisePage })));
 const LearningPathPage = lazy(() => import('./pages/LearningPathPage'));
+const LearnerSettingsPage = lazy(() => import('./pages/settings/LearnerSettingsPage'));
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace'));
 const AITeachingAssistant = lazy(() => import('./pages/AITeachingAssistant'));
@@ -124,6 +125,11 @@ function App() {
                     <Route path="feedback" element={<FeedbackPage />} />
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutUsPage />} />
+          <Route path="settings" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
+              <LearnerSettingsPage />
+            </ProtectedRoute>
+          } />
           <Route path="classes" element={<CourseCatalog />} />
           <Route path="classes/:classId" element={<ClassSyllabusPage />} />
           <Route path="classes/:classId/:termId/:subjectId" element={<CourseDetail />} />
