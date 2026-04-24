@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     'attendance.apps.AttendanceConfig',
     'intelligence.apps.IntelligenceConfig',
     'mastery.apps.MasteryConfig',
+    'practice_labs.apps.PracticeLabsConfig',
 ]
 
 MIDDLEWARE = [
