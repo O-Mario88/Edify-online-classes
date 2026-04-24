@@ -8,7 +8,7 @@ class MasteryTrackItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = MasteryTrackItem
         fields = (
-            'id', 'item_type', 'content_item', 'assessment', 'live_session', 'practice_lab',
+            'id', 'item_type', 'content_item', 'assessment', 'live_session', 'practice_lab', 'project',
             'placeholder_title', 'placeholder_description',
             'order', 'required_for_completion', 'display_title',
         )
