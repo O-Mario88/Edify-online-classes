@@ -91,7 +91,7 @@ export default function PeerTutoringHub() {
                {loading ? (
                  <div className="col-span-3 text-center py-8 text-gray-500">Loading tutors...</div>
                ) : data.tutors.length === 0 ? (
-                 <div className="col-span-3 text-center py-8 text-gray-500">No active tutors found. Be the first!</div>
+                 <div className="col-span-3 text-center py-8 text-gray-500">No peer tutors available yet. Apply to become a verified peer tutor and earn points while helping classmates.</div>
                ) : (
                  data.tutors.map((tutor: any, idx: number) => (
                    <Card key={tutor.id} className="border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow">

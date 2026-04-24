@@ -60,7 +60,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
   if (user) {
     if (user.role === 'universal_student') {
       toolsLinks.push(
-        { label: 'Learning Path', href: '/learning-path', icon: Target },
+        { label: 'My Study Plan', href: '/learning-path', icon: Target },
         { label: 'Exam Registration', href: '/exam-registration', icon: CreditCard }
       );
       engageLinks.push({ label: 'Peer Tutoring', href: '/peer-tutoring', icon: MessageSquare });
@@ -68,31 +68,31 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
       if (isPrimary) {
         toolsLinks.push(
           { label: 'My Syllabus', href: `/primary/class/${(user as any).class_level || 'p7'}`, icon: BookOpen },
-          { label: 'Learning Path', href: '/learning-path', icon: Target }
+          { label: 'My Study Plan', href: '/learning-path', icon: Target }
         );
       } else {
         toolsLinks.push(
-          { label: 'Learning Path', href: '/learning-path', icon: Target },
+          { label: 'My Study Plan', href: '/learning-path', icon: Target },
           { label: 'Exam Registration', href: '/exam-registration', icon: CreditCard }
         );
       }
       engageLinks.push({ label: 'Peer Tutoring', href: '/peer-tutoring', icon: MessageSquare });
     } else if (user.role === 'independent_teacher') {
-      toolsLinks.push({ label: 'AI Assistant', href: '/ai-assistant', icon: Brain });
+      toolsLinks.push({ label: 'AI Lesson Assistant', href: '/ai-assistant', icon: Brain });
       engageLinks.push({ label: 'Peer Tutoring', href: '/peer-tutoring', icon: MessageSquare });
     } else if (user.role === 'institution_admin') {
       toolsLinks.push(
-        { label: 'AI Assistant', href: '/ai-assistant', icon: Brain },
-        { label: 'Institution Management', href: '/institution-management', icon: Users }
+        { label: 'AI Lesson Assistant', href: '/ai-assistant', icon: Brain },
+        { label: 'School OS', href: '/institution-management', icon: Users }
       );
     } else if (user.role === 'platform_admin') {
       toolsLinks.push(
-        { label: 'Institution Management', href: '/institution-management', icon: Users }
+        { label: 'School OS', href: '/institution-management', icon: Users }
       );
     } else if (user.role === 'parent') {
       toolsLinks.push(
-        { label: 'Parent Portal', href: '/dashboard/parent', icon: Users },
-        { label: 'AI Assistant', href: '/ai-assistant', icon: Brain }
+        { label: 'My Child', href: '/dashboard/parent', icon: Users },
+        { label: 'Ask Maple Study Buddy', href: '/ai-assistant', icon: Brain }
       );
     } else {
       toolsLinks.push({ label: 'Projects', href: '/projects', icon: Lightbulb });

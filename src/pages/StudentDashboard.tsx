@@ -69,7 +69,7 @@ export const StudentDashboard: React.FC = () => {
   const getEmptyDashboardData = () => ({
     kpis: { overallProgress: 0, progressTrend: '0', attendance: 0, attendanceTrend: '0', assessmentsCompleted: 0, readinessScore: 0, overdueTasks: 0, liveSessionsAttended: 0 },
     subjectPerformance: [],
-    nextSession: { subject: '—', topic: 'No upcoming sessions', tutor: '—', time: '—', countdown: '—', streak: 0, readinessState: '—' },
+    nextSession: { subject: '—', topic: 'Your next live class will show here once one is scheduled.', tutor: '—', time: '—', countdown: '—', streak: 0, readinessState: '—' },
     intelligence: [],
     assessmentSnapshot: []
   });
@@ -94,7 +94,7 @@ export const StudentDashboard: React.FC = () => {
         // those IDs to the API response would let us deep-link further.
         navigate('/library');
       } else {
-        toast.info('No active lesson found. Taking you to classes.');
+        toast.info('No lesson in progress yet. Browsing classes so you can pick one up.');
         navigate('/classes');
       }
     } catch (e) {
@@ -133,10 +133,10 @@ export const StudentDashboard: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pb-6 border-b border-slate-200/50">
           <div className="space-y-1.5">
             <div className="flex items-center gap-3">
-               <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Learning Command Center</h1>
+               <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">My Learning Evidence</h1>
                <Badge className="bg-emerald-100/50 text-emerald-700 hover:bg-emerald-100/80 border-emerald-200">Active Term</Badge>
             </div>
-            <p className="text-slate-700 font-medium text-sm md:text-base">Welcome back, {student?.name?.split(' ')[0] || 'Learner'}. Here is your real-time diagnostic overview.</p>
+            <p className="text-slate-700 font-medium text-sm md:text-base">Welcome back, {student?.name?.split(' ')[0] || 'Learner'}. Here's where you stand — and what to study next.</p>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
              <Button variant="outline" className="hidden md:flex shadow-sm bg-white/50 backdrop-blur-sm" onClick={() => setIsScheduleOpen(true)}><Calendar className="w-4 h-4 mr-2 text-slate-700" /> View Schedule</Button>
@@ -163,17 +163,17 @@ export const StudentDashboard: React.FC = () => {
         </DashboardSection>
 
         {/* Phase 4.3 — assignments + grades */}
-        <DashboardSection title="My assignments">
+        <DashboardSection title="My Assignments">
            <StudentAssignmentsPanel />
         </DashboardSection>
 
         {/* Global Action Center - Surfacing critical pending tasks & collaborative duties */}
-        <DashboardSection title="Action Center">
+        <DashboardSection title="What To Do Today">
            <StudentActionCenter />
         </DashboardSection>
 
         {/* Row 2: Live Session + Risk + AI Guide */}
-        <DashboardSection title="Current Priorities">
+        <DashboardSection title="This Week's Priorities">
            <DashboardGrid className="!items-stretch">
              {/* Next Live Session Upgrade (Hero Aesthetic) */}
              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={5} variant="transparent">
@@ -292,7 +292,7 @@ export const StudentDashboard: React.FC = () => {
         </DashboardSection>
 
         {/* Row 3: Automated Resource Recommendations */}
-        <DashboardSection title="Resource Recommendations">
+        <DashboardSection title="Recommended for You">
            <DashboardGrid className="!items-stretch">
 
               {/* ----------------- RESOURCE RECOMMENDATIONS ROW (4 + 4 + 4 = 12 cols) ----------------- */}
@@ -437,7 +437,7 @@ export const StudentDashboard: React.FC = () => {
          </DashboardSection>
 
          {/* Row 4: Motivation Engine */}
-         <DashboardSection title="Trajectory & Velocity">
+         <DashboardSection title="My Progress & Badges">
             <StudentMotivationEngine />
          </DashboardSection>
 
@@ -447,7 +447,7 @@ export const StudentDashboard: React.FC = () => {
          </DashboardSection>
 
          {/* Row 4: Subject Performance Grid */}
-         <DashboardSection title="Academic Diagnostic">
+         <DashboardSection title="Exam Readiness Tracker">
             <DashboardGrid>
               <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12} variant="transparent">
                 <Card className="shadow-sm">
@@ -526,7 +526,7 @@ export const StudentDashboard: React.FC = () => {
                 <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12} variant="transparent">
                   <Card className="shadow-sm flex flex-col h-full">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-md flex items-center gap-2"><BarChart3 className="w-4 h-4 text-blue-400" /> Assessment Snapshot</CardTitle>
+                      <CardTitle className="text-md flex items-center gap-2"><BarChart3 className="w-4 h-4 text-blue-400" /> Recent Scores</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
@@ -553,7 +553,7 @@ export const StudentDashboard: React.FC = () => {
          )}
 
          {/* Row 6: Deep Ecosystem Navigation (Platform Launchpad) */}
-         <DashboardSection title="Learning Ecosystem Hubs">
+         <DashboardSection title="Live Classes & Peer Learning">
             <StudentPlatformLaunchpad />
          </DashboardSection>
 
