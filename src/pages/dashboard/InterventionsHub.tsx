@@ -76,7 +76,7 @@ export const InterventionsHub = () => {
                 {loading ? (
                   <div className="py-8 text-center text-gray-500 flex justify-center"><Loader2 className="w-6 h-6 animate-spin" /></div>
                 ) : alerts.length === 0 ? (
-                  <div className="py-8 text-center text-gray-500">No active students flagged at this time. Classroom is healthy.</div>
+                  <div className="py-8 text-center text-gray-500">No learners flagged for intervention right now. Risk alerts will appear here the moment a drop in attendance, scores, or engagement is detected.</div>
                 ) : alerts.map((alert: any) => (
                   <div key={alert.id} className="py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                      <div className="flex items-center gap-4">

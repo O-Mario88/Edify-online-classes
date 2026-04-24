@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  ArrowRight, Video, CheckCircle2, ShieldCheck, 
-  MapPin, Clock, BookOpen, Users, Star, StarHalf, MonitorPlay, Sparkles
+import {
+  ArrowRight, Video, CheckCircle2, ShieldCheck,
+  MapPin, Clock, BookOpen, Users, Star, StarHalf, MonitorPlay, Sparkles,
+  GraduationCap, Heart, BriefcaseBusiness, School,
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { apiGet, API_ENDPOINTS } from '../lib/apiClient';
@@ -284,6 +285,66 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* =========================================
+          SECTION 3.5: FOUR PROMISES — ONE FOR EACH AUDIENCE
+          ========================================= */}
+      <section className="pb-24 lg:pb-32 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+         <div className="text-center space-y-3 mb-14">
+            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">MADE FOR FOUR PEOPLE</h4>
+            <h2 className="text-3xl lg:text-4xl font-semibold text-slate-900">One platform. Four clear promises.</h2>
+            <p className="text-slate-600 text-base max-w-xl mx-auto font-light">Maple Learner, Maple Teacher Pro, Maple School OS, and Maple Intelligence — each built around a single outcome for the person using it.</p>
+         </div>
+
+         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+               {
+                  icon: GraduationCap,
+                  tint: 'bg-blue-50 text-blue-600',
+                  kicker: 'For Learners',
+                  line: 'Maple Learner',
+                  promise: 'Know what to study next and improve every week.',
+                  cta: { label: 'Take a Free Diagnostic', to: '/register?intent=diagnostic' },
+               },
+               {
+                  icon: Heart,
+                  tint: 'bg-rose-50 text-rose-600',
+                  kicker: 'For Parents',
+                  line: 'Parent Confidence',
+                  promise: 'See your child’s progress clearly and receive guidance before it is too late.',
+                  cta: { label: 'See What Parents Receive', to: '/register?intent=parent-preview' },
+               },
+               {
+                  icon: BriefcaseBusiness,
+                  tint: 'bg-emerald-50 text-emerald-600',
+                  kicker: 'For Teachers',
+                  line: 'Maple Teacher Pro',
+                  promise: 'Teach online, build your reputation, and earn from your knowledge.',
+                  cta: { label: 'Create a Teacher Storefront', to: '/independent-teacher-onboarding' },
+               },
+               {
+                  icon: School,
+                  tint: 'bg-amber-50 text-amber-600',
+                  kicker: 'For Schools',
+                  line: 'Maple School OS',
+                  promise: 'Run a modern, transparent, data-informed school that parents trust.',
+                  cta: { label: 'Explore Maple School OS', to: '/institution-onboarding' },
+               },
+            ].map((seg, idx) => (
+               <div key={idx} className="bg-white rounded-3xl border border-slate-100 p-7 hover:shadow-xl hover:shadow-slate-200/60 transition-shadow flex flex-col">
+                  <div className={`w-12 h-12 rounded-2xl ${seg.tint} flex items-center justify-center mb-5`}>
+                     <seg.icon className="w-6 h-6" />
+                  </div>
+                  <p className="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-400">{seg.kicker}</p>
+                  <h3 className="text-lg font-semibold text-slate-900 mt-1">{seg.line}</h3>
+                  <p className="text-sm text-slate-600 leading-relaxed mt-3 flex-1">{seg.promise}</p>
+                  <Link to={seg.cta.to} className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700">
+                     {seg.cta.label} <ArrowRight className="w-4 h-4" />
+                  </Link>
+               </div>
+            ))}
+         </div>
+      </section>
+
+      {/* =========================================
           SECTION 4: POPULAR CLASSES / TABS / GRID
           ========================================= */}
       <section className="py-20 bg-white border-y border-slate-100">
@@ -374,13 +435,18 @@ export const HomePage: React.FC = () => {
             
             <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
                <div className="max-w-2xl text-center lg:text-left">
-                  <h2 className="text-3xl lg:text-4xl font-semibold text-white mb-4">Ready to start learning online?</h2>
-                  <p className="text-blue-200 text-lg max-w-xl">Join thousands of students and teachers on Uganda's most advanced learning platform. Enroll now to accelerate your success.</p>
+                  <h2 className="text-3xl lg:text-4xl font-semibold text-white mb-4">Start with what fits you today.</h2>
+                  <p className="text-blue-200 text-lg max-w-xl">Take a free diagnostic as a learner, preview a parent report, open a teacher storefront, or book a walk-through of Maple School OS — each path takes under five minutes.</p>
                </div>
-               <div className="flex shrink-0">
-                  <Link to="/register">
-                    <Button size="lg" className="bg-white hover:bg-slate-50 text-slate-900 rounded-2xl h-14 px-10 text-base font-bold shadow-lg">
-                       Get Started Now
+               <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+                  <Link to="/register?intent=diagnostic">
+                    <Button size="lg" className="bg-white hover:bg-slate-50 text-slate-900 rounded-2xl h-14 px-8 text-base font-bold shadow-lg">
+                       Take Free Diagnostic
+                    </Button>
+                  </Link>
+                  <Link to="/institution-onboarding">
+                    <Button size="lg" variant="outline" className="bg-transparent hover:bg-white/10 border-white/40 text-white rounded-2xl h-14 px-8 text-base font-medium">
+                       Book a School Demo
                     </Button>
                   </Link>
                </div>

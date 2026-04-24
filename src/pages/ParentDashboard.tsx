@@ -96,7 +96,7 @@ export const ParentDashboard: React.FC = () => {
           intelligence: [],
           kpis: { attendance: 0, classProgress: 0, avgPerformance: 0, readinessScore: 0, missedTasks: 0, alertLevel: '—' },
           riskAlert: null,
-          weeklySummary: { aiNarrative: 'No data available yet. Learning activity will be summarized here once your child starts engaging.', strongestSubject: '—', weakestTopic: '—', assessmentTrend: '—', recommendedFocus: '—' },
+          weeklySummary: { aiNarrative: 'Your Weekly Child Progress Brief will appear here once your child completes lessons, assessments, or live classes.', strongestSubject: '—', weakestTopic: '—', assessmentTrend: '—', recommendedFocus: '—' },
           childPerformance: { name: 'Your Child', grade: '—', subjects: [] }
         });
       } finally {
@@ -126,8 +126,8 @@ export const ParentDashboard: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
           <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-indigo-200 drop-shadow-sm">Parent Support Portal</h1>
-            <p className="text-blue-100/70 font-medium mt-1">Action-focused early warning and progression dashboard.</p>
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-indigo-200 drop-shadow-sm">Parent Confidence Report</h1>
+            <p className="text-blue-100/70 font-medium mt-1">See your child's progress clearly — and know what to do next.</p>
           </div>
           <div className="flex gap-3">
              <Button variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 transition-all shadow-sm rounded-lg" onClick={() => setIsSettingsOpen(true)}><Settings className="w-4 h-4 mr-2" /> Notification Preferences</Button>
@@ -181,7 +181,7 @@ export const ParentDashboard: React.FC = () => {
            <Card className="border border-indigo-100/50 bg-white/80 backdrop-blur-xl hover:shadow-xl shadow-lg transition-all duration-300">
               <CardHeader className="pb-2 border-b border-indigo-50/50">
                  <CardTitle className="text-md font-semibold text-indigo-900 flex items-center">
-                   <Activity className="w-4 h-4 mr-2 text-indigo-700" /> AI Weekly Summary
+                   <Activity className="w-4 h-4 mr-2 text-indigo-700" /> Weekly Child Progress Brief
                  </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 space-y-4">

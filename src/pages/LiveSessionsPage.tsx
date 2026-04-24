@@ -358,8 +358,8 @@ export const LiveSessionsPage: React.FC = () => {
           {getFilteredSessions().length === 0 && (
              <div className="col-span-full py-20 text-center">
                 <EditorialPanel variant="flat" className="inline-block px-12 border border-slate-100 bg-white/50">
-                  <EditorialHeader level="h4" className="text-slate-800 font-light mb-2">No active sessions found.</EditorialHeader>
-                  <p className="text-slate-500 text-sm">Review your filters or check back later.</p>
+                  <EditorialHeader level="h4" className="text-slate-800 font-light mb-2">No live classes match your filters.</EditorialHeader>
+                  <p className="text-slate-500 text-sm">Live classes run weekly — clear a filter to see the full schedule.</p>
                 </EditorialPanel>
              </div>
           )}

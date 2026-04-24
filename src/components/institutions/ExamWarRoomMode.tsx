@@ -8,15 +8,15 @@ import { Button } from '../ui/button';
 export const ExamWarRoomMode: React.FC = () => {
   return (
     <div className="space-y-6">
-       
+
        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
              <div className="w-12 h-12 bg-red-100 text-red-800 rounded-full flex items-center justify-center animate-pulse shrink-0">
                <AlertTriangle className="w-6 h-6" />
              </div>
              <div>
-               <h3 className="text-red-900 font-bold text-lg">UNEB O-Level Exams Approaching</h3>
-               <p className="text-red-700 text-sm font-medium">T-Minus 24 Days. High-priority interventions required.</p>
+               <h3 className="text-red-900 font-bold text-lg">Exam Readiness Tracker — UNEB O-Level</h3>
+               <p className="text-red-700 text-sm font-medium">24 days out. Readiness estimate based on attendance, assessments, and completed work.</p>
              </div>
           </div>
           <div className="flex gap-2">

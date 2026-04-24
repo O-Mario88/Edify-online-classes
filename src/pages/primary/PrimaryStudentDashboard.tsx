@@ -22,7 +22,7 @@ import { PLEReadinessGauge } from '../../components/dashboard/PLEReadinessGauge'
 const getEmptyDashboardData = () => ({
   kpis: { overallProgress: 0, progressTrend: '0', attendance: 0, lessonsCompleted: 0, totalLessons: 0, practicesDone: 0, streakDays: 0, classPosition: 0, totalStudents: 0 },
   subjects: [],
-  nextLesson: { subject: '—', topic: 'No upcoming lessons', teacher: '—', time: '—', type: 'lesson' },
+  nextLesson: { subject: '—', topic: 'Your next lesson will show here as soon as your teacher schedules one.', teacher: '—', time: '—', type: 'lesson' },
   intelligence: [],
   p7Readiness: { isP7: false, score: 0, state: 'on_track' as const, strongest: '—', weakest: '—', weakAlerts: [] },
   todaysTasks: [],
