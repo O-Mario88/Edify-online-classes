@@ -33,6 +33,8 @@ const LiveSessionsPage = lazy(() => import('./pages/LiveSessionsPage').then(m =>
 const PaymentPage = lazy(() => import('./pages/PaymentPage').then(m => ({ default: m.PaymentPage })));
 const ExercisePage = lazy(() => import('./pages/ExercisePage').then(m => ({ default: m.ExercisePage })));
 const LearningPathPage = lazy(() => import('./pages/LearningPathPage'));
+const MasteryTracksPage = lazy(() => import('./pages/mastery/MasteryTracksPage'));
+const MasteryTrackDetailPage = lazy(() => import('./pages/mastery/MasteryTrackDetailPage'));
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace'));
 const AITeachingAssistant = lazy(() => import('./pages/AITeachingAssistant'));
@@ -162,6 +164,18 @@ function App() {
           } />
 
           
+          {/* Maple Mastery Studio — phase 1: tracks */}
+          <Route path="mastery" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'institution_teacher', 'teacher', 'independent_teacher', 'institution_admin', 'platform_admin']}>
+              <MasteryTracksPage />
+            </ProtectedRoute>
+          } />
+          <Route path="mastery/:slug" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'institution_teacher', 'teacher', 'independent_teacher', 'institution_admin', 'platform_admin']}>
+              <MasteryTrackDetailPage />
+            </ProtectedRoute>
+          } />
+
           {/* AI-Powered Features */}
           <Route path="learning-path" element={
             <ProtectedRoute allowedRoles={['universal_student']}>
