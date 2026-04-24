@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { EditorialPanel } from '../components/ui/editorial/EditorialPanel';
 import { EditorialHeader } from '../components/ui/editorial/EditorialHeader';
@@ -9,6 +9,10 @@ import { ChevronRight, ArrowLeft, ArrowRight, CheckCircle, Smartphone, Building2
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // ?intent=diagnostic sends learners straight into the diagnostic after
+  // signup; any other role falls through to the default redirect.
+  const intent = searchParams.get('intent');
   const { register, onboardStudent } = useAuth();
   
   // Selection Screen State
@@ -41,6 +45,14 @@ export const RegisterPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Diagnostic intent jumps straight into the learner wizard.
+  useEffect(() => {
+    if (intent === 'diagnostic' && roleMode === 'selection') {
+      setRoleMode('learner');
+      setLearnerStep(1);
+    }
+  }, [intent, roleMode]);
+
   const handleRoleSelection = (role: 'learner' | 'teacher' | 'institution') => {
     setRoleMode(role);
     if (role === 'learner') setLearnerStep(1);
@@ -52,7 +64,9 @@ export const RegisterPage: React.FC = () => {
     
     const result = await onboardStudent(studentData, parentData, paymentData);
     if (result.success) {
-      if (result.redirect_url) {
+      if (intent === 'diagnostic') {
+        navigate('/diagnostic');
+      } else if (result.redirect_url) {
         navigate(result.redirect_url);
       } else {
         navigate('/dashboard/student');
