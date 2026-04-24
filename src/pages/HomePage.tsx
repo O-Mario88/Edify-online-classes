@@ -377,10 +377,15 @@ export const HomePage: React.FC = () => {
                   <h2 className="text-3xl lg:text-4xl font-semibold text-white mb-4">Ready to start learning online?</h2>
                   <p className="text-blue-200 text-lg max-w-xl">Join thousands of students and teachers on Uganda's most advanced learning platform. Enroll now to accelerate your success.</p>
                </div>
-               <div className="flex shrink-0">
+               <div className="flex flex-col sm:flex-row gap-3 shrink-0">
                   <Link to="/register">
                     <Button size="lg" className="bg-white hover:bg-slate-50 text-slate-900 rounded-2xl h-14 px-10 text-base font-bold shadow-lg">
                        Get Started Now
+                    </Button>
+                  </Link>
+                  <Link to="/pricing">
+                    <Button size="lg" variant="outline" className="bg-transparent hover:bg-white/10 border-white/40 text-white rounded-2xl h-14 px-8 text-base font-medium">
+                       View Pricing
                     </Button>
                   </Link>
                </div>
