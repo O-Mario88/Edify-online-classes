@@ -16,6 +16,7 @@ import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 import { CareerGuidanceWidget } from '../components/dashboard/CareerGuidanceWidget';
 import { StudentResourceEngagementPanel } from '../components/dashboard/StudentResourceEngagementPanel';
+import { StudentMasteryTracksCard } from '../components/mastery/StudentMasteryTracksCard';
 import { StudentAssignmentsPanel } from '../components/students/StudentAssignmentsPanel';
 import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
 import { StudentActionCenter } from '../components/dashboard/StudentActionCenter';
@@ -160,6 +161,11 @@ export const StudentDashboard: React.FC = () => {
         {/* Phase 8 Resource Engagement */}
         <DashboardSection>
            <StudentResourceEngagementPanel />
+        </DashboardSection>
+
+        {/* Maple Mastery Studio entry point */}
+        <DashboardSection title="Maple Mastery Studio">
+           <StudentMasteryTracksCard />
         </DashboardSection>
 
         {/* Phase 4.3 — assignments + grades */}
