@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     'attendance.apps.AttendanceConfig',
     'intelligence.apps.IntelligenceConfig',
     'diagnostics.apps.DiagnosticsConfig',
+    'institution_discovery.apps.InstitutionDiscoveryConfig',
 ]
 
 MIDDLEWARE = [

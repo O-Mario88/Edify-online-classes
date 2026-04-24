@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { toast } from 'sonner';
 import { Progress } from '../components/ui/progress';
 import { ParentResourceEngagementPanel } from '../components/dashboard/ParentResourceEngagementPanel';
+import { ParentRecommendedSchools } from '../components/parents/ParentRecommendedSchools';
 import { StreakTracker } from '../components/competition/StreakTracker';
 import { AchievementShowcase } from '../components/competition/AchievementShowcase';
 import { ParentActionCenter } from '../components/parents/ParentActionCenter';
@@ -226,6 +227,15 @@ export const ParentDashboard: React.FC = () => {
 
         {/* Phase 8 Resource Engagement Tracking */}
         <ParentResourceEngagementPanel />
+
+        {/* Institution Discovery — trusted schools for parents */}
+        <div className="space-y-3">
+           <div>
+             <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">Trusted Schools Recommended for Your Child</h3>
+             <p className="text-sm text-gray-600">Schools actively delivering lessons, tracking attendance, and reporting to parents on Maple.</p>
+           </div>
+           <ParentRecommendedSchools />
+        </div>
 
         {/* Phase 2 Competition Engine: Parent Visibility */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
