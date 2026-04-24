@@ -17,6 +17,7 @@ import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 import { CareerGuidanceWidget } from '../components/dashboard/CareerGuidanceWidget';
 import { StudentResourceEngagementPanel } from '../components/dashboard/StudentResourceEngagementPanel';
 import { StudentRecommendedInstitutions } from '../components/students/StudentRecommendedInstitutions';
+import { StudentMasteryTracksCard } from '../components/mastery/StudentMasteryTracksCard';
 import { StudentAssignmentsPanel } from '../components/students/StudentAssignmentsPanel';
 import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
 import { StudentActionCenter } from '../components/dashboard/StudentActionCenter';
@@ -166,6 +167,9 @@ export const StudentDashboard: React.FC = () => {
         {/* Institution Discovery — recommended schools for in-person learning */}
         <DashboardSection title="Recommended Schools for In-Person Learning">
            <StudentRecommendedInstitutions />
+        {/* Maple Mastery Studio entry point */}
+        <DashboardSection title="Maple Mastery Studio">
+           <StudentMasteryTracksCard />
         </DashboardSection>
 
         {/* Phase 4.3 — assignments + grades */}

@@ -185,6 +185,7 @@ urlpatterns = [
     path('api/v1/ai/copilot/ask/', CopilotInferenceView.as_view(), name='copilot_ask'),
     path('api/v1/auth/', include('accounts.urls')),
     path('api/v1/institution-discovery/', include('institution_discovery.urls')),
+    path('api/v1/mastery/', include('mastery.urls')),
     path('api/v1/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/auth/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
