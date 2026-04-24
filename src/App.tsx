@@ -33,6 +33,8 @@ const LiveSessionsPage = lazy(() => import('./pages/LiveSessionsPage').then(m =>
 const PaymentPage = lazy(() => import('./pages/PaymentPage').then(m => ({ default: m.PaymentPage })));
 const ExercisePage = lazy(() => import('./pages/ExercisePage').then(m => ({ default: m.ExercisePage })));
 const LearningPathPage = lazy(() => import('./pages/LearningPathPage'));
+const PricingPage = lazy(() => import('./pages/PricingPage'));
+const StandbyRequestsPage = lazy(() => import('./pages/standby/StandbyRequestsPage'));
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace'));
 const AITeachingAssistant = lazy(() => import('./pages/AITeachingAssistant'));
@@ -142,6 +144,12 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="payment" element={<PaymentPage />} />
+          <Route path="pricing" element={<PricingPage />} />
+          <Route path="standby-teachers" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
+              <StandbyRequestsPage />
+            </ProtectedRoute>
+          } />
           <Route path="p/:username" element={<PublicProfile />} />
           <Route path="t/:username" element={<TeacherStorefront />} />
           
