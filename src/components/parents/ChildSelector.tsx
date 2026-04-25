@@ -12,6 +12,7 @@ export interface LinkedChild {
   student_stage?: string | null;
   relationship?: string;
   link_id: number;
+  unread_count?: number;
 }
 
 interface ChildSelectorProps {
@@ -67,6 +68,7 @@ export const ChildSelector: React.FC<ChildSelectorProps> = ({ onChange }) => {
         </span>
         {children.map((c) => {
           const active = c.student_user_id === selectedId;
+          const unread = c.unread_count || 0;
           return (
             <Button
               key={c.student_user_id}
@@ -75,9 +77,10 @@ export const ChildSelector: React.FC<ChildSelectorProps> = ({ onChange }) => {
               onClick={() => select(c)}
               className={
                 active
-                  ? 'h-8 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 px-3.5'
-                  : 'h-8 rounded-full text-slate-700 hover:bg-slate-50 px-3.5'
+                  ? 'h-8 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 px-3.5 relative'
+                  : 'h-8 rounded-full text-slate-700 hover:bg-slate-50 px-3.5 relative'
               }
+              title={unread > 0 ? `${unread} new update${unread === 1 ? '' : 's'} about ${c.student_name}` : c.student_name}
             >
               <GraduationCap className="w-3.5 h-3.5 mr-1.5" />
               {c.student_name}
@@ -85,6 +88,14 @@ export const ChildSelector: React.FC<ChildSelectorProps> = ({ onChange }) => {
                 <Badge variant="outline" className="ml-2 text-[10px] py-0 px-1.5 bg-white/40 border-white/30">
                   {c.student_stage === 'primary' ? 'P4–P7' : 'S1–S6'}
                 </Badge>
+              )}
+              {unread > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center px-1"
+                  aria-label={`${unread} unread`}
+                >
+                  {unread > 9 ? '9+' : unread}
+                </span>
               )}
             </Button>
           );

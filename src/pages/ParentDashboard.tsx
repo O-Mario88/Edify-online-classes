@@ -231,6 +231,7 @@ export const ParentDashboard: React.FC = () => {
                  </div>
                  <p className="text-[11px] text-slate-500 pt-3 border-t border-slate-100">
                    Built from lessons completed, practice activity, attendance, assessments, project reviews, and teacher feedback.
+                   Refreshed on page load — last updated {new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}.
                  </p>
               </CardContent>
             </Card>
@@ -256,42 +257,11 @@ export const ParentDashboard: React.FC = () => {
           )}
         </div>
 
-        {/* Row 2: Pillar 4 Action & Ecosystem Layer */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-           <div className="lg:col-span-2">
-             <ParentActionCenter />
-           </div>
-
-           <Card className="border border-indigo-100/50 bg-white/80 backdrop-blur-xl hover:shadow-xl shadow-lg transition-all duration-300">
-              <CardHeader className="pb-2 border-b border-indigo-50/50">
-                 <CardTitle className="text-md font-semibold text-indigo-900 flex items-center">
-                   <Activity className="w-4 h-4 mr-2 text-indigo-700" /> Weekly Child Progress Brief
-                 </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4 space-y-4">
-                 <p className="text-sm text-gray-700 leading-relaxed">
-                   {weeklySummary.aiNarrative}
-                 </p>
-                 <div className="space-y-2 text-sm bg-white p-3 rounded-md border border-indigo-100 shadow-sm">
-                   <div className="flex justify-between border-b pb-1">
-                     <span className="text-gray-700">Strongest</span>
-                     <span className="font-medium text-green-700">{weeklySummary.strongestSubject}</span>
-                   </div>
-                   <div className="flex justify-between border-b pb-1">
-                     <span className="text-gray-700">Weakest</span>
-                     <span className="font-medium text-red-700">{weeklySummary.weakestTopic}</span>
-                   </div>
-                   <div className="flex justify-between pb-1">
-                     <span className="text-gray-700">Trend</span>
-                     <span className="font-medium text-gray-900 text-right max-w-[60%]">{weeklySummary.assessmentTrend}</span>
-                   </div>
-                 </div>
-                 <div className="pt-2">
-                   <p className="text-xs text-indigo-800 font-bold uppercase mb-1">Focus Request</p>
-                   <p className="text-xs text-gray-700">{weeklySummary.recommendedFocus}</p>
-                 </div>
-              </CardContent>
-            </Card>
+        {/* Action Center + Celebration — the duplicate Weekly Brief card
+            that used to live here was removed (same narrative already
+            shown in the side-by-side Brief + Teacher Support block above). */}
+        <div className="grid grid-cols-1 gap-6">
+           <ParentActionCenter />
         </div>
 
         <div className="mt-8 mb-4">
