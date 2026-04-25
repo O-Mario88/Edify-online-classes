@@ -98,6 +98,7 @@ INSTALLED_APPS = [
     'pathways.apps.PathwaysConfig',
     'learner_settings.apps.LearnerSettingsConfig',
     'pilot_payments.apps.PilotPaymentsConfig',
+    'fees.apps.FeesConfig',
 ]
 
 MIDDLEWARE = [

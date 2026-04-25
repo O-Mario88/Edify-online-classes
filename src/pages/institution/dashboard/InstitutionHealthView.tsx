@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { apiClient, API_ENDPOINTS } from '@/lib/apiClient';
 import { AcademicTermBanner } from '@/components/dashboard/AcademicTermBanner';
+import { FeeCollectionPanel } from '@/components/institution/FeeCollectionPanel';
 
 interface HealthData {
   score: number;
@@ -291,6 +292,10 @@ export default function InstitutionHealthView() {
 
       {activeTab === 'operations' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Fee collection ledger — sits above billing because it's the
+              admin's day-to-day primary task. */}
+          <FeeCollectionPanel />
+
           {/* Billing */}
           <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
             <div className="flex items-center justify-between mb-3">
