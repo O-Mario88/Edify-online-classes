@@ -120,10 +120,14 @@ export const WeeklyScheduleCard: React.FC = () => {
               const isToday = day.iso === todayIso;
               const isPast = day.iso < todayIso;
               return (
-                <div key={day.iso} className={`py-2.5 flex gap-4 items-start ${isPast ? 'opacity-60' : ''}`}>
-                  <div className="w-14 shrink-0 pt-0.5">
+                <div key={day.iso} className={`py-2.5 flex flex-col sm:flex-row sm:gap-4 sm:items-start ${isPast ? 'opacity-60' : ''}`}>
+                  {/* Mobile (flex-col): day label sits as a narrow inline strip
+                      above the sessions so the session title isn't squeezed by
+                      a fixed 56px gutter. Tablet+ (flex-row): label in its own
+                      column on the left. */}
+                  <div className="flex sm:flex-col items-baseline sm:items-start gap-2 sm:gap-0 sm:w-14 sm:shrink-0 sm:pt-0.5 mb-1.5 sm:mb-0">
                     <p className={`text-xs font-bold uppercase tracking-wider ${isToday ? 'text-indigo-600' : 'text-slate-500'}`}>{day.label}</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-[11px] sm:text-xs text-slate-500">
                       {day.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                     </p>
                   </div>
@@ -147,7 +151,7 @@ export const WeeklyScheduleCard: React.FC = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-7 text-xs shrink-0"
+                              className="h-9 sm:h-8 px-3 text-xs shrink-0"
                               onClick={() => window.open(s.meetingLink, '_blank')}
                             >
                               Join

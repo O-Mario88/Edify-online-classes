@@ -74,9 +74,12 @@ export const SignupFunnel: React.FC = () => {
               const bigDrop = i > 0 && step.share_of_prev < 75;
               return (
                 <div key={step.id}>
-                  <div className="flex items-center justify-between mb-1 text-sm">
+                  {/* Mobile: stack label above the count + chips so long
+                      labels ("First graded work") don't get truncated and
+                      the drop-off chip never collides with the percentage. */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-1 gap-1 text-sm">
                     <span className="font-semibold text-slate-800">{step.label}</span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-bold text-slate-900">{step.count.toLocaleString()}</span>
                       <span className="text-xs text-slate-500">({step.share_of_start}% of signups)</span>
                       {bigDrop && (

@@ -112,59 +112,108 @@ export const FeeCollectionPanel: React.FC = () => {
           </div>
         )}
         {rows.length > 0 && (
-          <div className="overflow-x-auto rounded-lg border border-slate-200">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-                <tr>
-                  <th className="py-3 pl-4 font-semibold">Student</th>
-                  <th className="py-3 font-semibold">Term · Item</th>
-                  <th className="py-3 font-semibold text-right">Assessed</th>
-                  <th className="py-3 font-semibold text-right">Paid</th>
-                  <th className="py-3 font-semibold text-right">Balance</th>
-                  <th className="py-3 font-semibold">Due</th>
-                  <th className="py-3 font-semibold">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {rows.map((r) => {
-                  const isOverdue =
-                    (r.status === 'pending' || r.status === 'partial') &&
-                    r.due_date &&
-                    new Date(r.due_date) < new Date();
-                  return (
-                    <tr key={r.id} className="hover:bg-slate-50">
-                      <td className="py-3 pl-4">
-                        <p className="font-semibold text-slate-800">{r.student_name || r.student_email}</p>
-                        {r.student_name && <p className="text-xs text-slate-500">{r.student_email}</p>}
-                      </td>
-                      <td className="py-3">
-                        <p className="text-slate-700">{r.term_label}</p>
-                        <p className="text-xs text-slate-500">{r.item}</p>
-                      </td>
-                      <td className="py-3 text-right font-medium">{fmt(r.amount, r.currency)}</td>
-                      <td className="py-3 text-right text-emerald-700">{fmt(r.total_paid, r.currency)}</td>
-                      <td className={`py-3 text-right font-bold ${Number(r.balance) > 0 ? 'text-rose-700' : 'text-slate-500'}`}>
-                        {fmt(r.balance, r.currency)}
-                      </td>
-                      <td className="py-3 text-slate-600">
-                        {r.due_date ? (
-                          <span className={isOverdue ? 'text-rose-700 font-semibold inline-flex items-center gap-1' : ''}>
-                            {isOverdue && <AlertTriangle className="w-3 h-3" />}
-                            {new Date(r.due_date).toLocaleDateString()}
-                          </span>
-                        ) : '—'}
-                      </td>
-                      <td className="py-3">
-                        <Badge variant="outline" className={STATUS_BADGE[r.status] || 'bg-slate-50 text-slate-700 border-slate-200'}>
-                          {r.status}
-                        </Badge>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            {/* Mobile: stacked-card list. The table on phones forced admins to
+                horizontal-scroll past Student / Term / Assessed / Paid before
+                seeing the all-important Balance + Status columns. The
+                stacked-card surfaces Balance and Status first instead. */}
+            <div className="md:hidden space-y-3">
+              {rows.map((r) => {
+                const isOverdue =
+                  (r.status === 'pending' || r.status === 'partial') &&
+                  r.due_date &&
+                  new Date(r.due_date) < new Date();
+                return (
+                  <div key={r.id} className="rounded-lg border border-slate-200 p-3 bg-white">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-slate-800 truncate">{r.student_name || r.student_email}</p>
+                        <p className="text-[11px] text-slate-500 truncate">{r.term_label} · {r.item}</p>
+                      </div>
+                      <Badge variant="outline" className={`${STATUS_BADGE[r.status] || 'bg-slate-50 text-slate-700 border-slate-200'} shrink-0`}>
+                        {r.status}
+                      </Badge>
+                    </div>
+                    <div className={`text-2xl font-extrabold ${Number(r.balance) > 0 ? 'text-rose-700' : 'text-slate-500'}`}>
+                      {fmt(r.balance, r.currency)}
+                      <span className="text-[11px] font-medium text-slate-500 ml-1.5">balance</span>
+                    </div>
+                    <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] text-slate-600">
+                      <div>
+                        <span className="block text-slate-400 uppercase tracking-wider">Assessed</span>
+                        <span className="font-medium">{fmt(r.amount, r.currency)}</span>
+                      </div>
+                      <div>
+                        <span className="block text-slate-400 uppercase tracking-wider">Paid</span>
+                        <span className="font-medium text-emerald-700">{fmt(r.total_paid, r.currency)}</span>
+                      </div>
+                    </div>
+                    {r.due_date && (
+                      <p className={`mt-2 text-[11px] ${isOverdue ? 'text-rose-700 font-semibold' : 'text-slate-500'} inline-flex items-center gap-1`}>
+                        {isOverdue && <AlertTriangle className="w-3 h-3" />}
+                        Due {new Date(r.due_date).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Tablet+: full table view with horizontal scroll fallback. */}
+            <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+                  <tr>
+                    <th className="py-3 pl-4 font-semibold">Student</th>
+                    <th className="py-3 font-semibold">Term · Item</th>
+                    <th className="py-3 font-semibold text-right">Assessed</th>
+                    <th className="py-3 font-semibold text-right">Paid</th>
+                    <th className="py-3 font-semibold text-right">Balance</th>
+                    <th className="py-3 font-semibold">Due</th>
+                    <th className="py-3 font-semibold">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {rows.map((r) => {
+                    const isOverdue =
+                      (r.status === 'pending' || r.status === 'partial') &&
+                      r.due_date &&
+                      new Date(r.due_date) < new Date();
+                    return (
+                      <tr key={r.id} className="hover:bg-slate-50">
+                        <td className="py-3 pl-4">
+                          <p className="font-semibold text-slate-800">{r.student_name || r.student_email}</p>
+                          {r.student_name && <p className="text-xs text-slate-500">{r.student_email}</p>}
+                        </td>
+                        <td className="py-3">
+                          <p className="text-slate-700">{r.term_label}</p>
+                          <p className="text-xs text-slate-500">{r.item}</p>
+                        </td>
+                        <td className="py-3 text-right font-medium">{fmt(r.amount, r.currency)}</td>
+                        <td className="py-3 text-right text-emerald-700">{fmt(r.total_paid, r.currency)}</td>
+                        <td className={`py-3 text-right font-bold ${Number(r.balance) > 0 ? 'text-rose-700' : 'text-slate-500'}`}>
+                          {fmt(r.balance, r.currency)}
+                        </td>
+                        <td className="py-3 text-slate-600">
+                          {r.due_date ? (
+                            <span className={isOverdue ? 'text-rose-700 font-semibold inline-flex items-center gap-1' : ''}>
+                              {isOverdue && <AlertTriangle className="w-3 h-3" />}
+                              {new Date(r.due_date).toLocaleDateString()}
+                            </span>
+                          ) : '—'}
+                        </td>
+                        <td className="py-3">
+                          <Badge variant="outline" className={STATUS_BADGE[r.status] || 'bg-slate-50 text-slate-700 border-slate-200'}>
+                            {r.status}
+                          </Badge>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
 
         <p className="text-[11px] text-slate-500">

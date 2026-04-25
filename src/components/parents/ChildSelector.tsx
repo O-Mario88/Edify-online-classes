@@ -62,8 +62,11 @@ export const ChildSelector: React.FC<ChildSelectorProps> = ({ onChange }) => {
 
   return (
     <Card className="border-indigo-100 bg-white/80 backdrop-blur-sm shadow-sm">
-      <CardContent className="py-3 px-4 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 mr-2">
+      {/* Mobile: chip strip scrolls horizontally so 3+ kids never wrap into
+          a messy 2-row grid. Tablet+: revert to flex-wrap so the row reads
+          as one block. */}
+      <CardContent className="py-3 px-4 flex items-center gap-2 overflow-x-auto sm:flex-wrap hide-scrollbar">
+        <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 mr-2 shrink-0">
           <Users className="w-3.5 h-3.5" /> Viewing
         </span>
         {children.map((c) => {
@@ -77,8 +80,8 @@ export const ChildSelector: React.FC<ChildSelectorProps> = ({ onChange }) => {
               onClick={() => select(c)}
               className={
                 active
-                  ? 'h-8 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 px-3.5 relative'
-                  : 'h-8 rounded-full text-slate-700 hover:bg-slate-50 px-3.5 relative'
+                  ? 'h-8 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 px-3.5 relative shrink-0'
+                  : 'h-8 rounded-full text-slate-700 hover:bg-slate-50 px-3.5 relative shrink-0'
               }
               title={unread > 0 ? `${unread} new update${unread === 1 ? '' : 's'} about ${c.student_name}` : c.student_name}
             >

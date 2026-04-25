@@ -83,20 +83,23 @@ export const TodayHero: React.FC<TodayHeroProps> = ({ variant = 'light' }) => {
     const meta = GLASS_META[payload.severity] || GLASS_META.info;
     return (
       <div className={`rounded-2xl border shadow-lg p-5 ${meta.bg} backdrop-blur-md`}>
-        <div className="flex items-start gap-4">
-          <div className={`shrink-0 w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center ${meta.iconColor}`}>
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] uppercase tracking-wider font-bold text-white/60 mb-0.5">
-              Today · {meta.label}
-            </p>
-            <p className="text-lg font-bold text-white leading-snug">{payload.title}</p>
-            <p className="text-sm text-slate-300 mt-1 leading-relaxed">{payload.message}</p>
+        {/* Mobile: stack title above action button. Tablet+: side-by-side. */}
+        <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+          <div className="flex items-start gap-4 flex-1 min-w-0">
+            <div className={`shrink-0 w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center ${meta.iconColor}`}>
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] uppercase tracking-wider font-bold text-white/60 mb-0.5">
+                Today · {meta.label}
+              </p>
+              <p className="text-base sm:text-lg font-bold text-white leading-snug">{payload.title}</p>
+              <p className="text-sm text-slate-300 mt-1 leading-relaxed">{payload.message}</p>
+            </div>
           </div>
           <Button
             onClick={onAction}
-            className="shrink-0 bg-white text-slate-900 hover:bg-slate-100 font-semibold"
+            className="w-full sm:w-auto sm:shrink-0 bg-white text-slate-900 hover:bg-slate-100 font-semibold"
           >
             {payload.action_label}
             <ArrowRight className="w-4 h-4 ml-1.5" />
@@ -109,18 +112,20 @@ export const TodayHero: React.FC<TodayHeroProps> = ({ variant = 'light' }) => {
   const meta = SEVERITY_META[payload.severity] || SEVERITY_META.info;
   return (
     <div className={`rounded-2xl border shadow-sm p-5 ${meta.bg}`}>
-      <div className="flex items-start gap-4">
-        <div className="shrink-0 w-11 h-11 rounded-xl bg-white flex items-center justify-center shadow-sm">
-          {meta.icon}
+      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+        <div className="flex items-start gap-4 flex-1 min-w-0">
+          <div className="shrink-0 w-11 h-11 rounded-xl bg-white flex items-center justify-center shadow-sm">
+            {meta.icon}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-0.5">
+              Today · {meta.label}
+            </p>
+            <p className="text-base sm:text-lg font-bold text-slate-900 leading-snug">{payload.title}</p>
+            <p className="text-sm text-slate-700 mt-1 leading-relaxed">{payload.message}</p>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[11px] uppercase tracking-wider font-bold text-slate-500 mb-0.5">
-            Today · {meta.label}
-          </p>
-          <p className="text-lg font-bold text-slate-900 leading-snug">{payload.title}</p>
-          <p className="text-sm text-slate-700 mt-1 leading-relaxed">{payload.message}</p>
-        </div>
-        <Button onClick={onAction} className="shrink-0 font-semibold">
+        <Button onClick={onAction} className="w-full sm:w-auto sm:shrink-0 font-semibold">
           {payload.action_label}
           <ArrowRight className="w-4 h-4 ml-1.5" />
         </Button>

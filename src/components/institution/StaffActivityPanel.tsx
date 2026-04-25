@@ -174,8 +174,8 @@ const Bucket: React.FC<{ label: string; count: number; accent: 'emerald' | 'blue
     rose:    'border-rose-200 bg-rose-50 text-rose-800',
   };
   return (
-    <div className={`rounded-lg border p-3 ${accentCls[accent]}`}>
-      <p className="text-[11px] uppercase tracking-wider font-bold">{label}</p>
+    <div className={`rounded-lg border p-3 min-h-[78px] flex flex-col justify-between ${accentCls[accent]}`}>
+      <p className="text-[11px] uppercase tracking-wider font-bold leading-tight">{label}</p>
       <p className="text-2xl font-extrabold">{count}</p>
     </div>
   );

@@ -187,14 +187,17 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
           {/* User Menu / Auth Buttons */}
           <div className="flex items-center space-x-3 ml-auto">
             {/* Help / Contact Support — visible to every user, including
-                anonymous, so a confused pilot user always has a way out. */}
+                anonymous, so a confused pilot user always has a way out.
+                Icon-only on phones (no "Help" text) so it doesn't crowd
+                the bell + avatar at narrow widths. */}
             <Link
               to="/support"
               title="Get help"
-              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-sm font-medium transition-all ${isGlass ? 'text-slate-300 hover:text-white hover:bg-white/10' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}`}
+              aria-label="Get help"
+              className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-xl text-sm font-medium transition-all ${isGlass ? 'text-slate-300 hover:text-white hover:bg-white/10' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}`}
             >
               <LifeBuoy className="h-4 w-4" />
-              <span>Help</span>
+              <span className="hidden sm:inline">Help</span>
             </Link>
             {user ? (
               <div className="flex items-center space-x-2">

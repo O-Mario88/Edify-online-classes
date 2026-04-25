@@ -70,7 +70,7 @@ export const AdmissionsPipeline: React.FC = () => {
       <CardContent className="pt-4">
         {loading && <p className="py-4 text-center text-sm text-slate-500">Loading pipeline…</p>}
         {!loading && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {groups.map((g) => (
               <div key={g.id} className={`rounded-lg border p-3 ${g.accent}`}>
                 <p className="text-[11px] uppercase tracking-wider font-bold mb-1">{g.label}</p>
