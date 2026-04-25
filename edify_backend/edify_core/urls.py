@@ -84,6 +84,8 @@ router.register(r'marketplace/lesson-qualifications', LessonQualificationViewSet
 # School OS Endpoints
 router.register(r'institutions', InstitutionViewSet, basename='institution')
 router.register(r'institution-memberships', InstitutionMembershipViewSet, basename='institution-membership')
+from institutions.views import BillingStatusView
+router.register(r'institutions-billing', BillingStatusView, basename='institutions-billing')
 router.register(r'institutions/learner-registrations', LearnerRegistrationViewSet, basename='learner-registration')
 router.register(r'classes', ClassViewSet, basename='class')
 router.register(r'class-enrollments', ClassEnrollmentViewSet, basename='class-enrollment')

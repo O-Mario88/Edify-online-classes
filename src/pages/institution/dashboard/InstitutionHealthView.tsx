@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Building, BookOpen, AlertCircle, CheckCircle2, 
-  TrendingUp, Activity, Users, FileText, Upload
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  Building, BookOpen, AlertCircle, CheckCircle2,
+  Activity, Users, FileText, ArrowRight, CreditCard, GraduationCap, Clock,
 } from 'lucide-react';
 import { apiClient, API_ENDPOINTS } from '@/lib/apiClient';
 
@@ -19,21 +20,50 @@ interface HealthData {
 }
 
 const DEFAULT_HEALTH: HealthData = {
-  score: 88.5,
-  institution_name: 'Kampala Standard High',
-  student_count: 450,
-  teacher_count: 32,
-  status_label: 'Highly Active',
-  attendance_pct: 92,
-  teacher_activity_pct: 84,
-  resource_engagement_pct: 76,
-  parent_involvement_pct: 32,
-  ai_insight: '"Kampala Standard High improved overall Mathematics mastery by 14% WoW after increasing targeted revision usage in upper secondary tiers. Dormancy risk is virtually zero, though Parent App engagement remains an unresolved blocker for fee collection."',
+  score: 0,
+  institution_name: 'Your institution',
+  student_count: 0,
+  teacher_count: 0,
+  status_label: 'Loading',
+  attendance_pct: 0,
+  teacher_activity_pct: 0,
+  resource_engagement_pct: 0,
+  parent_involvement_pct: 0,
+  ai_insight: 'Insights will surface once your school has at least a week of activity in Maple.',
 };
 
+interface Member {
+  id: number;
+  user: { id: number; full_name: string; email: string; role?: string };
+  role: string;
+  status: string;
+  invited_at?: string;
+}
+
+interface Billing {
+  institution: string;
+  plan_tier: string;
+  active_students: number;
+  is_suspended: boolean;
+}
+
+interface AdmissionApp {
+  id: number;
+  status: string;
+  applicant_name?: string;
+  applicant_class_level?: string;
+  submitted_at?: string;
+}
+
 export default function InstitutionHealthView() {
-  const [activeTab, setActiveTab] = useState<'health' | 'offline_online' | 'interventions'>('health');
+  const [activeTab, setActiveTab] = useState<'health' | 'roster' | 'operations'>('health');
   const [health, setHealth] = useState<HealthData>(DEFAULT_HEALTH);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [membersLoading, setMembersLoading] = useState(true);
+  const [billing, setBilling] = useState<Billing | null>(null);
+  const [billingLoading, setBillingLoading] = useState(true);
+  const [admissions, setAdmissions] = useState<AdmissionApp[]>([]);
+  const [admissionsLoading, setAdmissionsLoading] = useState(true);
 
   useEffect(() => {
     const loadHealth = async () => {
@@ -44,26 +74,74 @@ export default function InstitutionHealthView() {
           setHealth({
             score: d.health_score ?? d.score ?? DEFAULT_HEALTH.score,
             institution_name: d.institution_name ?? DEFAULT_HEALTH.institution_name,
-            student_count: d.student_count ?? d.total_students ?? DEFAULT_HEALTH.student_count,
-            teacher_count: d.teacher_count ?? d.total_teachers ?? DEFAULT_HEALTH.teacher_count,
-            status_label: d.status_label ?? d.status ?? DEFAULT_HEALTH.status_label,
-            attendance_pct: d.attendance_pct ?? d.student_attendance_rate ?? DEFAULT_HEALTH.attendance_pct,
-            teacher_activity_pct: d.teacher_activity_pct ?? d.teacher_activity_rate ?? DEFAULT_HEALTH.teacher_activity_pct,
-            resource_engagement_pct: d.resource_engagement_pct ?? d.resource_engagement_rate ?? DEFAULT_HEALTH.resource_engagement_pct,
-            parent_involvement_pct: d.parent_involvement_pct ?? d.parent_engagement_rate ?? DEFAULT_HEALTH.parent_involvement_pct,
+            student_count: d.student_count ?? d.total_students ?? 0,
+            teacher_count: d.teacher_count ?? d.total_teachers ?? 0,
+            status_label: d.status_label ?? d.status ?? 'Active',
+            attendance_pct: d.attendance_pct ?? d.student_attendance_rate ?? 0,
+            teacher_activity_pct: d.teacher_activity_pct ?? d.teacher_activity_rate ?? 0,
+            resource_engagement_pct: d.resource_engagement_pct ?? d.resource_engagement_rate ?? 0,
+            parent_involvement_pct: d.parent_involvement_pct ?? d.parent_engagement_rate ?? 0,
             ai_insight: d.ai_insight ?? d.ai_story ?? DEFAULT_HEALTH.ai_insight,
           });
         }
       } catch {
-        // Fallback to defaults
+        /* leave defaults */
       }
     };
     loadHealth();
   }, []);
 
+  useEffect(() => {
+    const loadMembers = async () => {
+      try {
+        const { data } = await apiClient.get<any>('/institution-memberships/');
+        const list = Array.isArray(data) ? data : (data?.results || []);
+        setMembers(list);
+      } finally {
+        setMembersLoading(false);
+      }
+    };
+    loadMembers();
+  }, []);
+
+  useEffect(() => {
+    const loadBilling = async () => {
+      try {
+        const { data } = await apiClient.get<Billing>('/institutions-billing/status/');
+        if (data) setBilling(data);
+      } finally {
+        setBillingLoading(false);
+      }
+    };
+    loadBilling();
+  }, []);
+
+  useEffect(() => {
+    const loadAdmissions = async () => {
+      try {
+        const { data } = await apiClient.get<AdmissionApp[]>(
+          '/admission-passport/admission-application/institution-inbox/',
+        );
+        setAdmissions(Array.isArray(data) ? data : []);
+      } finally {
+        setAdmissionsLoading(false);
+      }
+    };
+    loadAdmissions();
+  }, []);
+
+  const teacherRows = useMemo(
+    () => members.filter((m) => /teacher|head|deputy|dos|registrar/.test(m.role || '')),
+    [members],
+  );
+  const studentRows = useMemo(
+    () => members.filter((m) => /student|learner/.test(m.role || '')),
+    [members],
+  );
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 bg-slate-50 min-h-screen border border-slate-100 shadow-sm rounded-lg">
-      
+
       {/* Header Profile */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
         <div className="flex items-center gap-5">
@@ -72,146 +150,249 @@ export default function InstitutionHealthView() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-800">{health.institution_name}</h1>
-            <div className="flex gap-4 mt-2 text-sm font-medium">
+            <div className="flex flex-wrap gap-4 mt-2 text-sm font-medium">
               <span className="flex items-center gap-1 text-slate-500"><Users className="w-4 h-4" /> {health.student_count} Students</span>
               <span className="flex items-center gap-1 text-slate-500"><BookOpen className="w-4 h-4" /> {health.teacher_count} Teachers</span>
+              {billing && (
+                <span className="flex items-center gap-1 text-slate-500">
+                  <CreditCard className="w-4 h-4" /> Plan: {billing.plan_tier}
+                </span>
+              )}
             </div>
           </div>
         </div>
-        
-        <div className="mt-4 md:mt-0 bg-emerald-50 border border-emerald-200 px-5 py-3 rounded-lg text-right">
-          <p className="text-emerald-700 text-sm font-bold uppercase tracking-wider mb-1 flex items-center gap-2">
+
+        <div className={`mt-4 md:mt-0 px-5 py-3 rounded-lg text-right border ${
+          health.score >= 70 ? 'bg-emerald-50 border-emerald-200' : health.score >= 40 ? 'bg-amber-50 border-amber-200' : 'bg-rose-50 border-rose-200'
+        }`}>
+          <p className={`text-sm font-bold uppercase tracking-wider mb-1 flex items-center gap-2 ${
+            health.score >= 70 ? 'text-emerald-700' : health.score >= 40 ? 'text-amber-700' : 'text-rose-700'
+          }`}>
             <CheckCircle2 className="w-4 h-4" /> {health.status_label}
           </p>
-          <div className="text-2xl font-black text-emerald-800">{health.score} / 100 <span className="text-sm font-medium text-emerald-600">Health</span></div>
+          <div className={`text-2xl font-black ${
+            health.score >= 70 ? 'text-emerald-800' : health.score >= 40 ? 'text-amber-800' : 'text-rose-800'
+          }`}>
+            {health.score} / 100 <span className="text-sm font-medium opacity-80">Health</span>
+          </div>
         </div>
       </header>
 
       {/* Tabs */}
-      <div className="border-b border-slate-200 flex gap-6">
-        <button 
-          onClick={() => setActiveTab('health')}
-          className={`pb-3 font-semibold text-sm border-b-2 transition-all ${activeTab === 'health' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          Overall Health Profile
-        </button>
-        <button 
-          onClick={() => setActiveTab('offline_online')}
-          className={`pb-3 font-semibold text-sm border-b-2 transition-all ${activeTab === 'offline_online' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          Offline vs Online Performance
-        </button>
-        <button 
-          onClick={() => setActiveTab('interventions')}
-          className={`pb-3 font-semibold text-sm border-b-2 transition-all ${activeTab === 'interventions' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-        >
-          Interventions & Impact
-        </button>
+      <div className="border-b border-slate-200 flex gap-6 overflow-x-auto">
+        {([
+          ['health', 'Overall Health Profile'],
+          ['roster', `Teachers & Roster${teacherRows.length ? ` (${teacherRows.length})` : ''}`],
+          ['operations', 'Operations'],
+        ] as const).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => setActiveTab(key)}
+            className={`pb-3 font-semibold text-sm border-b-2 transition-all whitespace-nowrap ${
+              activeTab === key
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {activeTab === 'health' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-              <span className="text-slate-500 text-sm font-medium">Student Attendance</span>
-              <span className="text-2xl font-bold text-slate-800 mt-2">{health.attendance_pct}%</span>
-              <div className="w-full bg-slate-100 rounded-full h-1.5 mt-3"><div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${health.attendance_pct}%` }}></div></div>
-            </div>
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-              <span className="text-slate-500 text-sm font-medium">Teacher Activity</span>
-              <span className="text-2xl font-bold text-slate-800 mt-2">{health.teacher_activity_pct}%</span>
-              <div className="w-full bg-slate-100 rounded-full h-1.5 mt-3"><div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${health.teacher_activity_pct}%` }}></div></div>
-            </div>
-            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-              <span className="text-slate-500 text-sm font-medium">Resource Engagement</span>
-              <span className="text-2xl font-bold text-slate-800 mt-2">{health.resource_engagement_pct}%</span>
-              <div className="w-full bg-slate-100 rounded-full h-1.5 mt-3"><div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: `${health.resource_engagement_pct}%` }}></div></div>
-            </div>
-            <div className="bg-white p-5 rounded-xl border border-rose-200 shadow-sm flex flex-col justify-between">
-              <span className="text-slate-500 text-sm font-medium">Parent Involvement</span>
-              <span className="text-2xl font-bold text-rose-600 mt-2">{health.parent_involvement_pct}%</span>
-              <div className="w-full bg-slate-100 rounded-full h-1.5 mt-3"><div className="bg-rose-500 h-1.5 rounded-full" style={{ width: `${health.parent_involvement_pct}%` }}></div></div>
-              <p className="text-xs text-rose-600 mt-2 font-medium flex items-center gap-1"><AlertCircle className="w-3 h-3"/> Critical Action Priority</p>
-            </div>
+            <KpiTile label="Student Attendance" value={`${health.attendance_pct}%`} pct={health.attendance_pct} barCls="bg-emerald-500" />
+            <KpiTile label="Teacher Activity" value={`${health.teacher_activity_pct}%`} pct={health.teacher_activity_pct} barCls="bg-blue-500" />
+            <KpiTile label="Resource Engagement" value={`${health.resource_engagement_pct}%`} pct={health.resource_engagement_pct} barCls="bg-indigo-500" />
+            <KpiTile
+              label="Parent Involvement"
+              value={`${health.parent_involvement_pct}%`}
+              pct={health.parent_involvement_pct}
+              barCls="bg-rose-500"
+              warning={health.parent_involvement_pct < 50}
+            />
           </section>
 
           <section className="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-xl p-6 shadow-md text-white">
-             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold flex items-center gap-2"><Activity className="text-blue-200"/> AI Insight Story</h3>
-                <span className="bg-blue-600/50 px-3 py-1 rounded-full text-xs font-semibold uppercase">Outcome Driver</span>
-             </div>
-             <p className="text-xl leading-relaxed text-blue-50 max-w-4xl">
-               {health.ai_insight}
-             </p>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold flex items-center gap-2"><Activity className="text-blue-200" /> AI Insight Story</h3>
+              <span className="bg-blue-600/50 px-3 py-1 rounded-full text-xs font-semibold uppercase">Outcome Driver</span>
+            </div>
+            <p className="text-xl leading-relaxed text-blue-50 max-w-4xl">{health.ai_insight}</p>
           </section>
         </div>
       )}
 
-      {activeTab === 'offline_online' && (
+      {activeTab === 'roster' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-           
-           <div className="flex justify-between items-center">
-             <h2 className="text-lg font-bold text-slate-800">Academic Score Translation</h2>
-             <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm">
-               <Upload className="w-4 h-4"/> Bulk Upload Offline Term Results
-             </button>
-           </div>
+          {/* Capacity vs enrolled */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <SummaryCard icon={<Users className="w-5 h-5" />} label="Active students" value={String(studentRows.length || health.student_count)} />
+            <SummaryCard icon={<GraduationCap className="w-5 h-5" />} label="Active teachers" value={String(teacherRows.length || health.teacher_count)} />
+            <SummaryCard
+              icon={<Activity className="w-5 h-5" />}
+              label="Student-to-teacher ratio"
+              value={
+                teacherRows.length || health.teacher_count
+                  ? `${Math.round((studentRows.length || health.student_count) / Math.max(1, teacherRows.length || health.teacher_count))} : 1`
+                  : '—'
+              }
+            />
+          </section>
 
-           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-             <table className="w-full text-left">
-               <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-sm">
-                 <tr>
-                   <th className="py-4 pl-6 font-semibold uppercase">Subject Area</th>
-                   <th className="py-4 font-semibold uppercase">Online Mastery (Average)</th>
-                   <th className="py-4 font-semibold uppercase">Latest Offline Test (BOT)</th>
-                   <th className="py-4 font-semibold uppercase">Translation Delta</th>
-                 </tr>
-               </thead>
-               <tbody className="divide-y divide-slate-100">
-                 <tr className="hover:bg-slate-50">
-                    <td className="py-4 pl-6 font-bold text-slate-800 flex flex-col">Mathematics <span className="font-normal text-xs text-slate-500">Sr. 4</span></td>
-                    <td className="py-4 font-medium text-slate-600 text-lg">72%</td>
-                    <td className="py-4 font-medium text-slate-600 text-lg">68%</td>
-                    <td className="py-4 font-bold text-rose-500">-4%</td>
-                 </tr>
-                 <tr className="hover:bg-slate-50">
-                    <td className="py-4 pl-6 font-bold text-slate-800 flex flex-col">Biology <span className="font-normal text-xs text-slate-500">Sr. 4</span></td>
-                    <td className="py-4 font-medium text-slate-600 text-lg">65%</td>
-                    <td className="py-4 font-medium text-slate-600 text-lg">74%</td>
-                    <td className="py-4 font-bold text-emerald-600">+9%</td>
-                 </tr>
-               </tbody>
-             </table>
-           </div>
-
-           <div className="bg-slate-100 border border-slate-200 rounded-xl p-5 mt-4">
-              <h3 className="text-sm font-bold text-slate-700 mb-2">Translation Warning:</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">Students are mastering Mathematics online concepts rapidly, but this is translating poorly into the physical BOT 1 written exams. Consider reinforcing long-form written mathematical exercises rather than online multiple choice.</p>
-           </div>
-
+          <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-800">Teaching staff</h2>
+              {membersLoading && <span className="text-xs text-slate-500">Loading…</span>}
+            </div>
+            {!membersLoading && teacherRows.length === 0 && (
+              <div className="p-6 text-center">
+                <p className="text-sm font-semibold text-slate-700 mb-1">No teaching staff on file yet.</p>
+                <p className="text-xs text-slate-500">Use Settings → Invite to onboard headteachers, deputies, and subject teachers.</p>
+              </div>
+            )}
+            {teacherRows.length > 0 && (
+              <table className="w-full text-left">
+                <thead className="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-100">
+                  <tr>
+                    <th className="py-3 pl-5 font-semibold">Name</th>
+                    <th className="py-3 font-semibold">Email</th>
+                    <th className="py-3 font-semibold">Role</th>
+                    <th className="py-3 font-semibold">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {teacherRows.map((m) => (
+                    <tr key={m.id} className="hover:bg-slate-50">
+                      <td className="py-3 pl-5 font-semibold text-slate-800">{m.user?.full_name || '—'}</td>
+                      <td className="py-3 text-slate-600">{m.user?.email || '—'}</td>
+                      <td className="py-3 text-slate-600 capitalize">{(m.role || '').replace(/_/g, ' ')}</td>
+                      <td className="py-3">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                          m.status === 'active'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-slate-100 text-slate-700'
+                        }`}>
+                          {m.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
         </div>
       )}
 
-      {activeTab === 'interventions' && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 text-center py-16">
-            <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-slate-700">Intervention Effectiveness View</h3>
-            <p className="text-slate-500 max-w-md mx-auto">This dashboard integrates the Intervention ROI metrics, tracking how specific teacher interventions translated into direct physical score lifts.</p>
-            <div className="mt-6 flex justify-center gap-4">
-                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-4 rounded-xl text-center shadow-sm">
-                   <div className="text-sm font-semibold uppercase tracking-wide opacity-80">Highest ROI Strategy</div>
-                   <div className="text-xl font-bold mt-1">Peer Tutoring Pairing</div>
-                   <div className="text-sm font-medium mt-1 text-emerald-600">+ 18% offline score lift</div>
-                </div>
-                <div className="bg-rose-50 border border-rose-200 text-rose-800 px-6 py-4 rounded-xl text-center shadow-sm">
-                   <div className="text-sm font-semibold uppercase tracking-wide opacity-80">Lowest ROI Strategy</div>
-                   <div className="text-xl font-bold mt-1">Parent SMS Alerts</div>
-                   <div className="text-sm font-medium mt-1 text-rose-600">- 2% offline score change</div>
-                </div>
+      {activeTab === 'operations' && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Billing */}
+          <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-slate-500" /> Billing & subscription
+              </h2>
             </div>
+            {billingLoading && <p className="text-sm text-slate-500">Loading billing status…</p>}
+            {!billingLoading && !billing && (
+              <p className="text-sm text-slate-600">
+                Billing detail isn't available for this account. Reach out to <a href="mailto:billing@maple.edify" className="text-blue-600 hover:underline">billing@maple.edify</a> to confirm your plan.
+              </p>
+            )}
+            {billing && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <SummaryCard icon={<Building className="w-5 h-5" />} label="Account" value={billing.institution} />
+                <SummaryCard icon={<CreditCard className="w-5 h-5" />} label="Plan" value={billing.plan_tier} />
+                <SummaryCard
+                  icon={<Users className="w-5 h-5" />}
+                  label="Active students"
+                  value={String(billing.active_students)}
+                />
+                {billing.is_suspended && (
+                  <div className="md:col-span-3 rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-800">
+                    <AlertCircle className="w-4 h-4 inline-block mr-2" />
+                    This account is currently suspended. Resolve the latest invoice to restore access.
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* Admissions inbox preview */}
+          <section className="bg-white border border-slate-200 rounded-xl shadow-sm">
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-slate-500" /> Pending admissions
+                <span className="text-xs text-slate-500 font-medium ml-2">({admissions.length})</span>
+              </h2>
+              <Link
+                to="/dashboard/institution/admissions"
+                className="text-sm text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 font-semibold"
+              >
+                Open inbox <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+            {admissionsLoading && <p className="p-5 text-sm text-slate-500">Loading admissions…</p>}
+            {!admissionsLoading && admissions.length === 0 && (
+              <div className="p-6 text-center">
+                <p className="text-sm font-semibold text-slate-700 mb-1">No applications waiting on your decision.</p>
+                <p className="text-xs text-slate-500">When a learner submits an admission application, it will appear here.</p>
+              </div>
+            )}
+            {admissions.length > 0 && (
+              <ul className="divide-y divide-slate-100">
+                {admissions.slice(0, 6).map((a) => (
+                  <li key={a.id} className="px-5 py-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">
+                        {a.applicant_name || `Application #${a.id}`}
+                        {a.applicant_class_level && (
+                          <span className="ml-2 text-xs text-slate-500 font-medium">— {a.applicant_class_level}</span>
+                        )}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        Status: {a.status.replace(/_/g, ' ')}
+                        {a.submitted_at ? ` · submitted ${new Date(a.submitted_at).toLocaleDateString()}` : ''}
+                      </p>
+                    </div>
+                    <Clock className="w-4 h-4 text-slate-400" />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </div>
       )}
 
     </div>
   );
 }
+
+const KpiTile: React.FC<{ label: string; value: string; pct: number; barCls: string; warning?: boolean }> = ({ label, value, pct, barCls, warning }) => (
+  <div className={`bg-white p-5 rounded-xl border shadow-sm flex flex-col justify-between ${warning ? 'border-rose-200' : 'border-slate-200'}`}>
+    <span className="text-slate-500 text-sm font-medium">{label}</span>
+    <span className={`text-2xl font-bold mt-2 ${warning ? 'text-rose-600' : 'text-slate-800'}`}>{value}</span>
+    <div className="w-full bg-slate-100 rounded-full h-1.5 mt-3">
+      <div className={`${barCls} h-1.5 rounded-full`} style={{ width: `${Math.min(100, Math.max(0, pct))}%` }} />
+    </div>
+    {warning && (
+      <p className="text-xs text-rose-600 mt-2 font-medium flex items-center gap-1">
+        <AlertCircle className="w-3 h-3" /> Action priority
+      </p>
+    )}
+  </div>
+);
+
+const SummaryCard: React.FC<{ icon: React.ReactNode; label: string; value: string }> = ({ icon, label, value }) => (
+  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 flex items-center gap-3">
+    <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600">
+      {icon}
+    </div>
+    <div className="min-w-0">
+      <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">{label}</p>
+      <p className="text-lg font-bold text-slate-900 truncate">{value}</p>
+    </div>
+  </div>
+);
