@@ -18,6 +18,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from institutions.models import InstitutionMembership
+from notifications.utils import notify
 from .models import FeeAssessment, FeePayment
 from .serializers import FeeAssessmentSerializer, FeePaymentSerializer
 
@@ -115,4 +116,18 @@ class FeePaymentViewSet(viewsets.ModelViewSet):
         if inst_ids is not None and assessment.institution_id not in (inst_ids or []):
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied('You can only record payments for institutions you administer.')
-        serializer.save(recorded_by=self.request.user)
+        payment = serializer.save(recorded_by=self.request.user)
+        # Notify the student so a parent/learner sees the receipt confirmed
+        # in the in-app inbox, not only on the school's bursar slip.
+        balance_after = assessment.balance
+        notify(
+            user=assessment.student,
+            title=f'Payment recorded: {payment.amount} {assessment.currency}',
+            message=(
+                f'Thank you. Outstanding balance for {assessment.item} ({assessment.term_label}) '
+                f'is now {balance_after} {assessment.currency}.'
+            ),
+            kind='fee_payment_recorded',
+            link='/dashboard/parent',
+            extra={'reference': payment.reference, 'method': payment.method},
+        )

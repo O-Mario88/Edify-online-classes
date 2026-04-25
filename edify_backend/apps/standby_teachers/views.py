@@ -17,6 +17,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from notifications.utils import notify
 from .models import TeacherAvailability, SupportRequest, SupportSession
 from .serializers import (
     TeacherAvailabilitySerializer,
@@ -105,6 +106,13 @@ class SupportRequestViewSet(viewsets.ModelViewSet):
         req.assigned_at = timezone.now()
         req.status = 'assigned'
         req.save()
+        notify(
+            user=req.student,
+            title='A teacher picked up your question',
+            message=f'{request.user.full_name} is on it. You\'ll get a follow-up here when they respond.',
+            kind='standby_assigned',
+            link='/standby-teachers',
+        )
         return Response(SupportRequestSerializer(req).data)
 
     @action(detail=True, methods=['post'], url_path='resolve')
@@ -122,6 +130,13 @@ class SupportRequestViewSet(viewsets.ModelViewSet):
         if not req.assigned_teacher_id:
             req.assigned_teacher = request.user
         req.save()
+        notify(
+            user=req.student,
+            title='Your question has been answered',
+            message=req.resolution_note[:200] if req.resolution_note else 'Open the Standby Teacher view to read the response.',
+            kind='standby_resolved',
+            link='/standby-teachers',
+        )
         return Response(SupportRequestSerializer(req).data)
 
 

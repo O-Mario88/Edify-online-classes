@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from institutions.models import InstitutionMembership
 from passport.models import LearningPassport
 
+from notifications.utils import notify
 from .models import AdmissionApplication, AdmissionStatusEvent
 from .serializers import AdmissionApplicationSerializer, StatusChangeSerializer
 
@@ -109,4 +110,13 @@ class AdmissionApplicationViewSet(viewsets.ModelViewSet):
             actor=request.user, note=note,
         )
         app.refresh_from_db()
+        # Tell the applicant their admission status moved.
+        pretty = to_status.replace('_', ' ')
+        notify(
+            user=app.student,
+            title=f'Admission status: {pretty}',
+            message=note or f'Your application is now "{pretty}". Open Admission Passport to see next steps.',
+            kind='admission_status',
+            link='/admission-passport',
+        )
         return Response(AdmissionApplicationSerializer(app).data)

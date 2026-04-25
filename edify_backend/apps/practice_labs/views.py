@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from apps.curriculum.stage_filter import filter_queryset_by_stage
+from notifications.utils import notify
 from .models import PracticeLab, PracticeLabStep, PracticeLabAttempt, PracticeLabStepResponse
 from .serializers import (
     PracticeLabCardSerializer, PracticeLabDetailSerializer,
@@ -130,4 +131,12 @@ class PracticeLabAttemptViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             attempt.feedback = f'You scored {pct:.0f}% — the pass threshold is {attempt.lab.pass_threshold_pct}%. Retry the weak steps and submit again.'
         attempt.save()
+        if passed:
+            notify(
+                user=request.user,
+                title=f'Badge earned: {attempt.lab.badge_label or attempt.lab.title}',
+                message=f'You scored {pct:.0f}% on "{attempt.lab.title}". Keep going.',
+                kind='badge_earned',
+                link=f'/practice-labs/{attempt.lab.slug}',
+            )
         return Response(PracticeLabAttemptSerializer(attempt).data)

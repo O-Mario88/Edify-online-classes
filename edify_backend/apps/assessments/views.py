@@ -5,9 +5,10 @@ from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from .models import AssessmentWindow, Assessment, Question, Submission
 from .serializers import (
-    AssessmentWindowSerializer, AssessmentSerializer, 
+    AssessmentWindowSerializer, AssessmentSerializer,
     AssessmentAdminSerializer, QuestionSerializer, SubmissionSerializer
 )
+from notifications.utils import notify
 
 from django.db.models import Q
 from institutions.models import InstitutionMembership
@@ -124,7 +125,7 @@ class SubmissionViewSet(TenantFilterMixin, viewsets.ModelViewSet):
                 all_objective = False
 
         submission_status = 'graded' if all_objective else 'submitted'
-        
+
         submission = Submission.objects.create(
             assessment=assessment,
             student=request.user,
@@ -133,6 +134,17 @@ class SubmissionViewSet(TenantFilterMixin, viewsets.ModelViewSet):
             total_score=total_score,
             submitted_at=timezone.now()
         )
+
+        # Auto-graded: tell the student their score landed.
+        if submission_status == 'graded':
+            max_score = assessment.max_score or sum(float(q.marks) for q in assessment.questions.all())
+            notify(
+                user=request.user,
+                title=f'{assessment.title}: graded',
+                message=f'You scored {total_score} / {max_score}. Open the assessment to review your answers.',
+                kind='assessment_graded',
+                link='/library',
+            )
 
         serializer = self.get_serializer(submission)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

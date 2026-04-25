@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import UpgradeRequest, PremiumAccess
 from .serializers import UpgradeRequestSerializer, PremiumAccessSerializer, ReviewSerializer
+from notifications.utils import notify
 
 
 class UpgradeRequestViewSet(viewsets.ModelViewSet):
@@ -57,6 +58,21 @@ class UpgradeRequestViewSet(viewsets.ModelViewSet):
                 user=req.requester, plan=req.plan,
                 expires_at=timezone.now() + timedelta(days=30 * months),
                 source_request=req,
+            )
+            notify(
+                user=req.requester,
+                title=f'{req.plan.replace("_", " ").title()} plan approved',
+                message=f'Your premium access is active for {months} months. Enjoy.',
+                kind='upgrade_approved',
+                link='/pricing',
+            )
+        else:
+            notify(
+                user=req.requester,
+                title='Upgrade request reviewed',
+                message=req.admin_note or 'Your upgrade request was not approved this time. Reach out to billing@maple.edify if you have questions.',
+                kind='upgrade_rejected',
+                link='/support',
             )
         return Response(UpgradeRequestSerializer(req).data)
 
