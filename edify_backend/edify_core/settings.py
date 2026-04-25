@@ -99,6 +99,7 @@ INSTALLED_APPS = [
     'learner_settings.apps.LearnerSettingsConfig',
     'pilot_payments.apps.PilotPaymentsConfig',
     'fees.apps.FeesConfig',
+    'mobile_api.apps.MobileApiConfig',
 ]
 
 MIDDLEWARE = [
