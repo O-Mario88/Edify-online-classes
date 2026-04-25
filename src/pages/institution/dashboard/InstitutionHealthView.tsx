@@ -8,6 +8,7 @@ import { apiClient, API_ENDPOINTS } from '@/lib/apiClient';
 import { AcademicTermBanner } from '@/components/dashboard/AcademicTermBanner';
 import { FeeCollectionPanel } from '@/components/institution/FeeCollectionPanel';
 import { OperationalKpiRow } from '@/components/dashboard/OperationalKpiRow';
+import { TodayHero } from '@/components/dashboard/TodayHero';
 
 interface HealthData {
   score: number;
@@ -182,6 +183,9 @@ export default function InstitutionHealthView() {
       </header>
 
       <AcademicTermBanner />
+
+      {/* Today hero — pending admissions > overdue fees > calm day. */}
+      <TodayHero />
 
       {/* Tabs */}
       <div className="border-b border-slate-200 flex gap-6 overflow-x-auto">

@@ -23,6 +23,7 @@ import { DashboardSkeleton } from '../../components/dashboard/DashboardSkeleton'
 import { PLEReadinessGauge } from '../../components/dashboard/PLEReadinessGauge';
 import { ChildSelector, type LinkedChild } from '../../components/parents/ChildSelector';
 import { AccessStatusBanner } from '../../components/dashboard/AccessStatusBanner';
+import { TodayHero } from '../../components/dashboard/TodayHero';
 
 // ─── Empty State Data ───
 const getEmptyData = () => ({
@@ -99,6 +100,7 @@ export const PrimaryParentDashboard: React.FC = () => {
           can switch context before reading any of the dashboard. */}
       <ChildSelector onChange={setSelectedChild} />
       <AccessStatusBanner upsellPlan="parent_premium" />
+      <TodayHero />
 
       {/* Welcome */}
       <DashboardSection title="">

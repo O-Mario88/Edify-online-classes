@@ -29,6 +29,7 @@ import { AccessStatusBanner } from '../components/dashboard/AccessStatusBanner';
 import { WeeklyScheduleCard } from '../components/dashboard/WeeklyScheduleCard';
 import { AcademicTermBanner } from '../components/dashboard/AcademicTermBanner';
 import { LearnerKpiRow } from '../components/dashboard/LearnerKpiRow';
+import { TodayHero } from '../components/dashboard/TodayHero';
 
 import { DashboardGrid } from '../components/dashboard/layout/DashboardGrid';
 import { DashboardSection } from '../components/dashboard/layout/DashboardSection';
@@ -155,6 +156,14 @@ export const StudentDashboard: React.FC = () => {
         </div>
 
         <AcademicTermBanner />
+
+        {/* "Today" hero — the single highest-priority action for this
+            learner right now. Replaces the "wall of features" problem:
+            a student opens the dashboard and sees exactly one thing to
+            do next (or "all caught up" when nothing's urgent). */}
+        <DashboardSection>
+           <TodayHero variant="glass" />
+        </DashboardSection>
 
         {/* Account access state — replaces the silent assumption that every
             learner is institutional. Trial / Premium / Free is now visible. */}

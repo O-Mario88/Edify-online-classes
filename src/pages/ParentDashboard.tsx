@@ -29,6 +29,7 @@ import { ChildSelector, type LinkedChild } from '../components/parents/ChildSele
 import { AccessStatusBanner } from '../components/dashboard/AccessStatusBanner';
 import { AcademicTermBanner } from '../components/dashboard/AcademicTermBanner';
 import { LearnerKpiRow } from '../components/dashboard/LearnerKpiRow';
+import { TodayHero } from '../components/dashboard/TodayHero';
 
 export const ParentDashboard: React.FC = () => {
   const { userProfile } = useAuth();
@@ -152,6 +153,10 @@ export const ParentDashboard: React.FC = () => {
         </div>
 
         <AcademicTermBanner />
+
+        {/* "Today" hero — one priority action based on every linked
+            child's state. Overdue work > upcoming class > all clear. */}
+        <TodayHero />
 
         {/* Multi-child selector — renders only when this parent has more than
             one linked child. Replaces the previous one-child-only assumption. */}

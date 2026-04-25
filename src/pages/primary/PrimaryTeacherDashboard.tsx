@@ -24,6 +24,7 @@ import { IndependentEarningsIntelligence } from '../../components/teachers/Indep
 import { TeacherCompetitionLeaderboards } from '../../components/teachers/TeacherCompetitionLeaderboards';
 import { TeacherPayoutStatusCard } from '../../components/teachers/TeacherPayoutStatusCard';
 import { MarkingQueuePanel } from '../../components/teachers/MarkingQueuePanel';
+import { TodayHero } from '../../components/dashboard/TodayHero';
 import { ContentManagementPanel } from '../../components/content';
 
 import { DashboardGrid } from '../../components/dashboard/layout/DashboardGrid';
@@ -343,7 +344,12 @@ export const PrimaryTeacherDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Phase 0: Payout & Earnings Priority */}
+        {/* Today hero — backlog > imminent class > calm day. */}
+        <DashboardSection>
+          <TodayHero variant="glass" />
+        </DashboardSection>
+
+        {/* Earnings priority */}
         <DashboardSection title="Earnings & Payouts Tracking">
            <DashboardGrid className="!items-stretch">
              <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={6} variant="glass">

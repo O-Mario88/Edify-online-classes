@@ -230,6 +230,7 @@ urlpatterns = [
     # Full Curriculum Tree Endpoint
     path('api/v1/curriculum/full-tree/', CurriculumTreeView.as_view(), name='curriculum_full_tree'),
     path('api/v1/curriculum/current-term/', CurrentTermView.as_view(), name='curriculum_current_term'),
+    path('api/v1/dashboard/today/', __import__('analytics.today', fromlist=['TodayHeroView']).TodayHeroView.as_view(), name='dashboard_today'),
 
     # Intelligence: APIView endpoints
     path('api/v1/intelligence/passport/student/', StudentPassportView.as_view(), name='intelligence-student-passport'),

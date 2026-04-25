@@ -25,6 +25,7 @@ import { TeacherCompetitionLeaderboards } from '../components/teachers/TeacherCo
 import { TeacherPayoutStatusCard } from '../components/teachers/TeacherPayoutStatusCard';
 import { MarkingQueuePanel } from '../components/teachers/MarkingQueuePanel';
 import { OperationalKpiRow } from '../components/dashboard/OperationalKpiRow';
+import { TodayHero } from '../components/dashboard/TodayHero';
 
 import { DashboardGrid } from '../components/dashboard/layout/DashboardGrid';
 import { DashboardSection } from '../components/dashboard/layout/DashboardSection';
@@ -141,6 +142,19 @@ export const TeacherDashboard: React.FC = () => {
   const [upcomingSessions, setUpcomingSessions] = useState<UpcomingSession[]>([]);
   const [sessionSubjectFilter, setSessionSubjectFilter] = useState<string>('all');
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  // Active tab — URL ?tab=<name> wins (so TodayHero/KPI "Grade now" deep
+  // links land on Grading), then the personalised last-visited tab from
+  // localStorage, else "overview". Once we know the backlog, we flip to
+  // Grading if backlog > 0 *and* the user hasn't explicitly picked a tab
+  // this session.
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'overview';
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab) return urlTab;
+    return localStorage.getItem('teacher-dashboard-tab') || 'overview';
+  });
+  const [userPickedTab, setUserPickedTab] = useState(false);
 
   // Intelligence hooks
   const { actions: nbaActions } = useNextBestActions();
@@ -330,6 +344,30 @@ export const TeacherDashboard: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teacher.id]);
 
+  // Smart default tab: once we know the backlog, and only if the user
+  // didn't explicitly click a tab yet, flip to Grading when there's
+  // anything to grade. A URL ?tab= override (from the KPI card "Grade
+  // now" link or TodayHero) wins — so we also skip this flip when the
+  // current tab was seeded from the URL.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (userPickedTab) return;
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab) return;
+    if (stats && stats.markingBacklog > 0 && activeTab !== 'grading') {
+      setActiveTab('grading');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stats?.markingBacklog]);
+
+  const handleTabChange = (next: string) => {
+    setActiveTab(next);
+    setUserPickedTab(true);
+    try {
+      localStorage.setItem('teacher-dashboard-tab', next);
+    } catch { /* ignore quota issues */ }
+  };
+
   // Derive the list of subject chips from whatever the backend actually
   // returned — avoids hardcoding "Mathematics / Physics" forever.
   const sessionSubjects = Array.from(
@@ -389,23 +427,15 @@ export const TeacherDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Phase 0: Payout & Earnings Priority */}
-        <DashboardSection title="Teacher Earnings Studio">
-           <DashboardGrid className="!items-stretch">
-             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={6} variant="glass">
-                <TeacherPayoutStatusCard />
-             </DashboardCard>
-             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={6} variant="glass">
-                <IndependentEarningsIntelligence />
-             </DashboardCard>
-           </DashboardGrid>
+        {/* Today hero — the single highest-priority action for this
+            teacher right now (backlog > imminent class > calm day). */}
+        <DashboardSection>
+           <TodayHero variant="glass" />
         </DashboardSection>
 
-        {/* Operational KPIs — same vocabulary as the institution and
-            platform dashboards (label/threshold/colour rules from
-            kpiVocabulary). Sits above the existing Intelligence card
-            row so the headline numbers (load + reach + backlog +
-            rating) are first to read. */}
+        {/* Workload KPIs first — a teacher at 7am wants to see what's on
+            their plate, not their earnings. Earnings moved to its own
+            tab below. */}
         <DashboardSection title="My Workload This Term">
            <OperationalKpiRow
              variant="glass"
@@ -427,6 +457,19 @@ export const TeacherDashboard: React.FC = () => {
                    <IntelligenceCard {...card} />
                 </DashboardCard>
              ))}
+           </DashboardGrid>
+        </DashboardSection>
+
+        {/* Earnings & payouts — pushed below workload. A teacher under
+            marking pressure doesn't need payout first thing. */}
+        <DashboardSection title="Earnings & payouts">
+           <DashboardGrid className="!items-stretch">
+             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={6} variant="glass">
+                <TeacherPayoutStatusCard />
+             </DashboardCard>
+             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={6} variant="glass">
+                <IndependentEarningsIntelligence />
+             </DashboardCard>
            </DashboardGrid>
         </DashboardSection>
 
@@ -656,7 +699,7 @@ export const TeacherDashboard: React.FC = () => {
         </Card>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="classes">My Classes</TabsTrigger>

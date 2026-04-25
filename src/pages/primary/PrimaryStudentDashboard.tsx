@@ -17,6 +17,7 @@ import { DashboardCard } from '../../components/dashboard/layout/DashboardCard';
 import { IntelligenceCard } from '../../components/dashboard/IntelligenceCard';
 import { DashboardSkeleton } from '../../components/dashboard/DashboardSkeleton';
 import { PLEReadinessGauge } from '../../components/dashboard/PLEReadinessGauge';
+import { TodayHero } from '../../components/dashboard/TodayHero';
 
 // ─── Empty State Data ───
 const getEmptyDashboardData = () => ({
@@ -82,6 +83,10 @@ export const PrimaryStudentDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+      </DashboardSection>
+
+      <DashboardSection title="">
+        <TodayHero />
       </DashboardSection>
 
       {/* KPI Row */}

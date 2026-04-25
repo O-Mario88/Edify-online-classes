@@ -23,6 +23,7 @@ import { IntegrationObservabilityPanel } from '../components/admin/IntegrationOb
 import { PilotFeedbackInbox } from '../components/admin/PilotFeedbackInbox';
 import { UpgradeRequestQueue } from '../components/admin/UpgradeRequestQueue';
 import { OperationalKpiRow } from '../components/dashboard/OperationalKpiRow';
+import { TodayHero } from '../components/dashboard/TodayHero';
 
 export const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -136,6 +137,9 @@ export const AdminDashboard: React.FC = () => {
              <Button onClick={() => setIsLibraryUploadOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 shadow-sm text-white border-0"><UploadCloud className="w-4 h-4 mr-2" /> Upload Library Material</Button>
           </div>
         </div>
+
+        {/* Today hero — pending upgrades > fresh feedback > calm day. */}
+        <TodayHero />
 
         {/* Platform headline KPIs — sourced from /analytics/admin-dashboard/.kpis.
             Uses the same OperationalKpiRow shell as the teacher dashboard so
