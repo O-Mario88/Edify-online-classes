@@ -23,6 +23,7 @@ import { TeacherGrowthPassport } from '../components/teachers/TeacherGrowthPassp
 import { IndependentEarningsIntelligence } from '../components/teachers/IndependentEarningsIntelligence';
 import { TeacherCompetitionLeaderboards } from '../components/teachers/TeacherCompetitionLeaderboards';
 import { TeacherPayoutStatusCard } from '../components/teachers/TeacherPayoutStatusCard';
+import { MarkingQueuePanel } from '../components/teachers/MarkingQueuePanel';
 
 import { DashboardGrid } from '../components/dashboard/layout/DashboardGrid';
 import { DashboardSection } from '../components/dashboard/layout/DashboardSection';
@@ -265,50 +266,54 @@ export const TeacherDashboard: React.FC = () => {
             },
             {
               title: 'Submission Backlog',
-              value: `${kpis.markingBacklog || 12} Scripts`,
-              trendValue: 8,
-              trendLabel: 'ungraded exams',
-              trendDirection: 'up',
+              value: `${kpis.markingBacklog ?? 0} Scripts`,
+              trendValue: kpis.markingBacklog ?? 0,
+              trendLabel: 'ungraded',
+              trendDirection: (kpis.markingBacklog ?? 0) > 0 ? 'up' : 'neutral',
               trendIsGood: false,
-              riskLevel: 'warning',
-              alertText: 'Overdue turnaround',
+              riskLevel: (kpis.markingBacklog ?? 0) > 0 ? 'warning' : 'healthy',
+              alertText: (kpis.markingBacklog ?? 0) > 0 ? 'Open the Grading tab to clear the queue.' : 'All caught up — no scripts pending.',
               actionLabel: 'Grade now',
-              actionLink: '/dashboard/teacher/marks-upload',
+              actionLink: '/dashboard/teacher?tab=grading',
               drillDownText: 'View submissions',
-              drillDownLink: '/dashboard/teacher/marks-upload'
+              drillDownLink: '/dashboard/teacher?tab=grading'
             }
           ]
         };
         setStats(teacherStats);
 
-        // Map live class overview from API if present, otherwise fallback to class health
+        // Map live class overview from API if present, otherwise from class
+        // health. We deliberately do NOT seed two fake "Senior 4 Physics" /
+        // "Senior 5 Mathematics" rows on empty — an empty roster is a real
+        // signal that the teacher has nothing assigned and the empty state
+        // shown later in the JSX needs to be visible.
         if (classesList.length > 0) {
            const mappedClasses = classesList.map((c: any) => ({
              id: String(c.id),
              name: c.title,
-             level: c.subject?.class_level || 'A-Level',
+             level: c.subject?.class_level || '—',
              subject: c.subject?.name || 'Class',
-             enrolledStudents: c.capacity || 45,
-             completionRate: 65,
-             lastActive: c.created_at || new Date().toISOString()
+             // active_count > capacity > unknown. Never a magic 45.
+             enrolledStudents: typeof c.active_count === 'number'
+               ? c.active_count
+               : (typeof c.capacity === 'number' ? c.capacity : 0),
+             completionRate: typeof c.completion_rate === 'number' ? c.completion_rate : 0,
+             lastActive: c.created_at || new Date().toISOString(),
            }));
            setClasses(mappedClasses);
-        } else if (dashData.classHealth) {
+        } else if (dashData.classHealth && dashData.classHealth.length > 0) {
            const mappedHealth = dashData.classHealth.map((c: any, i: number) => ({
              id: `ch-${i}`,
              name: c.name,
-             level: 'O-Level',
+             level: '—',
              subject: 'Assigned Subject',
-             enrolledStudents: c.enrolled,
-             completionRate: c.attendance, 
-             lastActive: new Date().toISOString()
+             enrolledStudents: c.enrolled || 0,
+             completionRate: c.attendance || 0,
+             lastActive: new Date().toISOString(),
            }));
            setClasses(mappedHealth);
         } else {
-           setClasses([
-             { id: '1', name: 'Senior 4', level: 'O-Level', subject: 'Physics', enrolledStudents: 45, completionRate: 78, lastActive: '2 hours ago' },
-             { id: '2', name: 'Senior 5', level: 'A-Level', subject: 'Mathematics', enrolledStudents: 32, completionRate: 85, lastActive: '1 day ago' },
-           ]);
+           setClasses([]);
         }
         
       } catch (error) {
@@ -350,25 +355,6 @@ export const TeacherDashboard: React.FC = () => {
       setCancellingId(null);
     }
   };
-
-  const recentContent = [
-    {
-      id: '1',
-      title: 'Solving Linear Inequalities',
-      type: 'video',
-      uploadDate: '2025-06-28',
-      views: 142,
-      likes: 89
-    },
-    {
-      id: '2',
-      title: 'Quadratic Equations Practice Sheet',
-      type: 'document',
-      uploadDate: '2025-06-25',
-      views: 67,
-      likes: 45
-    }
-  ];
 
   if (loading) {
     return <DashboardSkeleton type="teacher" />;
@@ -650,9 +636,10 @@ export const TeacherDashboard: React.FC = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="classes">My Classes</TabsTrigger>
+            <TabsTrigger value="grading">Grading</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="sessions">Live Sessions</TabsTrigger>
             <TabsTrigger value="earnings">Earnings</TabsTrigger>
@@ -729,6 +716,13 @@ export const TeacherDashboard: React.FC = () => {
                 <p className="text-gray-600">Manage your teaching assignments across different Uganda classes</p>
               </CardHeader>
               <CardContent>
+                {classes.length === 0 && (
+                  <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 py-10 text-center">
+                    <Users className="w-8 h-8 mx-auto mb-3 text-slate-400" />
+                    <p className="text-sm font-semibold text-slate-700 mb-1">You don't have any classes assigned yet.</p>
+                    <p className="text-xs text-slate-500">Once an institution admin assigns you a class — or you create one in Mentor Studio — it will appear here.</p>
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-6">
                   {classes.map((classItem) => (
                     <Card key={classItem.id} className="hover:shadow-md transition-shadow w-full lg:w-[calc(33.333%-1rem)] flex flex-col justify-between">
@@ -778,6 +772,13 @@ export const TeacherDashboard: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="grading" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Real grading queue — backed by useAssignmentSubmissions().
+                Replaces the previous flow where the "Submission Backlog: 12
+                Scripts" KPI tile was a dead-end with no inbound link. */}
+            <MarkingQueuePanel />
           </TabsContent>
 
           <TabsContent value="content" className="animate-in fade-in slide-in-from-bottom-4 duration-500">

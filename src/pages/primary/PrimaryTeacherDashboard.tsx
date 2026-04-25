@@ -66,6 +66,17 @@ import { IntelligenceCard } from '../../components/dashboard/IntelligenceCard';
 import { DashboardSkeleton } from '../../components/dashboard/DashboardSkeleton';
 import { toast } from 'sonner';
 
+interface UpcomingSession {
+  id: string;
+  title: string;
+  subject: string;
+  date: string;
+  time: string;
+  students: number;
+  duration: number;
+  meeting_link?: string;
+}
+
 interface TeacherStats {
   totalStudents: number;
   activeClasses: number;
@@ -99,6 +110,11 @@ export const PrimaryTeacherDashboard: React.FC = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isLibraryUploadOpen, setIsLibraryUploadOpen] = useState(false);
 
+  // Live upcoming-sessions state (replaces the previous hardcoded
+  // "Primary 5 Mathematics — Quadratic Equations" placeholder).
+  const [upcomingSessions, setUpcomingSessions] = useState<UpcomingSession[]>([]);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
   // Intelligence hooks
   const { actions: nbaActions } = useNextBestActions();
   const { dailyPlan: studyPlanDays } = useStudyPlanner();
@@ -108,11 +124,35 @@ export const PrimaryTeacherDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [dashRes, classesRes, subjectsRes] = await Promise.all([
+        const [dashRes, classesRes, subjectsRes, sessionsRes] = await Promise.all([
           apiClient.get('/analytics/teacher-dashboard/'),
           apiClient.get('/classes/').catch(() => ({ data: [] })),
-          apiClient.get('/curriculum/subjects/').catch(() => ({ data: [] }))
+          apiClient.get('/curriculum/subjects/').catch(() => ({ data: [] })),
+          apiClient.get('/live-sessions/live-session/').catch(() => ({ data: [] })),
         ]);
+
+        const rawSessions: any[] = Array.isArray(sessionsRes.data) ? sessionsRes.data : [];
+        const now = Date.now();
+        const mapped: UpcomingSession[] = rawSessions
+          .filter((s: any) => s.status !== 'cancelled')
+          .filter((s: any) => !s.scheduled_start || new Date(s.scheduled_start).getTime() >= now)
+          .map((s: any) => {
+            const start = s.scheduled_start ? new Date(s.scheduled_start) : null;
+            const lessonTitle = s.lesson?.title || 'Live Session';
+            const subject = s.lesson?.subject_name || s.lesson?.parent_class?.subject?.name || 'General';
+            return {
+              id: String(s.id),
+              title: lessonTitle,
+              subject,
+              date: start ? start.toISOString().slice(0, 10) : '',
+              time: start ? start.toTimeString().slice(0, 5) : '',
+              students: s.enrolled_count ?? 0,
+              duration: s.duration_minutes ?? 60,
+              meeting_link: s.meeting_link,
+            };
+          })
+          .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+        setUpcomingSessions(mapped);
         
         const dashData: any = dashRes.data || {};
         const kpis = dashData.kpis || {};
@@ -258,43 +298,25 @@ export const PrimaryTeacherDashboard: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teacher.id]);
 
-  const upcomingSessions = [
-    {
-      id: '1',
-      title: 'Primary 5 Mathematics - Quadratic Equations',
-      date: '2025-07-03',
-      time: '15:00',
-      students: 28,
-      duration: 90
-    },
-    {
-      id: '2', 
-      title: 'Primary 7 Physics - Circular Motion Lab',
-      date: '2025-07-04',
-      time: '14:00',
-      students: 18,
-      duration: 120
+  const cancelSession = async (sessionId: string) => {
+    if (cancellingId) return;
+    if (!window.confirm('Cancel this live session? Enrolled learners will be notified.')) return;
+    setCancellingId(sessionId);
+    try {
+      const { error } = await apiClient.patch(
+        `/live-sessions/live-session/${sessionId}/`,
+        { status: 'cancelled' },
+      );
+      if (error) throw error;
+      setUpcomingSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      toast.success('Session cancelled. Reminders to learners have been disabled.');
+    } catch (err) {
+      console.error('Cancel session failed', err);
+      toast.error('Could not cancel the session. Please try again.');
+    } finally {
+      setCancellingId(null);
     }
-  ];
-
-  const recentContent = [
-    {
-      id: '1',
-      title: 'Solving Linear Inequalities',
-      type: 'video',
-      uploadDate: '2025-06-28',
-      views: 142,
-      likes: 89
-    },
-    {
-      id: '2',
-      title: 'Quadratic Equations Practice Sheet',
-      type: 'document',
-      uploadDate: '2025-06-25',
-      views: 67,
-      likes: 45
-    }
-  ];
+  };
 
   if (loading) {
     return <DashboardSkeleton type="teacher" />;
@@ -772,7 +794,15 @@ export const PrimaryTeacherDashboard: React.FC = () => {
                     <h3 className="text-xl font-bold text-slate-800 tracking-tight">Upcoming Sessions</h3>
                     <Button variant="ghost" className="text-primary hover:bg-primary/5 rounded-full px-4 h-9" onClick={() => navigate('/live-sessions')}>See all</Button>
                  </div>
-                 
+
+                 {upcomingSessions.length === 0 && (
+                   <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center">
+                     <Calendar className="w-8 h-8 mx-auto mb-3 text-slate-400" />
+                     <p className="text-sm font-semibold text-slate-700 mb-1">No upcoming live sessions yet.</p>
+                     <p className="text-xs text-slate-500">Use the Schedule Session panel on the right to add one.</p>
+                   </div>
+                 )}
+
                  <div className="space-y-6">
                     {upcomingSessions.map((session) => (
                       <div key={session.id} className="relative bg-primary rounded-[2rem] p-6 text-white shadow-[0_16px_40px_-16px_rgba(30,60,110,0.4)] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_50px_-16px_rgba(30,60,110,0.5)] hover:-translate-y-1">
@@ -809,12 +839,17 @@ export const PrimaryTeacherDashboard: React.FC = () => {
                         
                         {/* Pill Controls */}
                         <div className="flex gap-3">
-                          <Button className="flex-1 bg-white/[0.15] hover:bg-white/25 text-white rounded-full border-0 backdrop-blur-md h-12" variant="outline" onClick={() => { toast.info('Session cancelled. Students have been notified.'); }}>
-                            Cancel
+                          <Button
+                            className="flex-1 bg-white/[0.15] hover:bg-white/25 text-white rounded-full border-0 backdrop-blur-md h-12"
+                            variant="outline"
+                            disabled={cancellingId === session.id}
+                            onClick={() => cancelSession(session.id)}
+                          >
+                            {cancellingId === session.id ? 'Cancelling…' : 'Cancel'}
                           </Button>
-                          <Button 
+                          <Button
                             className="flex-1 bg-white text-primary hover:bg-slate-50 rounded-full shadow-lg h-12 text-sm font-bold tracking-wide"
-                            onClick={() => window.open('https://meet.google.com/new', '_blank')}
+                            onClick={() => window.open(session.meeting_link || 'https://meet.google.com/new', '_blank')}
                           >
                             Start Session
                           </Button>
@@ -823,12 +858,6 @@ export const PrimaryTeacherDashboard: React.FC = () => {
                     ))}
                  </div>
                  
-                 {/* Secondary Segmented Chips (Like Tab filters under Appointment) */}
-                 <div className="mt-8 flex gap-3 overflow-x-auto pb-4 hide-scrollbar">
-                    <Button className="rounded-full bg-primary text-white shadow-md w-auto h-10 px-6 shrink-0 border-0" onClick={() => toast.info('Showing all sessions')}>All</Button>
-                    <Button variant="outline" className="rounded-full bg-white text-slate-800 border-none shadow-sm h-10 px-6 hover:bg-slate-50 shrink-0" onClick={() => toast.info('Filtering to Mathematics')}>Mathematics</Button>
-                    <Button variant="outline" className="rounded-full bg-white text-slate-800 border-none shadow-sm h-10 px-6 hover:bg-slate-50 shrink-0" onClick={() => toast.info('Filtering to Physics')}>Physics</Button>
-                 </div>
               </div>
 
               {/* Schedule New Session (Right Panel) */}

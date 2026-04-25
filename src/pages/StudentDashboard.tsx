@@ -25,6 +25,8 @@ import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
 import { StudentActionCenter } from '../components/dashboard/StudentActionCenter';
 import { StudentPlatformLaunchpad } from '../components/dashboard/StudentPlatformLaunchpad';
 import { StudentMotivationEngine } from '../components/dashboard/StudentMotivationEngine';
+import { AccessStatusBanner } from '../components/dashboard/AccessStatusBanner';
+import { WeeklyScheduleCard } from '../components/dashboard/WeeklyScheduleCard';
 
 import { DashboardGrid } from '../components/dashboard/layout/DashboardGrid';
 import { DashboardSection } from '../components/dashboard/layout/DashboardSection';
@@ -150,6 +152,12 @@ export const StudentDashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Account access state — replaces the silent assumption that every
+            learner is institutional. Trial / Premium / Free is now visible. */}
+        <DashboardSection>
+           <AccessStatusBanner />
+        </DashboardSection>
+
         {/* Priority 1: Today's Learning Plan — the first thing a learner sees. */}
         <DashboardSection>
            <TodaysLearningPlanCard />
@@ -166,27 +174,136 @@ export const StudentDashboard: React.FC = () => {
            </DashboardGrid>
         </DashboardSection>
 
-        {/* Phase 8 Resource Engagement */}
+        {/* Headline numbers — overall progress, attendance, readiness — pulled
+            from /analytics/student-dashboard/.kpis. Renders even when the
+            intelligence card stack is empty so a fresh learner still sees
+            something concrete. */}
+        <DashboardSection title="My Standing This Term">
+           <DashboardGrid>
+             <DashboardCard colSpan={1} mdColSpan={4} lgColSpan={3} variant="transparent">
+               <Card className="shadow-sm">
+                 <CardContent className="p-5">
+                   <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Overall Progress</p>
+                   <p className="text-3xl font-extrabold text-slate-900">{kpis?.overallProgress ?? 0}%</p>
+                   <Progress value={kpis?.overallProgress ?? 0} className="h-1.5 mt-2" />
+                 </CardContent>
+               </Card>
+             </DashboardCard>
+             <DashboardCard colSpan={1} mdColSpan={4} lgColSpan={3} variant="transparent">
+               <Card className="shadow-sm">
+                 <CardContent className="p-5">
+                   <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">My Attendance</p>
+                   <p className={`text-3xl font-extrabold ${(kpis?.attendance ?? 0) < 75 ? 'text-rose-600' : 'text-emerald-600'}`}>{kpis?.attendance ?? 0}%</p>
+                   <p className="text-[11px] text-slate-500 mt-2">Across all your live classes this term.</p>
+                 </CardContent>
+               </Card>
+             </DashboardCard>
+             <DashboardCard colSpan={1} mdColSpan={4} lgColSpan={3} variant="transparent">
+               <Card className="shadow-sm">
+                 <CardContent className="p-5">
+                   <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Exam Readiness</p>
+                   <p className="text-3xl font-extrabold text-indigo-600">{kpis?.readinessScore ?? 0}</p>
+                   <p className="text-[11px] text-slate-500 mt-2">Higher is better. Below 60 is at risk.</p>
+                 </CardContent>
+               </Card>
+             </DashboardCard>
+             <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={3} variant="transparent">
+               <Card className="shadow-sm">
+                 <CardContent className="p-5">
+                   <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Overdue Work</p>
+                   <p className={`text-3xl font-extrabold ${(kpis?.overdueTasks ?? 0) > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>{kpis?.overdueTasks ?? 0}</p>
+                   <p className="text-[11px] text-slate-500 mt-2">Assignments past their due date.</p>
+                 </CardContent>
+               </Card>
+             </DashboardCard>
+           </DashboardGrid>
+        </DashboardSection>
+
+        {/* Subject Performance Grid — moved up from the buried "Exam Readiness
+            Tracker" position so academic accountability sits above motivational
+            cards. Source of truth: /analytics/student-dashboard/.subjectPerformance. */}
+        {subjectPerformance && subjectPerformance.length > 0 && (
+          <DashboardSection title="Subject-by-subject standing">
+             <DashboardGrid>
+               <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12} variant="transparent">
+                 <Card className="shadow-sm">
+                   <CardHeader className="border-b border-slate-100 pb-4">
+                      <CardTitle className="text-lg">Where you stand in each subject</CardTitle>
+                      <CardDescription>Completion, average score, and weak topics from your real assessments.</CardDescription>
+                   </CardHeader>
+                   <CardContent className="p-0">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left border-collapse">
+                          <thead className="bg-slate-50 text-slate-600">
+                            <tr>
+                              <th className="font-semibold p-4 uppercase text-xs">Subject</th>
+                              <th className="font-semibold p-4 uppercase text-xs text-center">Completion</th>
+                              <th className="font-semibold p-4 uppercase text-xs text-center">Avg Score</th>
+                              <th className="font-semibold p-4 uppercase text-xs text-center">Weak Topics</th>
+                              <th className="font-semibold p-4 uppercase text-xs text-center">Confidence</th>
+                              <th className="font-semibold p-4 uppercase text-xs text-right">Last Activity</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {subjectPerformance.map((subj: any, index: number) => (
+                              <tr key={index} className="hover:bg-slate-50 transition-colors">
+                                 <td className="p-4">
+                                   <div className="flex items-center gap-2">
+                                     <div className={`w-2 h-2 rounded-full ${subj.readinessColor || 'bg-slate-400'}`}></div>
+                                     <span className="font-bold text-slate-900">{subj.subject}</span>
+                                   </div>
+                                 </td>
+                                 <td className="p-4 text-center">
+                                   <div className="flex items-center justify-center gap-2">
+                                     <Progress value={subj.completion} className="w-16 h-2" />
+                                     <span className="text-slate-700 font-medium">{subj.completion}%</span>
+                                   </div>
+                                 </td>
+                                 <td className="p-4 text-center">
+                                   <Badge variant="outline" className={`${subj.avgScore < 60 ? "text-rose-700 border-rose-300 bg-rose-50" : "text-emerald-700 border-emerald-300 bg-emerald-50"}`}>
+                                     {subj.avgScore}%
+                                   </Badge>
+                                 </td>
+                                 <td className="p-4 text-center">
+                                   {subj.weakTopics > 0 ? (
+                                     <span className="text-rose-600 font-bold flex items-center justify-center gap-1">
+                                       {subj.weakTopics} <AlertTriangle className="w-3 h-3" />
+                                     </span>
+                                   ) : (
+                                     <span className="text-emerald-600 font-bold"><CheckCircle className="w-4 h-4 mx-auto" /></span>
+                                   )}
+                                 </td>
+                                 <td className="p-4 text-center">
+                                   <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
+                                     subj.confidence === 'High' ? 'bg-emerald-100 text-emerald-700' :
+                                     subj.confidence === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'
+                                   }`}>
+                                     {subj.confidence}
+                                   </span>
+                                 </td>
+                                 <td className="p-4 text-right text-slate-700 font-medium whitespace-nowrap">
+                                   {subj.lastActivity}
+                                 </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                   </CardContent>
+                 </Card>
+               </DashboardCard>
+             </DashboardGrid>
+          </DashboardSection>
+        )}
+
+        {/* Weekly Schedule — replaces the single-session "Next Live Session"
+            promise with a full Mon-Sun view sourced from real LiveSession rows. */}
         <DashboardSection>
-           <StudentResourceEngagementPanel />
+           <WeeklyScheduleCard />
         </DashboardSection>
 
-        {/* Institution Discovery — recommended schools for in-person learning */}
-        <DashboardSection title="Recommended Schools for In-Person Learning">
-           <StudentRecommendedInstitutions />
-        </DashboardSection>
-
-        {/* Maple Mastery Studio entry point */}
-        <DashboardSection title="Maple Mastery Studio">
-           <StudentMasteryTracksCard />
-        </DashboardSection>
-
-        {/* Standby Teacher Network — real teachers on call */}
-        <DashboardSection title="Real Teachers, On Call">
-           <AskStandbyTeacherCard />
-        </DashboardSection>
-
-        {/* Phase 4.3 — assignments + grades */}
+        {/* Phase 4.3 — assignments + grades. Promoted above motivational
+            content so a learner sees what's due before what's optional. */}
         <DashboardSection title="My Assignments">
            <StudentAssignmentsPanel />
         </DashboardSection>
@@ -194,6 +311,31 @@ export const StudentDashboard: React.FC = () => {
         {/* Global Action Center - Surfacing critical pending tasks & collaborative duties */}
         <DashboardSection title="What To Do Today">
            <StudentActionCenter />
+        </DashboardSection>
+
+        {/* Resource Engagement (academic — recently-used resources). */}
+        <DashboardSection>
+           <StudentResourceEngagementPanel />
+        </DashboardSection>
+
+        {/* Standby Teacher Network — real teachers on call */}
+        <DashboardSection title="Real Teachers, On Call">
+           <AskStandbyTeacherCard />
+        </DashboardSection>
+
+        {/* ─── Discovery & enrichment (motivational, optional) ─────────
+            The audit flagged that motivational content (career paths,
+            school discovery, mastery tracks) was sitting above academic
+            accountability. These now live BELOW grades + assignments. */}
+
+        {/* Maple Mastery Studio entry point */}
+        <DashboardSection title="Maple Mastery Studio">
+           <StudentMasteryTracksCard />
+        </DashboardSection>
+
+        {/* Institution Discovery — recommended schools for in-person learning */}
+        <DashboardSection title="Recommended Schools for In-Person Learning">
+           <StudentRecommendedInstitutions />
         </DashboardSection>
 
         {/* Row 2: Live Session + Risk + AI Guide */}
@@ -468,79 +610,6 @@ export const StudentDashboard: React.FC = () => {
          {/* Row 5: Career Engine Injection */}
          <DashboardSection>
             <CareerGuidanceWidget />
-         </DashboardSection>
-
-         {/* Row 4: Subject Performance Grid */}
-         <DashboardSection title="Exam Readiness Tracker">
-            <DashboardGrid>
-              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12} variant="transparent">
-                <Card className="shadow-sm">
-                  <CardHeader className="border-b border-white/10 pb-4">
-                     <CardTitle className="text-lg text-white">Subject Performance Grid</CardTitle>
-                     <CardDescription className="text-slate-800">Comprehensive diagnostic of your current academic standing</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                     <div className="overflow-x-auto">
-                       <table className="w-full text-sm text-left border-collapse">
-                         <thead>
-                           <tr>
-                             <th className="font-semibold p-4 uppercase text-xs text-slate-800">Subject</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-800">Completion</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-800">Avg Score</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-800">Weak Topics</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-800">Confidence</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-right text-slate-800">Last Activity</th>
-                           </tr>
-                         </thead>
-                         <tbody className="divide-y divide-white/5">
-                           {subjectPerformance.map((subj, index) => (
-                             <tr key={index} className="hover:bg-white/5 transition-colors">
-                                <td className="p-4">
-                                  <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${subj.readinessColor}`}></div>
-                                    <span className="font-bold text-white">{subj.subject}</span>
-                                  </div>
-                                </td>
-                                <td className="p-4 text-center">
-                                  <div className="flex items-center justify-center gap-2">
-                                    <Progress value={subj.completion} className="w-16 h-2" />
-                                    <span className="text-slate-300 font-medium">{subj.completion}%</span>
-                                  </div>
-                                </td>
-                                <td className="p-4 text-center">
-                                  <Badge variant="outline" className={`border-white/20 ${subj.avgScore < 60 ? "text-rose-400 border-rose-500/30" : "text-emerald-400 border-emerald-500/30"}`}>
-                                    {subj.avgScore}%
-                                  </Badge>
-                                </td>
-                                <td className="p-4 text-center">
-                                  {subj.weakTopics > 0 ? (
-                                    <span className="text-rose-400 font-bold flex items-center justify-center gap-1">
-                                      {subj.weakTopics} <AlertTriangle className="w-3 h-3" />
-                                    </span>
-                                  ) : (
-                                    <span className="text-emerald-400 font-bold"><CheckCircle className="w-4 h-4 mx-auto" /></span>
-                                  )}
-                                </td>
-                                <td className="p-4 text-center">
-                                  <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-                                    subj.confidence === 'High' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                                    subj.confidence === 'Medium' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                                  }`}>
-                                    {subj.confidence}
-                                  </span>
-                                </td>
-                                <td className="p-4 text-right text-slate-800 font-medium whitespace-nowrap">
-                                  {subj.lastActivity}
-                                </td>
-                             </tr>
-                           ))}
-                         </tbody>
-                       </table>
-                     </div>
-                  </CardContent>
-                </Card>
-              </DashboardCard>
-            </DashboardGrid>
          </DashboardSection>
 
          {/* Row 5: Assessment Snapshot (only show if there's data) */}
