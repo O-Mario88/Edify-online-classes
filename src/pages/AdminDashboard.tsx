@@ -24,6 +24,7 @@ import { PilotFeedbackInbox } from '../components/admin/PilotFeedbackInbox';
 import { UpgradeRequestQueue } from '../components/admin/UpgradeRequestQueue';
 import { OperationalKpiRow } from '../components/dashboard/OperationalKpiRow';
 import { TodayHero } from '../components/dashboard/TodayHero';
+import { SignupFunnel } from '../components/admin/SignupFunnel';
 
 export const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -182,6 +183,11 @@ export const AdminDashboard: React.FC = () => {
              }}
            />
         </div>
+
+        {/* Signup funnel — answers "is onboarding working?" with real
+            conversion numbers over the last 30 days. First thing the
+            founder will ask about in a pilot review. */}
+        <SignupFunnel />
 
         {/* Pilot Operations: feedback inbox + upgrade-request queue.
             These replaced the previous hardcoded gamification + commercial
