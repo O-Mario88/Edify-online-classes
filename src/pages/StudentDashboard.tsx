@@ -27,6 +27,7 @@ import { StudentPlatformLaunchpad } from '../components/dashboard/StudentPlatfor
 import { StudentMotivationEngine } from '../components/dashboard/StudentMotivationEngine';
 import { AccessStatusBanner } from '../components/dashboard/AccessStatusBanner';
 import { WeeklyScheduleCard } from '../components/dashboard/WeeklyScheduleCard';
+import { AcademicTermBanner } from '../components/dashboard/AcademicTermBanner';
 
 import { DashboardGrid } from '../components/dashboard/layout/DashboardGrid';
 import { DashboardSection } from '../components/dashboard/layout/DashboardSection';
@@ -151,6 +152,8 @@ export const StudentDashboard: React.FC = () => {
              </Button>
           </div>
         </div>
+
+        <AcademicTermBanner />
 
         {/* Account access state — replaces the silent assumption that every
             learner is institutional. Trial / Premium / Free is now visible. */}

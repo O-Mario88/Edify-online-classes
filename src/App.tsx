@@ -11,6 +11,7 @@ import { Toaster } from './components/ui/sonner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
+const SupportPage = lazy(() => import('./pages/SupportPage').then(m => ({ default: m.SupportPage })));
 // LibraryPage / AnalyticsPage / InterventionsPage / EarningsPage stubs removed in
 // Phase 3 — their routes now use DashboardLibraryPage, AnalyticsLayout,
 // InterventionsHub, and TeacherEarningsPage respectively.
@@ -137,6 +138,7 @@ function App() {
           } />
         <Route path="/" element={<Layout />}>
                     <Route path="feedback" element={<FeedbackPage />} />
+                    <Route path="support" element={<SupportPage />} />
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutUsPage />} />
           <Route path="cohorts" element={

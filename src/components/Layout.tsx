@@ -66,7 +66,7 @@ export const Layout: React.FC = () => {
             <div>
               <h4 className="font-bold text-sm mb-4 text-white uppercase tracking-wider">Support</h4>
               <ul className="space-y-2.5 text-xs md:text-sm text-white">
-                <li><Link to="/institution-onboarding" className="hover:text-white transition-colors">Help Center</Link></li>
+                <li><Link to="/support" className="hover:text-white transition-colors">Help Center</Link></li>
                 <li><Link to="/forum" className="hover:text-white transition-colors">Contact Us</Link></li>
                 <li><Link to="/" className="hover:text-white transition-colors">Privacy Policy</Link></li>
               </ul>

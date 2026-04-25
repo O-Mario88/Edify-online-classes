@@ -65,7 +65,7 @@ router.register(r'curriculum/subjects', SubjectViewSet)
 router.register(r'curriculum/class-levels', ClassLevelViewSet)
 router.register(r'curriculum/topics', TopicViewSet)
 
-from curriculum.views import CurriculumTreeView
+from curriculum.views import CurriculumTreeView, CurrentTermView
 
 # New Phase 1: NCDC Foundations
 from curriculum.views import TopicCompetencyViewSet, ResourceQualityReviewViewSet
@@ -228,6 +228,7 @@ urlpatterns = [
 
     # Full Curriculum Tree Endpoint
     path('api/v1/curriculum/full-tree/', CurriculumTreeView.as_view(), name='curriculum_full_tree'),
+    path('api/v1/curriculum/current-term/', CurrentTermView.as_view(), name='curriculum_current_term'),
 
     # Intelligence: APIView endpoints
     path('api/v1/intelligence/passport/student/', StudentPassportView.as_view(), name='intelligence-student-passport'),

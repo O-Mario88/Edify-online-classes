@@ -17,7 +17,11 @@ class Notification(models.Model):
     channel = models.CharField(max_length=20, choices=CHANNEL_CHOICES)
     payload = models.JSONField(help_text="Structured data for the delivery template")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    read_at = models.DateTimeField(null=True, blank=True, help_text="Set when the recipient marks this read in-app")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.channel} to {self.user.email} ({self.status})"

@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/button';
-import { 
+import {
   GraduationCap, BookOpen, Users, Video, CreditCard, LogOut, Menu, Brain,
-  Target, Lightbulb, MessageSquare, Library, ChevronDown
+  Target, Lightbulb, MessageSquare, Library, ChevronDown, LifeBuoy
 } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, 
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger
 } from '../ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
+import { NotificationsDrawer } from '../dashboard/NotificationsDrawer';
 
 interface TopNavbarProps {
   isGlass?: boolean;
@@ -185,8 +186,19 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ isGlass = false }) => {
 
           {/* User Menu / Auth Buttons */}
           <div className="flex items-center space-x-3 ml-auto">
+            {/* Help / Contact Support — visible to every user, including
+                anonymous, so a confused pilot user always has a way out. */}
+            <Link
+              to="/support"
+              title="Get help"
+              className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-sm font-medium transition-all ${isGlass ? 'text-slate-300 hover:text-white hover:bg-white/10' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}`}
+            >
+              <LifeBuoy className="h-4 w-4" />
+              <span>Help</span>
+            </Link>
             {user ? (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <NotificationsDrawer variant={isGlass ? 'glass' : 'light'} />
                 <Link
                   to={getDashboardRoute()}
                   className={`hidden sm:flex items-center space-x-2.5 rounded-full py-1 pr-4 pl-1 transition-all border ${isGlass ? 'bg-white/10 hover:bg-white/20 border-white/20' : 'bg-slate-50 hover:bg-slate-100 border-slate-200/60'}`}

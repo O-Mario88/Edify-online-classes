@@ -5,6 +5,7 @@ import {
   Activity, Users, FileText, ArrowRight, CreditCard, GraduationCap, Clock,
 } from 'lucide-react';
 import { apiClient, API_ENDPOINTS } from '@/lib/apiClient';
+import { AcademicTermBanner } from '@/components/dashboard/AcademicTermBanner';
 
 interface HealthData {
   score: number;
@@ -177,6 +178,8 @@ export default function InstitutionHealthView() {
           </div>
         </div>
       </header>
+
+      <AcademicTermBanner />
 
       {/* Tabs */}
       <div className="border-b border-slate-200 flex gap-6 overflow-x-auto">

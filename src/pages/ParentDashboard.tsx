@@ -27,6 +27,7 @@ import { NotificationEngine } from '../lib/integrations/NotificationEngine';
 import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
 import { ChildSelector, type LinkedChild } from '../components/parents/ChildSelector';
 import { AccessStatusBanner } from '../components/dashboard/AccessStatusBanner';
+import { AcademicTermBanner } from '../components/dashboard/AcademicTermBanner';
 
 export const ParentDashboard: React.FC = () => {
   const { userProfile } = useAuth();
@@ -148,6 +149,8 @@ export const ParentDashboard: React.FC = () => {
              <Button variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 transition-all shadow-sm rounded-lg" onClick={() => setIsSettingsOpen(true)}><Settings className="w-4 h-4 mr-2" /> Notification Preferences</Button>
           </div>
         </div>
+
+        <AcademicTermBanner />
 
         {/* Multi-child selector — renders only when this parent has more than
             one linked child. Replaces the previous one-child-only assumption. */}
