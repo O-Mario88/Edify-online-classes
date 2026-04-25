@@ -12,15 +12,18 @@ the institution dashboard.
 from decimal import Decimal
 from django.db.models import Sum, F, Q, Count, DecimalField
 from django.db.models.functions import Coalesce
+import json
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action, api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from institutions.models import InstitutionMembership
 from notifications.utils import notify
 from .models import FeeAssessment, FeePayment
 from .serializers import FeeAssessmentSerializer, FeePaymentSerializer
+from .providers import get_provider, IpnRejected
 
 
 SCHOOL_ADMIN_ROLES = ('institution_admin', 'headteacher', 'deputy', 'registrar', 'dos')
@@ -130,4 +133,109 @@ class FeePaymentViewSet(viewsets.ModelViewSet):
             kind='fee_payment_recorded',
             link='/dashboard/parent',
             extra={'reference': payment.reference, 'method': payment.method},
+        )
+
+
+class FeePaymentIpnView(APIView):
+    """POST /api/v1/fees/ipn/<provider>/
+
+    Webhook receiver for Pesapal / Airtel / etc. Converts the provider
+    payload into a FeePayment row idempotently — repeat IPNs for the
+    same reference create no duplicates.
+
+    Public endpoint (no auth) because providers don't carry our JWTs.
+    Each provider's verify_signature() guards against forged calls; in
+    stub mode (no credentials configured) we accept everything but log
+    a warning so the deploy team knows the gate isn't real yet.
+
+    Reference convention: outbound checkout URLs MUST use
+        merchant_reference = f"fee:{assessment.id}:{nonce}"
+    so the IPN handler can look up which FeeAssessment was paid.
+    """
+    permission_classes = [AllowAny]
+    authentication_classes: list = []  # ignore SessionAuth/CSRF — provider can't send our cookies
+
+    def post(self, request, provider_name: str, *args, **kwargs):
+        try:
+            provider = get_provider(provider_name)
+        except IpnRejected as e:
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            provider.verify_signature(request.body, dict(request.headers))
+        except IpnRejected as e:
+            return Response({'detail': str(e)}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            payload = request.data if isinstance(request.data, dict) else json.loads(request.body or b'{}')
+        except (ValueError, TypeError):
+            return Response({'detail': 'Invalid JSON body.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            parsed = provider.parse_ipn(payload)
+        except (KeyError, ValueError, TypeError) as e:
+            return Response({'detail': f'Could not parse IPN: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not parsed.status_ok:
+            # Not a successful payment — provider may also send pending /
+            # failed callbacks. Acknowledge with 200 so they don't retry,
+            # but don't write a payment.
+            return Response({'detail': 'Payment status not successful; ignored.'}, status=status.HTTP_200_OK)
+
+        if not parsed.assessment_id:
+            return Response(
+                {'detail': 'IPN reference does not include an assessment id (expected "fee:<id>:...").'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            assessment = FeeAssessment.objects.get(id=parsed.assessment_id)
+        except FeeAssessment.DoesNotExist:
+            return Response({'detail': 'Unknown assessment.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Idempotency: if a payment with the same reference already exists
+        # for this assessment, return the existing row instead of writing
+        # a duplicate. Providers retry IPNs aggressively.
+        existing = FeePayment.objects.filter(
+            assessment=assessment, reference=parsed.reference,
+        ).first()
+        if existing:
+            return Response(
+                {'detail': 'Already recorded.', 'payment_id': existing.id},
+                status=status.HTTP_200_OK,
+            )
+
+        payment = FeePayment.objects.create(
+            assessment=assessment,
+            amount=parsed.amount,
+            method=parsed.method,
+            reference=parsed.reference,
+            paid_on=parsed.paid_on,
+            notes=f'Auto-imported from {provider.name}'
+                  + (' (stub mode — manual verification required)' if provider.stub_mode() else ''),
+        )
+
+        # Notify the student so the inbox shows the receipt — same as the
+        # manual-record path.
+        balance_after = assessment.balance
+        notify(
+            user=assessment.student,
+            title=f'Payment received: {payment.amount} {assessment.currency}',
+            message=(
+                f'We confirmed your {provider.name.replace("_", " ")} payment for {assessment.item} '
+                f'({assessment.term_label}). Outstanding balance is now {balance_after} {assessment.currency}.'
+            ),
+            kind='fee_payment_received',
+            link='/dashboard/parent',
+            extra={'reference': parsed.reference, 'method': parsed.method, 'provider': provider.name},
+        )
+
+        return Response(
+            {
+                'payment_id': payment.id,
+                'assessment_id': assessment.id,
+                'balance': str(balance_after),
+                'stub_mode': provider.stub_mode(),
+            },
+            status=status.HTTP_201_CREATED,
         )
