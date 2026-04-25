@@ -28,6 +28,7 @@ import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
 import { ChildSelector, type LinkedChild } from '../components/parents/ChildSelector';
 import { AccessStatusBanner } from '../components/dashboard/AccessStatusBanner';
 import { AcademicTermBanner } from '../components/dashboard/AcademicTermBanner';
+import { LearnerKpiRow } from '../components/dashboard/LearnerKpiRow';
 
 export const ParentDashboard: React.FC = () => {
   const { userProfile } = useAuth();
@@ -232,11 +233,22 @@ export const ParentDashboard: React.FC = () => {
            <TeacherSupportSummaryCard />
         </div>
 
-        {/* Row 1: KPI Strip (Intelligence Cards) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {dashboardData.intelligence?.map((card: any, i: number) => (
-             <IntelligenceCard key={i} {...card} />
-          ))}
+        {/* Canonical learner KPI row — same vocabulary, same thresholds,
+            same colours as the student's "My Standing This Term" so a
+            parent can sanity-check what their child sees. Sourced from
+            /analytics/parent-dashboard/.kpis (which already aliases the
+            student's underlying numbers). */}
+        <div className="space-y-4">
+          <LearnerKpiRow kpis={kpis} />
+          {/* Existing intelligence cards stay below as supplementary
+              alerts — risk callouts, AI suggestions, etc. */}
+          {dashboardData.intelligence?.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              {dashboardData.intelligence.map((card: any, i: number) => (
+                <IntelligenceCard key={i} {...card} />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Row 2: Pillar 4 Action & Ecosystem Layer */}

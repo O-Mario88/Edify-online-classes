@@ -28,6 +28,7 @@ import { StudentMotivationEngine } from '../components/dashboard/StudentMotivati
 import { AccessStatusBanner } from '../components/dashboard/AccessStatusBanner';
 import { WeeklyScheduleCard } from '../components/dashboard/WeeklyScheduleCard';
 import { AcademicTermBanner } from '../components/dashboard/AcademicTermBanner';
+import { LearnerKpiRow } from '../components/dashboard/LearnerKpiRow';
 
 import { DashboardGrid } from '../components/dashboard/layout/DashboardGrid';
 import { DashboardSection } from '../components/dashboard/layout/DashboardSection';
@@ -177,49 +178,12 @@ export const StudentDashboard: React.FC = () => {
            </DashboardGrid>
         </DashboardSection>
 
-        {/* Headline numbers — overall progress, attendance, readiness — pulled
-            from /analytics/student-dashboard/.kpis. Renders even when the
-            intelligence card stack is empty so a fresh learner still sees
-            something concrete. */}
+        {/* Headline numbers — overall progress, attendance, readiness, overdue —
+            rendered through the shared LearnerKpiRow so the same vocabulary
+            shows up on the parent dashboard. Source of truth for both:
+            /analytics/{student,parent}-dashboard/.kpis. */}
         <DashboardSection title="My Standing This Term">
-           <DashboardGrid>
-             <DashboardCard colSpan={1} mdColSpan={4} lgColSpan={3} variant="transparent">
-               <Card className="shadow-sm">
-                 <CardContent className="p-5">
-                   <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Overall Progress</p>
-                   <p className="text-3xl font-extrabold text-slate-900">{kpis?.overallProgress ?? 0}%</p>
-                   <Progress value={kpis?.overallProgress ?? 0} className="h-1.5 mt-2" />
-                 </CardContent>
-               </Card>
-             </DashboardCard>
-             <DashboardCard colSpan={1} mdColSpan={4} lgColSpan={3} variant="transparent">
-               <Card className="shadow-sm">
-                 <CardContent className="p-5">
-                   <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">My Attendance</p>
-                   <p className={`text-3xl font-extrabold ${(kpis?.attendance ?? 0) < 75 ? 'text-rose-600' : 'text-emerald-600'}`}>{kpis?.attendance ?? 0}%</p>
-                   <p className="text-[11px] text-slate-500 mt-2">Across all your live classes this term.</p>
-                 </CardContent>
-               </Card>
-             </DashboardCard>
-             <DashboardCard colSpan={1} mdColSpan={4} lgColSpan={3} variant="transparent">
-               <Card className="shadow-sm">
-                 <CardContent className="p-5">
-                   <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Exam Readiness</p>
-                   <p className="text-3xl font-extrabold text-indigo-600">{kpis?.readinessScore ?? 0}</p>
-                   <p className="text-[11px] text-slate-500 mt-2">Higher is better. Below 60 is at risk.</p>
-                 </CardContent>
-               </Card>
-             </DashboardCard>
-             <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={3} variant="transparent">
-               <Card className="shadow-sm">
-                 <CardContent className="p-5">
-                   <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Overdue Work</p>
-                   <p className={`text-3xl font-extrabold ${(kpis?.overdueTasks ?? 0) > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>{kpis?.overdueTasks ?? 0}</p>
-                   <p className="text-[11px] text-slate-500 mt-2">Assignments past their due date.</p>
-                 </CardContent>
-               </Card>
-             </DashboardCard>
-           </DashboardGrid>
+           <LearnerKpiRow kpis={kpis} />
         </DashboardSection>
 
         {/* Subject Performance Grid — moved up from the buried "Exam Readiness
