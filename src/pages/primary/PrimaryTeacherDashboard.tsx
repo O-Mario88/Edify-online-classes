@@ -874,23 +874,42 @@ export const PrimaryTeacherDashboard: React.FC = () => {
                  <div className="bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
                    <div className="space-y-5">
                       <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-2">Subject</label>
-                        <select className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                        <label htmlFor="primary-session-subject" className="block text-sm font-semibold text-slate-700 mb-2">Subject</label>
+                        <select
+                          id="primary-session-subject"
+                          title="Subject"
+                          aria-label="Subject"
+                          className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        >
                           <option>Select subject...</option>
                           {teacher.subjects?.map(subject => (
                             <option key={subject} value={subject}>{subject}</option>
                           ))}
                         </select>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">Date</label>
-                          <input type="date" className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none" />
+                          <label htmlFor="primary-session-date" className="block text-sm font-semibold text-slate-700 mb-2">Date</label>
+                          <input
+                            id="primary-session-date"
+                            type="date"
+                            title="Session date"
+                            aria-label="Session date"
+                            placeholder="Date"
+                            className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
+                          />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">Time</label>
-                          <input type="time" className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none" />
+                          <label htmlFor="primary-session-time" className="block text-sm font-semibold text-slate-700 mb-2">Time</label>
+                          <input
+                            id="primary-session-time"
+                            type="time"
+                            title="Session start time"
+                            aria-label="Session start time"
+                            placeholder="Time"
+                            className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
+                          />
                         </div>
                       </div>
 

@@ -40,9 +40,11 @@ export const LearnerKpiRow: React.FC<LearnerKpiRowProps> = ({
         const accent = kpiAccentClass(id, raw);
         const showProgress = (id === 'overall_progress' || id === 'attendance') && raw != null;
         return (
-          <Card key={id} className="shadow-sm">
+          <Card key={id} className="shadow-sm" title={meta.description}>
             <CardContent className="p-5">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{meta.label}</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 cursor-help" title={meta.description}>
+                {meta.label}
+              </p>
               <p className={`text-3xl font-extrabold ${accent}`}>{display}</p>
               {showProgress && raw != null && (
                 <Progress value={Math.max(0, Math.min(100, raw))} className="h-1.5 mt-2" />

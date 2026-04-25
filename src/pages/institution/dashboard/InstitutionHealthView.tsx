@@ -201,6 +201,7 @@ export default function InstitutionHealthView() {
         ] as const).map(([key, label]) => (
           <button
             key={key}
+            type="button"
             onClick={() => setActiveTab(key)}
             className={`pb-3 font-semibold text-sm border-b-2 transition-all whitespace-nowrap ${
               activeTab === key

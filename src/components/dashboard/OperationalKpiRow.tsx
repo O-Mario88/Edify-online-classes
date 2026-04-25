@@ -52,9 +52,11 @@ export const OperationalKpiRow: React.FC<OperationalKpiRowProps> = ({ values, id
              'text-white')
           : kpiAccentClass(id, numeric);
         return (
-          <Card key={id} className={`shadow-sm ${cardCls}`}>
+          <Card key={id} className={`shadow-sm ${cardCls}`} title={meta.description}>
             <CardContent className="p-5">
-              <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${labelCls}`}>{meta.label}</p>
+              <p className={`text-xs font-bold uppercase tracking-wider mb-1 cursor-help ${labelCls}`} title={meta.description}>
+                {meta.label}
+              </p>
               <p className={`text-3xl font-extrabold ${accent}`}>{display}</p>
               <p className={`text-[11px] mt-2 ${subCls}`}>{meta.description}</p>
             </CardContent>
