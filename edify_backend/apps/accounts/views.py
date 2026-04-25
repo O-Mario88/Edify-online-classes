@@ -268,9 +268,7 @@ class PilotFeedbackCreateView(APIView):
     """POST /api/v1/feedback/ — capture bug reports + comments from pilot users.
 
     Authenticated-only (so we always know who it came from and can follow
-    up). Read is via Django admin at /admin/accounts/pilotfeedback/ —
-    there's no list endpoint by design; we don't want a 'see everyone's
-    complaints' leak.
+    up).
     """
     permission_classes = [IsAuthenticated]
 
@@ -286,3 +284,39 @@ class PilotFeedbackCreateView(APIView):
             user_agent=(request.META.get('HTTP_USER_AGENT') or '')[:500],
         )
         return Response({'message': 'Thanks — logged.'}, status=status.HTTP_201_CREATED)
+
+
+class PilotFeedbackInboxView(APIView):
+    """GET /api/v1/feedback/inbox/ — platform-admin-only inbox of pilot feedback.
+
+    Returns the most recent N items (default 50) with the submitter's email
+    and role. Used by the AdminDashboard's feedback panel so the team can
+    triage bugs and comments without dropping into the Django admin.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        if getattr(request.user, 'role', '') not in ('admin', 'platform_admin'):
+            return Response({'detail': 'Platform admin role required.'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            limit = max(1, min(int(request.query_params.get('limit', 50)), 200))
+        except (TypeError, ValueError):
+            limit = 50
+        severity = request.query_params.get('severity') or ''
+        qs = PilotFeedback.objects.all()
+        if severity:
+            qs = qs.filter(severity=severity)
+        items = qs[:limit]
+        payload = [{
+            'id': f.id,
+            'severity': f.severity,
+            'message': f.message,
+            'page_url': f.page_url,
+            'user_email': f.user.email if f.user else None,
+            'user_role': f.user_role,
+            'created_at': f.created_at.isoformat(),
+        } for f in items]
+        return Response({
+            'count': qs.count(),
+            'items': payload,
+        })

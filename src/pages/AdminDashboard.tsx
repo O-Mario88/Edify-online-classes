@@ -4,7 +4,7 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Activity, Users, BookOpen, Clock, ShieldCheck, Download, AlertTriangle, ArrowRight, Database, ServerCrash, DollarSign, HelpCircle, UserX, UserPlus, CheckCircle, Flame, Trophy, Cpu, TrendingUp, TrendingDown, UploadCloud } from 'lucide-react';
+import { Activity, ShieldCheck, AlertTriangle, Database, ServerCrash, DollarSign, HelpCircle, CheckCircle, Cpu, TrendingUp, UploadCloud } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../lib/apiClient';
 import { ResourceUploadModal } from '../components/academic/ResourceUploadModal';
@@ -20,6 +20,8 @@ import { ContentManagementPanel } from '../components/content';
 import { ErrorLogsPanel } from '../components/dashboard/AdminModals';
 import { DemoEnvironmentController } from '../components/admin/DemoEnvironmentController';
 import { IntegrationObservabilityPanel } from '../components/admin/IntegrationObservabilityPanel';
+import { PilotFeedbackInbox } from '../components/admin/PilotFeedbackInbox';
+import { UpgradeRequestQueue } from '../components/admin/UpgradeRequestQueue';
 
 export const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -101,14 +103,6 @@ export const AdminDashboard: React.FC = () => {
     marketplaceOps: { totalMarketplaceListings: 0, pendingPayouts: 0, pendingModeration: 0 },
     platformHealth: { syncQueueDepth: 0, videoBacklog: 0, celeryFailures: 0, pageLatency: '—' },
     aiOps: { copilotRequests: 0, parentSummaries: 0, lowConfidence: 0, responseTime: '—' },
-    commercialOps: {
-      mrr: '15.4M UGX',
-      arr: '184.8M UGX',
-      activeSubscriptions: 42,
-      trialAccounts: 18,
-      churnRisk: 3,
-      upcomingRenewals: 8
-    },
     institutionPerformance: []
   });
 
@@ -116,7 +110,7 @@ export const AdminDashboard: React.FC = () => {
     return <DashboardSkeleton type="admin" />;
   }
 
-  const { kpis, institutionPerformance, platformHealth, aiOps, commercialOps } = dashboardData;
+  const { kpis, institutionPerformance, platformHealth, aiOps } = dashboardData;
 
   return (
     <div className="w-full min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -163,76 +157,18 @@ export const AdminDashboard: React.FC = () => {
            />
         </div>
 
-        {/* Phase 4: Gamification KPIs */}
+        {/* Pilot Operations: feedback inbox + upgrade-request queue.
+            These replaced the previous hardcoded gamification + commercial
+            tiles (142 challenges, 15.4M MRR, etc) — both blocks were
+            frontend-only fakes that wrote pleasant numbers regardless of
+            backend state. Honest data > theatrical data. */}
         <div className="flex flex-wrap gap-6 my-6">
-           <Card className="flex-[1_1_250px] shadow-sm border-blue-200">
-             <CardContent className="p-5 flex justify-between items-center bg-blue-50/50 h-full">
-               <div>
-                  <p className="text-sm font-bold text-blue-800 mb-1">Active Challenges</p>
-                  <p className="text-2xl font-bold text-gray-900">142</p>
-               </div>
-               <Trophy className="w-8 h-8 text-blue-300" />
-             </CardContent>
-           </Card>
-
-           <Card className="flex-[1_1_250px] shadow-sm border-orange-200">
-             <CardContent className="p-5 flex justify-between items-center bg-orange-50/50 h-full">
-               <div>
-                  <p className="text-sm font-bold text-orange-800 mb-1">Global Streaks Tracked</p>
-                  <p className="text-2xl font-bold text-gray-900">4,291</p>
-               </div>
-               <Flame className="w-8 h-8 text-orange-300" />
-             </CardContent>
-           </Card>
-
-           <Card className="flex-[1_1_250px] shadow-sm border-purple-200">
-             <CardContent className="p-5 flex justify-between items-center bg-purple-50/50 h-full">
-               <div>
-                  <p className="text-sm font-bold text-purple-800 mb-1">Badges Minted</p>
-                  <p className="text-2xl font-bold text-gray-900">12,050</p>
-               </div>
-               <ShieldCheck className="w-8 h-8 text-purple-300" />
-             </CardContent>
-           </Card>
-        </div>
-
-        {/* Phase 6 Commercial Intelligence Core */}
-        <div className="flex flex-wrap gap-6 mb-6">
-           <Card className="flex-[1_1_250px] shadow-sm border-emerald-200">
-             <CardContent className="p-5 flex justify-between items-center bg-emerald-50/50 h-full">
-               <div>
-                  <p className="text-sm font-bold text-emerald-800 mb-1">Monthly Recurring Revenue (MRR)</p>
-                  <p className="text-2xl font-bold text-gray-900">{commercialOps?.mrr || '0 UGX'}</p>
-               </div>
-               <DollarSign className="w-8 h-8 text-emerald-300" />
-             </CardContent>
-           </Card>
-
-           <Card className="flex-[1_1_250px] shadow-sm border-indigo-200">
-             <CardContent className="p-5 flex justify-between items-center bg-indigo-50/50 h-full">
-               <div>
-                  <p className="text-sm font-bold text-indigo-800 mb-1">Active B2B Subscriptions</p>
-                  <div className="flex items-end gap-2">
-                    <p className="text-2xl font-bold text-gray-900">{commercialOps?.activeSubscriptions || 0}</p>
-                    <span className="text-sm font-bold text-gray-500 mb-0.5">/ {commercialOps?.trialAccounts || 0} Trials</span>
-                  </div>
-               </div>
-               <Users className="w-8 h-8 text-indigo-300" />
-             </CardContent>
-           </Card>
-
-           <Card className="flex-[1_1_250px] shadow-sm border-red-200">
-             <CardContent className="p-5 flex justify-between items-center bg-red-50/50 h-full">
-               <div>
-                  <p className="text-sm font-bold text-red-800 mb-1">At-Risk Accounts</p>
-                  <div className="flex items-end gap-2">
-                     <p className="text-2xl font-bold text-gray-900">{commercialOps?.churnRisk || 0}</p>
-                     <span className="text-sm font-bold text-red-400 mb-0.5">High Churn Probability</span>
-                  </div>
-               </div>
-               <TrendingDown className="w-8 h-8 text-red-300" />
-             </CardContent>
-           </Card>
+           <div className="flex-[1_1_360px] min-w-0">
+              <PilotFeedbackInbox />
+           </div>
+           <div className="flex-[1_1_360px] min-w-0">
+              <UpgradeRequestQueue />
+           </div>
         </div>
 
         {/* Phase 5: Global OS Layer */}
