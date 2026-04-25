@@ -22,6 +22,7 @@ import { DemoEnvironmentController } from '../components/admin/DemoEnvironmentCo
 import { IntegrationObservabilityPanel } from '../components/admin/IntegrationObservabilityPanel';
 import { PilotFeedbackInbox } from '../components/admin/PilotFeedbackInbox';
 import { UpgradeRequestQueue } from '../components/admin/UpgradeRequestQueue';
+import { OperationalKpiRow } from '../components/dashboard/OperationalKpiRow';
 
 export const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -136,16 +137,37 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Row 1: KPI Strip (Intelligence Cards) */}
-        <div className="flex flex-wrap gap-4">
-          {dashboardData.intelligence?.map((card: any, i: number) => (
-             <div key={i} className="flex-[1_1_250px] flex flex-col">
+        {/* Platform headline KPIs — sourced from /analytics/admin-dashboard/.kpis.
+            Uses the same OperationalKpiRow shell as the teacher dashboard so
+            label / threshold / colour rules are consistent across roles. */}
+        <OperationalKpiRow
+          ids={[
+            'platform_active_users',
+            'platform_active_institutions',
+            'platform_daily_completions',
+            'platform_session_completion_rate',
+          ]}
+          values={{
+            platform_active_users: kpis?.activeUsers,
+            platform_active_institutions: kpis?.activeInstitutions,
+            platform_daily_completions: kpis?.dailyLessonCompletions,
+            platform_session_completion_rate: kpis?.liveSessionCompletionRate,
+          }}
+        />
+
+        {/* Intelligence cards stay below as supplementary signal cards
+            (alerts, suggestions). They were never the headline numbers. */}
+        {dashboardData.intelligence?.length > 0 && (
+          <div className="flex flex-wrap gap-4">
+            {dashboardData.intelligence.map((card: any, i: number) => (
+              <div key={i} className="flex-[1_1_250px] flex flex-col">
                 <div className="flex-1 h-full">
-                   <IntelligenceCard {...card} />
+                  <IntelligenceCard {...card} />
                 </div>
-             </div>
-          ))}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Global Curriculum Health Layer */}
         <div className="pt-2">

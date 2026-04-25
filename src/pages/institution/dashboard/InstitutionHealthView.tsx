@@ -7,6 +7,7 @@ import {
 import { apiClient, API_ENDPOINTS } from '@/lib/apiClient';
 import { AcademicTermBanner } from '@/components/dashboard/AcademicTermBanner';
 import { FeeCollectionPanel } from '@/components/institution/FeeCollectionPanel';
+import { OperationalKpiRow } from '@/components/dashboard/OperationalKpiRow';
 
 interface HealthData {
   score: number;
@@ -205,18 +206,24 @@ export default function InstitutionHealthView() {
 
       {activeTab === 'health' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <KpiTile label="Student Attendance" value={`${health.attendance_pct}%`} pct={health.attendance_pct} barCls="bg-emerald-500" />
-            <KpiTile label="Teacher Activity" value={`${health.teacher_activity_pct}%`} pct={health.teacher_activity_pct} barCls="bg-blue-500" />
-            <KpiTile label="Resource Engagement" value={`${health.resource_engagement_pct}%`} pct={health.resource_engagement_pct} barCls="bg-indigo-500" />
-            <KpiTile
-              label="Parent Involvement"
-              value={`${health.parent_involvement_pct}%`}
-              pct={health.parent_involvement_pct}
-              barCls="bg-rose-500"
-              warning={health.parent_involvement_pct < 50}
-            />
-          </section>
+          {/* Same shell as the teacher + platform dashboards. Using the
+              shared OperationalKpiRow keeps labels and warn thresholds
+              aligned across roles even though the underlying numbers
+              describe different entities. */}
+          <OperationalKpiRow
+            ids={[
+              'school_attendance',
+              'school_teacher_activity',
+              'school_resource_engagement',
+              'school_parent_engagement',
+            ]}
+            values={{
+              school_attendance: health.attendance_pct,
+              school_teacher_activity: health.teacher_activity_pct,
+              school_resource_engagement: health.resource_engagement_pct,
+              school_parent_engagement: health.parent_involvement_pct,
+            }}
+          />
 
           <section className="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-xl p-6 shadow-md text-white">
             <div className="flex justify-between items-center mb-6">
@@ -377,21 +384,6 @@ export default function InstitutionHealthView() {
     </div>
   );
 }
-
-const KpiTile: React.FC<{ label: string; value: string; pct: number; barCls: string; warning?: boolean }> = ({ label, value, pct, barCls, warning }) => (
-  <div className={`bg-white p-5 rounded-xl border shadow-sm flex flex-col justify-between ${warning ? 'border-rose-200' : 'border-slate-200'}`}>
-    <span className="text-slate-500 text-sm font-medium">{label}</span>
-    <span className={`text-2xl font-bold mt-2 ${warning ? 'text-rose-600' : 'text-slate-800'}`}>{value}</span>
-    <div className="w-full bg-slate-100 rounded-full h-1.5 mt-3">
-      <div className={`${barCls} h-1.5 rounded-full`} style={{ width: `${Math.min(100, Math.max(0, pct))}%` }} />
-    </div>
-    {warning && (
-      <p className="text-xs text-rose-600 mt-2 font-medium flex items-center gap-1">
-        <AlertCircle className="w-3 h-3" /> Action priority
-      </p>
-    )}
-  </div>
-);
 
 const SummaryCard: React.FC<{ icon: React.ReactNode; label: string; value: string }> = ({ icon, label, value }) => (
   <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 flex items-center gap-3">

@@ -24,6 +24,7 @@ import { IndependentEarningsIntelligence } from '../components/teachers/Independ
 import { TeacherCompetitionLeaderboards } from '../components/teachers/TeacherCompetitionLeaderboards';
 import { TeacherPayoutStatusCard } from '../components/teachers/TeacherPayoutStatusCard';
 import { MarkingQueuePanel } from '../components/teachers/MarkingQueuePanel';
+import { OperationalKpiRow } from '../components/dashboard/OperationalKpiRow';
 
 import { DashboardGrid } from '../components/dashboard/layout/DashboardGrid';
 import { DashboardSection } from '../components/dashboard/layout/DashboardSection';
@@ -75,6 +76,7 @@ interface TeacherStats {
   completedSessions: number;
   avgRating: number;
   totalContent: number;
+  markingBacklog: number;
   intelligence?: any[];
 }
 
@@ -190,9 +192,10 @@ export const TeacherDashboard: React.FC = () => {
           activeClasses: kpis.activeClasses || 0,
           totalEarnings: (kpis.monthlyEarnings || 0) * 6,
           monthlyEarnings: kpis.monthlyEarnings || 0,
-          pendingPayouts: 0, 
-          completedSessions: 0, 
+          pendingPayouts: 0,
+          completedSessions: 0,
           avgRating: kpis.avgRating || 0,
+          markingBacklog: kpis.markingBacklog || 0,
           totalContent: dashData.contentPerformance?.length || 0,
           intelligence: [
             {
@@ -396,6 +399,24 @@ export const TeacherDashboard: React.FC = () => {
                 <IndependentEarningsIntelligence />
              </DashboardCard>
            </DashboardGrid>
+        </DashboardSection>
+
+        {/* Operational KPIs — same vocabulary as the institution and
+            platform dashboards (label/threshold/colour rules from
+            kpiVocabulary). Sits above the existing Intelligence card
+            row so the headline numbers (load + reach + backlog +
+            rating) are first to read. */}
+        <DashboardSection title="My Workload This Term">
+           <OperationalKpiRow
+             variant="glass"
+             ids={['active_classes', 'total_learners', 'marking_backlog', 'avg_rating']}
+             values={{
+               active_classes: stats?.activeClasses,
+               total_learners: stats?.totalStudents,
+               marking_backlog: stats?.markingBacklog,
+               avg_rating: stats?.avgRating,
+             }}
+           />
         </DashboardSection>
 
         {/* Intelligence System Block (Hero Strip) */}

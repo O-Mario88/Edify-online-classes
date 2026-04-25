@@ -38,6 +38,135 @@ export interface LearnerKpiMeta {
   warnAbove?: number;
 }
 
+export type OperationalKpiId =
+  // Teacher view — about the teacher's own work
+  | 'active_classes'
+  | 'total_learners'
+  | 'marking_backlog'
+  | 'avg_rating'
+  // Institution view — about the school
+  | 'school_attendance'
+  | 'school_teacher_activity'
+  | 'school_resource_engagement'
+  | 'school_parent_engagement'
+  // Platform view — about the platform
+  | 'platform_active_users'
+  | 'platform_active_institutions'
+  | 'platform_daily_completions'
+  | 'platform_session_completion_rate';
+
+export interface OperationalKpiMeta {
+  id: OperationalKpiId;
+  label: string;
+  description: string;
+  format: (n: number | string) => string;
+  goodDirection: 'higher' | 'lower';
+  warnBelow?: number;
+  warnAbove?: number;
+}
+
+/** Operational KPIs — these describe entities other than a learner
+ *  (a teacher's workload, a school's engagement, the platform's
+ *  health). Same shape as LEARNER_KPIS so consumers can use a single
+ *  rendering component for both, but the values are not interchangeable
+ *  with the learner-about-the-learner metrics. */
+export const OPERATIONAL_KPIS: Record<OperationalKpiId, OperationalKpiMeta> = {
+  // ── Teacher ────────────────────────────────────────────────────
+  active_classes: {
+    id: 'active_classes',
+    label: 'Active classes',
+    description: 'Classes you are currently assigned to teach.',
+    format: (n) => `${n}`,
+    goodDirection: 'higher',
+  },
+  total_learners: {
+    id: 'total_learners',
+    label: 'Learners reached',
+    description: 'Unique students enrolled across your classes.',
+    format: (n) => `${n}`,
+    goodDirection: 'higher',
+  },
+  marking_backlog: {
+    id: 'marking_backlog',
+    label: 'Marking backlog',
+    description: 'Submissions waiting for your grading.',
+    format: (n) => `${n}`,
+    goodDirection: 'lower',
+    warnAbove: 0,
+  },
+  avg_rating: {
+    id: 'avg_rating',
+    label: 'Average rating',
+    description: 'Average learner rating across your sessions.',
+    format: (n) => `${Number(n).toFixed(1)} / 5`,
+    goodDirection: 'higher',
+    warnBelow: 3.5,
+  },
+  // ── Institution ───────────────────────────────────────────────
+  school_attendance: {
+    id: 'school_attendance',
+    label: 'Student attendance',
+    description: 'Average attendance across the school this term.',
+    format: (n) => `${Math.round(Number(n))}%`,
+    goodDirection: 'higher',
+    warnBelow: 75,
+  },
+  school_teacher_activity: {
+    id: 'school_teacher_activity',
+    label: 'Teacher activity',
+    description: 'Share of teachers active on Maple this week.',
+    format: (n) => `${Math.round(Number(n))}%`,
+    goodDirection: 'higher',
+    warnBelow: 60,
+  },
+  school_resource_engagement: {
+    id: 'school_resource_engagement',
+    label: 'Resource engagement',
+    description: 'Students opening at least one resource this week.',
+    format: (n) => `${Math.round(Number(n))}%`,
+    goodDirection: 'higher',
+    warnBelow: 50,
+  },
+  school_parent_engagement: {
+    id: 'school_parent_engagement',
+    label: 'Parent involvement',
+    description: 'Parents who logged in this week.',
+    format: (n) => `${Math.round(Number(n))}%`,
+    goodDirection: 'higher',
+    warnBelow: 40,
+  },
+  // ── Platform ──────────────────────────────────────────────────
+  platform_active_users: {
+    id: 'platform_active_users',
+    label: 'Active users',
+    description: 'Total unique users on Maple right now.',
+    format: (n) => `${n}`,
+    goodDirection: 'higher',
+  },
+  platform_active_institutions: {
+    id: 'platform_active_institutions',
+    label: 'Active institutions',
+    description: 'Schools with at least one active teacher this week.',
+    format: (n) => `${n}`,
+    goodDirection: 'higher',
+  },
+  platform_daily_completions: {
+    id: 'platform_daily_completions',
+    label: 'Lessons completed today',
+    description: 'Live + on-demand lesson completions in the last 24h.',
+    format: (n) => `${n}`,
+    goodDirection: 'higher',
+  },
+  platform_session_completion_rate: {
+    id: 'platform_session_completion_rate',
+    label: 'Live session completion',
+    description: 'Share of scheduled live sessions that completed.',
+    format: (n) => `${n}`,
+    goodDirection: 'higher',
+    warnBelow: 75,
+  },
+};
+
 export const LEARNER_KPIS: Record<LearnerKpiId, LearnerKpiMeta> = {
   overall_progress: {
     id: 'overall_progress',
@@ -113,8 +242,9 @@ export function readLearnerKpi(kpis: any | null | undefined, id: LearnerKpiId): 
 }
 
 /** Return the Tailwind text-colour class to apply to a value of `id`. */
-export function kpiAccentClass(id: LearnerKpiId, value: number | null): string {
-  const meta = LEARNER_KPIS[id];
+export function kpiAccentClass(id: LearnerKpiId | OperationalKpiId, value: number | null): string {
+  const meta: { goodDirection: 'higher' | 'lower'; warnBelow?: number; warnAbove?: number } | undefined =
+    (LEARNER_KPIS as any)[id] ?? (OPERATIONAL_KPIS as any)[id];
   if (!meta || value == null) return 'text-slate-800';
   if (meta.goodDirection === 'higher' && meta.warnBelow != null) {
     return value < meta.warnBelow ? 'text-rose-600' : 'text-emerald-700';
