@@ -21,6 +21,8 @@ import { DashboardCard } from '../../components/dashboard/layout/DashboardCard';
 import { IntelligenceCard } from '../../components/dashboard/IntelligenceCard';
 import { DashboardSkeleton } from '../../components/dashboard/DashboardSkeleton';
 import { PLEReadinessGauge } from '../../components/dashboard/PLEReadinessGauge';
+import { ChildSelector, type LinkedChild } from '../../components/parents/ChildSelector';
+import { AccessStatusBanner } from '../../components/dashboard/AccessStatusBanner';
 
 // ─── Empty State Data ───
 const getEmptyData = () => ({
@@ -38,6 +40,7 @@ export const PrimaryParentDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ReturnType<typeof getEmptyData> | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [selectedChild, setSelectedChild] = useState<LinkedChild | null>(null);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -62,9 +65,41 @@ export const PrimaryParentDashboard: React.FC = () => {
 
   const { child, kpis, subjects, p7Readiness, intelligence, homeSupportActions, teacherMessages } = data;
 
+  // When no home-support actions come back from the backend, give parents
+  // age-appropriate defaults so the tab isn't empty. Class-aware so a P5
+  // parent doesn't get advice tuned for P7 PLE prep.
+  const defaultHomeSupport = (() => {
+    const isP7 = child.isP7;
+    const klass = (child.class || '').toUpperCase();
+    const base: Array<{ id: string; type: string; priority: 'high' | 'medium' | 'low'; title: string; description: string; completed: boolean }> = [];
+    if (isP7) {
+      base.push(
+        { id: 'p7-mock', type: 'mock_prep', priority: 'high', title: 'Sit one PLE mock per week', description: 'Past papers in Maths, English, SST, Science. Time them like the real exam.', completed: false },
+        { id: 'p7-revision', type: 'revision_followup', priority: 'high', title: 'Revise the weakest topic from this week', description: `Focus on ${p7Readiness.weakest || 'the topic flagged as weak'} for at least 30 minutes.`, completed: false },
+      );
+    } else if (klass.startsWith('P5') || klass.startsWith('P6')) {
+      base.push(
+        { id: 'p56-reading', type: 'reading_support', priority: 'medium', title: 'Read aloud together for 15 minutes', description: 'Pick any book your child enjoys. Take turns reading a paragraph each.', completed: false },
+        { id: 'p56-arith', type: 'revision_followup', priority: 'medium', title: 'Five minutes of mental maths daily', description: 'Times tables, simple fractions, money — keep it short and consistent.', completed: false },
+      );
+    } else {
+      base.push(
+        { id: 'p4-phonics', type: 'reading_support', priority: 'medium', title: 'Daily reading practice (10 minutes)', description: 'Sound out new words together. Praise effort, not just correctness.', completed: false },
+        { id: 'p4-counting', type: 'revision_followup', priority: 'low', title: 'Counting + simple addition with everyday objects', description: 'Use beans, coins, or fruit. Make it playful.', completed: false },
+      );
+    }
+    return base;
+  })();
+  const supportActions = homeSupportActions.length > 0 ? homeSupportActions : defaultHomeSupport;
+
   return (
     <div className="w-full min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Multi-child + access state — at the top so a parent with two kids
+          can switch context before reading any of the dashboard. */}
+      <ChildSelector onChange={setSelectedChild} />
+      <AccessStatusBanner upsellPlan="parent_premium" />
+
       {/* Welcome */}
       <DashboardSection title="">
         <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
@@ -265,7 +300,7 @@ export const PrimaryParentDashboard: React.FC = () => {
                 </CardContent>
               </Card>
 
-              {homeSupportActions.map((action) => (
+              {supportActions.map((action) => (
                 <Card key={action.id} className={`border-l-4 border-r-0 border-t-0 border-b-0 backdrop-blur-md shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white/80 ${
                   action.completed ? 'border-l-green-400 bg-green-50/50' :
                   action.priority === 'high' ? 'border-l-red-400' :

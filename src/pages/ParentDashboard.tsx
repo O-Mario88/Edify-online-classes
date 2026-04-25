@@ -25,6 +25,8 @@ import { ParentSettingsModal, MessageTutorModal, BookMeetingModal } from '../com
 import { WhatsAppCommunicationHub } from '../components/dashboard/WhatsAppCommunicationHub';
 import { NotificationEngine } from '../lib/integrations/NotificationEngine';
 import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
+import { ChildSelector, type LinkedChild } from '../components/parents/ChildSelector';
+import { AccessStatusBanner } from '../components/dashboard/AccessStatusBanner';
 
 export const ParentDashboard: React.FC = () => {
   const { userProfile } = useAuth();
@@ -37,6 +39,11 @@ export const ParentDashboard: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMessageOpen, setIsMessageOpen] = useState(false);
   const [isBookOpen, setIsBookOpen] = useState(false);
+
+  // Selected child — only relevant for parents with multiple linked
+  // students. Single-child parents never see the selector but the state
+  // still hydrates so we can show their child's name in headers.
+  const [selectedChild, setSelectedChild] = useState<LinkedChild | null>(null);
 
   // Inline reports viewer — honest replacement for the old "download PDF"
   // flow, which fabricated a .pdf file whose bytes were raw JSON. Now we
@@ -130,14 +137,26 @@ export const ParentDashboard: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
           <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-indigo-200 drop-shadow-sm">Parent Confidence Report</h1>
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-indigo-200 drop-shadow-sm">
+              {selectedChild?.student_name
+                ? `${selectedChild.student_name.split(' ')[0]}'s Confidence Report`
+                : 'Parent Confidence Report'}
+            </h1>
             <p className="text-blue-100/70 font-medium mt-1">See your child's progress clearly — and know what to do next.</p>
           </div>
           <div className="flex gap-3">
              <Button variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 transition-all shadow-sm rounded-lg" onClick={() => setIsSettingsOpen(true)}><Settings className="w-4 h-4 mr-2" /> Notification Preferences</Button>
           </div>
         </div>
-        
+
+        {/* Multi-child selector — renders only when this parent has more than
+            one linked child. Replaces the previous one-child-only assumption. */}
+        <ChildSelector onChange={setSelectedChild} />
+
+        {/* Account access state — replaces the disclaimer that punted billing
+            questions to the school admin office. */}
+        <AccessStatusBanner upsellPlan="parent_premium" />
+
         <Tabs defaultValue="academics" className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-md bg-gray-100/80 mb-6">
             <TabsTrigger value="academics" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">Academic Performance</TabsTrigger>
@@ -393,27 +412,31 @@ export const ParentDashboard: React.FC = () => {
                 <CardTitle className="text-md flex items-center gap-2"><Clock className="w-4 h-4 text-gray-700" /> Upcoming Schedule & Tasks</CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="pt-4 space-y-4">
-               <div className="flex items-start gap-3 pb-3 border-b border-gray-100">
-                 <div className="bg-red-100 text-red-700 p-2 rounded text-center min-w-[50px]">
-                   <p className="text-xs font-bold uppercase">Due</p>
-                   <p className="text-lg font-bold">TODAY</p>
-                 </div>
-                 <div>
-                   <p className="font-semibold text-gray-900">Physics - Vector Lab Report</p>
-                   <p className="text-sm text-red-800 font-medium mt-1">Pending Submission (Overdue by 2 hours)</p>
-                 </div>
-               </div>
-               <div className="flex items-start gap-3">
-                 <div className="bg-blue-100 text-blue-700 p-2 rounded text-center min-w-[50px]">
-                   <p className="text-xs font-bold uppercase">In</p>
-                   <p className="text-lg font-bold">2d</p>
-                 </div>
-                 <div>
-                   <p className="font-semibold text-gray-900">Biology - Unit Test 3</p>
-                   <p className="text-sm text-gray-800 mt-1">Thursday, 2:00 PM</p>
-                 </div>
-               </div>
+            <CardContent className="pt-4">
+              {(kpis?.missedTasks ?? 0) > 0 ? (
+                <div className="flex items-start gap-3 pb-3">
+                  <div className="bg-red-100 text-red-700 p-2 rounded text-center min-w-[50px]">
+                    <p className="text-xs font-bold uppercase">Overdue</p>
+                    <p className="text-lg font-bold">{kpis.missedTasks}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">
+                      {childPerformance?.name || 'Your child'} has {kpis.missedTasks} overdue assignment{kpis.missedTasks === 1 ? '' : 's'}.
+                    </p>
+                    <p className="text-sm text-slate-600 mt-1">
+                      Open the Full Report below to see exactly what's pending and how scores compare to the class average.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <Clock className="w-7 h-7 mx-auto mb-2 text-slate-300" />
+                  <p className="text-sm font-semibold text-slate-700">Nothing overdue right now.</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Upcoming live classes and assignment deadlines will surface here as teachers schedule them.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

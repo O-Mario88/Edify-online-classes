@@ -216,6 +216,39 @@ export const PrimaryStudentDashboard: React.FC = () => {
         </Card>
       </DashboardSection>
 
+      {/* Weak-topic alert for non-P7 learners. The PLE gauge above only
+          renders for P7; everyone else needs an upfront "you have N weak
+          topics" callout so they don't have to scan every subject card. */}
+      {!p7Readiness.isP7 && subjects.some((s: any) => (s.weakTopics ?? 0) > 0) && (
+        <DashboardSection>
+          <Card className="border-amber-200 bg-amber-50/80 backdrop-blur-sm">
+            <CardContent className="py-4 px-5">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-amber-900 mb-1">
+                    {subjects.reduce((acc: number, s: any) => acc + (s.weakTopics ?? 0), 0)} weak topic
+                    {subjects.reduce((acc: number, s: any) => acc + (s.weakTopics ?? 0), 0) === 1 ? '' : 's'} to clean up
+                  </p>
+                  <p className="text-xs text-amber-800">
+                    You're stronger in some subjects than others. The list below shows which subjects need extra practice — click any card to start a targeted lesson.
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {subjects
+                      .filter((s: any) => (s.weakTopics ?? 0) > 0)
+                      .map((s: any) => (
+                        <Badge key={s.id} variant="outline" className="bg-white/70 text-amber-800 border-amber-300">
+                          {s.icon} {s.name}: {s.weakTopics}
+                        </Badge>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </DashboardSection>
+      )}
+
       {/* Subject Performance */}
       <DashboardSection title="My Subjects">
         <DashboardGrid>
