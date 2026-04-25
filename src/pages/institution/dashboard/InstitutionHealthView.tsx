@@ -9,6 +9,8 @@ import { AcademicTermBanner } from '@/components/dashboard/AcademicTermBanner';
 import { FeeCollectionPanel } from '@/components/institution/FeeCollectionPanel';
 import { OperationalKpiRow } from '@/components/dashboard/OperationalKpiRow';
 import { TodayHero } from '@/components/dashboard/TodayHero';
+import { AdmissionsPipeline } from '@/components/institution/AdmissionsPipeline';
+import { StaffActivityPanel } from '@/components/institution/StaffActivityPanel';
 
 interface HealthData {
   score: number;
@@ -38,9 +40,12 @@ const DEFAULT_HEALTH: HealthData = {
 
 interface Member {
   id: number;
-  user: { id: number; full_name: string; email: string; role?: string };
+  user: { id: number; full_name: string; email: string; role?: string } | null;
+  user_obj?: { id: number; full_name: string; email: string; role?: string } | null;
+  user_last_login?: string | null;
   role: string;
   status: string;
+  institution?: number | null;
   invited_at?: string;
 }
 
@@ -256,6 +261,18 @@ export default function InstitutionHealthView() {
             />
           </section>
 
+          {/* Staff activity heatmap + invite-teacher quick-action — gives
+              an admin an at-a-glance read on which teachers are dormant
+              and a one-click way to onboard new staff. */}
+          <StaffActivityPanel
+            members={members.map((m) => ({
+              ...m,
+              user: m.user_obj || m.user || null,
+            }))}
+            institutionId={members[0]?.institution ?? null}
+            loading={membersLoading}
+          />
+
           <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-lg font-bold text-slate-800">Teaching staff</h2>
@@ -303,8 +320,13 @@ export default function InstitutionHealthView() {
 
       {activeTab === 'operations' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {/* Fee collection ledger — sits above billing because it's the
-              admin's day-to-day primary task. */}
+          {/* Admissions pipeline — funnel view replaces the old flat
+              "top 6 applications" list so the admin can see where
+              candidates are bottlenecking. Full inbox is still one
+              click away via the header link. */}
+          <AdmissionsPipeline />
+
+          {/* Fee collection ledger — the admin's day-to-day primary task. */}
           <FeeCollectionPanel />
 
           {/* Billing */}

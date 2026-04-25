@@ -14,14 +14,28 @@ class InstitutionMembershipSerializer(serializers.ModelSerializer):
     institution_detail = InstitutionSerializer(source='institution', read_only=True)
     user_email = serializers.EmailField(source='user.email', read_only=True)
     user_name = serializers.CharField(source='user.full_name', read_only=True)
+    # Exposes the user's last authenticated timestamp so the institution
+    # admin can see which staff are genuinely active on Maple. Null when
+    # the user has never logged in.
+    user_last_login = serializers.DateTimeField(source='user.last_login', read_only=True)
+    user_obj = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = InstitutionMembership
         fields = [
-            'id', 'institution', 'institution_detail', 'user', 'user_email', 'user_name',
+            'id', 'institution', 'institution_detail', 'user', 'user_obj',
+            'user_email', 'user_name', 'user_last_login',
             'role', 'status', 'joined_at'
         ]
         read_only_fields = ['joined_at', 'status']
+
+    def get_user_obj(self, obj):
+        # Embed the nested user shape the InstitutionHealthView roster
+        # table already expects (id, full_name, email).
+        u = obj.user
+        if not u:
+            return None
+        return {'id': u.id, 'full_name': u.full_name, 'email': u.email, 'role': u.role}
 
 class BulkInviteSerializer(serializers.Serializer):
     emails = serializers.ListField(
