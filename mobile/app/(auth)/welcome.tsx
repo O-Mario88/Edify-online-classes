@@ -17,7 +17,7 @@ export default function Welcome() {
       <View className="flex-1 px-6 justify-between pb-8 pt-12">
         <View>
           <View className="mb-8">
-            <MapleLogo size={96} animated={false} />
+            <MapleLogo size={96} />
           </View>
           <Text className="text-3xl font-extrabold text-slate-900 leading-tight">
             A complete online school in your pocket.

@@ -45,7 +45,7 @@ export default function Login() {
         </Pressable>
 
         <View className="mb-6 items-start">
-          <MapleLogo size={64} animated={false} />
+          <MapleLogo size={64} />
         </View>
 
         <Text className="text-2xl font-extrabold text-slate-900">Welcome back</Text>
