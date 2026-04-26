@@ -23,12 +23,13 @@ export const AppScreen: React.FC<React.PropsWithChildren<AppScreenProps>> = ({
   ...rest
 }) => {
   return (
-    <SafeAreaView className="flex-1 bg-slate-50" edges={['top', 'left', 'right']}>
+    <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: '#F4F6F9' }}>
       <StatusBar style="dark" />
       {scroll ? (
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ paddingBottom: 24 }}
+          // Bottom inset accounts for the floating pill tab bar (16 + 68 + 16).
+          contentContainerStyle={{ paddingBottom: 110 }}
           refreshControl={
             onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined
           }
