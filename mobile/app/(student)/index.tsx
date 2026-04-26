@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { AppScreen } from '@/components/AppScreen';
 import { AppCard } from '@/components/AppCard';
 import { TodayHero } from '@/components/TodayHero';
+import { TaskItem } from '@/components/TaskItem';
+import { LiveClassCard } from '@/components/LiveClassCard';
+import { AssignmentCard } from '@/components/AssignmentCard';
+import { SectionHeader } from '@/components/SectionHeader';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { ErrorState } from '@/components/ErrorState';
+import { EmptyState } from '@/components/EmptyState';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { studentApi, type StudentHomePayload } from '@/api/student.api';
 import { useAuthStore } from '@/auth/authStore';
-import { logout } from '@/auth/AuthProvider';
-import { useRouter } from 'expo-router';
 
 /**
- * Phase-1 student home. Walking-skeleton: Today hero + KPI strip + a
- * "next live class" card pulled from the new /mobile/student-home/
- * aggregator. Mastery Tracks, Practice Labs, Assignments, etc. land
- * in Phase 2 — this screen is the landing pad they all hang off.
+ * Phase 2 student home. Five blocks, top to bottom:
+ *
+ *   1. Greeting + tier chip (compact, doesn't dominate)
+ *   2. TodayHero card — single highest-priority action
+ *   3. KPI strip (4 tiles)
+ *   4. Today's Learning Plan list — the daily-coach surface
+ *   5. Next live class + first 3 upcoming assignments — drill-into-tab affordances
+ *
+ * Everything reads from the same /mobile/student-home/ payload so a
+ * cold start is one round-trip. Pull-to-refresh re-runs the same fetch.
  */
 export default function StudentHome() {
   const router = useRouter();
@@ -39,35 +49,55 @@ export default function StudentHome() {
 
   return (
     <AppScreen onRefresh={onRefresh} refreshing={refreshing}>
-      <View className="px-5 pt-6 pb-4 flex-row items-center justify-between">
-        <View>
-          <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Maple</Text>
-          <Text className="text-2xl font-extrabold text-slate-900">Hi, {firstName}</Text>
-        </View>
-        <Pressable
-          onPress={async () => {
-            await logout();
-            router.replace('/(auth)/welcome');
-          }}
-          className="px-3 py-2 rounded-lg bg-slate-100"
-          accessibilityRole="button"
-          accessibilityLabel="Sign out"
-        >
-          <Text className="text-xs font-semibold text-slate-700">Sign out</Text>
-        </Pressable>
+      <View className="px-5 pt-6 pb-3">
+        <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Maple</Text>
+        <Text className="text-2xl font-extrabold text-slate-900">Hi, {firstName}</Text>
+        {data?.access?.tier === 'premium' && (
+          <Text className="text-xs font-semibold text-emerald-700 mt-1">
+            Premium · {data.access.plan ?? 'plan'} active
+          </Text>
+        )}
       </View>
 
-      <View className="px-5 space-y-4">
+      <View className="px-5 space-y-5">
         {homeQuery.isLoading && !data ? (
-          <LoadingSkeleton height={120} />
+          <LoadingSkeleton height={140} />
         ) : homeQuery.isError ? (
           <ErrorState onRetry={() => homeQuery.refetch()} />
         ) : data ? (
           <>
             <TodayHero payload={data.today} />
             <KpiStrip kpis={data.kpis} />
-            {data.next_live_session && <NextLiveCard session={data.next_live_session} />}
-            <AccessChip access={data.access} />
+            <TodayPlanList tasks={data.today_tasks} />
+            {data.next_live_session && (
+              <View>
+                <SectionHeader
+                  title="Next live class"
+                  actionLabel="See all"
+                  onActionPress={() => router.push('/(student)/live' as any)}
+                />
+                <LiveClassCard
+                  title={data.next_live_session.title}
+                  subject={data.next_live_session.subject}
+                  scheduledStart={data.next_live_session.scheduled_start}
+                  durationMinutes={data.next_live_session.duration_minutes}
+                  meetingLink={data.next_live_session.meeting_link}
+                />
+              </View>
+            )}
+            {data.upcoming_assignments && data.upcoming_assignments.length > 0 && (
+              <View>
+                <SectionHeader
+                  title="Upcoming work"
+                  description="Due in the next two weeks"
+                  actionLabel="See all"
+                  onActionPress={() => router.push('/(student)/tasks' as any)}
+                />
+                {data.upcoming_assignments.slice(0, 3).map((a) => (
+                  <AssignmentCard key={a.id} assignment={a} />
+                ))}
+              </View>
+            )}
           </>
         ) : null}
       </View>
@@ -78,9 +108,17 @@ export default function StudentHome() {
 const KpiStrip: React.FC<{ kpis: StudentHomePayload['kpis'] }> = ({ kpis }) => (
   <View className="flex-row flex-wrap -mx-1.5">
     <KpiTile label="Progress" value={`${kpis.overall_progress}%`} accent="text-emerald-700" />
-    <KpiTile label="Attendance" value={`${kpis.attendance}%`} accent={kpis.attendance < 75 ? 'text-rose-600' : 'text-emerald-700'} />
+    <KpiTile
+      label="Attendance"
+      value={`${kpis.attendance}%`}
+      accent={kpis.attendance < 75 ? 'text-rose-600' : 'text-emerald-700'}
+    />
     <KpiTile label="Readiness" value={`${kpis.exam_readiness}`} accent="text-indigo-700" />
-    <KpiTile label="Overdue" value={`${kpis.overdue_work}`} accent={kpis.overdue_work > 0 ? 'text-amber-700' : 'text-emerald-700'} />
+    <KpiTile
+      label="Overdue"
+      value={`${kpis.overdue_work}`}
+      accent={kpis.overdue_work > 0 ? 'text-amber-700' : 'text-emerald-700'}
+    />
   </View>
 );
 
@@ -93,34 +131,16 @@ const KpiTile: React.FC<{ label: string; value: string; accent: string }> = ({ l
   </View>
 );
 
-const NextLiveCard: React.FC<{ session: NonNullable<StudentHomePayload['next_live_session']> }> = ({ session }) => {
-  const start = new Date(session.scheduled_start);
-  const when = start.toLocaleString(undefined, {
-    weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
-  });
-  return (
-    <AppCard>
-      <Text className="text-[11px] font-bold uppercase tracking-wider text-indigo-700">Next live class</Text>
-      <Text className="text-lg font-bold text-slate-900 mt-1">{session.title}</Text>
-      <Text className="text-sm text-slate-600 mt-1">{session.subject} · {when}</Text>
-      <Text className="text-xs text-slate-500 mt-2">{session.duration_minutes} min</Text>
-    </AppCard>
-  );
-};
-
-const AccessChip: React.FC<{ access: StudentHomePayload['access'] }> = ({ access }) => {
-  const tier = access.tier;
-  const label =
-    tier === 'premium'       ? `Premium · ${access.plan ?? 'plan'} active` :
-    tier === 'institutional' ? 'Through your school' :
-                               'Free tier';
-  const surface =
-    tier === 'premium'       ? 'bg-emerald-50 border-emerald-200' :
-    tier === 'institutional' ? 'bg-blue-50 border-blue-200' :
-                               'bg-slate-100 border-slate-200';
-  return (
-    <View className={`rounded-xl border px-4 py-3 ${surface}`}>
-      <Text className="text-xs font-semibold text-slate-700">{label}</Text>
-    </View>
-  );
-};
+const TodayPlanList: React.FC<{ tasks: StudentHomePayload['today_tasks'] }> = ({ tasks }) => (
+  <View>
+    <SectionHeader title="Today's Learning Plan" description="Your day, ordered by what matters most." />
+    {tasks && tasks.length > 0 ? (
+      tasks.map((task) => <TaskItem key={task.id || task.title} task={task} />)
+    ) : (
+      <EmptyState
+        title="Nothing scheduled for today"
+        message="Your study plan refreshes daily. Pull down to refresh."
+      />
+    )}
+  </View>
+);

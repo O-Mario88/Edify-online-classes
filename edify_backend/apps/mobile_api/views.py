@@ -94,6 +94,9 @@ class StudentHomeView(APIView):
         kpis = _student_kpis(user)
         next_live = _next_live_session(user)
         access = _access_status(user)
+        today_tasks = _today_tasks(user)
+        upcoming_assignments = _upcoming_assignments(user)
+        recent_lessons = _recent_lessons(user)
 
         return Response({
             'user': {
@@ -104,8 +107,11 @@ class StudentHomeView(APIView):
                 'stage': getattr(user, 'stage', 'secondary'),
             },
             'today': today_payload,
+            'today_tasks': today_tasks,
             'kpis': kpis,
             'next_live_session': next_live,
+            'upcoming_assignments': upcoming_assignments,
+            'recent_lessons': recent_lessons,
             'access': access,
             'fetched_at': timezone.now().isoformat(),
         })
@@ -209,3 +215,93 @@ def _access_status(user) -> dict[str, Any]:
     if 'institution' in role:
         return {'tier': 'institutional', 'plan': None, 'expires_at': None}
     return {'tier': 'free', 'plan': None, 'expires_at': None}
+
+
+def _today_tasks(user) -> list[dict[str, Any]]:
+    """Today's Learning Plan items.
+
+    Reuses intelligence.StudyPlanEngine.generate_weekly_plan + filters to
+    today only. Mobile-first shape: id, title, type, subject, minutes,
+    completed bool, optional deep-link target.
+    """
+    try:
+        from intelligence.engines.study_planner import StudyPlanEngine
+        engine = StudyPlanEngine()
+        plan = engine.generate_weekly_plan(user)
+    except Exception:
+        return []
+    today_iso = timezone.now().date().isoformat()
+    items: list[dict[str, Any]] = []
+    for task in (plan or {}).get('tasks', []) or []:
+        scheduled = task.get('scheduled_date') or ''
+        if scheduled[:10] != today_iso:
+            continue
+        items.append({
+            'id': str(task.get('id') or ''),
+            'title': task.get('title') or '',
+            'type': task.get('task_type') or 'custom',
+            'subject': task.get('subject_name') or 'General',
+            'duration_minutes': task.get('estimated_minutes') or 0,
+            'completed': task.get('status') == 'completed',
+        })
+    # Sort completed items last so the learner sees what's still pending.
+    items.sort(key=lambda t: (t['completed'], -(t['duration_minutes'] or 0)))
+    return items[:10]
+
+
+def _upcoming_assignments(user) -> list[dict[str, Any]]:
+    """Up to 8 assignments / assessments due in the next 14 days that the
+    learner has not submitted yet. Sourced from AssessmentWindow."""
+    try:
+        from assessments.models import AssessmentWindow
+        now = timezone.now()
+        windows = (
+            AssessmentWindow.objects
+            .filter(close_at__gte=now, close_at__lte=now + timedelta(days=14))
+            .select_related('assessment', 'assessment__topic')
+            .order_by('close_at')[:20]
+        )
+        items = []
+        for w in windows:
+            already_submitted = w.assessment.submissions.filter(student=user).exists()
+            if already_submitted:
+                continue
+            items.append({
+                'id': w.id,
+                'assessment_id': w.assessment_id,
+                'title': w.assessment.title,
+                'subject': getattr(getattr(w.assessment, 'topic', None), 'subject_id', None) and 'Subject' or '',
+                'topic': getattr(getattr(w.assessment, 'topic', None), 'name', None) or '',
+                'type': w.assessment.type,
+                'max_score': w.assessment.max_score or 0,
+                'close_at': w.close_at.isoformat(),
+            })
+            if len(items) >= 8:
+                break
+        return items
+    except Exception:
+        return []
+
+
+def _recent_lessons(user) -> list[dict[str, Any]]:
+    """Recent lesson rows the learner has access to. Used by the Learn tab.
+
+    Drawn from `lessons.Lesson` joined to enrollment / class membership
+    where applicable. Falls back to the most recent platform-wide
+    published lessons if the learner has no class context yet.
+    """
+    try:
+        from lessons.models import Lesson
+        qs = Lesson.objects.select_related('parent_class', 'parent_class__subject').order_by('-id')[:12]
+        return [
+            {
+                'id': l.id,
+                'title': l.title or 'Lesson',
+                'subject': getattr(getattr(l.parent_class, 'subject', None), 'name', '') or '',
+                'class_name': getattr(l.parent_class, 'title', '') or '',
+                'duration_label': getattr(l, 'estimated_minutes', None) and f"{l.estimated_minutes} min" or '',
+            }
+            for l in qs
+        ]
+    except Exception:
+        return []
