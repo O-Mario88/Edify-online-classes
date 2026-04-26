@@ -14,8 +14,8 @@ export type Role =
 
 export function homeRouteForRole(role: string | undefined | null): string {
   const r = (role || '').toLowerCase();
+  if (r === 'parent')            return '/(parent)';    // Phase 3 ✓
   if (r.includes('teacher'))     return '/(student)';   // placeholder: teacher tabs land in Phase 4
-  if (r === 'parent')            return '/(student)';   // placeholder: parent tabs land in Phase 3
   if (r.includes('institution')) return '/(student)';   // placeholder
   if (r.includes('admin'))       return '/(student)';   // platform admin stays web-first
   return '/(student)';

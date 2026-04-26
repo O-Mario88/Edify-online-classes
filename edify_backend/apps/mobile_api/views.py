@@ -175,6 +175,99 @@ class LessonMarkAttendedView(APIView):
         })
 
 
+class ParentHomeView(APIView):
+    """GET /api/v1/mobile/parent-home/
+
+    Single-payload aggregator for the parent dashboard. Returns the
+    parent's linked children + the selected child's KPIs, weekly
+    brief, subject grid, passport summary, teacher-support summary,
+    and the role-aware Today hero. Defaults to the first linked child;
+    pass ?child_id=<id> to switch.
+
+    Cold start = one round-trip; switching child = one more.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        from parent_portal.models import ParentStudentLink
+        from notifications.models import Notification
+        from accounts.models import User as AuthUser
+
+        parent = request.user
+
+        # Children list — same pattern as parent_portal.my-children/ but
+        # inlined so the home payload doesn't require a second hop.
+        links = (
+            ParentStudentLink.objects
+            .filter(parent_profile__user=parent)
+            .select_related('student_profile__user')
+        )
+        last_read = (
+            Notification.objects
+            .filter(user=parent, read_at__isnull=False)
+            .order_by('-read_at')
+            .values_list('read_at', flat=True)
+            .first()
+        ) or (timezone.now() - timedelta(days=7))
+        children = []
+        for link in links:
+            sp = link.student_profile
+            if not sp or not sp.user:
+                continue
+            unread = Notification.objects.filter(user=sp.user, created_at__gt=last_read).count()
+            children.append({
+                'id': sp.user.id,
+                'email': sp.user.email,
+                'name': sp.user.full_name,
+                'stage': getattr(sp.user, 'stage', None),
+                'relationship': link.relationship_type,
+                'unread_count': unread,
+            })
+
+        # Pick which child to hydrate.
+        requested_id = request.query_params.get('child_id')
+        selected_user = None
+        if requested_id:
+            try:
+                tid = int(requested_id)
+                if any(c['id'] == tid for c in children):
+                    selected_user = AuthUser.objects.filter(id=tid).first()
+            except (TypeError, ValueError):
+                pass
+        if selected_user is None and children:
+            selected_user = AuthUser.objects.filter(id=children[0]['id']).first()
+
+        today_payload = _today_for_parent(parent)
+
+        if selected_user is None:
+            return Response({
+                'parent': _parent_user_payload(parent),
+                'children': children,
+                'selected_child': None,
+                'today': today_payload,
+                'fetched_at': timezone.now().isoformat(),
+            })
+
+        kpis = _student_kpis(selected_user)
+        return Response({
+            'parent': _parent_user_payload(parent),
+            'children': children,
+            'selected_child': {
+                'id': selected_user.id,
+                'name': selected_user.full_name,
+                'email': selected_user.email,
+                'stage': getattr(selected_user, 'stage', 'secondary'),
+                'kpis': kpis,
+                'weekly_brief': _weekly_brief(selected_user, kpis),
+                'subjects': _subject_performance(selected_user),
+                'passport': _passport_summary(selected_user),
+                'teacher_support': _teacher_support_summary(selected_user),
+            },
+            'today': today_payload,
+            'fetched_at': timezone.now().isoformat(),
+        })
+
+
 class StudentHomeView(APIView):
     """GET /api/v1/mobile/student-home/
 
@@ -377,6 +470,126 @@ def _upcoming_assignments(user) -> list[dict[str, Any]]:
         return items
     except Exception:
         return []
+
+
+def _parent_user_payload(user) -> dict[str, Any]:
+    return {
+        'id': user.id,
+        'email': user.email,
+        'full_name': user.full_name,
+        'role': user.role,
+    }
+
+
+def _today_for_parent(user) -> dict[str, Any]:
+    """Reuses analytics.today._parent_today for parity with the web hero."""
+    try:
+        from analytics.today import _parent_today
+        return _parent_today(user)
+    except Exception:
+        return {
+            'kind': 'fallback',
+            'severity': 'healthy',
+            'title': 'Welcome back',
+            'message': 'Pick a child below to see this week\'s progress.',
+            'action_label': 'See progress',
+            'action_link': '/dashboard/parent',
+        }
+
+
+def _weekly_brief(child_user, kpis: dict[str, Any]) -> dict[str, Any]:
+    """Builds the parent-facing weekly brief block. Mirrors the
+    /analytics/parent-dashboard/ shape so existing copy stays
+    consistent."""
+    subjects = _subject_performance(child_user)
+    completed = kpis.get('assessments_completed', 0)
+    readiness = kpis.get('exam_readiness', 0)
+    return {
+        'strongest_subject': subjects[0]['subject'] if subjects else '—',
+        'weakest_topic': '—',
+        'attendance': kpis.get('attendance', 0),
+        'lessons_completed': kpis.get('lessons_completed', completed),
+        'assessment_trend': 'Stable',
+        'recommended_focus': 'Review weak topics in your subject performance grid.',
+        'narrative': (
+            f"This week, {child_user.full_name.split(' ')[0]} completed {completed} "
+            f"assessment{'' if completed == 1 else 's'} with a readiness score of {readiness}. "
+            + ("Performance is on track." if readiness >= 70 else "Additional study time is recommended.")
+        ),
+    }
+
+
+def _subject_performance(child_user) -> list[dict[str, Any]]:
+    """Subject-by-subject grid for the parent. Reuses ReadinessEngine."""
+    try:
+        from analytics.views import ReadinessEngine
+        rows = ReadinessEngine.get_subject_performance(child_user) or []
+        return [
+            {
+                'subject': r.get('subject') or '—',
+                'completion': r.get('completion') or 0,
+                'avg_score': r.get('avgScore') or 0,
+                'weak_topics': r.get('weakTopics') or 0,
+                'confidence': r.get('confidence') or 'Medium',
+                'last_activity': r.get('lastActivity') or '',
+            }
+            for r in rows
+        ]
+    except Exception:
+        return []
+
+
+def _passport_summary(child_user) -> dict[str, Any]:
+    """Counts the artefacts already in the learner's Passport so the
+    parent can see "evidence of progress" at a glance."""
+    badge_count = 0
+    cert_count = 0
+    project_count = 0
+    try:
+        from practice_labs.models import PracticeLabAttempt
+        badge_count = PracticeLabAttempt.objects.filter(
+            student=child_user, badge_earned=True,
+        ).count()
+    except Exception:
+        pass
+    try:
+        from passport.models import Credential, LearningPassport
+        passport = LearningPassport.objects.filter(student=child_user).first()
+        if passport:
+            cert_count = Credential.objects.filter(
+                passport=passport, credential_type='certificate', is_published=True,
+            ).count()
+    except Exception:
+        pass
+    try:
+        from mastery_projects.models import ProjectSubmission
+        project_count = ProjectSubmission.objects.filter(
+            student=child_user, status__in=['reviewed', 'approved'],
+        ).count()
+    except Exception:
+        pass
+    return {
+        'badges': badge_count,
+        'certificates': cert_count,
+        'projects_reviewed': project_count,
+    }
+
+
+def _teacher_support_summary(child_user) -> dict[str, Any]:
+    """Stats for the Teacher Support Summary card on the parent home."""
+    answered = 0
+    pending = 0
+    try:
+        from standby_teachers.models import SupportRequest
+        qs = SupportRequest.objects.filter(student=child_user)
+        answered = qs.filter(status='resolved').count()
+        pending = qs.filter(status__in=['open', 'assigned']).count()
+    except Exception:
+        pass
+    return {
+        'questions_answered': answered,
+        'pending_requests': pending,
+    }
 
 
 def _recent_lessons(user) -> list[dict[str, Any]]:

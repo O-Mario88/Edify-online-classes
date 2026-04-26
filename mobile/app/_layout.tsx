@@ -55,6 +55,7 @@ export default function RootLayout() {
               <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(auth)" />
                 <Stack.Screen name="(student)" />
+                <Stack.Screen name="(parent)" />
               </Stack>
             </RouteGuard>
           </AuthProvider>
