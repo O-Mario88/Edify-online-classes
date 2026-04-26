@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/auth/AuthProvider';
 import { useAuth } from '@/auth/useAuth';
 import { homeRouteForRole } from '@/auth/roleRouting';
+import { LaunchScreen } from '@/components/LaunchScreen';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,6 +42,13 @@ const RouteGuard: React.FC<React.PropsWithChildren> = ({ children }) => {
       router.replace(homeRouteForRole(user?.role) as any);
     }
   }, [status, segments, user?.role, router]);
+
+  // Branded launch screen during the brief refresh-token boot. Replaces
+  // the previous blank state so the user sees the Maple mark + animated
+  // WiFi the moment the splash hands off, not nothing.
+  if (status === 'loading') {
+    return <LaunchScreen />;
+  }
 
   return <>{children}</>;
 };

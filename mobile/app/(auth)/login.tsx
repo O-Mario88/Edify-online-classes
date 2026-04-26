@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AppScreen } from '@/components/AppScreen';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { MapleLogo } from '@/components/MapleLogo';
 import { loginWithCredentials } from '@/auth/AuthProvider';
 import { homeRouteForRole } from '@/auth/roleRouting';
 import { useAuthStore } from '@/auth/authStore';
@@ -42,6 +43,10 @@ export default function Login() {
         <Pressable onPress={() => router.back()} className="mb-6">
           <Text className="text-sm font-semibold text-maple-900">← Back</Text>
         </Pressable>
+
+        <View className="mb-6 items-start">
+          <MapleLogo size={64} animated={false} />
+        </View>
 
         <Text className="text-2xl font-extrabold text-slate-900">Welcome back</Text>
         <Text className="text-sm text-slate-600 mt-1">Sign in to continue learning.</Text>

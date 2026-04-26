@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AppScreen } from '@/components/AppScreen';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { MapleLogo } from '@/components/MapleLogo';
 
 /**
  * Pre-login splash. Three short lines of positioning, two buttons.
@@ -15,8 +16,8 @@ export default function Welcome() {
     <AppScreen scroll={false}>
       <View className="flex-1 px-6 justify-between pb-8 pt-12">
         <View>
-          <View className="w-14 h-14 rounded-2xl bg-maple-900 items-center justify-center mb-8">
-            <Text className="text-white text-3xl font-extrabold">M</Text>
+          <View className="mb-8">
+            <MapleLogo size={96} animated={false} />
           </View>
           <Text className="text-3xl font-extrabold text-slate-900 leading-tight">
             A complete online school in your pocket.
