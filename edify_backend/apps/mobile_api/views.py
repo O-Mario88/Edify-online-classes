@@ -79,6 +79,102 @@ class AppConfigView(APIView):
         })
 
 
+class LessonDetailView(APIView):
+    """GET /api/v1/mobile/lesson/<id>/
+
+    Single-payload aggregator for the mobile lesson viewer:
+      lesson meta + notes (text/JSON content) + recordings + the
+      caller's attendance record. Saves three round-trips on first
+      open over a slow connection.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, lesson_id: int, *args, **kwargs):
+        from lessons.models import Lesson, LessonNote, LessonRecording, LessonAttendance
+        from rest_framework import status as http_status
+        try:
+            lesson = (
+                Lesson.objects.select_related('parent_class', 'parent_class__subject', 'topic')
+                .prefetch_related('notes', 'recordings')
+                .get(id=lesson_id)
+            )
+        except Lesson.DoesNotExist:
+            return Response({'detail': 'Lesson not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+
+        notes = [
+            {
+                'id': n.id,
+                'content_blocks': n.content_blocks or {},
+                'updated_at': n.updated_at.isoformat() if n.updated_at else None,
+            }
+            for n in lesson.notes.all()
+        ]
+        recordings = [
+            {
+                'id': r.id,
+                'url': r.url,
+                'duration_seconds': r.duration or 0,
+            }
+            for r in lesson.recordings.all()
+        ]
+        attendance = LessonAttendance.objects.filter(lesson=lesson, student=request.user).first()
+        attendance_payload = None
+        if attendance:
+            attendance_payload = {
+                'status': attendance.status,
+                'duration_minutes': attendance.duration_minutes,
+                'recorded_at': attendance.recorded_at.isoformat() if attendance.recorded_at else None,
+            }
+
+        return Response({
+            'id': lesson.id,
+            'title': lesson.title,
+            'class_name': getattr(lesson.parent_class, 'title', '') or '',
+            'subject': getattr(getattr(lesson.parent_class, 'subject', None), 'name', '') or '',
+            'topic': getattr(lesson.topic, 'name', '') or '',
+            'access_mode': lesson.access_mode,
+            'scheduled_at': lesson.scheduled_at.isoformat() if lesson.scheduled_at else None,
+            'published_at': lesson.published_at.isoformat() if lesson.published_at else None,
+            'notes': notes,
+            'recordings': recordings,
+            'attendance': attendance_payload,
+        })
+
+
+class LessonMarkAttendedView(APIView):
+    """POST /api/v1/mobile/lesson/<id>/mark-attended/
+
+    Idempotent — creates or updates a LessonAttendance row marking the
+    learner as 'present' with the supplied duration. Used when the
+    learner taps "Mark as complete" inside the mobile lesson viewer.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, lesson_id: int, *args, **kwargs):
+        from lessons.models import Lesson, LessonAttendance
+        from rest_framework import status as http_status
+        try:
+            lesson = Lesson.objects.get(id=lesson_id)
+        except Lesson.DoesNotExist:
+            return Response({'detail': 'Lesson not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+
+        try:
+            duration = int(request.data.get('duration_minutes', 0))
+        except (TypeError, ValueError):
+            duration = 0
+
+        attendance, _ = LessonAttendance.objects.update_or_create(
+            lesson=lesson, student=request.user,
+            defaults={'status': 'present', 'duration_minutes': max(0, duration)},
+        )
+        return Response({
+            'lesson_id': lesson.id,
+            'status': attendance.status,
+            'duration_minutes': attendance.duration_minutes,
+            'recorded_at': attendance.recorded_at.isoformat() if attendance.recorded_at else None,
+        })
+
+
 class StudentHomeView(APIView):
     """GET /api/v1/mobile/student-home/
 

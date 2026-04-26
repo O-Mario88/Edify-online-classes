@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text } from 'react-native';
+import { useRouter } from 'expo-router';
 import { AppScreen } from '@/components/AppScreen';
 import { AssignmentCard } from '@/components/AssignmentCard';
 import { SectionHeader } from '@/components/SectionHeader';
@@ -17,6 +18,7 @@ import { studentApi, type StudentHomePayload } from '@/api/student.api';
  * Mistake Notebook here, plus a status filter (in progress / done).
  */
 export default function TasksTab() {
+  const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const query = useApiQuery<StudentHomePayload>(
     ['student-home'],
@@ -63,13 +65,25 @@ export default function TasksTab() {
             {overdue.length > 0 && (
               <View>
                 <SectionHeader title="Overdue" description="Clear these first." />
-                {overdue.map((a) => <AssignmentCard key={a.id} assignment={a} />)}
+                {overdue.map((a) => (
+                  <AssignmentCard
+                    key={a.id}
+                    assignment={a}
+                    onPress={() => router.push(`/(student)/assessment/${a.assessment_id}` as any)}
+                  />
+                ))}
               </View>
             )}
             {due.length > 0 && (
               <View>
                 <SectionHeader title="Due soon" />
-                {due.map((a) => <AssignmentCard key={a.id} assignment={a} />)}
+                {due.map((a) => (
+                  <AssignmentCard
+                    key={a.id}
+                    assignment={a}
+                    onPress={() => router.push(`/(student)/assessment/${a.assessment_id}` as any)}
+                  />
+                ))}
               </View>
             )}
           </>

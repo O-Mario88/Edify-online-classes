@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text } from 'react-native';
+import { useRouter } from 'expo-router';
 import { AppScreen } from '@/components/AppScreen';
 import { LessonCard } from '@/components/LessonCard';
 import { SectionHeader } from '@/components/SectionHeader';
@@ -16,6 +17,7 @@ import { studentApi, type StudentHomePayload } from '@/api/student.api';
  * paginated content.
  */
 export default function LearnTab() {
+  const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const homeQuery = useApiQuery<StudentHomePayload>(
     ['student-home'], // share cache with Home tab
@@ -51,7 +53,13 @@ export default function LearnTab() {
             message="When your teacher publishes a lesson, it'll appear here. Pull down to refresh."
           />
         ) : (
-          lessons.map((l) => <LessonCard key={l.id} lesson={l} />)
+          lessons.map((l) => (
+            <LessonCard
+              key={l.id}
+              lesson={l}
+              onPress={() => router.push(`/(student)/lesson/${l.id}` as any)}
+            />
+          ))
         )}
       </View>
     </AppScreen>

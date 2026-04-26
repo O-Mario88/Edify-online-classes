@@ -94,7 +94,11 @@ export default function StudentHome() {
                   onActionPress={() => router.push('/(student)/tasks' as any)}
                 />
                 {data.upcoming_assignments.slice(0, 3).map((a) => (
-                  <AssignmentCard key={a.id} assignment={a} />
+                  <AssignmentCard
+                    key={a.id}
+                    assignment={a}
+                    onPress={() => router.push(`/(student)/assessment/${a.assessment_id}` as any)}
+                  />
                 ))}
               </View>
             )}

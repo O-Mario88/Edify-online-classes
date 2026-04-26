@@ -100,4 +100,81 @@ export const studentApi = {
   liveSessions() {
     return api.get<any[]>('/live-sessions/live-session/');
   },
+
+  /** GET /mobile/lesson/<id>/ — single-payload lesson detail. */
+  lesson(id: number | string) {
+    return api.get<LessonDetailPayload>(`/mobile/lesson/${id}/`);
+  },
+
+  /** POST /mobile/lesson/<id>/mark-attended/ — idempotent attendance. */
+  markLessonAttended(id: number | string, durationMinutes = 0) {
+    return api.post(`/mobile/lesson/${id}/mark-attended/`, { duration_minutes: durationMinutes });
+  },
+
+  /** GET /assessments/assessment/<id>/ — assessment + nested questions. */
+  assessment(id: number | string) {
+    return api.get<AssessmentDetailPayload>(`/assessments/assessment/${id}/`);
+  },
+
+  /** POST /assessments/submission/ — backend auto-grades MCQ. */
+  submitAssessment(assessmentId: number | string, answers: Record<string, string>) {
+    return api.post<AssessmentSubmissionResponse>('/assessments/submission/', {
+      assessment: assessmentId,
+      answers_data: answers,
+    });
+  },
 };
+
+export interface LessonNoteBlock {
+  id: number;
+  content_blocks: Record<string, unknown>;
+  updated_at: string | null;
+}
+
+export interface LessonRecordingItem {
+  id: number;
+  url: string;
+  duration_seconds: number;
+}
+
+export interface LessonDetailPayload {
+  id: number;
+  title: string;
+  class_name: string;
+  subject: string;
+  topic: string;
+  access_mode: string;
+  scheduled_at: string | null;
+  published_at: string | null;
+  notes: LessonNoteBlock[];
+  recordings: LessonRecordingItem[];
+  attendance: { status: string; duration_minutes: number; recorded_at: string | null } | null;
+}
+
+export type QuestionType = 'mcq' | 'short_answer' | 'essay';
+
+export interface AssessmentQuestion {
+  id: number;
+  type: QuestionType;
+  content: string;
+  marks: number;
+  order: number;
+  options: string[];
+}
+
+export interface AssessmentDetailPayload {
+  id: number;
+  title: string;
+  instructions: string;
+  type: string;
+  max_score: number;
+  is_published: boolean;
+  questions: AssessmentQuestion[];
+}
+
+export interface AssessmentSubmissionResponse {
+  id: number;
+  status: 'draft' | 'submitted' | 'graded';
+  total_score: number | string | null;
+  submitted_at: string | null;
+}
