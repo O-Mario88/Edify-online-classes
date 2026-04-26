@@ -96,9 +96,17 @@ export const studentApi = {
     return api.get<StudentHomePayload>('/mobile/student-home/');
   },
 
-  /** GET /live-sessions/live-session/ — full upcoming live class list. */
-  liveSessions() {
-    return api.get<any[]>('/live-sessions/live-session/');
+  /** GET /live-sessions/live-session/ — full upcoming live class list.
+   *
+   * DRF paginates this endpoint by default ({count, next, previous,
+   * results}). We unwrap to a plain array on the client so the Live
+   * tab keeps its simple `RawSession[]` shape regardless of whether
+   * pagination is on, off, or returns a bare list. */
+  async liveSessions() {
+    const { data, error } = await api.get<any>('/live-sessions/live-session/');
+    if (error) return { data: null, error };
+    const items: any[] = Array.isArray(data) ? data : (data?.results || []);
+    return { data: items, error: null };
   },
 
   /** GET /mobile/lesson/<id>/ — single-payload lesson detail. */
