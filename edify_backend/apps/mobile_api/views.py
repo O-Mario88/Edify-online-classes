@@ -31,8 +31,8 @@ from rest_framework.views import APIView
 # Latest mobile app version we ship. Bump on every store release. The
 # `min_supported_version` is the floor — older clients see the force-
 # update screen instead of being able to log in.
-LATEST_APP_VERSION = '0.1.0'
-MIN_SUPPORTED_VERSION = '0.1.0'
+LATEST_APP_VERSION = '0.2.0'
+MIN_SUPPORTED_VERSION = '0.2.0'
 
 
 class AppConfigView(APIView):
