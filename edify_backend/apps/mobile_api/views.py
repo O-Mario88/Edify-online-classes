@@ -614,3 +614,449 @@ def _recent_lessons(user) -> list[dict[str, Any]]:
         ]
     except Exception:
         return []
+
+
+# ── Phase-7 endpoints ────────────────────────────────────────────────
+
+
+class DeviceTokenView(APIView):
+    """POST/DELETE /api/v1/mobile/device-token/
+
+    Mobile clients POST their Expo push token on every cold start
+    (idempotent upsert on (user, token)). DELETE removes the token on
+    logout so a shared device can't keep receiving the previous user's
+    notifications. Both endpoints accept the body shape:
+
+      { "token": "...", "platform": "android|ios|web", "app_version": "0.2.0" }
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        from notifications.models import DeviceToken
+        from rest_framework import status as http_status
+
+        token = (request.data.get('token') or '').strip()
+        if not token:
+            return Response({'detail': 'token is required.'}, status=http_status.HTTP_400_BAD_REQUEST)
+        platform = (request.data.get('platform') or 'android').lower()
+        if platform not in {'ios', 'android', 'web'}:
+            platform = 'android'
+        app_version = (request.data.get('app_version') or '').strip()[:32]
+
+        obj, created = DeviceToken.objects.update_or_create(
+            user=request.user,
+            token=token,
+            defaults={'platform': platform, 'app_version': app_version, 'active': True},
+        )
+        return Response({
+            'id': obj.id,
+            'token': obj.token,
+            'platform': obj.platform,
+            'app_version': obj.app_version,
+            'active': obj.active,
+            'created': created,
+        }, status=http_status.HTTP_201_CREATED if created else http_status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        from notifications.models import DeviceToken
+        from rest_framework import status as http_status
+
+        token = (request.data.get('token') or request.query_params.get('token') or '').strip()
+        if not token:
+            return Response({'detail': 'token is required.'}, status=http_status.HTTP_400_BAD_REQUEST)
+        deleted, _ = DeviceToken.objects.filter(user=request.user, token=token).delete()
+        return Response({'deleted': bool(deleted)}, status=http_status.HTTP_200_OK)
+
+
+class NotificationPreferencesView(APIView):
+    """GET/POST /api/v1/mobile/notification-preferences/
+
+    GET returns the full preference list with sensible defaults for any
+    pref the user hasn't toggled. POST accepts the full payload (server
+    treats POST as upsert) and saves any changed rows.
+
+    Payload shape:
+      { "preferences": [ { "key": "...", "enabled": bool, "channels": ["push"] }, ... ] }
+    """
+    permission_classes = [IsAuthenticated]
+
+    DEFAULTS = [
+        {'key': 'live_class_reminder', 'enabled': True,  'channels': ['push']},
+        {'key': 'assignment_due',      'enabled': True,  'channels': ['push']},
+        {'key': 'teacher_feedback',    'enabled': True,  'channels': ['push', 'email']},
+        {'key': 'support_answered',    'enabled': True,  'channels': ['push']},
+        {'key': 'exam_practice',       'enabled': False, 'channels': ['push']},
+        {'key': 'badge_earned',        'enabled': True,  'channels': ['push']},
+        {'key': 'weekly_brief',        'enabled': True,  'channels': ['push', 'whatsapp']},
+        {'key': 'payment_confirmed',   'enabled': True,  'channels': ['push', 'email']},
+    ]
+
+    def get(self, request, *args, **kwargs):
+        from notifications.models import NotificationPreference
+        rows = {p.notification_type: p for p in NotificationPreference.objects.filter(user=request.user)}
+        merged = []
+        for d in self.DEFAULTS:
+            row = rows.get(d['key'])
+            merged.append({
+                'key': d['key'],
+                'enabled': row.enabled if row else d['enabled'],
+                'channels': row.channels if row else list(d['channels']),
+            })
+        return Response({'preferences': merged})
+
+    def post(self, request, *args, **kwargs):
+        from notifications.models import NotificationPreference
+        from rest_framework import status as http_status
+
+        prefs = request.data.get('preferences') or []
+        if not isinstance(prefs, list):
+            return Response({'detail': 'preferences must be a list.'}, status=http_status.HTTP_400_BAD_REQUEST)
+
+        valid_keys = {d['key'] for d in self.DEFAULTS}
+        for p in prefs:
+            key = (p.get('key') or '').strip()
+            if not key or key not in valid_keys:
+                continue
+            channels = [c for c in (p.get('channels') or []) if c in {'push', 'email', 'whatsapp', 'sms'}]
+            NotificationPreference.objects.update_or_create(
+                user=request.user,
+                notification_type=key,
+                defaults={'enabled': bool(p.get('enabled', True)), 'channels': channels},
+            )
+        # Echo the saved state back.
+        return self.get(request, *args, **kwargs)
+
+
+class NotificationsListView(APIView):
+    """GET /api/v1/mobile/notifications/
+
+    Returns the most recent in-app notification rows for the caller.
+    Limited to 50 to keep the mobile payload small. Pagination lands
+    when the list grows past that threshold for an active learner.
+
+    Optional ?since=<iso8601> filter for delta polling.
+    Optional ?unread_only=true filter for the badge counter.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        from notifications.models import Notification
+
+        qs = Notification.objects.filter(user=request.user)
+        if request.query_params.get('unread_only') == 'true':
+            qs = qs.filter(read_at__isnull=True)
+        since = request.query_params.get('since')
+        if since:
+            try:
+                from django.utils.dateparse import parse_datetime
+                d = parse_datetime(since)
+                if d:
+                    qs = qs.filter(created_at__gte=d)
+            except Exception:
+                pass
+
+        rows = list(qs.order_by('-created_at')[:50])
+        unread_count = qs.filter(read_at__isnull=True).count()
+
+        return Response({
+            'unread_count': unread_count,
+            'notifications': [
+                {
+                    'id': n.id,
+                    'channel': n.channel,
+                    'payload': n.payload,
+                    'status': n.status,
+                    'read_at': n.read_at.isoformat() if n.read_at else None,
+                    'created_at': n.created_at.isoformat(),
+                }
+                for n in rows
+            ],
+        })
+
+
+class NotificationsMarkReadView(APIView):
+    """POST /api/v1/mobile/notifications/mark-read/
+
+    Marks one or more notifications as read for the caller. Accepts
+    either {"id": <int>} for a single row or {"ids": [...]} for a batch.
+    Idempotent — already-read rows are silently skipped.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        from notifications.models import Notification
+        ids = request.data.get('ids')
+        if ids is None and 'id' in request.data:
+            ids = [request.data['id']]
+        if not isinstance(ids, list) or not ids:
+            return Response({'updated': 0})
+        from django.utils import timezone as dj_timezone
+        updated = Notification.objects.filter(
+            user=request.user, id__in=ids, read_at__isnull=True,
+        ).update(read_at=dj_timezone.now())
+        return Response({'updated': updated})
+
+
+class TeacherHomeView(APIView):
+    """GET /api/v1/mobile/teacher-home/
+
+    Single-payload aggregator for the teacher dashboard. Composes today's
+    classes, pending review counts, unread support-question counts, and
+    a placeholder earnings stub so the mobile renders the home in one
+    round-trip. Each piece is wrapped in a try/except so a missing model
+    or migration doesn't take the whole response down — the dashboard
+    falls back to zeros and stays usable.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        teacher = request.user
+        today_classes = self._today_classes(teacher)
+        pending_reviews = self._pending_reviews(teacher)
+        unread_questions = self._unread_questions(teacher)
+        earnings = self._earnings(teacher)
+        rating = self._rating(teacher)
+
+        kpis = {
+            'classes_today': len(today_classes),
+            'pending_reviews': pending_reviews,
+            'student_questions': unread_questions,
+            'earnings_this_week': earnings['this_week'],
+            'payout_pending': earnings['pending'],
+            'rating': rating,
+        }
+
+        return Response({
+            'user': {
+                'id': teacher.id,
+                'email': teacher.email,
+                'full_name': getattr(teacher, 'full_name', '') or teacher.email,
+                'role': getattr(teacher, 'role', 'teacher'),
+            },
+            'kpis': kpis,
+            'today_classes': today_classes,
+            'pending_reviews': pending_reviews,
+            'unread_questions': unread_questions,
+            'earnings': earnings,
+            'fetched_at': timezone.now().isoformat(),
+        })
+
+    def _today_classes(self, teacher) -> list[dict[str, Any]]:
+        try:
+            from live_sessions.models import LiveSession
+            start_of_day = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            end_of_day = start_of_day + timedelta(days=1)
+            qs = (LiveSession.objects
+                  .filter(created_by=teacher,
+                          scheduled_start__gte=start_of_day,
+                          scheduled_start__lt=end_of_day)
+                  .order_by('scheduled_start'))[:8]
+            return [{
+                'id': s.id,
+                'title': getattr(s, 'title', '') or 'Live class',
+                'subject': getattr(s, 'subject', '') or '',
+                'scheduled_start': s.scheduled_start.isoformat() if s.scheduled_start else None,
+                'duration_minutes': getattr(s, 'duration_minutes', 0) or 0,
+                'student_count': 0,
+                'meeting_link': getattr(s, 'meeting_link', '') or '',
+            } for s in qs]
+        except Exception:
+            return []
+
+    def _pending_reviews(self, teacher) -> int:
+        try:
+            from mentor_reviews.models import MentorReviewRequest
+            return MentorReviewRequest.objects.filter(
+                assigned_teacher=teacher, status__in=['pending', 'in_review'],
+            ).count()
+        except Exception:
+            return 0
+
+    def _unread_questions(self, teacher) -> int:
+        try:
+            from standby_teachers.models import SupportRequest
+            return SupportRequest.objects.filter(
+                assigned_teacher=teacher, status__in=['open', 'claimed'],
+            ).count()
+        except Exception:
+            return 0
+
+    def _earnings(self, teacher) -> dict[str, Any]:
+        zero = {'this_week': 0, 'this_month': 0, 'pending': 0, 'wallet_balance': 0}
+        try:
+            from marketplace.models import Wallet, PayoutRequest, TeacherPayoutBatch
+            from django.db.models import Sum
+            balance = 0
+            try:
+                w = Wallet.objects.filter(teacher=teacher).first()
+                balance = float(w.balance) if w else 0
+            except Exception:
+                pass
+            week_start = timezone.now() - timedelta(days=7)
+            month_start = timezone.now() - timedelta(days=30)
+            week = TeacherPayoutBatch.objects.filter(
+                teacher=teacher, created_at__gte=week_start,
+            ).aggregate(total=Sum('gross_earnings'))['total'] or 0
+            month = TeacherPayoutBatch.objects.filter(
+                teacher=teacher, created_at__gte=month_start,
+            ).aggregate(total=Sum('gross_earnings'))['total'] or 0
+            pending = PayoutRequest.objects.filter(
+                teacher=teacher, status__in=['requested', 'queued', 'processing'],
+            ).aggregate(total=Sum('net_payable'))['total'] or 0
+            return {
+                'this_week': float(week),
+                'this_month': float(month),
+                'pending': float(pending),
+                'wallet_balance': balance,
+            }
+        except Exception:
+            return zero
+
+    def _rating(self, teacher) -> float:
+        try:
+            from mentor_reviews.models import MentorReviewRequest
+            from django.db.models import Avg
+            r = MentorReviewRequest.objects.filter(
+                assigned_teacher=teacher, status='completed',
+            ).aggregate(avg=Avg('rating'))['avg']
+            return round(float(r), 1) if r else 0
+        except Exception:
+            return 0
+
+
+class InstitutionHomeView(APIView):
+    """GET /api/v1/mobile/institution-home/
+
+    Single-payload aggregator for the head-teacher / DOS / admin
+    dashboard. Pulls the current institution scope from the user's
+    profile and composes a school health snapshot, KPIs, and the
+    metadata the home screen needs.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        admin = request.user
+        institution = self._user_institution(admin)
+        kpis = self._kpis(institution)
+        risk_alerts = self._risk_alerts(institution)
+        recent_applications = self._recent_applications(institution)
+
+        return Response({
+            'user': {
+                'id': admin.id,
+                'email': admin.email,
+                'full_name': getattr(admin, 'full_name', '') or admin.email,
+                'role': getattr(admin, 'role', 'institution_admin'),
+            },
+            'institution': {
+                'id': getattr(institution, 'id', None),
+                'name': getattr(institution, 'name', 'Your school'),
+                'student_count': self._count_students(institution),
+                'teacher_count': self._count_teachers(institution),
+            },
+            'kpis': kpis,
+            'risk_alerts': risk_alerts,
+            'recent_applications': recent_applications,
+            'fetched_at': timezone.now().isoformat(),
+        })
+
+    def _user_institution(self, user):
+        try:
+            from institutions.models import Institution
+            staff_link = getattr(user, 'institution_staff_profile', None)
+            if staff_link and getattr(staff_link, 'institution', None):
+                return staff_link.institution
+            return Institution.objects.filter(admin_users=user).first() or Institution.objects.first()
+        except Exception:
+            return None
+
+    def _kpis(self, institution) -> dict[str, Any]:
+        empty = {
+            'health_score': 0,
+            'attendance': 0,
+            'teacher_delivery': 0,
+            'parent_engagement': 0,
+            'risk_alerts': 0,
+            'applications_inbox': 0,
+        }
+        if not institution:
+            return empty
+        try:
+            from analytics.models import DailyInstitutionMetric
+            latest = DailyInstitutionMetric.objects.filter(institution=institution).order_by('-date').first()
+            if latest:
+                return {
+                    'health_score': int(getattr(latest, 'health_score', 0) or 0),
+                    'attendance': int(getattr(latest, 'attendance_pct', 0) or 0),
+                    'teacher_delivery': int(getattr(latest, 'teacher_delivery_pct', 0) or 0),
+                    'parent_engagement': int(getattr(latest, 'parent_engagement_pct', 0) or 0),
+                    'risk_alerts': int(getattr(latest, 'risk_alert_count', 0) or 0),
+                    'applications_inbox': self._inbox_count(institution),
+                }
+        except Exception:
+            pass
+        return {**empty, 'applications_inbox': self._inbox_count(institution)}
+
+    def _inbox_count(self, institution) -> int:
+        try:
+            from admission_passport.models import AdmissionApplication
+            return AdmissionApplication.objects.filter(
+                institution=institution,
+            ).exclude(status='responded').count()
+        except Exception:
+            return 0
+
+    def _count_students(self, institution) -> int:
+        try:
+            from institutions.models import Institution
+            if not institution:
+                return 0
+            return getattr(institution, 'student_count', None) or 0
+        except Exception:
+            return 0
+
+    def _count_teachers(self, institution) -> int:
+        try:
+            if not institution:
+                return 0
+            return getattr(institution, 'teacher_count', None) or 0
+        except Exception:
+            return 0
+
+    def _risk_alerts(self, institution) -> list[dict[str, Any]]:
+        """Top 5 most recent risk alerts on this institution."""
+        if not institution:
+            return []
+        try:
+            from intelligence.models import RiskAlert
+            qs = (RiskAlert.objects
+                  .filter(institution=institution)
+                  .order_by('-created_at')[:5])
+            return [{
+                'id': r.id,
+                'kind': getattr(r, 'kind', '') or '',
+                'severity': getattr(r, 'severity', 'info') or 'info',
+                'subject': getattr(r, 'subject', '') or '',
+                'message': getattr(r, 'message', '') or '',
+                'created_at': r.created_at.isoformat() if getattr(r, 'created_at', None) else None,
+            } for r in qs]
+        except Exception:
+            return []
+
+    def _recent_applications(self, institution) -> list[dict[str, Any]]:
+        """5 most recent admission applications, anonymised."""
+        if not institution:
+            return []
+        try:
+            from admission_passport.models import AdmissionApplication
+            qs = (AdmissionApplication.objects
+                  .filter(institution=institution)
+                  .order_by('-created_at')[:5])
+            return [{
+                'id': a.id,
+                'class_level': getattr(a, 'class_level_label', '') or '',
+                'status': getattr(a, 'status', '') or '',
+                'created_at': a.created_at.isoformat() if getattr(a, 'created_at', None) else None,
+            } for a in qs]
+        except Exception:
+            return []

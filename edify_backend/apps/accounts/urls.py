@@ -3,6 +3,7 @@ from .views import (
     UserRegistrationView,
     StudentOnboardingAPIView,
     ForgotPasswordView,
+    ResetPasswordView,
     AccountActivationView,
 )
 
@@ -11,4 +12,5 @@ urlpatterns = [
     path('onboard-student/', StudentOnboardingAPIView.as_view(), name='onboard_student'),
     path('activate/', AccountActivationView.as_view(), name='activate'),
     path('forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
+    path('reset-password/', ResetPasswordView.as_view(), name='reset_password'),
 ]

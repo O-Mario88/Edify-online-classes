@@ -33,6 +33,7 @@ class UpgradeRequest(models.Model):
     METHOD_CHOICES = [
         ('mtn_momo', 'MTN Mobile Money'),
         ('airtel_money', 'Airtel Money'),
+        ('mpesa', 'M-Pesa'),
         ('cash', 'Cash / Bank Transfer'),
         ('other', 'Other'),
     ]

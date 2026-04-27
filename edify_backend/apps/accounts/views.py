@@ -259,6 +259,62 @@ class ForgotPasswordView(APIView):
         return Response({'message': 'If an account with that email exists, we have sent a password reset link.'}, status=status.HTTP_200_OK)
 
 
+class ResetPasswordView(APIView):
+    """POST /api/v1/auth/reset-password/
+
+    Accepts {uid, token, new_password} and, on a valid (uid, token)
+    pair from the ForgotPasswordView email, sets the new password.
+    Same uid+token mechanism used by Django's built-in
+    PasswordResetTokenGenerator — tokens are single-use and expire
+    per Django's PASSWORD_RESET_TIMEOUT setting.
+
+    Returns 400 with `code` so the mobile/web client can localize.
+    """
+    permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'password_reset'
+
+    def post(self, request, *args, **kwargs):
+        from django.utils.http import urlsafe_base64_decode
+        uid = request.data.get('uid')
+        token = request.data.get('token')
+        new_password = request.data.get('new_password')
+
+        if not (uid and token and new_password):
+            return Response(
+                {'detail': 'uid, token, and new_password are required.', 'code': 'missing_fields'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if len(new_password) < 8:
+            return Response(
+                {'detail': 'Password must be at least 8 characters.', 'code': 'weak_password'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user_id = urlsafe_base64_decode(uid).decode()
+            user = User.objects.get(pk=user_id)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response(
+                {'detail': 'Invalid or expired reset link.', 'code': 'invalid_link'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not PasswordResetTokenGenerator().check_token(user, token):
+            return Response(
+                {'detail': 'Invalid or expired reset link.', 'code': 'invalid_link'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.set_password(new_password)
+        user.save(update_fields=['password'])
+        return Response(
+            {'message': 'Password updated. Sign in with your new password.'},
+            status=status.HTTP_200_OK,
+        )
+
+
 from rest_framework.permissions import IsAuthenticated
 from .models import PilotFeedback
 from .serializers import PilotFeedbackSerializer
