@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { PrimaryButton } from './PrimaryButton';
+import { colors, fontSize, fontWeight } from '@/theme';
 
 interface ErrorStateProps {
   title?: string;
@@ -14,8 +15,18 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
   onRetry,
 }) => (
   <View className="items-center justify-center py-10 px-6">
-    <Text className="text-base font-bold text-slate-700 text-center">{title}</Text>
-    <Text className="text-sm text-slate-500 text-center mt-1.5">{message}</Text>
+    <Text
+      className="text-center"
+      style={{ fontSize: fontSize.base, fontWeight: fontWeight.bold, color: colors.text.body }}
+    >
+      {title}
+    </Text>
+    <Text
+      className="text-center mt-1.5"
+      style={{ fontSize: fontSize.sm, color: colors.text.muted, lineHeight: fontSize.sm * 1.45 }}
+    >
+      {message}
+    </Text>
     {onRetry && (
       <View className="mt-5 w-full max-w-xs">
         <PrimaryButton label="Try again" variant="secondary" onPress={onRetry} />

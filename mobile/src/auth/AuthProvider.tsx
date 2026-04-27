@@ -3,6 +3,9 @@ import { useAuthStore } from './authStore';
 import { tokenStorage } from './tokenStorage';
 import { api } from '@/api/client';
 import { authApi } from '@/api/auth.api';
+import { registerForPush } from '@/notifications/pushRegistration';
+import { notificationsApi } from '@/api/notifications.api';
+import { offlineStore } from '@/storage/offlineStore';
 
 /**
  * Boots the auth state on app start:
@@ -48,6 +51,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const cachedUser = await tokenStorage.getUser();
       if (cachedUser) setUser(cachedUser);
       setStatus('authenticated');
+      // Best-effort push registration on every authenticated cold
+      // start. Idempotent server-side; failure (no endpoint, denied
+      // permission, simulator) is silent so it never blocks boot.
+      void syncPushToken();
     })();
     return () => {
       cancelled = true;
@@ -81,10 +88,51 @@ export async function loginWithCredentials(email: string, password: string): Pro
   store.setAccessToken(data.access);
   store.setUser(user);
   store.setStatus('authenticated');
+  // Fire push registration in the background — first login is the
+  // best moment to ask, since the user has just demonstrated intent.
+  void syncPushToken();
   return { ok: true };
 }
 
+/**
+ * Best-effort push token sync. Asks for permission if undetermined,
+ * fetches an Expo push token, and POSTs it to the backend. All errors
+ * are swallowed so this never blocks the auth flow. The token is also
+ * stashed in tokenStorage so logout() can revoke it server-side without
+ * re-running the permission prompt just to read the value back.
+ */
+async function syncPushToken(): Promise<void> {
+  try {
+    const result = await registerForPush();
+    if (result.token) {
+      await notificationsApi.registerToken(result.token);
+      try {
+        await tokenStorage.savePushToken(result.token);
+      } catch {
+        // tokenStorage may not have savePushToken on older builds — fine.
+      }
+    }
+  } catch {
+    // intentionally silent
+  }
+}
+
 export async function logout(): Promise<void> {
-  await tokenStorage.clearAll();
+  // Revoke this device's push token server-side BEFORE clearing local
+  // state — once we drop the access token, we can't authenticate the
+  // delete call. Best-effort; failure doesn't block local cleanup.
+  try {
+    const pushToken = await tokenStorage.getPushToken();
+    if (pushToken) {
+      await notificationsApi.deleteToken(pushToken);
+    }
+  } catch {
+    // ignore — local cleanup proceeds either way
+  }
+  // Drop tokens + persisted user record, then wipe any cached child
+  // data (saved lessons, queued offline actions, low-data prefs) so a
+  // shared device doesn't leak the previous session's content to the
+  // next user. Errors are swallowed so logout never half-fails.
+  await Promise.allSettled([tokenStorage.clearAll(), offlineStore.clearAll()]);
   useAuthStore.getState().reset();
 }

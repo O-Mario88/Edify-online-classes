@@ -54,6 +54,21 @@ export default function ParentLayout() {
       <Tabs.Screen name="reports"  options={{ title: 'Reports' }} />
       <Tabs.Screen name="messages" options={{ title: 'Messages' }} />
       <Tabs.Screen name="profile"  options={{ title: 'Profile' }} />
+      {[
+        'pay',
+        'support',
+        'apply',
+        'remind',
+        'attendance',
+        'results',
+        'weak-topics',
+        'notifications',
+        'applications',
+        'school-match',
+        'invitations',
+      ].map((name) => (
+        <Tabs.Screen key={name} name={name} options={{ href: null }} />
+      ))}
     </Tabs>
   );
 }

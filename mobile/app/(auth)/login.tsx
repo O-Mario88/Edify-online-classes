@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppScreen } from '@/components/AppScreen';
+import { AuthScreen } from '@/components/AuthScreen';
 import { PrimaryButton } from '@/components/PrimaryButton';
-import { MapleLogo } from '@/components/MapleLogo';
+import { AnimatedMapleLogo } from '@/components/AnimatedMapleLogo';
+import { CountryChip } from '@/components/CountryChip';
 import { loginWithCredentials } from '@/auth/AuthProvider';
 import { homeRouteForRole } from '@/auth/roleRouting';
 import { useAuthStore } from '@/auth/authStore';
 
 /**
- * Phase-1 login. Email + password, sized for a phone (h-14 inputs,
- * autocapitalize off, secure entry on the password field). On success
- * the auth store flips state and the route guard takes over.
+ * Sign-in screen. Centred column on a softly graded brand background:
+ * animated brand mark hero, "Welcome Back!" title, email + password,
+ * primary CTA, footer link to sign up. Mirrors the layout of the
+ * sign-up screen so the two feel like a single auth flow.
  */
 export default function Login() {
   const router = useRouter();
@@ -38,28 +40,37 @@ export default function Login() {
   };
 
   return (
-    <AppScreen>
-      <View className="px-6 pt-10 pb-8">
-        <Pressable onPress={() => router.back()} className="mb-6">
-          <Text className="text-sm font-semibold text-maple-900">← Back</Text>
-        </Pressable>
-
-        <View className="mb-6 items-start">
-          <MapleLogo size={64} />
+    <AuthScreen haloY={0.22}>
+      <View className="px-6 pt-6 pb-10 items-center">
+        <View className="w-full flex-row items-center justify-between mb-2">
+          <Pressable onPress={() => router.back()}>
+            <Text className="text-sm font-semibold text-maple-900">← Back</Text>
+          </Pressable>
+          <CountryChip />
         </View>
 
-        <Text className="text-2xl font-extrabold text-slate-900">Welcome back</Text>
-        <Text className="text-sm text-slate-600 mt-1">Sign in to continue learning.</Text>
+        <View className="items-center mt-2 mb-7">
+          <AnimatedMapleLogo size={200} />
+        </View>
+
+        <Text className="text-3xl font-extrabold text-slate-900 text-center tracking-tight">
+          Welcome Back!
+        </Text>
+        <Text className="text-sm text-slate-600 mt-2 text-center px-6 leading-relaxed">
+          Sign in with the email and password from your school account.
+        </Text>
 
         {error && (
-          <View className="mt-5 p-3 rounded-xl bg-rose-50 border border-rose-200">
-            <Text className="text-sm font-medium text-rose-800">{error}</Text>
+          <View className="mt-5 p-3 rounded-xl bg-rose-50 border border-rose-200 w-full">
+            <Text className="text-sm font-medium text-rose-800 text-center">{error}</Text>
           </View>
         )}
 
-        <View className="mt-6 space-y-4">
+        <View className="mt-7 w-full" style={{ gap: 16 }}>
           <View>
-            <Text className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Email</Text>
+            <Text className="text-[11px] font-bold uppercase tracking-[2px] text-slate-500 mb-2 text-center">
+              Email
+            </Text>
             <TextInput
               value={email}
               onChangeText={setEmail}
@@ -68,30 +79,40 @@ export default function Login() {
               keyboardType="email-address"
               placeholder="you@example.com"
               placeholderTextColor="#94A3B8"
-              className="h-14 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-900"
+              className="h-14 rounded-2xl border border-slate-200 bg-white/85 px-5 text-base text-slate-900 text-center"
             />
           </View>
           <View>
-            <Text className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Password</Text>
+            <Text className="text-[11px] font-bold uppercase tracking-[2px] text-slate-500 mb-2 text-center">
+              Password
+            </Text>
             <TextInput
               value={password}
               onChangeText={setPassword}
               secureTextEntry
               placeholder="At least 8 characters"
               placeholderTextColor="#94A3B8"
-              className="h-14 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-900"
+              className="h-14 rounded-2xl border border-slate-200 bg-white/85 px-5 text-base text-slate-900 text-center"
             />
           </View>
         </View>
 
-        <View className="mt-8">
-          <PrimaryButton label="Sign in" onPress={submit} loading={submitting} />
+        <View className="mt-8 w-full">
+          <PrimaryButton label="Log in" onPress={submit} loading={submitting} />
         </View>
 
-        <Text className="text-xs text-slate-500 text-center mt-6">
-          Forgot your password? Email support@maple.edify and we'll help.
-        </Text>
+        <Pressable onPress={() => router.push('/(auth)/forgot-password')} className="mt-5">
+          <Text className="text-xs text-slate-500 text-center px-4">
+            Forgot your password? <Text className="font-bold text-maple-900">Reset it</Text>
+          </Text>
+        </Pressable>
+
+        <Pressable onPress={() => router.replace('/(auth)/signup')} className="mt-6">
+          <Text className="text-sm text-slate-600 text-center">
+            Don't have an account? <Text className="font-bold text-maple-900">Sign up</Text>
+          </Text>
+        </Pressable>
       </View>
-    </AppScreen>
+    </AuthScreen>
   );
 }

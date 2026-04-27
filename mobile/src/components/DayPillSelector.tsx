@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
+import { shadows } from '@/theme';
 
 interface DayPillSelectorProps {
   /** Selected day index, 0=Mon … 6=Sun. */
@@ -76,17 +77,7 @@ export const DayPillSelector: React.FC<DayPillSelectorProps> = ({
                 ? 'w-14 h-16 rounded-2xl mr-2 bg-maple-900 items-center justify-center'
                 : 'w-14 h-16 rounded-2xl mr-2 bg-white items-center justify-center'
             }
-            style={
-              active
-                ? undefined
-                : {
-                    elevation: 0.5,
-                    shadowColor: '#0F172A',
-                    shadowOpacity: 0.04,
-                    shadowRadius: 6,
-                    shadowOffset: { width: 0, height: 1 },
-                  }
-            }
+            style={active ? undefined : shadows.xs}
           >
             <Text className={active ? 'text-white text-[10px] font-bold tracking-wider uppercase' : 'text-slate-500 text-[10px] font-bold tracking-wider uppercase'}>
               {label}

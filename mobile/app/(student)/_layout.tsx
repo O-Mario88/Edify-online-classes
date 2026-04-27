@@ -8,6 +8,10 @@ import { Ionicons } from '@expo/vector-icons';
  * tab strip reads as an interactive control rather than OS-level
  * chrome. Each icon picks a filled / outline variant based on
  * selection so the active tab is visually obvious.
+ *
+ * Deep-feature routes (Practice, Mastery, Exam Sim, etc.) are declared
+ * here with `href: null` so they're reachable via router.push from the
+ * dashboard but absent from the tab bar — keeping it to five anchors.
  */
 
 const ICON_MAP: Record<string, [keyof typeof Ionicons.glyphMap, keyof typeof Ionicons.glyphMap]> = {
@@ -17,6 +21,27 @@ const ICON_MAP: Record<string, [keyof typeof Ionicons.glyphMap, keyof typeof Ion
   tasks:   ['list',     'list-outline'],
   profile: ['person',   'person-outline'],
 };
+
+const HIDDEN_ROUTES = [
+  'practice',
+  'mastery',
+  'mastery-projects',
+  'exam-sim',
+  'passport',
+  'ai-buddy',
+  'mistake-notebook',
+  'notifications',
+  'progress',
+  'certificates',
+  'study-plan',
+  'ask-teacher',
+  'projects',
+  'offline',
+  'payment',
+  'school-match',
+  'teacher-feedback',
+  'support-tracker',
+];
 
 export default function StudentLayout() {
   return (
@@ -56,6 +81,9 @@ export default function StudentLayout() {
       <Tabs.Screen name="live"    options={{ title: 'Live' }} />
       <Tabs.Screen name="tasks"   options={{ title: 'Tasks' }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+      {HIDDEN_ROUTES.map((name) => (
+        <Tabs.Screen key={name} name={name} options={{ href: null }} />
+      ))}
     </Tabs>
   );
 }

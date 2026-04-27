@@ -1,9 +1,6 @@
 /**
  * Role → home route mapping. Drives the post-login redirect and the
  * route guard in app/_layout.tsx.
- *
- * Phase 1 only includes (student); other role groups land on /(student)
- * temporarily until their tabs are built.
  */
 export type Role =
   | 'student' | 'universal_student' | 'institution_student'
@@ -14,9 +11,13 @@ export type Role =
 
 export function homeRouteForRole(role: string | undefined | null): string {
   const r = (role || '').toLowerCase();
-  if (r === 'parent')            return '/(parent)';    // Phase 3 ✓
-  if (r.includes('teacher'))     return '/(student)';   // placeholder: teacher tabs land in Phase 4
-  if (r.includes('institution')) return '/(student)';   // placeholder
-  if (r.includes('admin'))       return '/(student)';   // platform admin stays web-first
+  if (r === 'parent')                return '/(parent)';
+  if (r.includes('teacher'))         return '/(teacher)';
+  // institution_admin, head-teacher, DOS — anything school-side that
+  // isn't a learner or a teacher routes to the institution dashboard.
+  if (r.includes('institution') ||
+      r === 'admin' || r === 'platform_admin') {
+    return '/(institution)';
+  }
   return '/(student)';
 }

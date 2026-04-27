@@ -1,7 +1,10 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { AppCard } from './AppCard';
+import { shareItem } from '@/hooks/useShare';
 import type { PassportSummary } from '@/api/parent.api';
+import { colors } from '@/theme';
 
 interface PassportPreviewCardProps {
   passport: PassportSummary;
@@ -32,6 +35,25 @@ export const PassportPreviewCard: React.FC<PassportPreviewCardProps> = ({ passpo
         <Cell label="Certificates"    value={passport.certificates} icon="📜" />
         <Cell label="Projects"        value={passport.projects_reviewed} icon="🎯" />
       </View>
+
+      {total > 0 && (
+        <Pressable
+          onPress={() =>
+            shareItem({
+              title: `${childFirstName}'s Learning Passport`,
+              message: `${childFirstName} has earned ${passport.badges} badge(s), ${passport.certificates} certificate(s), and had ${passport.projects_reviewed} project(s) reviewed at Maple Online School.`,
+              url: 'https://maple.edify/passport',
+            })
+          }
+          accessibilityRole="button"
+          accessibilityLabel="Share Learning Passport via WhatsApp"
+          className="mt-4 py-2.5 rounded-full flex-row items-center justify-center"
+          style={{ backgroundColor: colors.partner.whatsapp }}
+        >
+          <Ionicons name="logo-whatsapp" size={16} color={colors.text.onBrand} />
+          <Text className="text-xs font-bold text-white ml-2">Share Passport</Text>
+        </Pressable>
+      )}
     </AppCard>
   );
 };

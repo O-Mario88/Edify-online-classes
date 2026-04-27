@@ -9,6 +9,7 @@ import * as SecureStore from 'expo-secure-store';
 
 const REFRESH_KEY = 'maple.auth.refresh';
 const USER_KEY = 'maple.auth.user';
+const PUSH_TOKEN_KEY = 'maple.auth.push_token';
 
 export interface PersistedUser {
   id: number;
@@ -49,7 +50,19 @@ export const tokenStorage = {
     await SecureStore.deleteItemAsync(USER_KEY).catch(() => {});
   },
 
+  async savePushToken(token: string): Promise<void> {
+    await SecureStore.setItemAsync(PUSH_TOKEN_KEY, token);
+  },
+
+  async getPushToken(): Promise<string | null> {
+    return SecureStore.getItemAsync(PUSH_TOKEN_KEY);
+  },
+
+  async clearPushToken(): Promise<void> {
+    await SecureStore.deleteItemAsync(PUSH_TOKEN_KEY).catch(() => {});
+  },
+
   async clearAll(): Promise<void> {
-    await Promise.all([this.clearRefreshToken(), this.clearUser()]);
+    await Promise.all([this.clearRefreshToken(), this.clearUser(), this.clearPushToken()]);
   },
 };

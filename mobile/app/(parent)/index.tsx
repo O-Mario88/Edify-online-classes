@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AppScreen } from '@/components/AppScreen';
@@ -10,31 +10,39 @@ import { PassportPreviewCard } from '@/components/PassportPreviewCard';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { ErrorState } from '@/components/ErrorState';
 import { EmptyState } from '@/components/EmptyState';
+import { QuickActionGrid, type QuickAction } from '@/components/QuickActionGrid';
+import { LocaleStrip } from '@/components/LocaleStrip';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { parentApi, type ParentHomePayload } from '@/api/parent.api';
 import { useAuthStore } from '@/auth/authStore';
 import { useParentStore } from '@/auth/parentStore';
+import { OnboardingTour } from '@/components/OnboardingTour';
+import { useOnboardingTour } from '@/onboarding/useOnboardingTour';
 
 /**
- * Parent home — the "understand my child's progress in under one
- * minute" screen the spec asks for.
+ * Parent home — "understand my child's progress in under one minute"
+ * surface, plus a row of quick actions for the seven things parents
+ * actually need to do quickly: message a teacher, nudge their child,
+ * download a report, top up the subscription, peek at weak topics,
+ * book a support session, or start a school application.
  *
  * Layout, top → bottom:
- *   1. Greeting
- *   2. Today hero (reuses /dashboard/today/'s parent branch)
- *   3. Child selector (only if >1 children)
- *   4. Weekly Brief — narrative + strongest/attendance/trend + focus
- *   5. KPI strip (4 tiles using the canonical learner vocabulary)
- *   6. Teacher Support Summary (questions answered + pending)
- *   7. Passport preview (badges / certificates / projects reviewed)
+ *   1. Greeting + child selector
+ *   2. Today hero
+ *   3. Quick actions (7 tiles)
+ *   4. Weekly Brief (with WhatsApp share)
+ *   5. KPI strip
+ *   6. Teacher Support summary
+ *   7. Passport preview (with WhatsApp share)
  *
- * All seven blocks come from one /mobile/parent-home/ round-trip.
+ * All blocks read off the single /mobile/parent-home/ aggregator.
  */
 export default function ParentHome() {
   const router = useRouter();
   const parentUser = useAuthStore((s) => s.user);
   const selectedChildId = useParentStore((s) => s.selectedChildId);
   const setSelectedChildId = useParentStore((s) => s.setSelectedChildId);
+  const tour = useOnboardingTour('parent');
   const [refreshing, setRefreshing] = useState(false);
 
   const homeQuery = useApiQuery<ParentHomePayload>(
@@ -43,8 +51,6 @@ export default function ParentHome() {
     { staleTime: 60_000 },
   );
 
-  // Hydrate the selected-child store on first paint so every other tab
-  // starts on the same child.
   useEffect(() => {
     if (selectedChildId == null && homeQuery.data?.selected_child) {
       setSelectedChildId(homeQuery.data.selected_child.id);
@@ -62,20 +68,33 @@ export default function ParentHome() {
   const child = data?.selected_child ?? null;
   const childFirstName = child?.name?.split(' ')[0] || 'your child';
 
+  const quickActions = useMemo<QuickAction[]>(() => [
+    { key: 'message',  label: 'Message',     glyph: '💬', tint: 'blue',    onPress: () => router.push('/(parent)/messages' as any) },
+    { key: 'remind',   label: 'Remind',      glyph: '🔔', tint: 'amber',   onPress: () => router.push('/(parent)/remind' as any) },
+    { key: 'reports',  label: 'Reports',     glyph: '📄', tint: 'indigo',  onPress: () => router.push('/(parent)/reports' as any) },
+    { key: 'pay',      label: 'Pay',         glyph: '💳', tint: 'emerald', onPress: () => router.push('/(parent)/pay' as any) },
+    { key: 'weak',     label: 'Weak topics', glyph: '🎯', tint: 'rose',    onPress: () => router.push('/(parent)/progress' as any) },
+    { key: 'support',  label: 'Support',     glyph: '🤝', tint: 'teal',    onPress: () => router.push('/(parent)/support' as any) },
+    { key: 'apply',    label: 'Apply',       glyph: '🏫', tint: 'orange',  onPress: () => router.push('/(parent)/apply' as any) },
+    { key: 'invites',  label: 'Invitations', glyph: '✉️', tint: 'pink',    onPress: () => router.push('/(parent)/invitations' as any) },
+  ], [router]);
+
   return (
-    <AppScreen onRefresh={onRefresh} refreshing={refreshing}>
-      <View className="px-5 pt-6 pb-3">
+    <>
+      <AppScreen onRefresh={onRefresh} refreshing={refreshing}>
+      <LocaleStrip />
+      <View className="px-5 pt-3 pb-3">
         <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Maple</Text>
         <Text className="text-2xl font-extrabold text-slate-900">Hi, {firstName}</Text>
       </View>
 
-      <View className="px-5 space-y-5">
+      <View className="px-5">
         {homeQuery.isLoading && !data ? (
           <LoadingSkeleton height={140} lines={3} />
         ) : homeQuery.isError ? (
           <ErrorState onRetry={() => homeQuery.refetch()} />
         ) : data ? (
-          <>
+          <View style={{ gap: 20 }}>
             <TodayHero payload={data.today} />
 
             {data.children.length > 0 ? (
@@ -90,26 +109,41 @@ export default function ParentHome() {
                 message="Once your child's school links you to their account, you'll see their progress here."
               />
             )}
-
-            {child && (
-              <>
-                <WeeklyBriefCard brief={child.weekly_brief} childFirstName={childFirstName} />
-                <KpiStrip kpis={child.kpis} childFirstName={childFirstName} />
-                <TeacherSupportCard
-                  answered={child.teacher_support.questions_answered}
-                  pending={child.teacher_support.pending_requests}
-                />
-                <PassportPreviewCard passport={child.passport} childFirstName={childFirstName} />
-              </>
-            )}
-          </>
+          </View>
         ) : null}
       </View>
-    </AppScreen>
+
+      {/* Quick actions — full-bleed so the 7-tile horizontal scroll has room. */}
+      {data && (
+        <View className="mt-5 pl-5">
+          <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">Quick actions</Text>
+          <QuickActionGrid actions={quickActions} />
+        </View>
+      )}
+
+      <View className="px-5 mt-2">
+        {data && child && (
+          <View style={{ gap: 20 }} className="mt-3">
+            <WeeklyBriefCard brief={child.weekly_brief} childFirstName={childFirstName} />
+            <KpiStrip kpis={child.kpis} childFirstName={childFirstName} />
+            <TeacherSupportCard
+              answered={child.teacher_support.questions_answered}
+              pending={child.teacher_support.pending_requests}
+            />
+            <PassportPreviewCard passport={child.passport} childFirstName={childFirstName} />
+          </View>
+        )}
+      </View>
+      </AppScreen>
+      <OnboardingTour role={tour.role} onClose={tour.dismiss} />
+    </>
   );
 }
 
-const KpiStrip: React.FC<{ kpis: ParentHomePayload['selected_child']['kpis']; childFirstName: string }> = ({ kpis, childFirstName }) => (
+const KpiStrip: React.FC<{
+  kpis: NonNullable<ParentHomePayload['selected_child']>['kpis'];
+  childFirstName: string;
+}> = ({ kpis, childFirstName }) => (
   <View>
     <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">
       {childFirstName}'s standing this term

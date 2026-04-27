@@ -6,6 +6,10 @@ import { AppCard } from '@/components/AppCard';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { ErrorState } from '@/components/ErrorState';
+import { PhotoAttachField } from '@/components/PhotoAttachField';
+import { VoiceAttachField } from '@/components/VoiceAttachField';
+import type { CapturedPhoto } from '@/hooks/usePhotoCapture';
+import type { VoiceClip } from '@/hooks/useVoiceRecorder';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import {
   studentApi,
@@ -29,6 +33,12 @@ export default function AssessmentScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  // Per-question photo attachment. Held client-side until the
+  // /assessment/<id>/submit/ endpoint accepts multipart submissions —
+  // capturing the UX path now so the wire-up later is a one-liner.
+  const [photos, setPhotos] = useState<Record<string, CapturedPhoto | null>>({});
+  // Per-question voice clip — same client-side staging as photos.
+  const [voiceClips, setVoiceClips] = useState<Record<string, VoiceClip | null>>({});
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<AssessmentSubmissionResponse | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -116,7 +126,14 @@ export default function AssessmentScreen() {
   const q = questions[step];
   const isLast = step === total - 1;
   const currentAnswer = answers[String(q.id)] || '';
-  const canAdvance = currentAnswer.trim().length > 0;
+  const currentPhoto = photos[String(q.id)] ?? null;
+  const currentVoice = voiceClips[String(q.id)] ?? null;
+  // Either typed text, an attached photo, or a voice clip counts as an
+  // answer for essay/short-answer questions; MCQs still need a
+  // selected option.
+  const canAdvance =
+    currentAnswer.trim().length > 0 ||
+    (q.type !== 'mcq' && (!!currentPhoto || !!currentVoice));
 
   const setAnswer = (val: string) => setAnswers((prev) => ({ ...prev, [String(q.id)]: val }));
 
@@ -195,6 +212,28 @@ export default function AssessmentScreen() {
                   q.type === 'essay' ? 'min-h-[180px]' : 'h-14'
                 }`}
               />
+
+              {/* Photo of handwritten work — works for math working,
+                  diagrams, exercise-book pages, science setups, etc. */}
+              <View className="mt-4">
+                <PhotoAttachField
+                  label="Or attach a photo of your working"
+                  hint="Snap your exercise book — your teacher reads handwriting too."
+                  value={photos[String(q.id)] ?? null}
+                  onChange={(p) => setPhotos((prev) => ({ ...prev, [String(q.id)]: p }))}
+                />
+              </View>
+
+              {/* Voice answer — useful for reading-fluency tasks and
+                  speaking responses on language papers. */}
+              <View className="mt-4">
+                <VoiceAttachField
+                  label="Or record a voice answer"
+                  hint="Talk it through — handy for spoken English and oral exam practice."
+                  value={voiceClips[String(q.id)] ?? null}
+                  onChange={(c) => setVoiceClips((prev) => ({ ...prev, [String(q.id)]: c }))}
+                />
+              </View>
             </View>
           )}
 

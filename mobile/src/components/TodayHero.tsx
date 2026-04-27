@@ -3,6 +3,7 @@ import { View, Text, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { TodayPayload } from '@/api/student.api';
 import { PrimaryButton } from './PrimaryButton';
+import { shadows } from '@/theme';
 
 interface TodayHeroProps {
   payload: TodayPayload | null;
@@ -53,13 +54,7 @@ export const TodayHero: React.FC<TodayHeroProps> = ({ payload }) => {
   return (
     <View
       className={`rounded-2xl border p-5 ${surface}`}
-      style={{
-        elevation: 1,
-        shadowColor: '#0F172A',
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 2 },
-      }}
+      style={shadows.sm}
     >
       <Text className={`text-[11px] font-bold uppercase tracking-wider ${eyebrowColor} mb-1`}>
         {eyebrowLabel}

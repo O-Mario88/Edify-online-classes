@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { palette, shadows } from '@/theme';
 
 interface ProfileHeaderProps {
   greeting?: string;
@@ -36,13 +37,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         <View className="flex-row items-center flex-1 min-w-0">
           <View
             className="w-12 h-12 rounded-full bg-white items-center justify-center"
-            style={{
-              elevation: 1,
-              shadowColor: '#0F172A',
-              shadowOpacity: 0.05,
-              shadowRadius: 8,
-              shadowOffset: { width: 0, height: 2 },
-            }}
+            style={shadows.sm}
           >
             <Text className="text-slate-800 text-base font-bold">{initials}</Text>
           </View>
@@ -57,10 +52,10 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
         <View className="flex-row items-center gap-2 ml-3">
           <IconButton onPress={onSearchPress} accessibilityLabel="Search">
-            <Ionicons name="search-outline" size={20} color="#334155" />
+            <Ionicons name="search-outline" size={20} color={palette.slate[700]} />
           </IconButton>
           <IconButton onPress={onNotificationsPress} accessibilityLabel="Notifications" badge={unreadCount}>
-            <Ionicons name="notifications-outline" size={20} color="#334155" />
+            <Ionicons name="notifications-outline" size={20} color={palette.slate[700]} />
           </IconButton>
         </View>
       </View>
@@ -78,13 +73,7 @@ const IconButton: React.FC<React.PropsWithChildren<{
     accessibilityRole="button"
     accessibilityLabel={badge > 0 ? `${accessibilityLabel} (${badge} new)` : accessibilityLabel}
     className="w-10 h-10 rounded-full bg-white items-center justify-center relative"
-    style={{
-      elevation: 1,
-      shadowColor: '#0F172A',
-      shadowOpacity: 0.05,
-      shadowRadius: 6,
-      shadowOffset: { width: 0, height: 2 },
-    }}
+    style={shadows.sm}
   >
     {children}
     {badge > 0 && (

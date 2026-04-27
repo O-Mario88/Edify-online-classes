@@ -6,6 +6,7 @@ import { AppCard } from '@/components/AppCard';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { useAuthStore } from '@/auth/authStore';
 import { logout } from '@/auth/AuthProvider';
+import { ReplayTourCard } from '@/components/ReplayTourCard';
 
 /**
  * Profile tab — minimal Phase 2 surface. Shows the signed-in user's
@@ -53,6 +54,8 @@ export default function ProfileTab() {
             </View>
           </View>
         </AppCard>
+
+        <ReplayTourCard role="student" />
 
         <AppCard>
           <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">App</Text>

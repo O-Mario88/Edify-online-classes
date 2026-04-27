@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import { colors, fontSize, fontWeight } from '@/theme';
 
 interface EmptyStateProps {
   title: string;
@@ -15,7 +16,19 @@ interface EmptyStateProps {
 export const EmptyState: React.FC<EmptyStateProps> = ({ title, message, icon }) => (
   <View className="items-center justify-center py-10 px-6">
     {icon && <View className="mb-3">{icon}</View>}
-    <Text className="text-base font-bold text-slate-700 text-center">{title}</Text>
-    {message && <Text className="text-sm text-slate-500 text-center mt-1.5">{message}</Text>}
+    <Text
+      className="text-center"
+      style={{ fontSize: fontSize.base, fontWeight: fontWeight.bold, color: colors.text.body }}
+    >
+      {title}
+    </Text>
+    {message && (
+      <Text
+        className="text-center mt-1.5"
+        style={{ fontSize: fontSize.sm, color: colors.text.muted, lineHeight: fontSize.sm * 1.45 }}
+      >
+        {message}
+      </Text>
+    )}
   </View>
 );

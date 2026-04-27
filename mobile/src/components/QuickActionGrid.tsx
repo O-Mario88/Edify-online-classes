@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
+import { shadows } from '@/theme';
 
 export interface QuickAction {
   key: string;
@@ -67,13 +68,7 @@ const Tile: React.FC<{ action: QuickAction }> = ({ action }) => (
     accessibilityRole="button"
     accessibilityLabel={action.label}
     className="w-24 h-24 rounded-2xl bg-white mr-3 p-3 items-start justify-between relative"
-    style={{
-      elevation: 1,
-      shadowColor: '#0F172A',
-      shadowOpacity: 0.05,
-      shadowRadius: 8,
-      shadowOffset: { width: 0, height: 2 },
-    }}
+    style={shadows.sm}
   >
     <View className={`w-10 h-10 rounded-xl ${TINT[action.tint]} items-center justify-center`}>
       <Text className="text-lg">{action.glyph}</Text>

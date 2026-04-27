@@ -45,4 +45,32 @@ export const authApi = {
       stage: resp.stage,
     };
   },
+
+  /** POST /auth/forgot-password/ — sends a reset link to the email. */
+  forgotPassword(email: string) {
+    return api.post<{ message: string }>(
+      '/auth/forgot-password/',
+      { email: email.trim() },
+      { anonymous: true },
+    );
+  },
+
+  /** POST /auth/activate/ — confirms an email-verification link.
+   *  The activation email links to a deep-link `/(auth)/verify-email?uid=…&token=…`
+   *  which extracts the params and POSTs them here. */
+  activate(uid: string, token: string) {
+    return api.post<{ message: string }>(
+      '/auth/activate/',
+      { uid, token },
+      { anonymous: true },
+    );
+  },
+
+  /** POST /auth/reset-password/ — backend endpoint TODO.
+   *  The reset email currently links to the web app; we ship the
+   *  mobile screen ready for when the API ships so the deep link
+   *  works on day one. */
+  resetPassword(payload: { uid: string; token: string; password: string }) {
+    return api.post<{ message: string }>('/auth/reset-password/', payload, { anonymous: true });
+  },
 };

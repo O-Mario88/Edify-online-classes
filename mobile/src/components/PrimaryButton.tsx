@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, Text, ActivityIndicator, View, type PressableProps } from 'react-native';
+import { colors, radius } from '@/theme';
 
 interface PrimaryButtonProps extends Omit<PressableProps, 'children'> {
   label: string;
@@ -14,6 +15,9 @@ interface PrimaryButtonProps extends Omit<PressableProps, 'children'> {
  *   primary  → maple-900 navy fill, white text
  *   secondary → white fill, navy border + text
  *   ghost    → transparent, navy text only
+ *
+ * Pulls colours + radius from the design-system tokens so a brand
+ * change ripples through every CTA in one edit.
  */
 export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   label,
@@ -21,33 +25,45 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   variant = 'primary',
   fullWidth = true,
   disabled,
+  style,
   ...rest
 }) => {
   const isDisabled = disabled || loading;
 
-  const containerCls = (() => {
-    const base = `h-12 rounded-2xl flex-row items-center justify-center px-5 ${fullWidth ? 'w-full' : ''}`;
-    if (variant === 'primary') return `${base} bg-maple-900 ${isDisabled ? 'opacity-50' : ''}`;
-    if (variant === 'secondary') return `${base} bg-white border border-maple-900 ${isDisabled ? 'opacity-50' : ''}`;
-    return `${base} bg-transparent ${isDisabled ? 'opacity-50' : ''}`;
-  })();
+  const baseStyle = {
+    height: 48,
+    borderRadius: radius.cardLg,
+    paddingHorizontal: 20,
+    width: fullWidth ? '100%' as const : undefined,
+    opacity: isDisabled ? 0.5 : 1,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  };
 
-  const textCls =
-    variant === 'primary' ? 'text-white font-bold text-base' : 'text-maple-900 font-bold text-base';
+  const variantStyle =
+    variant === 'primary'
+      ? { backgroundColor: colors.brand.primary }
+      : variant === 'secondary'
+      ? { backgroundColor: colors.surface.raised, borderWidth: 1, borderColor: colors.brand.primary }
+      : { backgroundColor: 'transparent' };
+
+  const textColor = variant === 'primary' ? colors.text.onBrand : colors.brand.primary;
+  const spinnerColor = variant === 'primary' ? colors.text.onBrand : colors.brand.primary;
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
-      className={containerCls}
+      style={[baseStyle, variantStyle, style as any]}
       {...rest}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#FFFFFF' : '#0F2A45'} />
+        <ActivityIndicator color={spinnerColor} />
       ) : (
-        <View className="flex-row items-center justify-center">
-          <Text className={textCls}>{label}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ color: textColor, fontWeight: '700', fontSize: 15 }}>{label}</Text>
         </View>
       )}
     </Pressable>

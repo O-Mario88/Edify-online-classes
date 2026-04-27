@@ -6,6 +6,7 @@ import { AppCard } from '@/components/AppCard';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { useAuthStore } from '@/auth/authStore';
 import { logout } from '@/auth/AuthProvider';
+import { ReplayTourCard } from '@/components/ReplayTourCard';
 
 /**
  * Parent Profile tab — same shape as the student version. Shows
@@ -43,6 +44,16 @@ export default function ParentProfile() {
             </View>
           </View>
         </AppCard>
+
+        <AppCard>
+          <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">In-person opportunities</Text>
+          <Row
+            label="School match preferences"
+            onPress={() => router.push('/(parent)/school-match/preferences' as any)}
+          />
+        </AppCard>
+
+        <ReplayTourCard role="parent" />
 
         <AppCard>
           <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">App</Text>

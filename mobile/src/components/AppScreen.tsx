@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, View, RefreshControl, type ScrollViewProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { colors } from '@/theme';
 
 interface AppScreenProps extends ScrollViewProps {
   /** Pass-through to RefreshControl. When omitted, no pull-to-refresh. */
@@ -23,7 +24,7 @@ export const AppScreen: React.FC<React.PropsWithChildren<AppScreenProps>> = ({
   ...rest
 }) => {
   return (
-    <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: '#F4F6F9' }}>
+    <SafeAreaView className="flex-1" edges={['top', 'left', 'right']} style={{ backgroundColor: colors.surface.canvas }}>
       <StatusBar style="dark" />
       {scroll ? (
         <ScrollView
