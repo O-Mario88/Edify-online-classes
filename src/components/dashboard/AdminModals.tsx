@@ -19,18 +19,19 @@ export const ErrorLogsPanel: React.FC<{ isOpen: boolean; onClose: () => void; }>
   useEffect(() => {
     if (isOpen) {
       setLoading(true);
-      apiClient.get<LogEntry[]>('/admin/logs')
+      apiClient.get<{ logs: Array<{ id: number; level: string; message: string; created_at: string; source?: string }> }>('/admin/logs/')
         .then(res => {
-          if (res.data) setLogs(res.data);
-          else {
-            // Safe fallback if endpoint doesn't exist yet so it's not totally broken
-            setLogs([
-              { level: 'ERROR', timestamp: new Date().toISOString(), message: 'API Gateway timeout during telemetry pull.' }
-            ]);
+          if (res.error) {
+            toast.error(`Could not load logs: ${res.error.message}`);
+            setLogs([]);
+            return;
           }
-        })
-        .catch(err => {
-          setLogs([{ level: 'ERROR', timestamp: new Date().toISOString(), message: 'Failed to access log engine: ' + err.message }]);
+          const rows = res.data?.logs || [];
+          setLogs(rows.map(r => ({
+            level: r.level.toUpperCase() as LogEntry['level'],
+            timestamp: r.created_at,
+            message: r.source ? `[${r.source}] ${r.message}` : r.message,
+          })));
         })
         .finally(() => setLoading(false));
     }
@@ -41,11 +42,24 @@ export const ErrorLogsPanel: React.FC<{ isOpen: boolean; onClose: () => void; }>
   const handleClearLogs = async () => {
     setClearing(true);
     try {
-      await apiClient.post('/admin/logs/clear', {});
-      setLogs([]);
-      toast.success('System logs cleared successfully.');
-    } catch {
-      toast.error('Failed to clear actual system logs.');
+      const resp = await apiClient.post<{ status: string; deleted_count: number }>('/admin/logs/clear/', {});
+      if (resp.error) {
+        toast.error(`Failed to clear logs: ${resp.error.message}`);
+      } else {
+        const count = resp.data?.deleted_count ?? 0;
+        toast.success(`Cleared ${count} log entr${count === 1 ? 'y' : 'ies'}.`);
+        // Re-fetch to show what's left (recent entries plus the
+        // "admin cleared logs" entry the backend just wrote).
+        const refresh = await apiClient.get<{ logs: Array<{ id: number; level: string; message: string; created_at: string; source?: string }> }>('/admin/logs/');
+        const rows = refresh.data?.logs || [];
+        setLogs(rows.map(r => ({
+          level: r.level.toUpperCase() as LogEntry['level'],
+          timestamp: r.created_at,
+          message: r.source ? `[${r.source}] ${r.message}` : r.message,
+        })));
+      }
+    } catch (err: any) {
+      toast.error(`Failed to clear logs: ${err?.message || 'network error'}`);
     } finally {
       setClearing(false);
     }

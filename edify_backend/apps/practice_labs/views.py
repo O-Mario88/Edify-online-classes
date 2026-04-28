@@ -13,6 +13,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from pilot_payments.permissions import IsActiveSubscription
 
 from apps.curriculum.stage_filter import filter_queryset_by_stage
 from notifications.utils import notify
@@ -23,20 +24,46 @@ from .serializers import (
 )
 
 
-class PracticeLabViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+class PracticeLabViewSet(viewsets.ModelViewSet):
+    """Browse + author labs. Read access requires an active subscription
+    (paywall); create / update / delete is restricted to teachers and
+    platform admins so learners can't author from the app.
+    """
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
     lookup_field = 'slug'
 
     def get_queryset(self):
-        qs = PracticeLab.objects.filter(is_published=True).select_related(
+        qs = PracticeLab.objects.select_related(
             'subject', 'class_level', 'topic',
         ).prefetch_related('steps')
+        if self.action in ('list', 'retrieve'):
+            # Public browse: only published labs unless the caller
+            # authored them.
+            user = self.request.user
+            if user and user.is_authenticated:
+                qs = qs.filter(is_published=True) | qs.filter(created_by=user)
+            else:
+                qs = qs.filter(is_published=True)
         return filter_queryset_by_stage(qs, self.request.user)
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return PracticeLabDetailSerializer
         return PracticeLabCardSerializer
+
+    def get_permissions(self):
+        # Only teachers + platform admins can author or modify a lab.
+        if self.action in ('create', 'update', 'partial_update', 'destroy'):
+            return [IsAuthenticated()]  # role check happens in perform_create
+        return super().get_permissions()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        role = (getattr(user, 'role', '') or '').lower()
+        if not (user.is_staff or 'teacher' in role or 'admin' in role):
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Only teachers and admins can author practice labs.')
+        serializer.save(created_by=user)
 
     @action(detail=True, methods=['post'], url_path='start')
     def start(self, request, slug=None):
@@ -50,7 +77,7 @@ class PracticeLabViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class PracticeLabAttemptViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
     serializer_class = PracticeLabAttemptSerializer
 
     def get_queryset(self):

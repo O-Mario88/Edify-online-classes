@@ -1,8 +1,30 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
 import { Permission } from '../lib/permissions.matrix';
+import { useAccess } from '../hooks/useAccess';
+import { PaywallScreen } from './PaywallScreen';
+
+/**
+ * Routes that remain reachable even when the user's access is locked
+ * — they're the ones a locked user needs to *get* unlocked. Profile,
+ * pricing, payment, and account settings are exempt; everything else
+ * under <ProtectedRoute> requires an active subscription.
+ */
+const PAYWALL_EXEMPT_PATH_PREFIXES = [
+  '/profile',
+  '/settings',
+  '/pricing',
+  '/payment',
+  '/upgrade',
+  '/notifications',
+  '/dashboard/billing',
+];
+
+function isPaywallExempt(pathname: string): boolean {
+  return PAYWALL_EXEMPT_PATH_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'));
+}
 
 /**
  * Canonical role-family mapping.
@@ -50,8 +72,8 @@ interface ProtectedRouteProps {
   requireAllPermissions?: Permission[];
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
   allowedRoles,
   requiredPermission,
   requireAnyPermission,
@@ -59,6 +81,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { user, isLoading } = useAuth();
   const { hasPermission, hasAnyPermission, hasAllPermissions } = usePermissions();
+  const { status: accessStatus, loading: accessLoading } = useAccess();
+  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -104,5 +128,34 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/dashboard" replace />;
   }
 
+  // Paywall enforcement — applied to every protected route except the
+  // billing / profile / pricing / payment routes the user needs in
+  // order to unlock. While the access status is being fetched we let
+  // the page through to avoid a loading flash; the backend
+  // IsActiveSubscription permission gate is the real wall and will
+  // 403 any payload-bearing call.
+  if (!isPaywallExempt(location.pathname) && !accessLoading && !accessStatus.has_active_access) {
+    return (
+      <PaywallScreen
+        lockReason={accessStatus.lock_reason}
+        pendingPlan={accessStatus.pending_request?.plan}
+        blockedSurface={blockedSurfaceFor(location.pathname)}
+      />
+    );
+  }
+
   return <>{children}</>;
 };
+
+function blockedSurfaceFor(pathname: string): string {
+  if (pathname.startsWith('/classes')) return 'this class';
+  if (pathname.startsWith('/live-sessions')) return 'live sessions';
+  if (pathname.startsWith('/dashboard/student')) return 'your learning dashboard';
+  if (pathname.startsWith('/dashboard/teacher')) return 'your teaching dashboard';
+  if (pathname.startsWith('/dashboard/parent')) return "your child's progress";
+  if (pathname.startsWith('/dashboard/institution')) return "your school's dashboard";
+  if (pathname.startsWith('/dashboard')) return 'your dashboard';
+  if (pathname.startsWith('/library') || pathname.startsWith('/resources')) return 'the library';
+  if (pathname.startsWith('/marketplace')) return 'the marketplace';
+  return 'this part of Maple';
+}

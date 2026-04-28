@@ -13,6 +13,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from pilot_payments.permissions import IsActiveSubscription
 
 from apps.curriculum.stage_filter import filter_queryset_by_stage
 from .models import MasteryTrack, MasteryTrackItem, MasteryEnrollment
@@ -26,7 +27,7 @@ from .serializers import (
 
 class MasteryTrackViewSet(viewsets.ReadOnlyModelViewSet):
     """Public-ish: authenticated users browse tracks. Only published ones surface."""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
     lookup_field = 'slug'
 
     def get_queryset(self):
@@ -58,7 +59,7 @@ class MasteryTrackViewSet(viewsets.ReadOnlyModelViewSet):
 
 class MasteryEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
     """A learner's own enrollments + progress actions."""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
     serializer_class = MasteryEnrollmentSerializer
 
     def get_queryset(self):

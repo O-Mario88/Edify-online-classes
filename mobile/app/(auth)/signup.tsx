@@ -5,18 +5,17 @@ import { AuthScreen } from '@/components/AuthScreen';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { AnimatedMapleLogo } from '@/components/AnimatedMapleLogo';
 import { CountryChip } from '@/components/CountryChip';
+import { authApi } from '@/api/auth.api';
+import { useCountry } from '@/hooks/useCountry';
 
 /**
- * Sign-up screen. Centred column matching the sign-in layout — animated
- * brand mark hero, "Create Account" title, name + email + password,
- * primary CTA, footer link back to sign in.
- *
- * Maple is invite-only during the pilot, so on submit we acknowledge
- * the request and surface a friendly notice. The form is wire-ready
- * for a real /auth/register endpoint when that ships.
+ * Sign-up screen. POSTs to /api/v1/auth/register/ to create the
+ * account, then routes to verify-email so the user activates from the
+ * email link. After verification they sign in normally.
  */
 export default function Signup() {
   const router = useRouter();
+  const { config } = useCountry();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,10 +35,21 @@ export default function Signup() {
       return;
     }
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
-      setNotice('Thanks! Your school will email you to activate the account.');
-    }, 600);
+    const { error: err } = await authApi.register({
+      email: email.trim(),
+      full_name: name.trim(),
+      password,
+      country_code: config.code,
+      role: 'student',
+    });
+    setSubmitting(false);
+    if (err) {
+      setError(err.message || 'Could not create the account. Try again.');
+      return;
+    }
+    setNotice('Account created. Check your email for a verification link, then sign in.');
+    // Give the user a beat to read the notice, then route to verify-email.
+    setTimeout(() => router.replace('/(auth)/verify-email'), 1500);
   };
 
   return (

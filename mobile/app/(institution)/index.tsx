@@ -3,9 +3,9 @@ import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { AppScreen } from '@/components/AppScreen';
-import { ProfileHeader } from '@/components/ProfileHeader';
+import { ProfileHeader, HomeHero } from '@/components/ProfileHeader';
+import { SectionHeader } from '@/components/SectionHeader';
 import { QuickActionGrid, type QuickAction } from '@/components/QuickActionGrid';
-import { LocaleStrip } from '@/components/LocaleStrip';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { institutionApi, type InstitutionHomePayload } from '@/api/institution.api';
 import { useAuthStore } from '@/auth/authStore';
@@ -54,29 +54,32 @@ export default function InstitutionHome() {
   const healthColor =
     kpis.health_score >= 80 ? '#065F46' : kpis.health_score >= 60 ? '#92400E' : kpis.health_score > 0 ? '#9F1239' : '#64748B';
 
+  // Six primary institution actions in a 2x3 grid. The four KPI surfaces
+  // (Attendance / Delivery / Engagement / Risk) are already drillable
+  // from the KPI strip above, so they don't need to be quick-action tiles.
+  // School + Reports + Admissions sit on the bottom tab bar.
   const actions = useMemo<QuickAction[]>(() => [
-    { key: 'school',     label: 'School',     glyph: '🏫', tint: 'indigo',  onPress: () => router.push('/(institution)/school' as any) },
-    { key: 'attend',     label: 'Attendance', glyph: '✅', tint: 'emerald', onPress: () => router.push('/(institution)/school' as any) },
-    { key: 'delivery',   label: 'Delivery',   glyph: '🎯', tint: 'rose',    onPress: () => router.push('/(institution)/teacher-delivery' as any) },
-    { key: 'engagement', label: 'Engagement', glyph: '💬', tint: 'amber',   onPress: () => router.push('/(institution)/parent-engagement' as any) },
-    { key: 'risk',       label: 'Risk',       glyph: '🚨', tint: 'rose',    onPress: () => router.push('/(institution)/risk' as any), badge: kpis.risk_alerts },
-    { key: 'reports',    label: 'Reports',    glyph: '📄', tint: 'purple',  onPress: () => router.push('/(institution)/reports' as any) },
-    { key: 'admissions', label: 'Admissions', glyph: '📥', tint: 'orange',  onPress: () => router.push('/(institution)/admissions' as any), badge: kpis.applications_inbox },
-    { key: 'reviewapp',  label: 'Review',     glyph: '🗂️', tint: 'teal',    onPress: () => router.push('/(institution)/application-review' as any) },
-    { key: 'students',     label: 'Match',         glyph: '🎯', tint: 'pink',    onPress: () => router.push('/(institution)/students' as any) },
-    { key: 'scholarships', label: 'Scholarships',  glyph: '🎓', tint: 'amber',   onPress: () => router.push('/(institution)/scholarships' as any) },
+    { key: 'risk',         label: 'Risk',         glyph: '🚨', tint: 'rose',    onPress: () => router.push('/(institution)/risk' as any), badge: kpis.risk_alerts },
+    { key: 'reviewapp',    label: 'Review',       glyph: '🗂️', tint: 'teal',    onPress: () => router.push('/(institution)/application-review' as any), badge: kpis.applications_inbox },
+    { key: 'students',     label: 'Match',        glyph: '🎯', tint: 'indigo',  onPress: () => router.push('/(institution)/students' as any) },
+    { key: 'scholarships', label: 'Scholarships', glyph: '🎓', tint: 'amber',   onPress: () => router.push('/(institution)/scholarships' as any) },
+    { key: 'engagement',   label: 'Parents',      glyph: '💬', tint: 'purple',  onPress: () => router.push('/(institution)/parent-engagement' as any) },
+    { key: 'delivery',     label: 'Teaching',     glyph: '📚', tint: 'emerald', onPress: () => router.push('/(institution)/teacher-delivery' as any) },
   ], [router, kpis.risk_alerts, kpis.applications_inbox]);
 
   return (
     <>
       <AppScreen>
-      <LocaleStrip />
       <ProfileHeader
-        greeting="Good morning"
         name={firstName}
-        subtitle={schoolName}
         unreadCount={kpis.risk_alerts || 0}
         onNotificationsPress={() => router.push('/(institution)/notifications' as any)}
+      />
+      <HomeHero
+        eyebrow="Good morning,"
+        name={firstName}
+        emoji="👋"
+        subtitle={schoolName}
       />
 
       {/* Health Score hero */}
@@ -114,7 +117,7 @@ export default function InstitutionHome() {
       </View>
 
       {/* Quick actions */}
-      <View className="mt-7 pl-5">
+      <View className="mt-7 px-5">
         <SectionLabel>Quick actions</SectionLabel>
         <QuickActionGrid actions={actions} />
       </View>

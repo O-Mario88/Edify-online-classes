@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from pilot_payments.permissions import IsActiveSubscription
 from django.utils import timezone
 from .models import AssessmentWindow, Assessment, Question, Submission
 from .serializers import (
@@ -48,13 +49,13 @@ class TenantFilterMixin:
 class AssessmentWindowViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     queryset = AssessmentWindow.objects.select_related('class_reference').all()
     serializer_class = AssessmentWindowSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
 class AssessmentViewSet(viewsets.ModelViewSet):
     # Bypasses TenantFilterMixin — Assessments are scoped via the creator's
     # institution memberships, which covers creations with no window/target_group.
     queryset = Assessment.objects.select_related('window', 'topic', 'term', 'target_group').prefetch_related('questions')
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         user = self.request.user
@@ -95,12 +96,12 @@ class AssessmentViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     queryset = Question.objects.select_related('assessment').all()
     serializer_class = QuestionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
 class SubmissionViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     queryset = Submission.objects.select_related('assessment', 'student').all()
     serializer_class = SubmissionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def create(self, request, *args, **kwargs):
         data = request.data

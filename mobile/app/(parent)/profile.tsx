@@ -1,6 +1,20 @@
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Linking, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+
+const HELP_URL    = 'https://maple.edify/help';
+const PRIVACY_URL = 'https://maple.edify/privacy';
+const TERMS_URL   = 'https://maple.edify/terms';
+
+const openExternal = async (url: string) => {
+  try {
+    const can = await Linking.canOpenURL(url);
+    if (can) await Linking.openURL(url);
+    else Alert.alert('Cannot open link', url);
+  } catch (e: any) {
+    Alert.alert('Cannot open link', e?.message || 'Unknown error');
+  }
+};
 import { AppScreen } from '@/components/AppScreen';
 import { AppCard } from '@/components/AppCard';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -57,9 +71,9 @@ export default function ParentProfile() {
 
         <AppCard>
           <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">App</Text>
-          <Row label="Help & Support" />
-          <Row label="Privacy" />
-          <Row label="Terms of service" />
+          <Row label="Help & Support" onPress={() => openExternal(HELP_URL)} />
+          <Row label="Privacy" onPress={() => openExternal(PRIVACY_URL)} />
+          <Row label="Terms of service" onPress={() => openExternal(TERMS_URL)} />
           <Row label="App version" trailing="0.1.0" />
         </AppCard>
 

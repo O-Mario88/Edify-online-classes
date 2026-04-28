@@ -22,6 +22,8 @@ const AboutUsPage = lazy(() => import('./pages/AboutUsPage').then(m => ({ defaul
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const CourseCatalog = lazy(() => import('./pages/CourseCatalog').then(m => ({ default: m.CourseCatalog })));
+const SecondarySyllabusPage = lazy(() => import('./pages/SecondarySyllabusPage').then(m => ({ default: m.SecondarySyllabusPage })));
+const PrimarySyllabusPage = lazy(() => import('./pages/PrimarySyllabusPage').then(m => ({ default: m.PrimarySyllabusPage })));
 const CourseDetail = lazy(() => import('./pages/CourseDetail').then(m => ({ default: m.CourseDetail })));
 const ClassSyllabusPage = lazy(() => import('./pages/ClassSyllabusPage').then(m => ({ default: m.ClassSyllabusPage })));
 const StudentDashboard = lazy(() => import('./pages/StudentDashboard').then(m => ({ default: m.StudentDashboard })));
@@ -53,6 +55,9 @@ const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace'));
 const AITeachingAssistant = lazy(() => import('./pages/AITeachingAssistant'));
 const PeerTutoringHub = lazy(() => import('./pages/PeerTutoringHub'));
+const PeerLearningPage = lazy(() => import('./pages/PeerLearningPage').then(m => ({ default: m.PeerLearningPage })));
+const ContentReaderPage = lazy(() => import('./pages/ContentReaderPage').then(m => ({ default: m.ContentReaderPage })));
+const VideoLessonPlayerPage = lazy(() => import('./pages/VideoLessonPlayerPage').then(m => ({ default: m.VideoLessonPlayerPage })));
 const MarketplacePage = lazy(() => import('./pages/MarketplacePage'));
 const MarketplaceSubjectPage = lazy(() => import('./pages/MarketplaceSubjectPage'));
 const MarketplaceTopicPage = lazy(() => import('./pages/MarketplaceTopicPage'));
@@ -91,6 +96,23 @@ const SystemHealthAnalytics = lazy(() => import('./pages/analytics/PlatformAnaly
 
 // New Dashboard Hubs
 const DashboardLibraryPage = lazy(() => import('./pages/dashboard/DashboardLibraryPage'));
+
+// Top-5 content-creation forms
+const QuestionBankBuilder = lazy(() => import('./pages/teacher/QuestionBankBuilder').then(m => ({ default: m.QuestionBankBuilder })));
+const LiveLessonScheduler = lazy(() => import('./pages/teacher/LiveLessonScheduler').then(m => ({ default: m.LiveLessonScheduler })));
+const LearnerRegistrationForm = lazy(() => import('./pages/institution/LearnerRegistrationForm').then(m => ({ default: m.LearnerRegistrationForm })));
+const TermSetupPage = lazy(() => import('./pages/institution/TermSetupPage').then(m => ({ default: m.TermSetupPage })));
+const AdmissionApplicationForm = lazy(() => import('./pages/admissions/AdmissionApplicationForm').then(m => ({ default: m.AdmissionApplicationForm })));
+
+// Tier-2 content-creation forms
+const ClassCreationForm = lazy(() => import('./pages/institution/ClassCreationForm').then(m => ({ default: m.ClassCreationForm })));
+const TimetableSlotForm = lazy(() => import('./pages/institution/TimetableSlotForm').then(m => ({ default: m.TimetableSlotForm })));
+const TopicCreationForm = lazy(() => import('./pages/teacher/TopicCreationForm').then(m => ({ default: m.TopicCreationForm })));
+const FeeAssessmentForm = lazy(() => import('./pages/institution/FeeAssessmentForm').then(m => ({ default: m.FeeAssessmentForm })));
+const PayoutRequestForm = lazy(() => import('./pages/teacher/PayoutRequestForm').then(m => ({ default: m.PayoutRequestForm })));
+const LessonVideoUploadForm = lazy(() => import('./pages/teacher/LessonVideoUploadForm').then(m => ({ default: m.LessonVideoUploadForm })));
+const PracticeLabBuilder = lazy(() => import('./pages/teacher/PracticeLabBuilder').then(m => ({ default: m.PracticeLabBuilder })));
+const ProjectAssignmentForm = lazy(() => import('./pages/teacher/ProjectAssignmentForm').then(m => ({ default: m.ProjectAssignmentForm })));
 const InterventionsHub = lazy(() => import('./pages/dashboard/InterventionsHub'));
 const TeacherEarningsPage = lazy(() => import('./pages/dashboard/TeacherEarningsPage'));
 
@@ -161,10 +183,21 @@ function App() {
               <LearnerSettingsPage />
             </ProtectedRoute>
           } />
-          <Route path="classes" element={<CourseCatalog />} />
+          {/* /classes now serves the Syllabus page design (same component as /secondary). */}
+          <Route path="classes" element={<SecondarySyllabusPage />} />
           <Route path="classes/:classId" element={<ClassSyllabusPage />} />
           <Route path="classes/:classId/:termId/:subjectId" element={<CourseDetail />} />
           <Route path="classes/:classId/subject/:subjectId" element={<SubjectTopicsPage />} />
+          <Route path="syllabus" element={<SubjectTopicsPage />} />
+          <Route path="syllabus/:subjectKey" element={<SubjectTopicsPage />} />
+          {/* Unified content reader — notes / textbooks / topics. Powers every subject. */}
+          <Route path="learn" element={<ContentReaderPage />} />
+          <Route path="learn/:subjectSlug" element={<ContentReaderPage />} />
+          <Route path="learn/:subjectSlug/:chapterSlug" element={<ContentReaderPage />} />
+          <Route path="learn/:subjectSlug/:chapterSlug/:topicSlug" element={<ContentReaderPage />} />
+          {/* Video lesson player */}
+          <Route path="video-lessons" element={<VideoLessonPlayerPage />} />
+          <Route path="video-lessons/:lessonId" element={<VideoLessonPlayerPage />} />
           <Route path="classes/:classId/:termId/:subjectId/topic/:topicId" element={<TopicDetailPage />} />
           <Route path="forum/*" element={<ForumPage />} />
           <Route path="live-sessions" element={<LiveSessionsPage />} />
@@ -273,6 +306,7 @@ function App() {
           <Route path="projects/:projectId/submit" element={<ExercisePage />} />
           <Route path="assignments/:assignmentId" element={<ExercisePage />} />
           <Route path="peer-tutoring" element={<PeerTutoringHub />} />
+          <Route path="peer-learning" element={<PeerLearningPage />} />
           <Route path="ai-assistant" element={
             <ProtectedRoute allowedRoles={['independent_teacher', 'institution_admin']}>
               <AITeachingAssistant />
@@ -346,6 +380,66 @@ function App() {
               <TeacherMarksUpload />
             </ProtectedRoute>
           } />
+          <Route path="teacher/assessments/:assessmentId/questions" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <QuestionBankBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="teacher/live-lessons/new" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <LiveLessonScheduler />
+            </ProtectedRoute>
+          } />
+          <Route path="institution/learners/new" element={
+            <ProtectedRoute allowedRoles={['institution']}>
+              <LearnerRegistrationForm />
+            </ProtectedRoute>
+          } />
+          <Route path="institution/terms" element={
+            <ProtectedRoute allowedRoles={['institution']}>
+              <TermSetupPage />
+            </ProtectedRoute>
+          } />
+          <Route path="institution/classes/new" element={
+            <ProtectedRoute allowedRoles={['institution']}>
+              <ClassCreationForm />
+            </ProtectedRoute>
+          } />
+          <Route path="institution/timetable/slots/new" element={
+            <ProtectedRoute allowedRoles={['institution']}>
+              <TimetableSlotForm />
+            </ProtectedRoute>
+          } />
+          <Route path="institution/fees/new" element={
+            <ProtectedRoute allowedRoles={['institution']}>
+              <FeeAssessmentForm />
+            </ProtectedRoute>
+          } />
+          <Route path="teacher/topics/new" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <TopicCreationForm />
+            </ProtectedRoute>
+          } />
+          <Route path="teacher/payouts/new" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <PayoutRequestForm />
+            </ProtectedRoute>
+          } />
+          <Route path="teacher/lessons/:lessonId/video" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <LessonVideoUploadForm />
+            </ProtectedRoute>
+          } />
+          <Route path="teacher/practice-labs/new" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <PracticeLabBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="teacher/projects/new" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <ProjectAssignmentForm />
+            </ProtectedRoute>
+          } />
           <Route path="teacher/targeting" element={
             <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
               <AssignmentTargetingStudio />
@@ -413,10 +507,23 @@ function App() {
 
         {/* Primary School Content Routes (outside dashboard layout) */}
         <Route path="/primary" element={<Layout />}>
-          <Route index element={<PrimaryClassLanding />} />
+          <Route index element={<PrimarySyllabusPage />} />
+          <Route path="catalog" element={<PrimaryClassLanding />} />
           <Route path="class/:classId" element={<PrimaryClassDetail />} />
           <Route path="p7-readiness" element={<P7ReadinessDashboard />} />
         </Route>
+
+        {/* Secondary syllabus — owns its own navbar (suppressed in Layout) */}
+        <Route path="/secondary" element={<Layout />}>
+          <Route index element={<SecondarySyllabusPage />} />
+        </Route>
+
+        {/* Admissions — public-facing application form for parents */}
+        <Route path="/admissions/apply" element={
+          <ProtectedRoute allowedRoles={['parent', 'student', 'universal_student', 'institution_student']}>
+            <AdmissionApplicationForm />
+          </ProtectedRoute>
+        } />
 
         {/* Analytics Routes completely moved to /dashboard/analytics inside GlassDashboardLayout above */}
 

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { TopNavbar } from '../../navigation/TopNavbar';
 import { AICopilotWidget } from '../../copilot/AICopilotWidget';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -7,15 +7,35 @@ import { ErrorBoundary } from '../../ErrorBoundary';
 
 export const GlassDashboardLayout: React.FC = () => {
   const { user } = useAuth();
+  const location = useLocation();
 
-  // Enforce dark mode for dashboards on mount
+  // Pages that own their own full-bleed chrome (sidebar + top bar) and
+  // therefore should not be wrapped in the dashboard glass shell. Their
+  // top bars and sidebars are intentionally edge-to-edge to match the
+  // reference designs.
+  const path = location.pathname;
+  const ownsChrome =
+    path === '/dashboard/admin' || path === '/dashboard/admin/' ||
+    path === '/dashboard/parent' || path === '/dashboard/parent/';
+
+  // Enforce dark mode for the legacy glass dashboards. Pages that own
+  // their own chrome use a light premium palette, so skip the dark
+  // toggle for them to avoid washing out their colors.
   useEffect(() => {
+    if (ownsChrome) return;
     document.documentElement.classList.add('dark');
     return () => {
-      // Clean up the dark class so public landing pages reset correctly
       document.documentElement.classList.remove('dark');
     };
-  }, []);
+  }, [ownsChrome]);
+
+  if (ownsChrome) {
+    return (
+      <ErrorBoundary>
+        <Outlet />
+      </ErrorBoundary>
+    );
+  }
 
   return (
     <div

@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from pilot_payments.permissions import IsActiveSubscription
 
 from .models import (
     NextBestAction, InterventionPack, InterventionPackAssignment,
@@ -35,7 +36,7 @@ from .serializers import (
 
 class NextBestActionViewSet(viewsets.ModelViewSet):
     serializer_class = NextBestActionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -96,7 +97,7 @@ class NextBestActionViewSet(viewsets.ModelViewSet):
 
 class InterventionPackViewSet(viewsets.ModelViewSet):
     serializer_class = InterventionPackSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         user = self.request.user
@@ -132,7 +133,7 @@ class InterventionPackViewSet(viewsets.ModelViewSet):
 
 class InterventionPackAssignmentViewSet(viewsets.ModelViewSet):
     serializer_class = InterventionPackAssignmentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         user = self.request.user
@@ -157,7 +158,7 @@ class InterventionPackAssignmentViewSet(viewsets.ModelViewSet):
 
 class StudyPlanViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = StudyPlanSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return StudyPlan.objects.filter(student=self.request.user)
@@ -183,7 +184,7 @@ class StudyPlanViewSet(viewsets.ReadOnlyModelViewSet):
 
 class StudyTaskViewSet(viewsets.ModelViewSet):
     serializer_class = StudyTaskSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return StudyTask.objects.filter(plan__student=self.request.user)
@@ -203,7 +204,7 @@ class StudyTaskViewSet(viewsets.ModelViewSet):
 
 class ParentActionViewSet(viewsets.ModelViewSet):
     serializer_class = ParentActionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return ParentAction.objects.filter(parent=self.request.user)
@@ -222,7 +223,7 @@ class ParentActionViewSet(viewsets.ModelViewSet):
 # ─── Passports ───
 
 class StudentPassportView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get(self, request):
         """Get the current student's passport."""
@@ -232,7 +233,7 @@ class StudentPassportView(APIView):
 
 
 class TeacherPassportView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get(self, request):
         """Get the current teacher's passport."""
@@ -245,7 +246,7 @@ class TeacherPassportView(APIView):
 
 class PointsLedgerViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PointsLedgerSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return PointsLedger.objects.filter(user=self.request.user)
@@ -263,12 +264,12 @@ class PointsLedgerViewSet(viewsets.ReadOnlyModelViewSet):
 class BadgeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Badge.objects.all()
     serializer_class = BadgeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
 
 class UserBadgeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UserBadgeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return UserBadge.objects.filter(user=self.request.user)
@@ -276,7 +277,7 @@ class UserBadgeViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ChallengeViewSet(viewsets.ModelViewSet):
     serializer_class = ChallengeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return Challenge.objects.filter(status__in=['upcoming', 'active'])
@@ -306,7 +307,7 @@ class ChallengeViewSet(viewsets.ModelViewSet):
 
 class HouseTeamViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = HouseTeamSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return HouseTeam.objects.all()
@@ -323,7 +324,7 @@ class HouseTeamViewSet(viewsets.ReadOnlyModelViewSet):
 
 class LearningProgressViewSet(viewsets.ModelViewSet):
     serializer_class = LearningProgressSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return LearningProgress.objects.filter(user=self.request.user)
@@ -362,7 +363,7 @@ class LearningProgressViewSet(viewsets.ModelViewSet):
 
 class NationalExamResultViewSet(viewsets.ModelViewSet):
     serializer_class = NationalExamResultSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         user = self.request.user
@@ -382,7 +383,7 @@ class NationalExamResultViewSet(viewsets.ModelViewSet):
 
 class StoryCardViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = StoryCardSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return StoryCard.objects.filter(user=self.request.user, is_read=False)
@@ -423,7 +424,7 @@ class StoryCardViewSet(viewsets.ReadOnlyModelViewSet):
 # ─── Institution Health ───
 
 class InstitutionHealthView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get(self, request):
         """Get or compute today's health snapshot."""
@@ -446,7 +447,7 @@ class InstitutionHealthView(APIView):
 
 class InstitutionHealthHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = InstitutionHealthSnapshotSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         institution_id = self.request.query_params.get('institution')
@@ -468,7 +469,7 @@ class InstitutionHealthHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ImpactComparisonViewSet(viewsets.ModelViewSet):
     serializer_class = ImpactComparisonSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         user = self.request.user

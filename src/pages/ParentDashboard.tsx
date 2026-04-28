@@ -1,543 +1,678 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { apiClient } from '../lib/apiClient';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { AlertCircle, Calendar, GraduationCap, ArrowUpRight, ArrowDownRight, Clock, Activity, Target, MessageCircle, AlertTriangle, FileText, Settings, BookOpen } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
-import { Badge } from '../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
-import { toast } from 'sonner';
-import { Progress } from '../components/ui/progress';
-import { ParentResourceEngagementPanel } from '../components/dashboard/ParentResourceEngagementPanel';
-import { ParentRecommendedSchools } from '../components/parents/ParentRecommendedSchools';
-import { StreakTracker } from '../components/competition/StreakTracker';
-import { AchievementShowcase } from '../components/competition/AchievementShowcase';
-import { ParentActionCenter } from '../components/parents/ParentActionCenter';
-import { TeacherSupportSummaryCard } from '../components/parents/TeacherSupportSummaryCard';
-import { CelebrationEngineWidget } from '../components/dashboard/CelebrationEngineWidget';
-import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
-import { SmartStudyPlanner } from '../components/students/SmartStudyPlanner';
-import { useStudyPlanner } from '../hooks/useIntelligence';
-import { ParentSettingsModal, MessageTutorModal, BookMeetingModal } from '../components/dashboard/ParentModals';
-import { WhatsAppCommunicationHub } from '../components/dashboard/WhatsAppCommunicationHub';
-import { NotificationEngine } from '../lib/integrations/NotificationEngine';
-import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
-import { ChildSelector, type LinkedChild } from '../components/parents/ChildSelector';
-import { AccessStatusBanner } from '../components/dashboard/AccessStatusBanner';
-import { AcademicTermBanner } from '../components/dashboard/AcademicTermBanner';
-import { LearnerKpiRow } from '../components/dashboard/LearnerKpiRow';
-import { TodayHero } from '../components/dashboard/TodayHero';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  // Sidebar
+  LayoutDashboard, Users, BarChart3, FileText, MonitorPlay, ClipboardList,
+  CalendarCheck, MessageSquare, CreditCard, Headphones, School, Bell,
+  BookOpen, Settings, Crown, ChevronDown, ChevronRight, Plus,
+  // Top bar
+  Search, MessageCircle,
+  // Body
+  Sparkles, AlertTriangle, Calendar, Wallet, BookOpenCheck, Target,
+  Sigma, FlaskConical, Atom, Globe2,
+  GraduationCap, ClipboardCheck, MessageSquareText, Banknote, TrendingUp,
+} from 'lucide-react';
 
+/* ──────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS
+   ──────────────────────────────────────────────────────────────────── */
+const NAVY_DARK = '#071A33';
+const NAVY = '#0B1F3A';
+const NAVY_MED = '#102A43';
+const COPPER = '#C47A45';
+const COPPER_LIGHT = '#F4B860';
+const SUCCESS = '#12B76A';
+const WARN = '#F59E0B';
+const DANGER = '#EF4444';
+const PURPLE = '#7C3AED';
+const BLUE = '#2563EB';
+const TEXT_MUTED = '#64748B';
+const BORDER = '#E6EAF2';
+const CREAM_SOFT = '#FFF7ED';
+
+/* ──────────────────────────────────────────────────────────────────────
+   STATIC DEMO DATA
+   ──────────────────────────────────────────────────────────────────── */
+type NavItem = { label: string; icon: React.ComponentType<{ className?: string }>; badge?: string; tagText?: string; tagTone?: 'success' | 'danger'; active?: boolean };
+
+const NAV_ITEMS: NavItem[] = [
+  { label: 'Dashboard',    icon: LayoutDashboard, active: true },
+  { label: 'My Children',  icon: Users },
+  { label: 'Progress',     icon: BarChart3, tagText: 'New', tagTone: 'success' },
+  { label: 'Reports',      icon: FileText },
+  { label: 'Live Classes', icon: MonitorPlay },
+  { label: 'Assignments',  icon: ClipboardList },
+  { label: 'Attendance',   icon: CalendarCheck },
+  { label: 'Messages',     icon: MessageSquare, badge: '8' },
+  { label: 'Payments',     icon: CreditCard },
+  { label: 'Support & Ask', icon: Headphones },
+  { label: 'School Match', icon: School, tagText: 'New', tagTone: 'success' },
+  { label: 'Applications', icon: ClipboardCheck },
+  { label: 'Notifications', icon: Bell, badge: '6' },
+  { label: 'Resources',    icon: BookOpen },
+  { label: 'Settings',     icon: Settings },
+];
+
+interface Child {
+  id: string;
+  name: string;
+  meta: string;
+  progress: number;
+  imgSeed: number;
+  bg: string;
+  ring: string;
+}
+
+const CHILDREN: Child[] = [
+  { id: 'david', name: 'David Okello', meta: 'S4 • Uganda • NCDC', progress: 82, imgSeed: 14, bg: '#EEF4FF', ring: '#A6C0FF' },
+  { id: 'alice', name: 'Alice Okello', meta: 'P7 • Uganda • NCDC', progress: 76, imgSeed: 47, bg: 'white', ring: '#FCE7C8' },
+  { id: 'brian', name: 'Brian Okello', meta: 'S1 • Uganda • NCDC', progress: 68, imgSeed: 11, bg: 'white', ring: '#F8C6BC' },
+];
+
+const KPI_CARDS = [
+  { label: 'Overall Progress',        value: '82%',     delta: '↑ 8% from last week', icon: TrendingUp,    iconBg: '#E5F6EC', iconInk: '#12B76A', spark: 'green'  as const },
+  { label: 'Attendance (This Term)',   value: '94%',     delta: '↑ 6% from last week', icon: CalendarCheck, iconBg: '#FFF6E0', iconInk: '#F59E0B', spark: 'orange' as const },
+  { label: 'Assignments Completed',    value: '18 / 22', delta: 'This term',           icon: ClipboardList, iconBg: '#EEEAFE', iconInk: '#7C3AED', spark: 'purple' as const },
+  { label: 'Weak Topics',              value: '5',       delta: 'Needs attention',     icon: AlertTriangle, iconBg: '#FFE4E6', iconInk: '#EF4444', spark: 'pink'   as const },
+  { label: 'Learning Streak',          value: '12 days', delta: 'Keep it up!',         icon: Sparkles,      iconBg: '#E0EBFF', iconInk: '#2563EB', spark: 'blue'   as const },
+];
+
+interface FocusItem {
+  status: 'LIVE' | 'DUE SOON' | 'PRACTICE';
+  subject: string;
+  topic: string;
+  meta: string;
+  ctaLabel: string;
+  statusBg: string; statusInk: string;
+}
+
+const FOCUS_ITEMS: FocusItem[] = [
+  { status: 'LIVE',     subject: 'Mathematics – S4',           topic: 'Trigonometric Identities',  meta: '10:00 AM – 11:30 AM • Google Meet', ctaLabel: 'Join Class',       statusBg: '#E5F6EC', statusInk: '#1B7B49' },
+  { status: 'DUE SOON', subject: 'Physics Assignment',         topic: 'Motion in 2D Problems',     meta: 'Due: Today, 5:00 PM',                ctaLabel: 'View Assignment',  statusBg: '#FCEFD8', statusInk: COPPER },
+  { status: 'PRACTICE', subject: 'Recommended Practice',       topic: '5 questions on Trigonometry', meta: 'Est. 15 min',                       ctaLabel: 'Start Practice',   statusBg: '#EEEAFE', statusInk: PURPLE },
+];
+
+const SUBJECT_PROGRESS = [
+  { name: 'Mathematics', value: 88, ink: SUCCESS, icon: Sigma,        tint: '#E0EBFF' },
+  { name: 'Physics',     value: 76, ink: WARN,    icon: Atom,         tint: '#FFE9D6' },
+  { name: 'Chemistry',   value: 82, ink: PURPLE,  icon: FlaskConical, tint: '#EEEAFE' },
+  { name: 'English',     value: 72, ink: BLUE,    icon: BookOpen,     tint: '#E0EBFF' },
+  { name: 'Geography',   value: 64, ink: WARN,    icon: Globe2,       tint: '#FFF6E0' },
+];
+
+const ALERTS = [
+  { title: '5 weak topics need attention', body: 'Check David\'s weak areas', icon: AlertTriangle, tint: '#FEEBEB', ink: DANGER },
+  { title: 'PTA Meeting',                  body: 'Sat, May 10, 2025 • 9:00 AM', icon: Calendar,     tint: '#FFF6E0', ink: WARN },
+  { title: 'Subscription due in 7 days',   body: 'UGX 120,000 • Pay now to avoid interruption', icon: Banknote, tint: '#E5F6EC', ink: SUCCESS },
+];
+
+const RECENT_ACTIVITY = [
+  { title: 'Live class attended',  body: 'Mathematics – Trigonometric Identities',  meta: 'Today, 10:15 AM',     icon: MonitorPlay,    tint: '#E0EBFF', ink: BLUE },
+  { title: 'Assignment submitted', body: 'Physics Assignment: Motion in 2D',         meta: 'Yesterday, 4:45 PM',   icon: ClipboardCheck, tint: '#FCEFD8', ink: COPPER },
+  { title: 'New grade posted',     body: 'Chemistry Quiz: Acids & Bases',            meta: 'Yesterday, 11:20 AM',  icon: BookOpenCheck,  tint: '#EEEAFE', ink: PURPLE },
+  { title: 'Teacher message',      body: 'From: Mr. Okello David (Maths)',           meta: 'May 2, 2025, 8:30 PM', icon: MessageSquareText, tint: '#FEEBEB', ink: DANGER },
+];
+
+const TEACHER_MESSAGES = [
+  { name: 'Mr. Okello David',      role: 'Mathematics Teacher', body: '"David is doing well in class. Let\'s work on..."', meta: 'Today, 8:30 AM',     unread: 2, imgSeed: 12 },
+  { name: 'Mrs. Achieng Sarah',    role: 'Chemistry Teacher',   body: '"Great improvement in the last quiz!"',              meta: 'Yesterday, 6:15 PM', unread: 0, imgSeed: 47 },
+  { name: 'Ms. Nansubuga Irene',   role: 'English Teacher',     body: '"Please encourage more practice in essays."',        meta: 'May 1, 2025',         unread: 0, imgSeed: 49 },
+];
+
+const QUICK_ACTIONS = [
+  { label: 'Message Teacher',  icon: MessageSquare, tint: '#E5F6EC', ink: SUCCESS },
+  { label: 'Remind Child',     icon: Bell,          tint: '#FFF6E0', ink: WARN },
+  { label: 'Pay Fees',         icon: Wallet,        tint: '#FEE7EE', ink: '#DB2777' },
+  { label: 'View Reports',     icon: BarChart3,     tint: '#E0EBFF', ink: BLUE },
+  { label: 'Book Support',     icon: Headphones,    tint: '#EEEAFE', ink: PURPLE },
+  { label: 'Apply to School',  icon: School,        tint: '#FCEFD8', ink: COPPER },
+];
+
+/* ──────────────────────────────────────────────────────────────────────
+   PAGE
+   ──────────────────────────────────────────────────────────────────── */
 export const ParentDashboard: React.FC = () => {
-  const { userProfile } = useAuth();
-  const navigate = useNavigate();
-  const parent = userProfile as any;
-  const [loading, setLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState<any>(null);
-  const { dailyPlan: studyPlanDays } = useStudyPlanner();
-
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isMessageOpen, setIsMessageOpen] = useState(false);
-  const [isBookOpen, setIsBookOpen] = useState(false);
-
-  // Selected child — only relevant for parents with multiple linked
-  // students. Single-child parents never see the selector but the state
-  // still hydrates so we can show their child's name in headers.
-  const [selectedChild, setSelectedChild] = useState<LinkedChild | null>(null);
-
-  // Inline reports viewer — honest replacement for the old "download PDF"
-  // flow, which fabricated a .pdf file whose bytes were raw JSON. Now we
-  // fetch /grading/reports/, render it readably, and let the user use
-  // browser Print-to-PDF if they want a file.
-  const [isReportsOpen, setIsReportsOpen] = useState(false);
-  const [reports, setReports] = useState<any[] | null>(null);
-  const [reportsLoading, setReportsLoading] = useState(false);
-
-  const handleViewFullReport = async () => {
-    setIsReportsOpen(true);
-    if (reports !== null) return; // already loaded; just re-open
-    setReportsLoading(true);
-    try {
-      const { data, error } = await apiClient.get('/grading/reports/');
-      if (error) throw error;
-      const rows = Array.isArray(data) ? data : (data as any)?.results || [];
-      setReports(rows);
-    } catch (err) {
-      console.error('Load reports failed', err);
-      toast.error('Could not load the latest reports. Please try again shortly.');
-      setReports([]);
-    } finally {
-      setReportsLoading(false);
-    }
-  };
-
-
-  const fetchAISummary = async () => {
-    try {
-      const res = await apiClient.post<{ reply?: string }>('/ai/copilot/ask/', {
-         content: "Generate parent weekly summary.",
-         context: "parent_weekly_summary"
-      });
-      if (res.data && res.data.reply) {
-         setDashboardData((prev: any) => ({
-            ...prev,
-            weeklySummary: {
-               ...prev.weeklySummary,
-               aiNarrative: res.data.reply
-            }
-         }));
-      }
-    } catch (err) {
-      console.error("Failed to fetch AI summary", err);
-    }
-  };
-
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const { data, error } = await apiClient.get('/analytics/parent-dashboard/');
-        if (error) throw error;
-        
-        setDashboardData(data as any);
-        // After dashboard data is loaded, fetch AI summary to prevent blocking
-        fetchAISummary();
-      } catch (error) {
-        console.error('Error fetching parent dashboard data:', error);
-        setDashboardData({
-          intelligence: [],
-          kpis: { attendance: 0, classProgress: 0, avgPerformance: 0, readinessScore: 0, missedTasks: 0, alertLevel: '—' },
-          riskAlert: null,
-          weeklySummary: { aiNarrative: 'Your Weekly Child Progress Brief will appear here once your child completes lessons, assessments, or live classes.', strongestSubject: '—', weakestTopic: '—', assessmentTrend: '—', recommendedFocus: '—' },
-          childPerformance: { name: 'Your Child', grade: '—', subjects: [] }
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboard();
-  }, []);
-
-  if (loading || !dashboardData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-800">Loading Early Warning & Support Hub...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const { kpis, riskAlert, weeklySummary, childPerformance } = dashboardData;
+  const [activeChild, setActiveChild] = useState('david');
 
   return (
-    <div className="w-full min-h-screen bg-gray-100 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex">
+      <ParentSidebar />
+      <div className="flex-1 min-w-0 flex flex-col">
+        <ParentTopBar />
+
+        <main className="flex-1 px-6 lg:px-10 xl:px-12 py-7 lg:py-9 space-y-6 max-w-[1480px] w-full mx-auto">
+          {/* Greeting */}
           <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-indigo-200 drop-shadow-sm">
-              {selectedChild?.student_name
-                ? `${selectedChild.student_name.split(' ')[0]}'s Confidence Report`
-                : 'Parent Confidence Report'}
+            <h1 className="text-[28px] lg:text-[30px] font-extrabold tracking-tight" style={{ color: NAVY }}>
+              Good morning, Mary! <span aria-hidden>👋</span>
             </h1>
-            <p className="text-blue-100/70 font-medium mt-1">See your child's progress clearly — and know what to do next.</p>
+            <p className="mt-1 text-[14px]" style={{ color: TEXT_MUTED }}>
+              Here&apos;s how your children are doing today.
+            </p>
           </div>
-          <div className="flex gap-3">
-             <Button variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800 transition-all shadow-sm rounded-lg" onClick={() => setIsSettingsOpen(true)}><Settings className="w-4 h-4 mr-2" /> Notification Preferences</Button>
-          </div>
-        </div>
 
-        <AcademicTermBanner />
-
-        {/* "Today" hero — one priority action based on every linked
-            child's state. Overdue work > upcoming class > all clear. */}
-        <TodayHero />
-
-        {/* Multi-child selector — renders only when this parent has more than
-            one linked child. Replaces the previous one-child-only assumption. */}
-        <ChildSelector onChange={setSelectedChild} />
-
-        {/* Account access state — replaces the disclaimer that punted billing
-            questions to the school admin office. */}
-        <AccessStatusBanner upsellPlan="parent_premium" />
-
-        <Tabs defaultValue="academics" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md bg-gray-100/80 mb-6">
-            <TabsTrigger value="academics" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">Academic Performance</TabsTrigger>
-            <TabsTrigger value="activation" className="data-[state=active]:bg-white data-[state=active]:shadow-sm border-l border-gray-200/50">Child Activation</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="activation" className="space-y-8 mt-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
-             <Card className="border-transparent bg-white/80 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300">
-                <CardHeader>
-                   <CardTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-green-800">Child Activation Status</CardTitle>
-                   <CardDescription>View your linked children and their platform access status.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                   <div className="space-y-4">
-                     <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-4">
-                       <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                         <GraduationCap className="w-5 h-5 text-emerald-600" />
-                       </div>
-                       <div className="flex-1">
-                         <p className="font-semibold text-emerald-900">{childPerformance?.name || 'Your Child'}</p>
-                         <p className="text-sm text-emerald-700">{childPerformance?.grade || 'Enrolled Student'}</p>
-                       </div>
-                       <Badge className="bg-emerald-100 text-emerald-800 border-none">Active</Badge>
-                     </div>
-                     <p className="text-xs text-slate-400 text-center mt-4">Subscription and payment management is handled by Maple platform administrators. For billing inquiries, contact your school administration.</p>
-                   </div>
-                </CardContent>
-             </Card>
-          </TabsContent>
-
-          <TabsContent value="academics" className="space-y-8 mt-0">
-        {/* Priority 1: Weekly Child Progress Brief + Teacher Support Summary
-            — surface proof of progress above everything else. */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-           <Card className="lg:col-span-2 border border-indigo-100/50 bg-white/90 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300">
-              <CardHeader className="pb-2 border-b border-indigo-50/50">
-                 <CardTitle className="text-lg font-bold text-indigo-900 flex items-center">
-                   <Activity className="w-5 h-5 mr-2 text-indigo-700" /> Weekly Child Progress Brief
-                 </CardTitle>
-                 <CardDescription>Your clearest view of what happened this week — backed by real evidence from Maple.</CardDescription>
-              </CardHeader>
-              <CardContent className="pt-4 space-y-4">
-                 <p className="text-sm text-gray-700 leading-relaxed">
-                   {weeklySummary.aiNarrative}
-                 </p>
-                 <div className="grid grid-cols-3 gap-3 text-sm bg-white p-3 rounded-md border border-indigo-100 shadow-sm">
-                   <div>
-                     <p className="text-xs uppercase tracking-wider text-slate-500">Strongest</p>
-                     <p className="font-semibold text-green-700 mt-0.5">{weeklySummary.strongestSubject}</p>
-                   </div>
-                   <div>
-                     <p className="text-xs uppercase tracking-wider text-slate-500">Weakest</p>
-                     <p className="font-semibold text-red-700 mt-0.5">{weeklySummary.weakestTopic}</p>
-                   </div>
-                   <div>
-                     <p className="text-xs uppercase tracking-wider text-slate-500">Trend</p>
-                     <p className="font-medium text-gray-900 mt-0.5 text-sm">{weeklySummary.assessmentTrend}</p>
-                   </div>
-                 </div>
-                 <div className="pt-1 border-t border-indigo-50 text-xs">
-                   <p className="text-indigo-800 font-bold uppercase mb-1">Recommended focus</p>
-                   <p className="text-gray-700">{weeklySummary.recommendedFocus}</p>
-                 </div>
-                 <p className="text-[11px] text-slate-500 pt-3 border-t border-slate-100">
-                   Built from lessons completed, practice activity, attendance, assessments, project reviews, and teacher feedback.
-                   Refreshed on page load — last updated {new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}.
-                 </p>
-              </CardContent>
-            </Card>
-
-           <TeacherSupportSummaryCard />
-        </div>
-
-        {/* Canonical learner KPI row — same vocabulary, same thresholds,
-            same colours as the student's "My Standing This Term" so a
-            parent can sanity-check what their child sees. Sourced from
-            /analytics/parent-dashboard/.kpis (which already aliases the
-            student's underlying numbers). */}
-        <div className="space-y-4">
-          <LearnerKpiRow kpis={kpis} />
-          {/* Existing intelligence cards stay below as supplementary
-              alerts — risk callouts, AI suggestions, etc. */}
-          {dashboardData.intelligence?.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-              {dashboardData.intelligence.map((card: any, i: number) => (
-                <IntelligenceCard key={i} {...card} />
-              ))}
+          <div className="grid xl:grid-cols-[1fr,360px] gap-6">
+            <div className="min-w-0 space-y-6">
+              <ChildSelector active={activeChild} onChange={setActiveChild} />
+              <KpiStrip />
+              <div className="grid lg:grid-cols-[1.1fr,1fr] gap-5">
+                <TodaysFocus />
+                <TopSubjects />
+              </div>
+              <div className="grid lg:grid-cols-2 gap-5">
+                <RecentActivity />
+                <TeacherMessages />
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Action Center + Celebration — the duplicate Weekly Brief card
-            that used to live here was removed (same narrative already
-            shown in the side-by-side Brief + Teacher Support block above). */}
-        <div className="grid grid-cols-1 gap-6">
-           <ParentActionCenter />
-        </div>
+            <aside className="space-y-6 min-w-0">
+              <WeeklySummary />
+              <AlertsReminders />
+              <QuickActions />
+              <NeedHelp />
+            </aside>
+          </div>
+        </main>
 
-        <div className="mt-8 mb-4">
-           <CelebrationEngineWidget />
-        </div>
-
-        {/* Child's Study Plan (Readonly) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 mt-6">
-           <div className="lg:col-span-1">
-              <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                 Child's Study Plan
-              </h3>
-              <SmartStudyPlanner mode="readonly" dailyPlan={studyPlanDays} />
-           </div>
-        </div>
-
-        {/* Phase 8 Resource Engagement Tracking */}
-        <ParentResourceEngagementPanel />
-
-        {/* Institution Discovery — trusted schools for parents */}
-        <div className="space-y-3">
-           <div>
-             <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">Trusted Schools Recommended for Your Child</h3>
-             <p className="text-sm text-gray-600">Schools actively delivering lessons, tracking attendance, and reporting to parents on Maple.</p>
-           </div>
-           <ParentRecommendedSchools />
-        </div>
-
-        {/* Phase 2 Competition Engine: Parent Visibility */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-           <div className="lg:col-span-1">
-              <StreakTracker streaks={dashboardData.streaks || []} />
-           </div>
-           <div className="lg:col-span-2">
-              <AchievementShowcase badges={dashboardData.badges || []} />
-           </div>
-        </div>
-
-        {/* Row 3: Child Subject Performance Cards */}
-        <Card className="border-transparent bg-white/80 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300">
-          <CardHeader className="border-b border-gray-100/50 pb-4">
-             <div className="flex justify-between items-center">
-               <div>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Avatar className="w-8 h-8 border border-gray-200">
-                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Grace&backgroundColor=e2e8f0`} />
-                      <AvatarFallback>GN</AvatarFallback>
-                    </Avatar>
-                    {childPerformance.name}'s Performance Grid
-                  </CardTitle>
-                  <CardDescription className="ml-10">{childPerformance.grade}</CardDescription>
-               </div>
-               <Button variant="outline" size="sm" className="border-indigo-200 text-indigo-700 bg-white/50 hover:bg-indigo-50 shadow-sm transition-all rounded-lg" onClick={handleViewFullReport}><FileText className="w-4 h-4 mr-2"/> View Full Report</Button>
-             </div>
-          </CardHeader>
-          <CardContent className="p-0">
-             <div className="overflow-x-auto">
-               <table className="w-full text-sm text-left border-collapse">
-                 <thead className="bg-gray-50 text-gray-700 border-b">
-                   <tr>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs">Subject</th>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs text-center">Completion</th>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs text-center">Attendance</th>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs text-center">Last Score</th>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs">Teacher Comment</th>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs text-center">Trend</th>
-                     <th className="font-medium p-4 font-semibold uppercase text-xs text-right">Needs Revision</th>
-                   </tr>
-                 </thead>
-                 <tbody className="divide-y">
-                   {childPerformance.subjects.map((subj, index) => (
-                     <tr key={index} className="hover:bg-gray-50 transition-colors">
-                        <td className="p-4 font-bold text-gray-900">{subj.name}</td>
-                        <td className="p-4 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <Progress value={subj.completion} className="w-16 h-2" />
-                            <span className="text-gray-800 font-medium">{subj.completion}%</span>
-                          </div>
-                        </td>
-                        <td className="p-4 text-center">
-                          <Badge variant="outline" className={subj.attendance < 85 ? "text-amber-700 border-yellow-200" : "text-emerald-800 border-green-200"}>
-                            {subj.attendance}%
-                          </Badge>
-                        </td>
-                        <td className="p-4 text-center font-bold text-gray-900">{subj.lastScore}%</td>
-                        <td className="p-4 text-gray-800 italic">"{subj.teacherComment}"</td>
-                        <td className="p-4 text-center">
-                           {subj.trend === 'up' ? (
-                             <ArrowUpRight className="w-4 h-4 text-emerald-700 mx-auto" />
-                           ) : (
-                             <ArrowDownRight className="w-4 h-4 text-red-700 mx-auto" />
-                           )}
-                        </td>
-                        <td className="p-4 text-right">
-                          {subj.revisionNeeded !== 'None' ? (
-                             <span className="text-red-800 font-medium text-xs px-2 py-1 bg-red-50 rounded-full border border-red-100">
-                               {subj.revisionNeeded}
-                             </span>
-                          ) : (
-                             <span className="text-gray-800 font-medium text-xs">None</span>
-                          )}
-                        </td>
-                     </tr>
-                   ))}
-                 </tbody>
-               </table>
-             </div>
-          </CardContent>
-        </Card>
-
-        {/* Row 4: Action Center & Communication */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="border-transparent bg-white/80 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardHeader className="pb-3 border-b border-gray-100/50">
-              <CardTitle className="text-md flex items-center gap-2"><Settings className="w-4 h-4 text-indigo-700" /> Parent Action Center</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="grid grid-cols-2 gap-3">
-                 <Button variant="outline" className="h-16 flex flex-col justify-center items-center gap-1 border-indigo-100 text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 hover:-translate-y-1 transition-all duration-300 shadow-sm rounded-xl" onClick={() => setIsMessageOpen(true)}>
-                   <MessageCircle className="w-4 h-4" /> Message Tutor
-                 </Button>
-                 <Button variant="outline" className="h-16 flex flex-col justify-center items-center gap-1 border-indigo-100 text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 hover:-translate-y-1 transition-all duration-300 shadow-sm rounded-xl" onClick={() => setIsBookOpen(true)}>
-                   <Calendar className="w-4 h-4" /> Book Meeting
-                 </Button>
-                 <Button variant="outline" className="h-16 flex flex-col justify-center items-center gap-1 border-indigo-100 text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 hover:-translate-y-1 transition-all duration-300 shadow-sm rounded-xl" onClick={() => navigate('/classes?context=parent')}>
-                   <BookOpen className="w-4 h-4 text-blue-800" /> View Curriculum
-                 </Button>
-                 <Button variant="outline" className="h-16 flex flex-col justify-center items-center gap-1 border-indigo-100 text-indigo-700 hover:border-indigo-300 hover:bg-indigo-50 hover:-translate-y-1 transition-all duration-300 shadow-sm rounded-xl" onClick={handleViewFullReport}>
-                   <FileText className="w-4 h-4" /> View Full Report
-                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-transparent bg-white/80 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardHeader className="pb-3 border-b border-gray-100/50">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-md flex items-center gap-2"><Clock className="w-4 h-4 text-gray-700" /> Upcoming Schedule & Tasks</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-4">
-              {(kpis?.missedTasks ?? 0) > 0 ? (
-                <div className="flex items-start gap-3 pb-3">
-                  <div className="bg-red-100 text-red-700 p-2 rounded text-center min-w-[50px]">
-                    <p className="text-xs font-bold uppercase">Overdue</p>
-                    <p className="text-lg font-bold">{kpis.missedTasks}</p>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">
-                      {childPerformance?.name || 'Your child'} has {kpis.missedTasks} overdue assignment{kpis.missedTasks === 1 ? '' : 's'}.
-                    </p>
-                    <p className="text-sm text-slate-600 mt-1">
-                      Open the Full Report below to see exactly what's pending and how scores compare to the class average.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <Clock className="w-7 h-7 mx-auto mb-2 text-slate-300" />
-                  <p className="text-sm font-semibold text-slate-700">Nothing overdue right now.</p>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Upcoming live classes and assignment deadlines will surface here as teachers schedule them.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-          </TabsContent>
-        </Tabs>
+        <DashboardFooter />
       </div>
-      <ParentSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
-      <WhatsAppCommunicationHub isOpen={isMessageOpen} onClose={() => setIsMessageOpen(false)} />
-      <BookMeetingModal isOpen={isBookOpen} onClose={() => setIsBookOpen(false)} />
-
-      {isReportsOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={() => setIsReportsOpen(false)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">
-                  {childPerformance?.name ? `${childPerformance.name}'s Full Report` : 'Full Academic Report'}
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  All graded work your child has completed, most recent first.
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.print()}
-                  className="text-slate-700"
-                >
-                  Print / Save as PDF
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsReportsOpen(false)}
-                  className="text-slate-500"
-                >
-                  Close
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-6 py-5">
-              {reportsLoading && (
-                <div className="py-10 text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-3" />
-                  <p className="text-sm text-slate-600">Loading reports…</p>
-                </div>
-              )}
-
-              {!reportsLoading && (reports?.length ?? 0) === 0 && (
-                <div className="py-10 text-center">
-                  <FileText className="w-10 h-10 mx-auto mb-3 text-slate-300" />
-                  <p className="text-sm font-semibold text-slate-700 mb-1">No reports yet.</p>
-                  <p className="text-xs text-slate-500">
-                    Reports appear here once teachers publish grades for completed work.
-                  </p>
-                </div>
-              )}
-
-              {!reportsLoading && (reports?.length ?? 0) > 0 && (
-                <div className="space-y-3">
-                  {reports!.map((r: any, i: number) => {
-                    const title = r.title || r.assessment_title || r.assessment?.title || r.name || 'Graded item';
-                    const subject = r.subject_name || r.subject?.name || r.assessment?.subject?.name || '';
-                    const score = r.score ?? r.marks ?? r.grade ?? null;
-                    const total = r.max_score ?? r.total ?? r.assessment?.max_score ?? null;
-                    const dateStr = r.graded_at || r.submitted_at || r.created_at || r.date;
-                    const feedback = r.feedback || r.teacher_feedback || '';
-                    return (
-                      <div key={r.id ?? i} className="border border-slate-200 rounded-xl p-4 hover:bg-slate-50 transition-colors">
-                        <div className="flex items-start justify-between gap-3 mb-1">
-                          <div>
-                            <h4 className="text-sm font-semibold text-slate-900">{title}</h4>
-                            {subject && <p className="text-xs text-slate-500">{subject}</p>}
-                          </div>
-                          {score != null && (
-                            <Badge className="bg-indigo-100 text-indigo-800 border-none shrink-0">
-                              {score}{total != null ? ` / ${total}` : ''}
-                            </Badge>
-                          )}
-                        </div>
-                        {dateStr && (
-                          <p className="text-[11px] text-slate-400 mt-1">
-                            {new Date(dateStr).toLocaleDateString(undefined, {
-                              year: 'numeric', month: 'short', day: 'numeric',
-                            })}
-                          </p>
-                        )}
-                        {feedback && (
-                          <p className="text-xs text-slate-700 mt-2 leading-relaxed">
-                            <span className="font-semibold text-slate-800">Teacher note: </span>{feedback}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      <PilotFeedbackButton />
     </div>
   );
 };
+
+export default ParentDashboard;
+
+/* ──────────────────────────────────────────────────────────────────────
+   FOOTER
+   ──────────────────────────────────────────────────────────────────── */
+const DashboardFooter: React.FC = () => (
+  <footer className="border-t bg-white" style={{ borderColor: BORDER }}>
+    <div className="px-6 lg:px-10 xl:px-12 py-5 max-w-[1480px] w-full mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="flex items-center gap-2">
+        <span className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${COPPER}1A` }}>
+          <GraduationCap className="w-3.5 h-3.5" style={{ color: COPPER }} />
+        </span>
+        <p className="text-[12px] font-bold" style={{ color: NAVY }}>Maple OS</p>
+        <span className="text-[11px]" style={{ color: TEXT_MUTED }}>· Parent Portal · v2.4.1</span>
+      </div>
+      <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11.5px] font-bold" style={{ color: TEXT_MUTED }}>
+        <Link to="/support" className="hover:text-[#0B1F3A]">Help &amp; Support</Link>
+        <Link to="/feedback" className="hover:text-[#0B1F3A]">Send Feedback</Link>
+        <span className="hover:text-[#0B1F3A] cursor-pointer">Privacy</span>
+        <span className="hover:text-[#0B1F3A] cursor-pointer">Terms</span>
+        <span className="hover:text-[#0B1F3A] cursor-pointer">Family Safety</span>
+      </nav>
+      <p className="text-[11px]" style={{ color: TEXT_MUTED }}>&copy; 2026 Maple Online School. All rights reserved.</p>
+    </div>
+  </footer>
+);
+
+/* ──────────────────────────────────────────────────────────────────────
+   SIDEBAR
+   ──────────────────────────────────────────────────────────────────── */
+const ParentSidebar: React.FC = () => (
+  <aside className="hidden lg:flex flex-col w-[280px] shrink-0 sticky top-0 h-screen text-white" style={{ background: `linear-gradient(180deg, ${NAVY_DARK} 0%, ${NAVY} 100%)` }}>
+    <div className="px-6 pt-6 pb-4 flex items-center gap-3">
+      <span className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${COPPER}33` }}>
+        <GraduationCap className="w-5 h-5" style={{ color: COPPER_LIGHT }} />
+      </span>
+      <div className="leading-tight">
+        <p className="text-[20px] font-extrabold tracking-tight">Maple OS</p>
+        <p className="mt-0.5 text-[10px] font-bold tracking-[0.28em]" style={{ color: COPPER_LIGHT }}>PARENT PORTAL</p>
+      </div>
+    </div>
+
+    <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5">
+      {NAV_ITEMS.map((it) => <NavRow key={it.label} item={it} />)}
+    </nav>
+
+    {/* Premium card */}
+    <div className="p-3">
+      <div className="rounded-2xl p-4 ring-1 ring-white/10" style={{ background: `linear-gradient(160deg, #1A1F45 0%, #0F1334 100%)` }}>
+        <div className="flex items-center gap-2">
+          <Crown className="w-4 h-4" style={{ color: COPPER_LIGHT }} />
+          <p className="text-[13px] font-extrabold">Become Premium</p>
+        </div>
+        <p className="mt-2 text-[11px] leading-relaxed text-slate-300">
+          Unlock advanced reports, weekly summaries, risk alerts and priority support.
+        </p>
+        <button type="button" className="mt-3 w-full rounded-xl text-white text-[12px] font-extrabold py-2.5 inline-flex items-center justify-center gap-1.5 shadow-lg" style={{ background: `linear-gradient(135deg, ${COPPER} 0%, #8B4F26 100%)` }}>
+          Upgrade Now <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+  </aside>
+);
+
+const NavRow: React.FC<{ item: NavItem }> = ({ item }) => {
+  const Icon = item.icon;
+  const active = !!item.active;
+  return (
+    <button
+      type="button"
+      className={[
+        'w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-bold transition-colors',
+        active ? 'text-white shadow-lg' : 'text-slate-300 hover:text-white hover:bg-white/[0.06]',
+      ].join(' ')}
+      style={active ? { background: `linear-gradient(135deg, ${COPPER} 0%, #8B4F26 100%)` } : undefined}
+    >
+      <Icon className="w-4 h-4 shrink-0" />
+      <span className="flex-1 text-left">{item.label}</span>
+      {item.tagText && (
+        <span className="rounded-full px-1.5 py-0.5 text-[9px] font-extrabold" style={{ backgroundColor: item.tagTone === 'danger' ? '#FEE2E2' : '#DCFCE7', color: item.tagTone === 'danger' ? DANGER : SUCCESS }}>
+          {item.tagText}
+        </span>
+      )}
+      {item.badge && (
+        <span className={['rounded-full px-1.5 py-0.5 text-[10px] font-extrabold', active ? 'bg-white/25 text-white' : 'bg-white/10 text-slate-200'].join(' ')}>
+          {item.badge}
+        </span>
+      )}
+    </button>
+  );
+};
+
+/* ──────────────────────────────────────────────────────────────────────
+   TOP BAR
+   ──────────────────────────────────────────────────────────────────── */
+const ParentTopBar: React.FC = () => {
+  const [search, setSearch] = useState('');
+  return (
+    <header className="sticky top-0 z-30 bg-white border-b" style={{ borderColor: BORDER }}>
+      <div className="px-6 lg:px-10 xl:px-12 h-[72px] max-w-[1480px] w-full mx-auto flex items-center gap-4">
+        <div className="relative flex-1 max-w-[480px]">
+          <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2" style={{ color: TEXT_MUTED }} />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search students, classes, topics, teachers..."
+            className="w-full bg-[#F8FAFC] border rounded-full py-2.5 pl-11 pr-4 text-[13px] outline-none placeholder:text-slate-400 focus:bg-white transition-all"
+            style={{ borderColor: BORDER, color: NAVY }}
+          />
+        </div>
+
+        <div className="flex items-center gap-2 ml-auto shrink-0">
+          <button type="button" className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-white border px-3 h-9 text-[12px] font-extrabold hover:bg-slate-50" style={{ borderColor: BORDER, color: '#1B7B49' }}>
+            <span className="w-5 h-5 rounded-full bg-[#25D366] flex items-center justify-center"><MessageCircle className="w-3 h-3 text-white" /></span>
+            WhatsApp
+          </button>
+          <IconButton ariaLabel="Notifications" badge={6}>
+            <Bell className="w-5 h-5" />
+          </IconButton>
+          <IconButton ariaLabel="Messages">
+            <MessageSquare className="w-5 h-5" />
+          </IconButton>
+          <span className="w-px h-8 mx-1" style={{ backgroundColor: BORDER }} />
+          <Link to="/dashboard/parent" className="flex items-center gap-2.5 group">
+            <img
+              src="https://i.pravatar.cc/80?img=44"
+              alt="Mary Okello"
+              className="w-10 h-10 rounded-full object-cover shrink-0 ring-2 ring-white shadow-sm"
+            />
+            <div className="hidden sm:block leading-tight">
+              <p className="text-[13px] font-extrabold" style={{ color: NAVY }}>Mary Okello</p>
+              <p className="text-[11px] font-bold" style={{ color: TEXT_MUTED }}>Parent</p>
+            </div>
+            <ChevronDown className="w-4 h-4" style={{ color: TEXT_MUTED }} />
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+const IconButton: React.FC<React.PropsWithChildren<{ ariaLabel: string; badge?: number }>> = ({ ariaLabel, badge, children }) => (
+  <button type="button" aria-label={ariaLabel} className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-slate-50" style={{ color: NAVY }}>
+    {children}
+    {typeof badge === 'number' && (
+      <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full text-white text-[10px] font-extrabold flex items-center justify-center" style={{ backgroundColor: DANGER }}>{badge}</span>
+    )}
+  </button>
+);
+
+/* ──────────────────────────────────────────────────────────────────────
+   CHILD SELECTOR
+   ──────────────────────────────────────────────────────────────────── */
+const ChildSelector: React.FC<{ active: string; onChange: (id: string) => void }> = ({ active, onChange }) => (
+  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    {CHILDREN.map((c) => {
+      const isActive = active === c.id;
+      return (
+        <button
+          key={c.id}
+          type="button"
+          onClick={() => onChange(c.id)}
+          className="rounded-2xl bg-white border p-3 flex items-center gap-3 transition-all"
+          style={{ borderColor: isActive ? '#A6C0FF' : BORDER, backgroundColor: isActive ? '#F4F8FF' : 'white', boxShadow: isActive ? '0 8px 24px -12px rgba(74,108,255,0.18)' : '0 1px 2px rgba(15,23,42,0.04)' }}
+        >
+          <img src={`https://i.pravatar.cc/80?img=${c.imgSeed}`} alt={c.name} className="w-12 h-12 rounded-full object-cover shrink-0" />
+          <div className="min-w-0 flex-1 text-left">
+            <p className="text-[13.5px] font-extrabold leading-tight truncate" style={{ color: NAVY }}>{c.name}</p>
+            <p className="text-[11px] font-semibold mt-0.5 truncate" style={{ color: TEXT_MUTED }}>{c.meta}</p>
+          </div>
+          <ProgressBadge value={c.progress} />
+        </button>
+      );
+    })}
+    <button type="button" className="rounded-2xl border-2 border-dashed bg-white p-3 flex items-center gap-3 hover:bg-slate-50" style={{ borderColor: BORDER }}>
+      <span className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: '#EEF4FF' }}>
+        <Plus className="w-4 h-4" style={{ color: BLUE }} />
+      </span>
+      <span className="text-[13px] font-extrabold" style={{ color: BLUE }}>Add Child</span>
+    </button>
+  </div>
+);
+
+const ProgressBadge: React.FC<{ value: number }> = ({ value }) => {
+  const r = 18;
+  const c = 2 * Math.PI * r;
+  const off = c - (value / 100) * c;
+  const ink = value >= 80 ? SUCCESS : value >= 70 ? WARN : DANGER;
+  return (
+    <svg viewBox="0 0 44 44" className="w-11 h-11 shrink-0" aria-hidden>
+      <circle cx="22" cy="22" r={r} fill="none" stroke="#F1F5F9" strokeWidth="4" />
+      <circle cx="22" cy="22" r={r} fill="none" stroke={ink} strokeWidth="4" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={off} transform="rotate(-90 22 22)" />
+      <text x="22" y="26" textAnchor="middle" fontSize="11" fontWeight="800" fill={NAVY}>{value}%</text>
+    </svg>
+  );
+};
+
+/* ──────────────────────────────────────────────────────────────────────
+   KPI STRIP
+   ──────────────────────────────────────────────────────────────────── */
+const KpiStrip: React.FC = () => (
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+    {KPI_CARDS.map((c) => {
+      const Icon = c.icon;
+      return (
+        <article key={c.label} className="rounded-2xl bg-white border p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-12px_rgba(15,23,42,0.06)]" style={{ borderColor: BORDER }}>
+          <div className="flex items-center gap-2">
+            <span className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: c.iconBg }}>
+              <Icon className="w-4 h-4" style={{ color: c.iconInk }} />
+            </span>
+            <p className="text-[11.5px] font-bold" style={{ color: TEXT_MUTED }}>{c.label}</p>
+          </div>
+          <p className="mt-3 text-[24px] font-extrabold tracking-tight leading-none" style={{ color: NAVY }}>{c.value}</p>
+          {c.delta && <p className="mt-1 text-[11px] font-bold" style={{ color: c.iconInk }}>{c.delta}</p>}
+          <div className="mt-3 h-7">
+            <Sparkline tone={c.spark} />
+          </div>
+        </article>
+      );
+    })}
+  </div>
+);
+
+const Sparkline: React.FC<{ tone: 'green' | 'orange' | 'purple' | 'pink' | 'blue' }> = ({ tone }) => {
+  const colours: Record<string, { stroke: string; fill: string }> = {
+    green:  { stroke: '#12B76A', fill: 'rgba(18,183,106,0.15)' },
+    orange: { stroke: '#F59E0B', fill: 'rgba(245,158,11,0.15)' },
+    purple: { stroke: '#7C3AED', fill: 'rgba(124,58,237,0.15)' },
+    pink:   { stroke: '#EC4899', fill: 'rgba(236,72,153,0.15)' },
+    blue:   { stroke: '#2563EB', fill: 'rgba(37,99,235,0.15)' },
+  };
+  const c = colours[tone];
+  const ys = [22, 17, 19, 13, 15, 8, 12, 5];
+  return (
+    <svg viewBox="0 0 120 28" preserveAspectRatio="none" className="w-full h-7" aria-hidden>
+      <path d="M0 22 L18 17 L34 19 L52 13 L70 15 L88 8 L106 12 L120 5 L120 28 L0 28 Z" fill={c.fill} />
+      <path d="M0 22 L18 17 L34 19 L52 13 L70 15 L88 8 L106 12 L120 5" stroke={c.stroke} strokeWidth="1.4" fill="none" />
+      {[0, 18, 34, 52, 70, 88, 106, 120].map((x, i) => (
+        <circle key={i} cx={x} cy={ys[i]} r="1.4" fill={c.stroke} />
+      ))}
+    </svg>
+  );
+};
+
+/* ──────────────────────────────────────────────────────────────────────
+   TODAY'S FOCUS / TOP SUBJECTS
+   ──────────────────────────────────────────────────────────────────── */
+const CardShell: React.FC<React.PropsWithChildren<{ title: string; trailing?: React.ReactNode; icon?: React.ComponentType<{ className?: string }>; iconInk?: string }>> = ({ title, trailing, icon: Icon, iconInk, children }) => (
+  <section className="rounded-2xl bg-white border p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-12px_rgba(15,23,42,0.06)]" style={{ borderColor: BORDER }}>
+    <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center gap-2">
+        {Icon && <Icon className="w-4 h-4" style={{ color: iconInk || COPPER }} />}
+        <h3 className="text-[16px] font-extrabold tracking-tight" style={{ color: NAVY }}>{title}</h3>
+      </div>
+      {trailing}
+    </div>
+    {children}
+  </section>
+);
+
+const TodaysFocus: React.FC = () => (
+  <CardShell title="Today's Focus for David" icon={Target} iconInk={DANGER}>
+    <ul className="divide-y" style={{ borderColor: BORDER }}>
+      {FOCUS_ITEMS.map((f) => (
+        <li key={f.subject} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+          <span
+            className="rounded-md px-2 py-0.5 text-[9.5px] font-extrabold tracking-wider shrink-0"
+            style={{ backgroundColor: f.statusBg, color: f.statusInk, minWidth: 64, textAlign: 'center' }}
+          >
+            {f.status}
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-bold" style={{ color: NAVY }}>{f.subject}</p>
+            <p className="text-[12.5px] font-extrabold leading-tight" style={{ color: NAVY }}>{f.topic}</p>
+            <p className="text-[11px]" style={{ color: TEXT_MUTED }}>{f.meta}</p>
+          </div>
+          <button type="button" className="w-8 h-8 rounded-md border flex items-center justify-center" style={{ borderColor: BORDER, color: TEXT_MUTED }} aria-label="Schedule">
+            <Calendar className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            className="rounded-md text-white text-[11.5px] font-extrabold px-3.5 py-2 shrink-0"
+            style={{ backgroundColor: f.status === 'LIVE' ? SUCCESS : NAVY }}
+          >
+            {f.ctaLabel}
+          </button>
+        </li>
+      ))}
+    </ul>
+    <button type="button" className="mt-3 w-full text-center text-[12px] font-extrabold inline-flex items-center justify-center gap-0.5" style={{ color: COPPER }}>
+      View Full Schedule <ChevronRight className="w-3.5 h-3.5" />
+    </button>
+  </CardShell>
+);
+
+const TopSubjects: React.FC = () => (
+  <CardShell
+    title="Top Subjects This Term"
+    trailing={<button type="button" className="text-[11.5px] font-extrabold" style={{ color: COPPER }}>View All</button>}
+  >
+    <ul className="space-y-3">
+      {SUBJECT_PROGRESS.map((s) => {
+        const Icon = s.icon;
+        return (
+          <li key={s.name} className="flex items-center gap-3">
+            <span className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: s.tint }}>
+              <Icon className="w-4 h-4" style={{ color: s.ink }} />
+            </span>
+            <p className="text-[12.5px] font-extrabold w-[88px] shrink-0" style={{ color: NAVY }}>{s.name}</p>
+            <progress
+              value={s.value}
+              max={100}
+              className="block flex-1 h-1.5 rounded-full overflow-hidden appearance-none [&::-webkit-progress-bar]:bg-slate-100 [&::-webkit-progress-bar]:rounded-full [&::-webkit-progress-value]:rounded-full [&::-moz-progress-bar]:rounded-full"
+              style={{ accentColor: s.ink }}
+            />
+            <p className="text-[12px] font-extrabold w-[40px] text-right shrink-0" style={{ color: NAVY }}>{s.value}%</p>
+          </li>
+        );
+      })}
+    </ul>
+  </CardShell>
+);
+
+/* ──────────────────────────────────────────────────────────────────────
+   RECENT ACTIVITY · TEACHER MESSAGES
+   ──────────────────────────────────────────────────────────────────── */
+const RecentActivity: React.FC = () => (
+  <CardShell
+    title="Recent Activity"
+    trailing={<button type="button" className="text-[11.5px] font-extrabold inline-flex items-center gap-0.5" style={{ color: COPPER }}>View Full Activity <ChevronRight className="w-3.5 h-3.5" /></button>}
+  >
+    <ul className="space-y-2">
+      {RECENT_ACTIVITY.map((a) => {
+        const Icon = a.icon;
+        return (
+          <li key={a.title} className="flex items-center gap-3 px-1 py-1.5">
+            <span className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: a.tint }}>
+              <Icon className="w-4 h-4" style={{ color: a.ink }} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[12.5px] font-extrabold leading-tight" style={{ color: NAVY }}>{a.title}</p>
+              <p className="text-[11px] leading-tight truncate" style={{ color: TEXT_MUTED }}>{a.body}</p>
+            </div>
+            <p className="text-[10.5px] font-bold shrink-0" style={{ color: TEXT_MUTED }}>{a.meta}</p>
+          </li>
+        );
+      })}
+    </ul>
+  </CardShell>
+);
+
+const TeacherMessages: React.FC = () => (
+  <CardShell
+    title="Teacher Messages"
+    trailing={<button type="button" className="text-[11.5px] font-extrabold" style={{ color: COPPER }}>View All</button>}
+  >
+    <ul className="space-y-3">
+      {TEACHER_MESSAGES.map((m) => (
+        <li key={m.name} className="flex items-start gap-3">
+          <img src={`https://i.pravatar.cc/80?img=${m.imgSeed}`} alt={m.name} className="w-9 h-9 rounded-full object-cover shrink-0" />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <p className="text-[12.5px] font-extrabold leading-tight truncate" style={{ color: NAVY }}>{m.name}</p>
+              <span className="ml-auto text-[10.5px] font-bold" style={{ color: TEXT_MUTED }}>{m.meta}</span>
+            </div>
+            <p className="text-[11px] font-bold" style={{ color: TEXT_MUTED }}>{m.role}</p>
+            <p className="text-[12px] mt-0.5 leading-tight" style={{ color: NAVY }}>{m.body}</p>
+          </div>
+          {m.unread > 0 && (
+            <span className="w-5 h-5 rounded-full text-white text-[10px] font-extrabold flex items-center justify-center shrink-0" style={{ backgroundColor: BLUE }}>{m.unread}</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  </CardShell>
+);
+
+/* ──────────────────────────────────────────────────────────────────────
+   RIGHT RAIL: Weekly Summary · Alerts · Quick Actions · Help
+   ──────────────────────────────────────────────────────────────────── */
+const WeeklySummary: React.FC = () => (
+  <section className="rounded-2xl border overflow-hidden p-5" style={{ borderColor: '#F1E0BC', background: 'linear-gradient(135deg, #FEF6E5 0%, #FFFBF1 100%)' }}>
+    <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center gap-2">
+        <Sparkles className="w-4 h-4" style={{ color: COPPER }} />
+        <h3 className="text-[15px] font-extrabold" style={{ color: NAVY }}>Weekly Summary</h3>
+      </div>
+      <button type="button" className="inline-flex items-center gap-1.5 rounded-full bg-white border px-3 py-1.5 text-[11px] font-extrabold" style={{ borderColor: '#F1E0BC', color: '#1B7B49' }}>
+        <span className="w-4 h-4 rounded-full bg-[#25D366] flex items-center justify-center">
+          <MessageCircle className="w-2.5 h-2.5 text-white" />
+        </span>
+        Share on WhatsApp
+      </button>
+    </div>
+    <p className="text-[12.5px] leading-relaxed" style={{ color: NAVY }}>
+      David is showing great improvement in <b>Mathematics</b> and <b>Science</b>.
+    </p>
+    <p className="mt-2 text-[12.5px] leading-relaxed" style={{ color: NAVY }}>
+      He&apos;s active in class, completing assignments on time, but needs more practice in <b>Trigonometry</b> and <b>Essay Writing</b>.
+    </p>
+
+    <div className="mt-4 flex justify-center">
+      <BotIllustration />
+    </div>
+
+    <button type="button" className="mt-4 w-full rounded-xl bg-white border py-2.5 text-[12.5px] font-extrabold inline-flex items-center justify-center gap-1.5" style={{ color: NAVY, borderColor: '#F1E0BC' }}>
+      View Full Summary <ChevronRight className="w-3.5 h-3.5" />
+    </button>
+  </section>
+);
+
+const BotIllustration: React.FC = () => (
+  <svg viewBox="0 0 120 100" className="w-[120px] h-[100px]" aria-hidden>
+    <defs>
+      <linearGradient id="botBody" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#9CC0F4" />
+        <stop offset="100%" stopColor="#5B86C7" />
+      </linearGradient>
+    </defs>
+    {/* Antenna */}
+    <line x1="60" y1="14" x2="60" y2="22" stroke="#5B86C7" strokeWidth="1.5" />
+    <circle cx="60" cy="12" r="2.5" fill="#F4B860" />
+    {/* Head */}
+    <rect x="36" y="22" width="48" height="38" rx="10" fill="url(#botBody)" />
+    {/* Eyes */}
+    <ellipse cx="50" cy="40" rx="6" ry="7" fill="white" />
+    <circle cx="50" cy="42" r="3" fill="#0B1F3A" />
+    <ellipse cx="70" cy="40" rx="6" ry="7" fill="white" />
+    <circle cx="70" cy="42" r="3" fill="#0B1F3A" />
+    {/* Headphones */}
+    <path d="M30 30 Q30 18, 60 18 Q90 18, 90 30" stroke="#5B86C7" strokeWidth="2" fill="none" />
+    <rect x="26" y="28" width="6" height="14" rx="2" fill="#5B86C7" />
+    <rect x="88" y="28" width="6" height="14" rx="2" fill="#5B86C7" />
+    {/* Smile */}
+    <path d="M52 52 Q60 56, 68 52" stroke="#0B1F3A" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+    {/* Body/Neck */}
+    <rect x="48" y="60" width="24" height="14" rx="3" fill="url(#botBody)" />
+    {/* Arms (chair-like base lines) */}
+    <line x1="34" y1="78" x2="86" y2="78" stroke="#94B3D6" strokeWidth="1" opacity="0.6" />
+  </svg>
+);
+
+const AlertsReminders: React.FC = () => (
+  <CardShell
+    title="Alerts & Reminders"
+    trailing={<button type="button" className="text-[11.5px] font-extrabold" style={{ color: COPPER }}>View All</button>}
+  >
+    <ul className="space-y-2">
+      {ALERTS.map((a) => {
+        const Icon = a.icon;
+        return (
+          <li key={a.title} className="flex items-center gap-3 rounded-xl px-3 py-2.5 cursor-pointer" style={{ backgroundColor: a.tint }}>
+            <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-white">
+              <Icon className="w-4 h-4" style={{ color: a.ink }} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[12.5px] font-extrabold leading-tight" style={{ color: NAVY }}>{a.title}</p>
+              <p className="text-[11px] leading-tight" style={{ color: TEXT_MUTED }}>{a.body}</p>
+            </div>
+            <ChevronRight className="w-4 h-4 shrink-0" style={{ color: TEXT_MUTED }} />
+          </li>
+        );
+      })}
+    </ul>
+  </CardShell>
+);
+
+const QuickActions: React.FC = () => (
+  <CardShell title="Quick Actions">
+    <div className="grid grid-cols-3 gap-2">
+      {QUICK_ACTIONS.map(({ label, icon: Icon, tint, ink }) => (
+        <button key={label} type="button" className="rounded-xl border bg-white p-3 flex flex-col items-center gap-2 hover:shadow-md transition-shadow" style={{ borderColor: BORDER }}>
+          <span className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: tint }}>
+            <Icon className="w-4 h-4" style={{ color: ink }} />
+          </span>
+          <span className="text-[10.5px] font-extrabold text-center leading-tight" style={{ color: NAVY }}>{label}</span>
+        </button>
+      ))}
+    </div>
+  </CardShell>
+);
+
+const NeedHelp: React.FC = () => (
+  <section className="rounded-2xl border flex items-center gap-3 px-4 py-3" style={{ borderColor: '#DBEAFE', backgroundColor: '#F0F6FF' }}>
+    <span className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: 'white' }}>
+      <Headphones className="w-4 h-4" style={{ color: BLUE }} />
+    </span>
+    <div className="min-w-0 flex-1">
+      <p className="text-[12.5px] font-extrabold leading-tight" style={{ color: NAVY }}>Need help?</p>
+      <p className="text-[11px] font-semibold leading-tight" style={{ color: TEXT_MUTED }}>Chat with our support team</p>
+    </div>
+    <button type="button" className="rounded-md bg-white border text-[11px] font-extrabold px-3 py-1.5 shrink-0" style={{ color: NAVY, borderColor: BORDER }}>
+      Start Chat
+    </button>
+  </section>
+);

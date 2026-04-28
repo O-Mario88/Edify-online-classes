@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, Linking, Pressable } from 'react-native';
 import { AppScreen } from '@/components/AppScreen';
-import { ProfileHeader } from '@/components/ProfileHeader';
 import { DayPillSelector } from '@/components/DayPillSelector';
 import { TimelineScheduleRow } from '@/components/TimelineScheduleRow';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
@@ -98,11 +97,11 @@ export default function LiveTab() {
       }}
       refreshing={refreshing}
     >
-      <ProfileHeader
-        greeting="Live classes"
-        name={`${totalThisWeek} this week`}
-        subtitle="Real teachers · live, scheduled times"
-      />
+      <View className="px-5 pt-3 pb-2">
+        <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Live classes</Text>
+        <Text className="text-2xl font-extrabold text-slate-900 mt-1">{totalThisWeek} this week</Text>
+        <Text className="text-xs text-slate-500 mt-1">Real teachers · live, scheduled times</Text>
+      </View>
 
       <View className="mt-2 pl-5">
         <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">

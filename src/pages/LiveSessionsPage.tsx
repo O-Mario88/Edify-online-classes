@@ -1,413 +1,755 @@
-import React, { useState, useEffect } from 'react';
-import { EditorialPanel } from '../components/ui/editorial/EditorialPanel';
-import { EditorialPill } from '../components/ui/editorial/EditorialPill';
-import { EditorialHeader } from '../components/ui/editorial/EditorialHeader';
-import { Badge } from '../components/ui/badge';
-import { 
-  Calendar as CalendarIcon, 
-  Clock, 
-  Users, 
-  Play,
-  Search,
-  Filter,
-  Video,
-  ChevronLeft,
-  ChevronRight,
-  User,
-  Star,
-  Plus
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  Search, Bell, ChevronDown, ChevronRight, Crown, Check,
+  Home, GraduationCap, NotebookPen, Video, Download, FolderClosed,
+  StickyNote, Clock, BookMarked, Calendar, CalendarDays, LifeBuoy,
+  School, BookOpen, Radio, PlayCircle, Play, Sigma, FlaskConical, Leaf, Atom,
+  BookText, Monitor, Download as DownloadIcon,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { WebinarSession } from '../types';
-import { toast } from 'sonner';
-import { apiClient } from '@/lib/apiClient';
-import { useNavigate } from 'react-router-dom';
-import { isFuture, isPast, addMinutes } from 'date-fns';
-import { LiveSessionCTA } from '../components/dashboard/LiveSessionCTA';
 
+/* ───────── DESIGN TOKENS ───────── */
+const NAVY = '#0B1F35';
+const ORANGE = '#C97849';
+const CREAM = '#F7F2E8';
+const CARD_BORDER = '#E8DFCC';
+
+/* ───────── DATA ───────── */
+const SIDEBAR_BROWSE: { label: string; icon: React.ComponentType<{ className?: string }>; active?: boolean; href?: string }[] = [
+  { label: 'Home',             icon: Home },
+  { label: 'Primary',          icon: GraduationCap, href: '/primary' },
+  { label: 'Secondary',        icon: School,        href: '/secondary' },
+  { label: 'Revision Notes',   icon: NotebookPen },
+  { label: 'Textbooks',        icon: BookOpen },
+  { label: 'Live Sessions',    icon: Radio, active: true, href: '/live-sessions' },
+  { label: 'Recorded Lessons', icon: Video },
+  { label: 'Downloads',        icon: Download },
+  { label: 'Saved Resources',  icon: FolderClosed },
+];
+
+const SIDEBAR_MY_LIBRARY = [
+  { label: 'My Notes',        icon: StickyNote },
+  { label: 'Recently Viewed', icon: Clock },
+  { label: 'Bookmarks',       icon: BookMarked },
+];
+
+const SIDEBAR_QUICK = [
+  { label: 'Study Planner',   icon: Calendar },
+  { label: 'Exam Timetable',  icon: CalendarDays },
+  { label: 'Help & Support',  icon: LifeBuoy },
+];
+
+type SubjectKey = 'math' | 'english' | 'biology' | 'chemistry' | 'ict' | 'literature' | 'physics';
+
+const SUBJECT_TILE: Record<SubjectKey, { icon: React.ComponentType<{ className?: string }>; bg: string; ink: string }> = {
+  math:       { icon: Sigma,        bg: '#F2EAFB', ink: '#5B4391' },
+  english:    { icon: BookOpen,     bg: '#FCEFD8', ink: '#7C4A1E' },
+  biology:    { icon: Leaf,         bg: '#E8F1E8', ink: '#3F6F5A' },
+  chemistry:  { icon: FlaskConical, bg: '#EDE6F2', ink: '#3D5C3A' },
+  ict:        { icon: Monitor,      bg: '#E5EAF2', ink: '#1E4163' },
+  literature: { icon: BookText,     bg: '#F5E0DC', ink: '#7B2D26' },
+  physics:    { icon: Atom,         bg: '#E5EAF2', ink: '#1E4163' },
+};
+
+const STATS = [
+  { value: '12',   label: 'Upcoming Classes', sub: 'Next 7 days',         icon: Radio,    accent: ORANGE },
+  { value: '86',   label: 'Recorded Lessons', sub: 'Available to watch',  icon: PlayCircle, accent: '#3F6F5A' },
+  { value: '24',   label: 'Live This Week',   sub: 'Across all subjects', icon: Calendar, accent: NAVY },
+  { value: '06',   label: 'Subjects',         sub: 'Active this week',    icon: BookOpen, accent: NAVY },
+  { value: '24/7', label: 'Flexible Access',  sub: 'Learn anytime',       icon: Clock,    accent: NAVY },
+];
+
+interface UpcomingClass {
+  id: string;
+  subject: string;
+  topic: string;
+  subjectKey: SubjectKey;
+  teacher: string;
+  teacherImg: string;
+  date: string;
+  time: string;
+  level: string;
+  status: 'LIVE' | 'UPCOMING';
+}
+
+const UPCOMING: UpcomingClass[] = [
+  { id: '1', subject: 'Mathematics',     subjectKey: 'math',       topic: 'Quadratic Equations & Graphs',   teacher: 'Mr. Daniel Smith',   teacherImg: 'https://i.pravatar.cc/80?img=12', date: 'Today, May 21', time: '09:00 AM', level: 'Secondary Year 10', status: 'LIVE' },
+  { id: '2', subject: 'English Language', subjectKey: 'english',    topic: 'Analysing Non-Fiction Texts',     teacher: 'Ms. Sarah Khan',     teacherImg: 'https://i.pravatar.cc/80?img=49', date: 'Today, May 21', time: '11:00 AM', level: 'Secondary Year 9',  status: 'UPCOMING' },
+  { id: '3', subject: 'Biology',          subjectKey: 'biology',    topic: 'Cell Structure & Function',       teacher: 'Dr. Aisha Rahman',   teacherImg: 'https://i.pravatar.cc/80?img=47', date: 'Today, May 21', time: '01:00 PM', level: 'Secondary Year 10', status: 'UPCOMING' },
+  { id: '4', subject: 'Chemistry',        subjectKey: 'chemistry',  topic: 'Chemical Reactions',              teacher: 'Mr. James Wilson',   teacherImg: 'https://i.pravatar.cc/80?img=15', date: 'Today, May 21', time: '03:00 PM', level: 'Secondary Year 11', status: 'UPCOMING' },
+  { id: '5', subject: 'ICT',              subjectKey: 'ict',        topic: 'Python Basics – Variables',        teacher: 'Mr. Ali Raza',       teacherImg: 'https://i.pravatar.cc/80?img=33', date: 'Today, May 21', time: '05:00 PM', level: 'Secondary Year 8',  status: 'UPCOMING' },
+  { id: '6', subject: 'Literature',       subjectKey: 'literature', topic: 'Poetry – Theme & Tone',           teacher: 'Ms. Emily Johnson',  teacherImg: 'https://i.pravatar.cc/80?img=44', date: 'Today, May 21', time: '07:00 PM', level: 'Secondary Year 9',  status: 'UPCOMING' },
+];
+
+interface RecordedLesson {
+  id: string;
+  subject: string;
+  subjectKey: SubjectKey;
+  title: string;
+  teacher: string;
+  duration: string;
+}
+
+const RECORDED: RecordedLesson[] = [
+  { id: '1', subject: 'Mathematics',     subjectKey: 'math',      title: 'Linear Equations',     teacher: 'Mr. Daniel Smith',   duration: '45:20' },
+  { id: '2', subject: 'English Language', subjectKey: 'english',   title: 'Writing a Good Essay', teacher: 'Ms. Sarah Khan',     duration: '50:15' },
+  { id: '3', subject: 'Biology',         subjectKey: 'biology',   title: 'Enzymes & Reactions',  teacher: 'Dr. Aisha Rahman',   duration: '47:10' },
+  { id: '4', subject: 'Chemistry',       subjectKey: 'chemistry', title: 'Acids, Bases & Salts', teacher: 'Mr. James Wilson',   duration: '52:30' },
+  { id: '5', subject: 'ICT',             subjectKey: 'ict',       title: 'Introduction to Python', teacher: 'Mr. Ali Raza',     duration: '46:05' },
+];
+
+const WEEKLY_SCHEDULE = [
+  { day: 'Mon',  date: 'May 19', count: '4 Classes', state: 'done' as const },
+  { day: 'Tue',  date: 'May 20', count: '5 Classes', state: 'done' as const },
+  { day: 'Today', date: 'May 21', count: '6 Classes', state: 'today' as const },
+  { day: 'Thu',  date: 'May 22', count: '5 Classes', state: 'future' as const },
+  { day: 'Fri',  date: 'May 23', count: '4 Classes', state: 'future' as const },
+  { day: 'Sat',  date: 'May 24', count: '2 Classes', state: 'future' as const },
+  { day: 'Sun',  date: 'May 25', count: '0 Classes', state: 'future' as const },
+];
+
+const RECENTLY_UPLOADED: { subjectKey: SubjectKey; subject: string; title: string; meta: string }[] = [
+  { subjectKey: 'physics', subject: 'Physics', title: 'Laws of Motion',      meta: 'May 20, 2025 • 48:15' },
+  { subjectKey: 'english', subject: 'English', title: 'Story Elements',      meta: 'May 20, 2025 • 42:10' },
+  { subjectKey: 'math',    subject: 'Maths',   title: 'Coordinate Geometry', meta: 'May 19, 2025 • 44:08' },
+];
+
+/* ───────── PAGE ───────── */
 export const LiveSessionsPage: React.FC = () => {
   const { user } = useAuth();
-  const [sessions, setSessions] = useState<WebinarSession[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  // Host-specific states
-  const isTeacher = user?.role === 'independent_teacher' || user?.role === 'institution_admin';
-
-  useEffect(() => {
-    const fetchWebinars = async () => {
-      try {
-        const response = await apiClient.get('/live-sessions/live-session/');
-        const respData: any = response.data || {};
-        let fetchedSessions = respData.results || respData;
-        if (!Array.isArray(fetchedSessions)) fetchedSessions = [];
-        setSessions(fetchedSessions);
-      } catch (error) {
-        console.error('Error fetching live sessions:', error);
-        setSessions([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWebinars();
-  }, []);
-
-  const handleRSVP = (sessionId: string) => {
-    setSessions(prev => prev.map(session => {
-      if (session.id === sessionId) {
-        toast.success(`RSVP Confirmed for ${session.title}! We added it to your calendar.`);
-        return {
-          ...session,
-          enrolledCount: session.enrolledCount + 1
-        };
-      }
-      return session;
-    }));
-  };
-
-  const getFilteredSessions = () => {
-    return sessions.filter(session => {
-      const start = new Date(session.scheduledStart);
-      const end = addMinutes(start, session.durationMinutes || 60);
-      
-      let state = 'live';
-      if (isFuture(start)) state = 'upcoming';
-      else if (isPast(end)) state = 'recorded';
-
-      // Advanced mock states if any (Peer Discussion, Revision)
-      if (session.type === 'peer_discussion') state = 'peer discussion';
-      if (session.type === 'revision') state = 'revision session';
-
-      const matchesSearch = !searchTerm || 
-        session.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        session.hostName.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesCategory = selectedCategory === 'All' || 
-        state.toLowerCase() === selectedCategory.toLowerCase();
-      
-      return matchesSearch && matchesCategory;
-    });
-  };
-
-  const formatDateTime = (isoString: string) => {
-    const d = new Date(isoString);
-    return {
-      date: d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
-      time: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      dayOfWeek: d.toLocaleDateString([], { weekday: 'long' })
-    };
-  };
-
-  const categories = ['All', 'Upcoming', 'Live', 'Recorded', 'Peer Discussion', 'Revision Session'];
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
-        <div className="animate-pulse w-12 h-12 rounded-full bg-[#f4efe2]"></div>
-      </div>
-    );
-  }
-
-  // Generate deterministic abstract background colors based on ID
-  const getGradientForId = (id: string | number, state: string) => {
-    if (state === 'live') return 'from-rose-100 to-orange-50';
-    if (state === 'recorded') return 'from-slate-200 to-slate-100';
-    const sum = String(id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-    const backgrounds = [
-      'from-emerald-100 to-teal-50',
-      'from-blue-100 to-indigo-50',
-      'from-purple-100 to-pink-50',
-      'from-amber-100 to-yellow-50'
-    ];
-    return backgrounds[sum % backgrounds.length];
-  };
-
-  const WebinarCard: React.FC<{ session: WebinarSession }> = ({ session }) => {
-    const { date, time, dayOfWeek } = formatDateTime(session.scheduledStart);
-    
-    const start = new Date(session.scheduledStart);
-    const end = addMinutes(start, session.durationMinutes || 60);
-    let state = 'Live';
-    if (isFuture(start)) state = 'Upcoming';
-    else if (isPast(end)) state = 'Recorded';
-
-    const gradient = getGradientForId(session.id, state.toLowerCase());
-
-    return (
-      <div className="group bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-xl transition-all duration-300 flex flex-col h-full hover:-translate-y-1">
-        
-        {/* Top visual area */}
-        <div className={`h-48 relative overflow-hidden bg-gradient-to-br ${gradient} p-5 flex flex-col justify-between`}>
-           <div className="flex justify-between items-start z-10 relative">
-              <span className={`text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full shadow-sm backdrop-blur-md ${
-                state === 'Live' ? 'bg-rose-500 text-white' : 
-                state === 'Upcoming' ? 'bg-white/90 text-slate-800' : 
-                'bg-slate-800/80 text-white'
-              }`}>
-                {state === 'Live' && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block mr-1.5 animate-pulse" />}
-                {state}
-              </span>
-           </div>
-           
-           {/* Abstract geometric elements */}
-           <div className="absolute inset-0 bg-noise opacity-[0.03] mix-blend-overlay" />
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-[12px] border-white/20 blur-[2px]" />
-           <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-white/30 rounded-lg rotate-45 backdrop-blur-xl" />
-        </div>
-
-        <div className="p-6 flex flex-col flex-grow relative">
-           
-           {/* Host Row */}
-           <div className="flex items-center gap-3 mb-4 mt-[-40px] z-20">
-             <div className="w-12 h-12 rounded-full bg-white p-1 shadow-md border border-slate-100">
-                <div className="w-full h-full bg-[#f4efe2] rounded-full flex items-center justify-center overflow-hidden text-[#8e8268]">
-                  <User className="h-5 w-5" />
-                </div>
-             </div>
-             <div className="mt-6 flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-500">{session.hostName}</span>
-                <span className="w-1 h-1 rounded-full bg-slate-300" />
-                <span className="text-[10px] font-bold text-[#8e8268] uppercase tracking-wider bg-[#f4efe2] px-2 py-0.5 rounded-sm">Host</span>
-             </div>
-           </div>
-
-           <h3 className="text-xl font-bold text-slate-900 mb-2 leading-tight group-hover:text-amber-700 transition-colors line-clamp-2">
-             {session.title}
-           </h3>
-           
-           {/* Meta Data */}
-           <div className="flex flex-col gap-3 text-xs font-bold text-slate-400 mb-6">
-              <div className="flex items-center gap-2">
-                <CalendarIcon className="w-3.5 h-3.5" />
-                {dayOfWeek}, {date}
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5" />
-                {time} <span className="font-medium text-slate-300 ml-1">({session.durationMinutes}m)</span>
-              </div>
-           </div>
-
-           {/* Metrics Footer */}
-           <div className="mt-auto pt-5 border-t border-slate-50 flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-sm font-bold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                 <Users className="w-3.5 h-3.5 text-slate-400" />
-                 {session.enrolledCount} <span className="font-medium text-slate-400 ml-0.5 text-xs">/ {session.capacity}</span>
-              </div>
-              
-              {/* Action */}
-              <div className="relative z-20">
-                {state === 'Upcoming' && (
-                  <button onClick={(e) => { e.preventDefault(); handleRSVP(session.id); }} className="text-xs font-bold text-emerald-600 hover:text-white border border-emerald-200 hover:bg-emerald-500 hover:border-emerald-500 transition-colors px-4 py-1.5 rounded-full">
-                    RSVP
-                  </button>
-                )}
-                {state === 'Recorded' && (
-                   <button 
-                     onClick={() => navigate(`/dashboard/sessions/recover/${session.id}`)}
-                     className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 hover:text-slate-700 transition-colors"
-                   >
-                     <Play className="w-3 h-3" /> Replay
-                   </button>
-                )}
-              </div>
-           </div>
-           
-           {/* For Live State, cover the bottom row or full card with CTA link */}
-           {state === 'Live' && (
-             <div className="absolute inset-x-4 bottom-4 z-20">
-                <LiveSessionCTA 
-                  sessionId={session.id}
-                  scheduledStart={session.scheduledStart}
-                  durationMinutes={session.durationMinutes || 60}
-                  attended={false}
-                  meetingUrl={session.meetingUrl}
-                  className="w-full !rounded-xl !py-3 shadow-lg"
-               />
-             </div>
-           )}
-
-        </div>
-      </div>
-    );
-  };
+  const [search, setSearch] = useState('');
 
   return (
-    <div className="min-h-screen bg-[#fbfaf8] font-sans pb-24 relative">
-      <div 
-        className="absolute inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
-        style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
+    <div className="min-h-screen text-[#0B1F35] antialiased" style={{ backgroundColor: CREAM }}>
+      <SchoolTopBar
+        avatarUrl={user?.avatar}
+        name={user?.name}
+        search={search}
+        onSearchChange={setSearch}
       />
-      <div className="absolute inset-0 bg-white/40 pointer-events-none" />
 
-      {/* 1. Hero Section (2-Column) */}
-      <div className="relative pt-20 pb-20 overflow-hidden z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-            {/* Left Column: Text & CTA */}
-            <div className="flex-1 space-y-8 text-center lg:text-left z-10 relative">
-              <div className="inline-block relative">
-                <EditorialHeader level="h1" className="text-slate-900 leading-[1.1] tracking-tight">
-                  Be Part of Live Online Classes<br />and Discussions
-                </EditorialHeader>
-                <div className="absolute top-1/2 -left-6 w-16 h-16 bg-blue-200/40 rounded-full blur-xl -z-10" />
-              </div>
-              
-              <p className="text-lg sm:text-xl text-slate-500 font-light leading-relaxed max-w-lg mx-auto lg:mx-0">
-                Attend real-time class lessons, live peer to peer discussions and revision seminars with leading teachers.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-                {isTeacher ? (
-                   <EditorialPill variant="primary" onClick={() => toast.info('Opening Host Modal...')} className="px-8 py-4 shadow-xl shadow-slate-900/10 hover:-translate-y-1 transition-transform">
-                     Host a Seminar
-                   </EditorialPill>
-                ) : (
-                   <EditorialPill variant="primary" className="px-8 py-4 shadow-xl shadow-slate-900/10 hover:-translate-y-1 transition-transform">
-                     Discover Live Events
-                   </EditorialPill>
-                )}
-              </div>
-            </div>
+      <div className="mx-auto max-w-[1500px] px-5 py-5">
+        <div className="grid lg:grid-cols-[232px,1fr,320px] gap-6">
+          <SchoolSidebar />
 
-            {/* Right Column: Hero Visual */}
-            <div className="flex-1 w-full relative">
-              <div className="absolute inset-0 bg-gradient-to-tr from-blue-100/50 to-purple-50/50 rounded-full blur-[100px] -z-10" />
-              
-              <div className="relative rounded-[2.5rem] overflow-hidden border-8 border-white shadow-2xl shadow-slate-200/50 aspect-[4/3] bg-slate-100 group">
-                <img 
-                  src="/images/online_teacher.png" 
-                  alt="Teacher hosting an online class"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                />
-                <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-md p-3 rounded-xl shadow-lg border border-white/50 flex items-center gap-3 animate-pulse">
-                  <div className="w-3 h-3 bg-rose-500 rounded-full" />
-                  <span className="text-[10px] uppercase font-black tracking-widest text-slate-800">Live Network Active</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Sessions Section Intro & Search */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 relative z-10 mb-8">
-        <div className="flex flex-col md:flex-row items-end justify-between gap-6 border-b border-slate-200/50 pb-6">
-          <div>
-             <EditorialHeader level="h2" className="text-slate-900 flex items-center gap-3">
-               Live and Recorded Sessions
-             </EditorialHeader>
-             <div className="w-16 h-1 bg-blue-300 mt-3 rounded-full" />
-          </div>
-          
-          <div className="relative w-full md:w-80">
-            <input
-              type="text"
-              placeholder="Search seminars, hosts..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-full py-3.5 pl-5 pr-12 text-sm outline-none focus:border-slate-300 focus:ring-4 focus:ring-slate-100 transition-all font-medium text-slate-800 placeholder:text-slate-400 shadow-sm"
-            />
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-colors border border-slate-100">
-               <Search className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Category / filter row */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mb-12">
-        <div className="flex items-center gap-3">
-          <button className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 shadow-sm flex-shrink-0">
-             <ChevronLeft className="h-5 w-5" />
-          </button>
-          
-          <div className="flex-1 overflow-x-auto hide-scrollbar flex gap-3 py-2 px-1 mask-edges">
-             {categories.map((category) => {
-               const active = selectedCategory === category;
-               return (
-                 <button
-                   key={category}
-                   onClick={() => setSelectedCategory(category)}
-                   className={`whitespace-nowrap px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 border ${
-                     active 
-                       ? 'bg-slate-900 text-white border-slate-900 shadow-md shadow-slate-900/10' 
-                       : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                   }`}
-                 >
-                   {category}
-                 </button>
-               )
-             })}
+          <div className="min-w-0 space-y-6">
+            <LiveHero />
+            <StatStrip />
+            <UpcomingLiveClasses />
+            <RecordedAndCompleted />
           </div>
 
-          <button className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:bg-slate-50 shadow-sm flex-shrink-0">
-             <ChevronRight className="h-5 w-5" />
-          </button>
+          <aside className="space-y-5 min-w-0">
+            <YourNextClass />
+            <WeeklySchedule />
+            <RecentlyUploaded />
+            <ContinueLearning />
+            <PremiumStrip />
+          </aside>
         </div>
       </div>
-
-      {/* 4. Session cards grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-          {getFilteredSessions().map((session) => (
-             <WebinarCard key={session.id} session={session} />
-          ))}
-          {getFilteredSessions().length === 0 && (
-             <div className="col-span-full py-20 text-center">
-                <EditorialPanel variant="flat" className="inline-block px-12 border border-slate-100 bg-white/50">
-                  <EditorialHeader level="h4" className="text-slate-800 font-light mb-2">No live classes match your filters.</EditorialHeader>
-                  <p className="text-slate-500 text-sm">Live classes run weekly — clear a filter to see the full schedule.</p>
-                </EditorialPanel>
-             </div>
-          )}
-        </div>
-      </div>
-
-      {/* 5. Bottom Banner */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 mb-12 relative z-10">
-        <div className="bg-slate-900 rounded-[2.5rem] overflow-hidden border border-slate-800 p-8 md:p-12 relative flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
-           
-           <div className="absolute -top-24 -left-24 w-64 h-64 bg-blue-500/20 blur-3xl rounded-full" />
-           <div className="absolute bottom-12 right-1/4 w-32 h-32 bg-purple-500/20 blur-2xl rounded-full" />
-           <div className="absolute top-10 right-10 flex gap-2 opacity-30">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-           </div>
-
-           <div className="relative z-10 text-center md:text-left">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 block">Influence the Network</span>
-              <h3 className="text-3xl md:text-4xl font-light text-white leading-tight">
-                Want to lead a live session?<br/><span className="font-bold border-b-[3px] border-amber-500/50 pb-1 text-slate-200">Submit your proposal.</span>
-              </h3>
-           </div>
-           
-           <div className="relative z-10 flex-shrink-0">
-              <button className="bg-white hover:bg-slate-100 text-slate-900 rounded-full px-8 py-4 font-bold text-sm tracking-wide transition-colors shadow-lg">
-                Host Masterclass
-              </button>
-           </div>
-        </div>
-      </div>
-
-      <style>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .mask-edges {
-          -webkit-mask-image: linear-gradient(to right, transparent, black 15px, black calc(100% - 15px), transparent);
-          mask-image: linear-gradient(to right, transparent, black 15px, black calc(100% - 15px), transparent);
-        }
-      `}</style>
     </div>
   );
 };
 
 export default LiveSessionsPage;
+
+/* ───────── TOP BAR ───────── */
+const SchoolTopBar: React.FC<{
+  avatarUrl?: string;
+  name?: string;
+  search: string;
+  onSearchChange: (v: string) => void;
+}> = ({ avatarUrl, name, search, onSearchChange }) => (
+  <header className="sticky top-0 z-40 bg-white border-b border-[#EFE7D6]">
+    <div className="mx-auto max-w-[1500px] px-5">
+      <div className="flex items-center gap-6 h-[88px]">
+        <Link to="/" className="flex items-center gap-3 shrink-0 w-[210px]">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${ORANGE}1A` }}>
+            <MapleBookIcon className="w-7 h-7" />
+          </div>
+          <div className="leading-none">
+            <p className="text-[26px] font-extrabold tracking-[0.04em]" style={{ color: NAVY }}>MAPLE</p>
+            <p className="mt-1 text-[10px] font-bold tracking-[0.32em]" style={{ color: NAVY }}>ONLINE SCHOOL</p>
+          </div>
+        </Link>
+
+        <div className="relative flex-1 max-w-[480px]">
+          <Search className="w-4 h-4 absolute left-5 top-1/2 -translate-y-1/2 text-[#A89C82] pointer-events-none" />
+          <input
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search for books, notes, past papers, videos…"
+            className="w-full bg-[#F7F2E8] border border-[#EAE0C9] rounded-full py-3 pl-12 pr-14 text-[13.5px] outline-none placeholder:text-[#A89C82] focus:border-[#C97849] focus:ring-2 focus:ring-[#C97849]/20 transition-all"
+          />
+          <button
+            type="button"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center shadow-md"
+            style={{ backgroundColor: ORANGE }}
+            aria-label="Search"
+          >
+            <Search className="w-4 h-4 text-white" />
+          </button>
+        </div>
+
+        <nav className="hidden xl:flex items-center gap-7">
+          <NavTab label="Library"        href="/library" />
+          <NavTab label="Syllabus"       href="/secondary" />
+          <NavTab label="Live Sessions"  active />
+          <NavTab label="Past Papers" />
+          <NavTab label="Video Lessons" />
+          <NavTab label="Collections" />
+          <NavTab label="My Learning" />
+        </nav>
+
+        <div className="flex items-center gap-3 shrink-0 ml-auto xl:ml-2">
+          <button type="button" className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#F7F2E8]" aria-label="Notifications">
+            <Bell className="w-5 h-5" />
+          </button>
+          <Link to="/dashboard" className="flex items-center gap-2.5 group">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[14px] font-extrabold overflow-hidden shrink-0" style={{ backgroundColor: NAVY }}>
+              {avatarUrl ? <img src={avatarUrl} alt={name || 'Student'} className="w-full h-full object-cover" /> : (name?.[0] || 'M').toUpperCase()}
+            </div>
+            <div className="hidden sm:block leading-tight pr-2">
+              <p className="text-[13px] font-extrabold" style={{ color: NAVY }}>My Account</p>
+              <p className="text-[11px] font-bold" style={{ color: ORANGE }}>Premium</p>
+            </div>
+            <ChevronDown className="w-4 h-4 text-[#A89C82] group-hover:text-[#0B1F35]" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  </header>
+);
+
+const NavTab: React.FC<{ label: string; active?: boolean; href?: string }> = ({ label, active, href }) => {
+  const Tag: any = href ? Link : 'button';
+  const tagProps = href ? { to: href } : { type: 'button' as const };
+  return (
+    <Tag
+      {...tagProps}
+      className="relative inline-flex items-center gap-1 text-[13.5px] font-bold transition-colors"
+      style={{ color: active ? ORANGE : NAVY }}
+    >
+      <span>{label}</span>
+      {active && <span className="absolute -bottom-2 left-0 right-0 h-[3px] rounded-full" style={{ backgroundColor: ORANGE }} />}
+    </Tag>
+  );
+};
+
+const MapleBookIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 32 32" className={className} aria-hidden>
+    <defs>
+      <linearGradient id="m1l" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#0B1F35" />
+        <stop offset="100%" stopColor="#163556" />
+      </linearGradient>
+    </defs>
+    <path d="M5 9 L16 13 L27 9 L27 24 L16 28 L5 24 Z" fill="url(#m1l)" />
+    <path d="M16 13 L16 28" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
+    <path d="M16 7 C 14 4, 11 4, 11 7 C 11 10, 14 11, 16 13 C 18 11, 21 10, 21 7 C 21 4, 18 4, 16 7 Z" fill={ORANGE} />
+  </svg>
+);
+
+/* ───────── SIDEBAR ───────── */
+const SchoolSidebar: React.FC = () => (
+  <aside className="hidden lg:block">
+    <div className="sticky top-[104px] space-y-5 pb-6">
+      <SidebarList items={SIDEBAR_BROWSE} />
+      <SidebarLabeledList label="My Library" items={SIDEBAR_MY_LIBRARY} />
+      <SidebarLabeledList label="Quick Links" items={SIDEBAR_QUICK} />
+
+      <div className="rounded-2xl p-5 text-white shadow-xl" style={{ background: `linear-gradient(160deg, ${NAVY} 0%, #163556 100%)` }}>
+        <div className="flex items-center gap-2">
+          <Crown className="w-4 h-4" style={{ color: ORANGE }} />
+          <p className="text-[13px] font-extrabold">Upgrade to Premium</p>
+        </div>
+        <ul className="mt-3 space-y-1.5">
+          {['Unlimited Live Classes', 'Access All Replays', 'Download Notes', 'Priority Support'].map((t) => (
+            <li key={t} className="flex items-center gap-2 text-[12px] text-slate-200">
+              <Check className="w-3.5 h-3.5 shrink-0" style={{ color: '#7BCFA0' }} />
+              {t}
+            </li>
+          ))}
+        </ul>
+        <button type="button" className="mt-4 w-full rounded-full text-white font-extrabold text-[12px] py-2.5" style={{ backgroundColor: ORANGE }}>
+          Go Premium
+        </button>
+      </div>
+    </div>
+  </aside>
+);
+
+const SidebarList: React.FC<{ items: { label: string; icon: React.ComponentType<{ className?: string }>; active?: boolean; href?: string }[] }> = ({ items }) => (
+  <nav className="space-y-1">
+    {items.map(({ label, icon: Icon, active, href }) => {
+      const cls = `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${active ? 'text-white' : 'text-[#0B1F35] hover:bg-[#F0E9D8]'}`;
+      const style: React.CSSProperties | undefined = active ? { backgroundColor: NAVY } : undefined;
+      const inner = (
+        <>
+          <span className={`w-7 h-7 rounded-md flex items-center justify-center ${active ? 'bg-white/15' : 'bg-[#F0E9D8]'}`}>
+            <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-[#0B1F35]'}`} />
+          </span>
+          {label}
+        </>
+      );
+      if (href) return <Link key={label} to={href} className={cls} style={style}>{inner}</Link>;
+      return <button key={label} type="button" className={cls} style={style}>{inner}</button>;
+    })}
+  </nav>
+);
+
+const SidebarLabeledList: React.FC<{
+  label: string;
+  items: { label: string; icon: React.ComponentType<{ className?: string }> }[];
+}> = ({ label, items }) => (
+  <div>
+    <p className="px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-[#A89C82]">{label}</p>
+    <SidebarList items={items} />
+  </div>
+);
+
+/* ───────── HERO ───────── */
+const LiveHero: React.FC = () => (
+  <section className="relative overflow-hidden rounded-[20px] border bg-white" style={{ borderColor: CARD_BORDER }}>
+    <div aria-hidden className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #FCF1DD 0%, #F7E5C5 60%, #FFFFFF 100%)' }} />
+
+    <div className="relative grid lg:grid-cols-12 gap-6 items-center px-9 lg:px-11 py-9 min-h-[260px]">
+      <div className="lg:col-span-7">
+        <h1 className="text-[40px] lg:text-[44px] leading-[1.05] tracking-tight" style={{ color: NAVY, fontWeight: 700 }}>
+          Attend Live Classes &amp;<br />Rewatch Anytime
+        </h1>
+        <p className="mt-3 max-w-xl text-[14px] leading-relaxed" style={{ color: '#3D4E66' }}>
+          Join interactive live sessions with expert teachers and revisit recordings anytime for better learning.
+        </p>
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button type="button" className="inline-flex items-center gap-2 rounded-full text-white px-5 h-11 text-[13px] font-extrabold shadow-lg" style={{ backgroundColor: NAVY }}>
+            View Weekly Schedule <ChevronRight className="w-4 h-4" />
+          </button>
+          <button type="button" className="inline-flex items-center gap-2 rounded-full bg-white px-5 h-11 text-[13px] font-extrabold border-2" style={{ color: NAVY, borderColor: ORANGE }}>
+            <Play className="w-3.5 h-3.5 fill-current" style={{ color: ORANGE }} /> How Live Classes Work
+          </button>
+        </div>
+      </div>
+
+      <div className="lg:col-span-5 flex justify-center lg:justify-end">
+        <LiveHeroIllustration />
+      </div>
+    </div>
+  </section>
+);
+
+const LiveHeroIllustration: React.FC = () => (
+  <svg viewBox="0 0 380 260" className="w-[340px] lg:w-[380px] h-auto" aria-hidden>
+    <defs>
+      <linearGradient id="laptopL" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#143553" />
+        <stop offset="100%" stopColor="#0B1F35" />
+      </linearGradient>
+      <linearGradient id="screenL" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#1A3358" />
+        <stop offset="100%" stopColor="#0F2440" />
+      </linearGradient>
+      <linearGradient id="capL" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#143553" />
+        <stop offset="100%" stopColor="#0B1F35" />
+      </linearGradient>
+      <linearGradient id="bookL" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#FFFDF7" />
+        <stop offset="100%" stopColor="#F4EAD3" />
+      </linearGradient>
+    </defs>
+
+    {/* Background doodles */}
+    <g opacity="0.22" stroke="#A85F2D" strokeWidth="1.2" fill="none">
+      <circle cx="40" cy="36" r="4" />
+      <path d="M345 28 v 10 M340 33 h 10" />
+      <path d="M22 220 q 14 -8, 28 0" />
+      <circle cx="350" cy="200" r="6" />
+      <path d="M50 244 q 8 -6, 16 0" />
+    </g>
+
+    {/* Laptop */}
+    <rect x="58" y="60" width="240" height="148" rx="8" fill="url(#laptopL)" />
+    <rect x="68" y="70" width="220" height="128" rx="4" fill="url(#screenL)" />
+    {/* Laptop base */}
+    <rect x="40" y="208" width="276" height="14" rx="4" fill="#0F2440" />
+    <rect x="160" y="208" width="40" height="6" rx="2" fill="#091830" />
+
+    {/* LIVE pill on top right of screen */}
+    <rect x="238" y="80" width="40" height="16" rx="3" fill={ORANGE} />
+    <text x="258" y="92" textAnchor="middle" fontSize="9" fontWeight="800" fill="white" fontFamily="Inter, sans-serif">LIVE</text>
+    <circle cx="244" cy="88" r="2" fill="white" />
+
+    {/* Inner play scene */}
+    <circle cx="178" cy="138" r="36" fill="rgba(255,255,255,0.06)" />
+    <circle cx="178" cy="138" r="28" fill="rgba(255,255,255,0.12)" />
+    {/* Play triangle */}
+    <polygon points="170,124 170,152 196,138" fill="white" />
+
+    {/* Tiny teacher avatar bottom-left of screen */}
+    <rect x="76" y="160" width="38" height="32" rx="3" fill="#163556" />
+    <circle cx="95" cy="174" r="6" fill="#FFD9A0" />
+    <rect x="86" y="180" width="18" height="9" rx="2" fill="#0B1F35" />
+
+    {/* Notebook tabs */}
+    <g opacity="0.7">
+      <rect x="234" y="124" width="38" height="34" rx="2" fill="#FFD9A0" />
+      <line x1="240" y1="132" x2="266" y2="132" stroke="#A85F2D" strokeWidth="0.6" />
+      <line x1="240" y1="138" x2="266" y2="138" stroke="#A85F2D" strokeWidth="0.6" />
+      <line x1="240" y1="144" x2="260" y2="144" stroke="#A85F2D" strokeWidth="0.6" />
+      <line x1="240" y1="150" x2="262" y2="150" stroke="#A85F2D" strokeWidth="0.6" />
+      <circle cx="271" cy="128" r="1.5" fill="#A85F2D" />
+      <circle cx="271" cy="138" r="1.5" fill="#A85F2D" />
+      <circle cx="271" cy="148" r="1.5" fill="#A85F2D" />
+    </g>
+
+    {/* Graduation cap on left */}
+    <polygon points="60,228 138,228 99,212" fill="url(#capL)" />
+    <rect x="80" y="230" width="38" height="6" fill="url(#capL)" />
+    <line x1="99" y1="212" x2="99" y2="206" stroke={ORANGE} strokeWidth="2" />
+    <circle cx="99" cy="204" r="3" fill={ORANGE} />
+
+    {/* Open book front-right */}
+    <path d="M204 232 L292 220 L292 248 L204 252 Z" fill="url(#bookL)" stroke="#A85F2D" strokeWidth="0.8" />
+    <path d="M292 220 L350 232 L350 252 L292 248 Z" fill="url(#bookL)" stroke="#A85F2D" strokeWidth="0.8" />
+    <line x1="292" y1="220" x2="292" y2="248" stroke="#A85F2D" strokeWidth="0.6" />
+    {[230, 236, 242].map((y) => (
+      <React.Fragment key={y}>
+        <line x1="216" y1={y} x2="288" y2={y - 4} stroke="#A85F2D" strokeWidth="0.4" opacity="0.55" />
+        <line x1="296" y1={y - 4} x2="346" y2={y} stroke="#A85F2D" strokeWidth="0.4" opacity="0.55" />
+      </React.Fragment>
+    ))}
+
+    {/* Pencil holder right */}
+    <rect x="318" y="146" width="38" height="60" rx="3" fill="#FFFFFF" stroke="#A85F2D" strokeWidth="1.2" />
+    <rect x="324" y="120" width="5" height="32" fill="#E0925F" />
+    <polygon points="324,120 329,120 326,112" fill="#0B1F35" />
+    <rect x="333" y="115" width="5" height="38" fill="#143553" />
+    <polygon points="333,115 338,115 335,108" fill="#A85F2D" />
+    <rect x="342" y="124" width="5" height="29" fill="#A85F2D" />
+    <polygon points="342,124 347,124 344,116" fill="#0B1F35" />
+  </svg>
+);
+
+/* ───────── STATS ───────── */
+const StatStrip: React.FC = () => (
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+    {STATS.map(({ value, label, sub, icon: Icon, accent }) => (
+      <div key={label} className="rounded-2xl bg-white border px-4 py-3.5 flex items-center gap-3" style={{ borderColor: CARD_BORDER }}>
+        <span className="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: `${accent}1A` }}>
+          <Icon className="w-5 h-5" style={{ color: accent }} />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[22px] font-extrabold leading-none" style={{ color: NAVY }}>{value}</p>
+          <p className="mt-1 text-[12px] font-extrabold" style={{ color: NAVY }}>{label}</p>
+          <p className="text-[10.5px] font-semibold text-[#7B7058]">{sub}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+/* ───────── UPCOMING LIVE CLASSES ───────── */
+const UpcomingLiveClasses: React.FC = () => {
+  const [filter, setFilter] = useState<'Today' | 'This Week' | 'All Classes'>('Today');
+  const FILTERS = ['Today', 'This Week', 'All Classes'] as const;
+  return (
+    <section>
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <h2 className="text-[20px] font-extrabold" style={{ color: NAVY }}>Upcoming Live Classes</h2>
+        <div className="flex items-center gap-1.5 ml-2">
+          {FILTERS.map((f) => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFilter(f)}
+              className="px-3 py-1.5 rounded-full text-[11.5px] font-extrabold transition-colors"
+              style={filter === f ? { backgroundColor: NAVY, color: 'white' } : { backgroundColor: 'white', color: NAVY, border: `1px solid ${CARD_BORDER}` }}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <FilterPill label="All Subjects" />
+          <FilterPill label="All Levels" />
+          <button type="button" className="text-[12.5px] font-extrabold inline-flex items-center gap-0.5" style={{ color: ORANGE }}>
+            View Full Schedule <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="rounded-2xl bg-white border divide-y" style={{ borderColor: CARD_BORDER }}>
+        {UPCOMING.map((c) => (
+          <UpcomingRow key={c.id} c={c} />
+        ))}
+      </div>
+
+      <div className="text-center mt-3">
+        <button type="button" className="inline-flex items-center gap-1 text-[12.5px] font-extrabold" style={{ color: ORANGE }}>
+          View All Upcoming Classes <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </section>
+  );
+};
+
+const FilterPill: React.FC<{ label: string }> = ({ label }) => (
+  <button type="button" className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[11.5px] font-bold border" style={{ color: NAVY, borderColor: CARD_BORDER }}>
+    {label} <ChevronDown className="w-3 h-3" />
+  </button>
+);
+
+const UpcomingRow: React.FC<{ c: UpcomingClass }> = ({ c }) => {
+  const tile = SUBJECT_TILE[c.subjectKey];
+  const Icon = tile.icon;
+  const isLive = c.status === 'LIVE';
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[1.6fr,1.2fr,1fr,0.8fr,1fr,0.7fr,auto] gap-3 lg:gap-4 items-center px-4 py-3.5">
+      <div className="flex items-center gap-3 min-w-0">
+        <span className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: tile.bg }}>
+          <Icon className="w-5 h-5" style={{ color: tile.ink }} />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[13px] font-extrabold leading-tight" style={{ color: NAVY }}>{c.subject}</p>
+          <p className="text-[11.5px] font-semibold text-[#7B7058] truncate">{c.topic}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 min-w-0">
+        <img src={c.teacherImg} alt={c.teacher} className="w-7 h-7 rounded-full object-cover shrink-0" />
+        <p className="text-[12px] font-bold truncate" style={{ color: NAVY }}>{c.teacher}</p>
+      </div>
+      <p className="text-[12px] font-bold inline-flex items-center gap-1.5" style={{ color: NAVY }}>
+        <Calendar className="w-3.5 h-3.5" style={{ color: ORANGE }} /> {c.date}
+      </p>
+      <p className="text-[12px] font-bold inline-flex items-center gap-1.5" style={{ color: NAVY }}>
+        <Clock className="w-3.5 h-3.5" style={{ color: ORANGE }} /> {c.time}
+      </p>
+      <p className="text-[11.5px] font-semibold text-[#7B7058]">{c.level.split(' ').slice(0, 1).join(' ')}<br /><span className="font-bold" style={{ color: NAVY }}>{c.level.split(' ').slice(1).join(' ')}</span></p>
+      <span className="inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-[10px] font-extrabold tracking-wider" style={isLive ? { backgroundColor: '#E5F6EC', color: '#1B7B49' } : { backgroundColor: '#FCEFD8', color: ORANGE }}>
+        {c.status}
+      </span>
+      <button type="button" className="rounded-md text-white text-[12px] font-extrabold px-4 py-2 shrink-0" style={{ backgroundColor: NAVY }}>
+        Join Class
+      </button>
+    </div>
+  );
+};
+
+/* ───────── RECORDED & COMPLETED ───────── */
+const RecordedAndCompleted: React.FC = () => (
+  <section>
+    <div className="flex items-end justify-between mb-3">
+      <div>
+        <h2 className="text-[20px] font-extrabold" style={{ color: NAVY }}>Recorded &amp; Completed Lessons</h2>
+        <p className="text-[12.5px]" style={{ color: '#7B7058' }}>Rewatch previous classes and strengthen your understanding.</p>
+      </div>
+      <button type="button" className="inline-flex items-center gap-0.5 text-[12.5px] font-extrabold" style={{ color: ORANGE }}>
+        View All Replays <ChevronRight className="w-3.5 h-3.5" />
+      </button>
+    </div>
+
+    <div className="relative">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {RECORDED.map((r) => <RecordedCard key={r.id} r={r} />)}
+      </div>
+      <button type="button" className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white border items-center justify-center shadow-md" aria-label="Next" style={{ borderColor: CARD_BORDER }}>
+        <ChevronRight className="w-4 h-4" style={{ color: NAVY }} />
+      </button>
+    </div>
+
+    <div className="text-center mt-3">
+      <button type="button" className="inline-flex items-center gap-1 text-[12.5px] font-extrabold" style={{ color: ORANGE }}>
+        View All Upcoming Classes <ChevronRight className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  </section>
+);
+
+const RecordedCard: React.FC<{ r: RecordedLesson }> = ({ r }) => {
+  const tile = SUBJECT_TILE[r.subjectKey];
+  const Icon = tile.icon;
+  const thumbBg: Record<SubjectKey, string> = {
+    math:       'linear-gradient(135deg, #1F4030 0%, #152C22 100%)',
+    english:    'linear-gradient(135deg, #5C2222 0%, #3F1414 100%)',
+    biology:    'linear-gradient(135deg, #1F4030 0%, #152C22 100%)',
+    chemistry:  'linear-gradient(135deg, #2A1A4D 0%, #1A0F33 100%)',
+    ict:        'linear-gradient(135deg, #15294A 0%, #0B1A33 100%)',
+    literature: 'linear-gradient(135deg, #5C2222 0%, #3F1414 100%)',
+    physics:    'linear-gradient(135deg, #15294A 0%, #0B1A33 100%)',
+  };
+  return (
+    <article className="rounded-xl bg-white border overflow-hidden hover:shadow-md transition-shadow" style={{ borderColor: CARD_BORDER }}>
+      <div className="relative aspect-[16/10] overflow-hidden" style={{ backgroundImage: thumbBg[r.subjectKey] }}>
+        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.18),transparent_60%)]" />
+        <div className="absolute top-2 left-2 flex items-center gap-1.5">
+          <span className="w-7 h-7 rounded-md flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.18)' }}>
+            <Icon className="w-3.5 h-3.5 text-white" />
+          </span>
+          <span className="text-[10px] font-extrabold tracking-wider text-white">{r.subject}</span>
+        </div>
+        <div className="absolute inset-x-2 bottom-2">
+          <p className="text-[12px] font-extrabold leading-tight text-white line-clamp-2" style={{ fontFamily: 'Fraunces, serif' }}>{r.title}</p>
+        </div>
+        <span className="absolute bottom-2 right-2 inline-flex items-center rounded-md bg-black/45 backdrop-blur-sm text-white text-[9.5px] font-extrabold px-1.5 py-0.5">
+          {r.duration}
+        </span>
+      </div>
+      <div className="px-3 pt-2 pb-2.5">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-5 h-5 rounded-full bg-slate-200 shrink-0" />
+          <p className="text-[10.5px] font-bold truncate" style={{ color: NAVY }}>{r.teacher}</p>
+        </div>
+        <div className="flex gap-1.5">
+          <button type="button" className="flex-1 rounded-md text-[10.5px] font-extrabold border py-1.5 inline-flex items-center justify-center gap-1" style={{ color: NAVY, borderColor: CARD_BORDER }}>
+            <Play className="w-3 h-3 fill-current" /> Watch Replay
+          </button>
+          <button type="button" className="flex-1 rounded-md text-[10.5px] font-extrabold border py-1.5 inline-flex items-center justify-center gap-1" style={{ color: NAVY, borderColor: CARD_BORDER }}>
+            <DownloadIcon className="w-3 h-3" /> Notes
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+};
+
+/* ───────── RIGHT RAIL ───────── */
+const YourNextClass: React.FC = () => (
+  <section className="rounded-2xl bg-white border p-5" style={{ borderColor: CARD_BORDER }}>
+    <div className="flex items-center justify-between mb-3">
+      <h3 className="text-[14.5px] font-extrabold" style={{ color: NAVY }}>Your Next Class</h3>
+      <button type="button" className="text-[11.5px] font-extrabold" style={{ color: ORANGE }}>View All</button>
+    </div>
+    <p className="text-[11px] font-bold tracking-[0.18em] uppercase" style={{ color: '#7B7058' }}>Starts in</p>
+    <div className="mt-2 flex items-center gap-3">
+      <CountdownChunk value="00" label="HRS" />
+      <span className="text-[24px] font-extrabold" style={{ color: NAVY }}>:</span>
+      <CountdownChunk value="45" label="MINS" />
+      <span className="text-[24px] font-extrabold" style={{ color: NAVY }}>:</span>
+      <CountdownChunk value="30" label="SECS" />
+    </div>
+
+    <div className="mt-4 pt-4 border-t" style={{ borderColor: CARD_BORDER }}>
+      <p className="text-[14px] font-extrabold" style={{ color: NAVY, fontFamily: 'Fraunces, serif' }}>Mathematics</p>
+      <p className="text-[12px] font-semibold text-[#7B7058]">Quadratic Equations &amp; Graphs</p>
+      <div className="mt-3 flex items-center gap-2">
+        <img src="https://i.pravatar.cc/80?img=12" alt="Mr. Daniel Smith" className="w-6 h-6 rounded-full" />
+        <p className="text-[12px] font-bold" style={{ color: NAVY }}>Mr. Daniel Smith</p>
+      </div>
+      <p className="mt-2 text-[11.5px] font-bold inline-flex items-center gap-1.5" style={{ color: NAVY }}>
+        <Calendar className="w-3.5 h-3.5" style={{ color: ORANGE }} /> Today, May 21 • 09:00 AM
+      </p>
+    </div>
+
+    <button type="button" className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-md text-white py-2.5 text-[12.5px] font-extrabold" style={{ backgroundColor: NAVY }}>
+      <Video className="w-4 h-4" /> Join Class Now
+    </button>
+  </section>
+);
+
+const CountdownChunk: React.FC<{ value: string; label: string }> = ({ value, label }) => (
+  <div className="text-center">
+    <p className="text-[28px] font-extrabold leading-none tracking-tight" style={{ color: NAVY }}>{value}</p>
+    <p className="mt-0.5 text-[9px] font-bold tracking-[0.18em]" style={{ color: '#7B7058' }}>{label}</p>
+  </div>
+);
+
+const WeeklySchedule: React.FC = () => (
+  <section className="rounded-2xl bg-white border p-5" style={{ borderColor: CARD_BORDER }}>
+    <div className="flex items-center justify-between mb-3">
+      <h3 className="text-[14.5px] font-extrabold" style={{ color: NAVY }}>Weekly Schedule</h3>
+      <button type="button" className="text-[11.5px] font-extrabold" style={{ color: ORANGE }}>View Calendar</button>
+    </div>
+    <ul className="space-y-1.5">
+      {WEEKLY_SCHEDULE.map((d) => {
+        const today = d.state === 'today';
+        return (
+          <li
+            key={d.day + d.date}
+            className="flex items-center gap-3 px-2.5 py-2 rounded-lg"
+            style={today ? { backgroundColor: '#FCEFD8' } : undefined}
+          >
+            <p className="text-[12.5px] font-extrabold w-[58px] shrink-0" style={{ color: today ? ORANGE : NAVY }}>{d.day}</p>
+            <p className="text-[12px] font-bold flex-1" style={{ color: today ? ORANGE : '#7B7058' }}>{d.date}</p>
+            <p className="text-[11.5px] font-extrabold" style={{ color: NAVY }}>{d.count}</p>
+            {d.state === 'done' && (
+              <span className="w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: '#E5F6EC' }}>
+                <Check className="w-3 h-3" style={{ color: '#1B7B49' }} />
+              </span>
+            )}
+            {d.state === 'today' && <span className="w-2 h-2 rounded-full" style={{ backgroundColor: ORANGE }} />}
+            {d.state === 'future' && <ChevronRight className="w-4 h-4" style={{ color: '#A89C82' }} />}
+          </li>
+        );
+      })}
+    </ul>
+  </section>
+);
+
+const RecentlyUploaded: React.FC = () => (
+  <section className="rounded-2xl bg-white border p-5" style={{ borderColor: CARD_BORDER }}>
+    <div className="flex items-center justify-between mb-3">
+      <h3 className="text-[14.5px] font-extrabold" style={{ color: NAVY }}>Recently Uploaded</h3>
+      <button type="button" className="text-[11.5px] font-extrabold" style={{ color: ORANGE }}>View All</button>
+    </div>
+    <ul className="space-y-3">
+      {RECENTLY_UPLOADED.map((r) => {
+        const tile = SUBJECT_TILE[r.subjectKey];
+        const Icon = tile.icon;
+        return (
+          <li key={r.title} className="flex items-center gap-3">
+            <span className="w-9 h-10 rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: tile.bg }}>
+              <Icon className="w-4 h-4" style={{ color: tile.ink }} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[12px] font-extrabold leading-tight" style={{ color: NAVY }}>{r.subject}: {r.title}</p>
+              <p className="mt-0.5 text-[10.5px] font-semibold text-[#7B7058]">{r.meta}</p>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  </section>
+);
+
+const ContinueLearning: React.FC = () => (
+  <section className="rounded-2xl bg-white border p-5" style={{ borderColor: CARD_BORDER }}>
+    <div className="flex items-center justify-between mb-3">
+      <h3 className="text-[14.5px] font-extrabold" style={{ color: NAVY }}>Continue Learning</h3>
+      <button type="button" className="text-[11.5px] font-extrabold" style={{ color: ORANGE }}>View All</button>
+    </div>
+    <div className="flex items-center gap-3">
+      <span className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: SUBJECT_TILE.chemistry.bg }}>
+        <Play className="w-4 h-4 fill-current" style={{ color: SUBJECT_TILE.chemistry.ink }} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: '#7B7058' }}>Chemistry</p>
+        <p className="text-[12.5px] font-extrabold" style={{ color: NAVY }}>Chemical Reactions</p>
+        <progress
+          value={65}
+          max={100}
+          className="mt-1.5 block w-full h-1.5 rounded-full overflow-hidden appearance-none [&::-webkit-progress-bar]:bg-slate-100 [&::-webkit-progress-bar]:rounded-full [&::-webkit-progress-value]:bg-[#0B1F35] [&::-webkit-progress-value]:rounded-full [&::-moz-progress-bar]:bg-[#0B1F35]"
+        />
+        <p className="mt-1 text-[10.5px] font-extrabold" style={{ color: NAVY }}>65% Complete</p>
+      </div>
+    </div>
+  </section>
+);
+
+const PremiumStrip: React.FC = () => (
+  <section className="rounded-2xl border flex items-center gap-3 px-4 py-3" style={{ borderColor: CARD_BORDER, backgroundColor: '#FFF7ED' }}>
+    <span className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: `${ORANGE}26` }}>
+      <Crown className="w-4 h-4" style={{ color: ORANGE }} />
+    </span>
+    <div className="min-w-0 flex-1">
+      <p className="text-[12.5px] font-extrabold leading-tight" style={{ color: NAVY }}>Go Premium for Unlimited Access</p>
+      <p className="text-[10.5px] font-semibold leading-tight text-[#7B7058]">Unlock all live classes, replays, notes and premium resources.</p>
+    </div>
+    <button type="button" className="rounded-md text-white text-[11px] font-extrabold px-3 py-1.5 shrink-0" style={{ backgroundColor: NAVY }}>
+      Upgrade Now
+    </button>
+  </section>
+);

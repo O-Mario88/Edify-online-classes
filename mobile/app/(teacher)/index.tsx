@@ -3,9 +3,9 @@ import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { AppScreen } from '@/components/AppScreen';
-import { ProfileHeader } from '@/components/ProfileHeader';
+import { ProfileHeader, HomeHero } from '@/components/ProfileHeader';
+import { SectionHeader } from '@/components/SectionHeader';
 import { QuickActionGrid, type QuickAction } from '@/components/QuickActionGrid';
-import { LocaleStrip } from '@/components/LocaleStrip';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { teacherApi, type TeacherHomePayload } from '@/api/teacher.api';
 import { useAuthStore } from '@/auth/authStore';
@@ -48,27 +48,31 @@ export default function TeacherHome() {
     rating: 0,
   };
 
+  // Six primary teacher actions in a 2x3 grid. Today and Earnings are
+  // already on the bottom tab bar; Reviews has its own tab; so those
+  // don't need to duplicate here.
   const actions = useMemo<QuickAction[]>(() => [
-    { key: 'note',       label: 'Publish note',  glyph: '📝', tint: 'indigo',  onPress: () => router.push('/(teacher)/quick-note' as any) },
-    { key: 'grading',    label: 'Grading',       glyph: '✅', tint: 'emerald', onPress: () => router.push('/(teacher)/grading' as any), badge: kpis.pending_reviews },
-    { key: 'questions',  label: 'Questions',     glyph: '🙋', tint: 'amber',   onPress: () => router.push('/(teacher)/questions' as any), badge: kpis.student_questions },
-    { key: 'reviews',    label: 'Reviews',       glyph: '📂', tint: 'rose',    onPress: () => router.push('/(teacher)/reviews' as any) },
-    { key: 'standby',    label: 'Standby',       glyph: '🟢', tint: 'teal',    onPress: () => router.push('/(teacher)/availability' as any) },
-    { key: 'shop',       label: 'Storefront',    glyph: '🏪', tint: 'orange',  onPress: () => router.push('/(teacher)/storefront' as any) },
-    { key: 'earnings',   label: 'Earnings',      glyph: '💰', tint: 'purple',  onPress: () => router.push('/(teacher)/earnings' as any) },
-    { key: 'today',      label: 'Today',         glyph: '🎥', tint: 'blue',    onPress: () => router.push('/(teacher)/today' as any) },
+    { key: 'note',      label: 'Publish note', glyph: '📝', tint: 'indigo',  onPress: () => router.push('/(teacher)/quick-note' as any) },
+    { key: 'grading',   label: 'Grading',      glyph: '✅', tint: 'emerald', onPress: () => router.push('/(teacher)/grading' as any), badge: kpis.pending_reviews },
+    { key: 'questions', label: 'Questions',    glyph: '🙋', tint: 'amber',   onPress: () => router.push('/(teacher)/questions' as any), badge: kpis.student_questions },
+    { key: 'standby',   label: 'Standby',      glyph: '🟢', tint: 'teal',    onPress: () => router.push('/(teacher)/availability' as any) },
+    { key: 'shop',      label: 'Storefront',   glyph: '🏪', tint: 'orange',  onPress: () => router.push('/(teacher)/storefront' as any) },
+    { key: 'upgrade',   label: 'Upgrade',      glyph: '✨', tint: 'purple',  onPress: () => router.push('/(teacher)/upgrade' as any) },
   ], [router, kpis.pending_reviews, kpis.student_questions]);
 
   return (
     <>
       <AppScreen>
-      <LocaleStrip />
       <ProfileHeader
-        greeting="Welcome back"
         name={firstName}
-        subtitle="Teaching · Maple"
         unreadCount={kpis.student_questions || 0}
         onNotificationsPress={() => router.push('/(teacher)/notifications' as any)}
+      />
+      <HomeHero
+        eyebrow="Welcome back,"
+        name={firstName}
+        emoji="👋"
+        subtitle="Teaching · Maple"
       />
 
       <View className="px-5 mt-3">
@@ -81,7 +85,7 @@ export default function TeacherHome() {
         </View>
       </View>
 
-      <View className="mt-7 pl-5">
+      <View className="mt-7 px-5">
         <SectionLabel>Quick actions</SectionLabel>
         <QuickActionGrid actions={actions} />
       </View>

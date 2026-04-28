@@ -1,17 +1,16 @@
 import React from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
-import { shadows } from '@/theme';
+import { View, Text, Pressable } from 'react-native';
+import { colors, fontSize, fontWeight, palette, radius, shadows, space } from '@/theme';
 
 export interface QuickAction {
   key: string;
   label: string;
-  /** Emoji glyph rendered as the tile icon disc. */
+  /** Emoji glyph rendered inside the circular icon disc. */
   glyph: string;
-  /** Tint family for the icon disc only — the tile face stays white so
-   *  the row reads premium-minimal, not noisy. */
+  /** Tint family for the icon disc. */
   tint: 'indigo' | 'emerald' | 'rose' | 'amber' | 'purple' | 'blue' | 'orange' | 'teal' | 'pink';
   onPress?: () => void;
-  /** Tiny rose badge in the corner ("3" overdue, etc.). */
+  /** Tiny rose badge in the disc corner ("3" overdue, etc.). */
   badge?: number;
 }
 
@@ -19,67 +18,132 @@ interface QuickActionGridProps {
   actions: QuickAction[];
 }
 
-const TINT: Record<QuickAction['tint'], string> = {
-  indigo:  'bg-indigo-100',
-  emerald: 'bg-emerald-100',
-  rose:    'bg-rose-100',
-  amber:   'bg-amber-100',
-  purple:  'bg-purple-100',
-  blue:    'bg-blue-100',
-  orange:  'bg-orange-100',
-  teal:    'bg-teal-100',
-  pink:    'bg-pink-100',
+const TINT: Record<QuickAction['tint'], { bg: string; fg: string }> = {
+  indigo:  { bg: palette.indigo[50],  fg: palette.indigo[700]  },
+  emerald: { bg: palette.emerald[50], fg: palette.emerald[800] },
+  rose:    { bg: palette.rose[50],    fg: palette.rose[800]    },
+  amber:   { bg: palette.amber[50],   fg: palette.amber[800]   },
+  purple:  { bg: palette.purple[50],  fg: palette.purple[800]  },
+  blue:    { bg: palette.indigo[50],  fg: palette.indigo[700]  },
+  orange:  { bg: palette.orange[50],  fg: palette.orange[800]  },
+  teal:    { bg: palette.teal[50],    fg: palette.teal[800]    },
+  pink:    { bg: palette.rose[50],    fg: palette.rose[800]    },
 };
 
 /**
- * Two-row horizontal grid of premium-minimal action tiles.
+ * Quick-action grid rendered as one elevated card containing the tiles
+ * — not as a row of separate floating tiles. Inspired by the "Doctors
+ * specialty" pattern: a single white surface holds a row (or grid) of
+ * circular icon discs each labelled below. Reads tighter and more
+ * premium than the previous floating-tile approach.
  *
- * Each tile is a white card with a small coloured icon disc — colour
- * lives in the disc, not the tile face, so the strip reads calm and
- * scannable. Inspired by the school-app "favourites" board but
- * restrained closer to the planner reference: white cards, soft
- * shadow, breathable spacing.
+ * Layout adapts to the action count:
+ *   - 1–4 actions: a single row inside the card
+ *   - 5–6 actions: 2 rows × 3 columns inside the card
+ *   - 7+: wraps onto extra rows (3-col grid)
+ *
+ * Pagination dots aren't drawn here — when a future variant adds a
+ * "next page of actions" surface, dots can render outside the card.
  */
 export const QuickActionGrid: React.FC<QuickActionGridProps> = ({ actions }) => {
-  const top = actions.filter((_, i) => i % 2 === 0);
-  const bottom = actions.filter((_, i) => i % 2 === 1);
-
+  if (actions.length === 0) return null;
+  const cols = actions.length <= 4 ? actions.length : 3;
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingRight: 12 }}
+    <View
+      style={{
+        backgroundColor: colors.surface.raised,
+        borderRadius: radius.cardLg,
+        paddingVertical: space.md,
+        paddingHorizontal: space.sm,
+        ...shadows.sm,
+      }}
     >
-      <View>
-        <View className="flex-row mb-3">
-          {top.map((a) => <Tile key={a.key} action={a} />)}
-        </View>
-        <View className="flex-row">
-          {bottom.map((a) => <Tile key={a.key} action={a} />)}
-        </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+        }}
+      >
+        {actions.map((a) => (
+          <View
+            key={a.key}
+            style={{
+              width: `${100 / cols}%`,
+              paddingVertical: space.xs,
+            }}
+          >
+            <Tile action={a} />
+          </View>
+        ))}
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
-const Tile: React.FC<{ action: QuickAction }> = ({ action }) => (
-  <Pressable
-    onPress={action.onPress}
-    accessibilityRole="button"
-    accessibilityLabel={action.label}
-    className="w-24 h-24 rounded-2xl bg-white mr-3 p-3 items-start justify-between relative"
-    style={shadows.sm}
-  >
-    <View className={`w-10 h-10 rounded-xl ${TINT[action.tint]} items-center justify-center`}>
-      <Text className="text-lg">{action.glyph}</Text>
-    </View>
-    <Text numberOfLines={2} className="text-xs font-bold leading-tight text-slate-800">
-      {action.label}
-    </Text>
-    {(action.badge ?? 0) > 0 && (
-      <View className="absolute top-2 right-2 min-w-[18px] h-[18px] rounded-full bg-rose-500 px-1 items-center justify-center">
-        <Text className="text-[10px] font-bold text-white">{(action.badge ?? 0) > 9 ? '9+' : action.badge}</Text>
+const Tile: React.FC<{ action: QuickAction }> = ({ action }) => {
+  const tint = TINT[action.tint];
+  const badge = action.badge ?? 0;
+  return (
+    <Pressable
+      onPress={action.onPress}
+      accessibilityRole="button"
+      accessibilityLabel={action.label}
+      style={({ pressed }) => [
+        {
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          opacity: pressed ? 0.7 : 1,
+        },
+      ]}
+    >
+      <View
+        style={{
+          width: 56,
+          height: 56,
+          borderRadius: 28,
+          backgroundColor: tint.bg,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Text style={{ fontSize: 26 }}>{action.glyph}</Text>
+        {badge > 0 && (
+          <View
+            style={{
+              position: 'absolute',
+              top: -2,
+              right: -2,
+              minWidth: 20,
+              height: 20,
+              borderRadius: 10,
+              paddingHorizontal: 6,
+              backgroundColor: palette.rose[700],
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 2,
+              borderColor: colors.surface.raised,
+            }}
+          >
+            <Text style={{ color: colors.text.onBrand, fontSize: 10, fontWeight: fontWeight.bold as any }}>
+              {badge > 9 ? '9+' : badge}
+            </Text>
+          </View>
+        )}
       </View>
-    )}
-  </Pressable>
-);
+      <Text
+        numberOfLines={2}
+        style={{
+          marginTop: 8,
+          fontSize: fontSize.xs,
+          fontWeight: fontWeight.semibold as any,
+          color: colors.text.body,
+          textAlign: 'center',
+          lineHeight: fontSize.xs * 1.3,
+          maxWidth: 76,
+        }}
+      >
+        {action.label}
+      </Text>
+    </Pressable>
+  );
+};

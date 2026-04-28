@@ -1,6 +1,8 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { colors, palette, radius, shadows } from '@/theme';
+import { PaywallGate } from '@/components/PaywallGate';
 
 /**
  * Parent bottom-tab layout. Same floating-pill chrome as the student
@@ -18,30 +20,27 @@ const ICON_MAP: Record<string, [keyof typeof Ionicons.glyphMap, keyof typeof Ion
 
 export default function ParentLayout() {
   return (
+    <PaywallGate>
     <Tabs
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarShowLabel: true,
-        tabBarActiveTintColor: '#0F2A45',
-        tabBarInactiveTintColor: '#94A3B8',
+        tabBarActiveTintColor: colors.brand.primary,
+        tabBarInactiveTintColor: palette.slate[400],
         tabBarStyle: {
           position: 'absolute',
           left: 16,
           right: 16,
           bottom: 16,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: colors.surface.raised,
           borderTopWidth: 0,
-          borderRadius: 28,
+          borderRadius: radius.sheet,
           height: 68,
           paddingTop: 10,
           paddingBottom: 10,
-          elevation: 8,
-          shadowColor: '#0F172A',
-          shadowOpacity: 0.10,
-          shadowRadius: 12,
-          shadowOffset: { width: 0, height: 6 },
+          ...shadows.lg,
         },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '700', marginTop: 2 },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '700', marginTop: 2, letterSpacing: 0.2 },
         tabBarIcon: ({ focused, color }) => {
           const pair = ICON_MAP[route.name];
           if (!pair) return null;
@@ -70,5 +69,6 @@ export default function ParentLayout() {
         <Tabs.Screen key={name} name={name} options={{ href: null }} />
       ))}
     </Tabs>
+    </PaywallGate>
   );
 }

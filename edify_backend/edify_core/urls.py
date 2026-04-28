@@ -27,14 +27,15 @@ from marketplace.views import ListingViewSet
 from ai_services.views import CopilotInferenceView
 from institutions.views import InstitutionViewSet, InstitutionMembershipViewSet, LearnerRegistrationViewSet, AdminPinResetView
 from classes.views import ClassViewSet, ClassEnrollmentViewSet
-from scheduling.views import TimetableSlotViewSet
+from scheduling.views import TimetableSlotViewSet, AcademicTermViewSet, RoomViewSet
 from attendance.views import DailyRegisterViewSet, LessonAttendanceViewSet
 from grading.views import SubjectGradeViewSet, ReportCardViewSet, GradeRecordViewSet
 from analytics.views import AnalyticsEventViewSet, DailyPlatformMetricViewSet, DailyInstitutionMetricViewSet, SubjectPerformanceSnapshotViewSet, SystemHealthSnapshotViewSet, StudentDashboardView, TeacherDashboardView, ParentDashboardView, AdminDashboardView, InstitutionDashboardView, CustomerSuccessChurnView
+from analytics.admin_ops import AdminSyncDataView, AdminLogsListView, AdminLogsClearView
 from assessments.views import AssessmentWindowViewSet, AssessmentViewSet, QuestionViewSet, SubmissionViewSet
 from discussions.views import ThreadViewSet, PostViewSet
 from exams.views import ExamCenterViewSet, CandidateRegistrationViewSet, SubjectSelectionViewSet, BoardSubmissionBatchViewSet
-from lessons.views import LessonViewSet, LessonNoteViewSet, LessonRecordingViewSet, LessonAttendanceViewSet
+from lessons.views import LessonViewSet, LessonNoteViewSet, LessonRecordingViewSet, LessonAttendanceViewSet, TeacherNoteViewSet
 from live_sessions.views import LiveSessionViewSet, SessionReminderViewSet
 from notifications.views import NotificationViewSet
 from parent_portal.views import ParentStudentLinkViewSet, WeeklySummaryViewSet, RiskAlertViewSet
@@ -90,6 +91,8 @@ router.register(r'institutions/learner-registrations', LearnerRegistrationViewSe
 router.register(r'classes', ClassViewSet, basename='class')
 router.register(r'class-enrollments', ClassEnrollmentViewSet, basename='class-enrollment')
 router.register(r'scheduling/timetable', TimetableSlotViewSet, basename='timetable-slot')
+router.register(r'scheduling/terms', AcademicTermViewSet, basename='academic-term')
+router.register(r'scheduling/rooms', RoomViewSet, basename='scheduling-room')
 router.register(r'attendance/daily', DailyRegisterViewSet, basename='daily-register')
 router.register(r'attendance/lesson', LessonAttendanceViewSet, basename='lesson-attendance')
 router.register(r'grading/subjects', SubjectGradeViewSet, basename='subject-grade')
@@ -117,6 +120,7 @@ router.register(r'exams/board-submission-batch', BoardSubmissionBatchViewSet, ba
 router.register(r'lessons/lesson', LessonViewSet, basename='lessons-lesson')
 router.register(r'lessons/lesson-note', LessonNoteViewSet, basename='lessons-lesson-note')
 router.register(r'lessons/lesson-recording', LessonRecordingViewSet, basename='lessons-lesson-recording')
+router.register(r'lessons/teacher-notes', TeacherNoteViewSet, basename='lessons-teacher-notes')
 router.register(r'lessons/lesson-attendance', LessonAttendanceViewSet, basename='lessons-lesson-attendance')
 router.register(r'live-sessions/live-session', LiveSessionViewSet, basename='live_sessions-live-session')
 router.register(r'live-sessions/session-reminder', SessionReminderViewSet, basename='live_sessions-session-reminder')
@@ -218,6 +222,12 @@ urlpatterns = [
     # Pilot feedback capture — see docs/PILOT.md.
     path('api/v1/feedback/', PilotFeedbackCreateView.as_view(), name='pilot-feedback'),
     path('api/v1/feedback/inbox/', PilotFeedbackInboxView.as_view(), name='pilot-feedback-inbox'),
+
+    # Platform-admin operations — backs the AdminDashboard sync /
+    # logs / clear-logs controls. Admin role gate enforced in views.
+    path('api/v1/admin/sync-data/', AdminSyncDataView.as_view(), name='admin-sync-data'),
+    path('api/v1/admin/logs/', AdminLogsListView.as_view(), name='admin-logs-list'),
+    path('api/v1/admin/logs/clear/', AdminLogsClearView.as_view(), name='admin-logs-clear'),
     
     # Custom dashboard routes
     path('api/v1/analytics/student-dashboard/', StudentDashboardView.as_view(), name='student_dashboard_api'),

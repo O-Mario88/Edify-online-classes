@@ -5,6 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from pilot_payments.permissions import IsActiveSubscription
 
 from apps.curriculum.stage_filter import filter_queryset_by_stage
 from .models import ExamSimulation, ExamSimulationAttempt, MistakeNotebookEntry
@@ -23,7 +24,7 @@ def _readiness_band(pct: float) -> str:
 
 
 class ExamSimulationViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
     lookup_field = 'slug'
     serializer_class = ExamCardSerializer
 
@@ -61,7 +62,7 @@ class ExamSimulationViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ExamAttemptViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
     serializer_class = AttemptSerializer
 
     def get_queryset(self):
@@ -121,7 +122,7 @@ class ExamAttemptViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class MistakeNotebookViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
     serializer_class = MistakeEntrySerializer
 
     def get_queryset(self):
@@ -146,7 +147,7 @@ class MistakeNotebookViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ReadinessReportView(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     @action(detail=False, methods=['get'], url_path='summary')
     def summary(self, request):

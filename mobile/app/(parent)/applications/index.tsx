@@ -70,7 +70,7 @@ export default function ApplicationsScreen() {
           />
           <View className="mt-4">
             <Pressable
-              onPress={() => router.push('/(student)/school-match' as any)}
+              onPress={() => router.push('/(parent)/school-match' as any)}
               accessibilityRole="button"
               accessibilityLabel="Open school match"
               className="rounded-3xl p-4 flex-row items-center"
@@ -97,7 +97,7 @@ export default function ApplicationsScreen() {
                 <ApplicationCard
                   key={String(a.id)}
                   a={a}
-                  onPress={() => router.push(`/(student)/school-match/${a.institution}` as any)}
+                  onPress={() => router.push(`/(parent)/apply?institution=${a.institution}` as any)}
                 />
               ))}
             </Section>
@@ -108,7 +108,7 @@ export default function ApplicationsScreen() {
                 <ApplicationCard
                   key={String(a.id)}
                   a={a}
-                  onPress={() => router.push(`/(student)/school-match/${a.institution}` as any)}
+                  onPress={() => router.push(`/(parent)/apply?institution=${a.institution}` as any)}
                 />
               ))}
             </Section>

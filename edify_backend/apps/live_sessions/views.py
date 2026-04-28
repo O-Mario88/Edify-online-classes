@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status, exceptions
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from pilot_payments.permissions import IsActiveSubscription
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import LiveSession, SessionReminder, MissedSessionRecovery
@@ -18,7 +19,7 @@ class TenantFilterMixin:
 
 class LiveSessionViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     serializer_class = LiveSessionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         inst_ids = self.get_user_institutions()
@@ -91,7 +92,7 @@ class LiveSessionViewSet(TenantFilterMixin, viewsets.ModelViewSet):
 
 class SessionReminderViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     serializer_class = SessionReminderSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         inst_ids = self.get_user_institutions()
@@ -108,7 +109,7 @@ class MissedSessionRecoveryViewSet(viewsets.ModelViewSet):
     """
     serializer_class = MissedSessionRecoverySerializer
     # Was AllowAny — session recovery records expose who missed which class.
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         qs = MissedSessionRecovery.objects.select_related(

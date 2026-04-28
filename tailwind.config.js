@@ -18,6 +18,7 @@ module.exports = {
 		extend: {
 			fontFamily: {
 				sans: ['Inter', 'sans-serif'],
+				serif: ['Fraunces', 'ui-serif', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

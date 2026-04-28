@@ -3,11 +3,12 @@ import os
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from pilot_payments.permissions import IsActiveSubscription
 from django.conf import settings
 from .models import AIJob
 
 class CopilotInferenceView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get(self, request):
         jobs = AIJob.objects.filter(requestor=request.user).order_by('-created_at')[:20]
@@ -134,7 +135,7 @@ class StudyBuddyConversationsListView(APIView):
     """GET /api/v1/study-buddy/conversations/ — list the caller's
     Study Buddy threads, newest first. Limited to 50 to keep mobile
     payloads small."""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get(self, request, *args, **kwargs):
         from .models import StudyBuddyConversation
@@ -148,7 +149,7 @@ class StudyBuddyConversationsListView(APIView):
 class StudyBuddyConversationDetailView(APIView):
     """GET /api/v1/study-buddy/conversations/<id>/ — full message list
     for a single thread the caller owns."""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get(self, request, conversation_id: int, *args, **kwargs):
         from rest_framework import status as http_status
@@ -174,7 +175,7 @@ class StudyBuddyAskView(APIView):
     the caller's account (title derived from the first message).
     Returns the assistant message + an updated conversation snapshot.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def post(self, request, *args, **kwargs):
         from rest_framework import status as http_status

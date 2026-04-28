@@ -3,11 +3,31 @@ from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 from .models import UpgradeRequest, PremiumAccess
 from .serializers import UpgradeRequestSerializer, PremiumAccessSerializer, ReviewSerializer
+from .access import compute_access_status
 from notifications.utils import notify
+
+
+class AccessStatusView(APIView):
+    """GET /api/v1/access/status/ — single source of truth for the
+    paywall decision. The mobile + webapp `useAccess()` hooks query
+    this on app boot and on every protected-route navigation, then
+    render the paywall screen when has_active_access is False.
+
+    Authenticated. Returns the computed access status payload —
+    has_active_access, expires_at, days_remaining, scope (personal /
+    institution / staff), and the lock_reason so the client can
+    surface the right copy ("Subscribe to unlock", "Your access
+    expired", "Awaiting admin approval").
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response(compute_access_status(request.user))
 
 
 class UpgradeRequestViewSet(viewsets.ModelViewSet):

@@ -377,9 +377,35 @@ class InsightStoryCard(models.Model):
     
     impact_level = models.CharField(max_length=20, choices=[('high', 'High'), ('medium', 'Medium'), ('low', 'Low')])
     category = models.CharField(max_length=50) # 'dormancy', 'outcome', 'resource'
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return f"[{self.scope}] {self.title}"
+
+
+class SystemLog(models.Model):
+    """Append-only system log surfaced on the platform-admin dashboard.
+    Cleared via the AdminLogsView "clear" action — entries older than
+    the cutoff are deleted, the model itself is preserved.
+    """
+    LEVEL_CHOICES = [
+        ('info', 'Info'),
+        ('warning', 'Warning'),
+        ('error', 'Error'),
+        ('critical', 'Critical'),
+    ]
+    id = models.BigAutoField(primary_key=True)
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='info')
+    message = models.TextField()
+    source = models.CharField(max_length=100, blank=True, help_text='module / job / view that emitted the log')
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['level', 'created_at'])]
+
+    def __str__(self):
+        return f'[{self.level.upper()}] {self.message[:60]}'
 

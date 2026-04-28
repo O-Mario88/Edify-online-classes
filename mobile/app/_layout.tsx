@@ -1,5 +1,5 @@
 import '../global.css';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -38,6 +38,10 @@ const RouteGuard: React.FC<React.PropsWithChildren> = ({ children }) => {
   const segments = useSegments();
   const { status, user } = useAuth();
   const appConfig = useAppConfig();
+  // True once the cold-start splash has played its full ~5 s
+  // choreography (zoom-in → hold → zoom-out). Until then the splash
+  // covers the app regardless of auth state.
+  const [splashDone, setSplashDone] = useState(false);
   // Wire push-notification taps into the navigator so a tap on a
   // "Live class starts in 10 minutes" banner opens /(student)/live.
   useNotificationRouting();
@@ -58,9 +62,20 @@ const RouteGuard: React.FC<React.PropsWithChildren> = ({ children }) => {
     }
   }, [status, segments, user?.role, router, appConfig.gate]);
 
-  // Branded launch screen during the brief refresh-token + app-config
-  // boot. Replaces the previous blank state so the user sees the
-  // Maple mark + breathing animation rather than nothing.
+  // First-launch splash — runs once on cold start regardless of auth
+  // state. The screen plays a 5-second logo-only choreography (zoom
+  // in → hold → zoom out) then flips splashDone to true. While the
+  // splash is on screen, auth and app-config calls are running in
+  // parallel underneath, so by the time it dismisses the route guard
+  // already knows where to send the user.
+  if (!splashDone) {
+    return <LaunchScreen onComplete={() => setSplashDone(true)} />;
+  }
+
+  // After the cold-start splash, fall back to the same launch screen
+  // (without a timer) for the brief auth/config-refresh state. The
+  // logo idles instead of running its exit animation; the route
+  // guard above swaps it out as soon as status resolves.
   if (status === 'loading' || appConfig.gate === 'loading') {
     return <LaunchScreen />;
   }

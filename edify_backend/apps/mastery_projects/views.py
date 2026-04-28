@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from pilot_payments.permissions import IsActiveSubscription
 
 from institutions.models import InstitutionMembership
 
@@ -23,17 +24,36 @@ def _is_reviewer(user) -> bool:
                     'institution_admin', 'platform_admin')
 
 
-class MasteryProjectViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+class MasteryProjectViewSet(viewsets.ModelViewSet):
+    """Browse + author mastery projects. Create / update / delete
+    restricted to teachers + platform admins."""
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
     lookup_field = 'slug'
 
     def get_queryset(self):
-        return MasteryProject.objects.filter(is_published=True).select_related(
-            'subject', 'class_level', 'topic',
-        )
+        qs = MasteryProject.objects.select_related('subject', 'class_level', 'topic')
+        if self.action in ('list', 'retrieve'):
+            user = self.request.user
+            if user and user.is_authenticated:
+                return qs.filter(is_published=True) | qs.filter(created_by=user)
+            return qs.filter(is_published=True)
+        return qs
 
     def get_serializer_class(self):
         return ProjectDetailSerializer if self.action == 'retrieve' else ProjectCardSerializer
+
+    def get_permissions(self):
+        if self.action in ('create', 'update', 'partial_update', 'destroy'):
+            return [IsAuthenticated()]
+        return super().get_permissions()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        role = (getattr(user, 'role', '') or '').lower()
+        if not (user.is_staff or 'teacher' in role or 'admin' in role):
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Only teachers and admins can author mastery projects.')
+        serializer.save(created_by=user)
 
     @action(detail=True, methods=['post'], url_path='start-submission')
     def start_submission(self, request, slug=None):
@@ -47,7 +67,7 @@ class MasteryProjectViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ProjectSubmissionViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
     serializer_class = SubmissionSerializer
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     http_method_names = ['get', 'post', 'patch', 'head', 'options']

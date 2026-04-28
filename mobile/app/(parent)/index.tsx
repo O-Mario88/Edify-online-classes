@@ -11,7 +11,7 @@ import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { ErrorState } from '@/components/ErrorState';
 import { EmptyState } from '@/components/EmptyState';
 import { QuickActionGrid, type QuickAction } from '@/components/QuickActionGrid';
-import { LocaleStrip } from '@/components/LocaleStrip';
+import { ProfileHeader, HomeHero } from '@/components/ProfileHeader';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { parentApi, type ParentHomePayload } from '@/api/parent.api';
 import { useAuthStore } from '@/auth/authStore';
@@ -68,25 +68,29 @@ export default function ParentHome() {
   const child = data?.selected_child ?? null;
   const childFirstName = child?.name?.split(' ')[0] || 'your child';
 
+  // Six primary actions in a 2x3 grid (the apply / support / weak-topics
+  // surfaces are also linked from the weekly brief card and the school-
+  // match section, but having them one tap away from the home is worth
+  // the extra row).
   const quickActions = useMemo<QuickAction[]>(() => [
-    { key: 'message',  label: 'Message',     glyph: '💬', tint: 'blue',    onPress: () => router.push('/(parent)/messages' as any) },
-    { key: 'remind',   label: 'Remind',      glyph: '🔔', tint: 'amber',   onPress: () => router.push('/(parent)/remind' as any) },
-    { key: 'reports',  label: 'Reports',     glyph: '📄', tint: 'indigo',  onPress: () => router.push('/(parent)/reports' as any) },
-    { key: 'pay',      label: 'Pay',         glyph: '💳', tint: 'emerald', onPress: () => router.push('/(parent)/pay' as any) },
-    { key: 'weak',     label: 'Weak topics', glyph: '🎯', tint: 'rose',    onPress: () => router.push('/(parent)/progress' as any) },
-    { key: 'support',  label: 'Support',     glyph: '🤝', tint: 'teal',    onPress: () => router.push('/(parent)/support' as any) },
-    { key: 'apply',    label: 'Apply',       glyph: '🏫', tint: 'orange',  onPress: () => router.push('/(parent)/apply' as any) },
-    { key: 'invites',  label: 'Invitations', glyph: '✉️', tint: 'pink',    onPress: () => router.push('/(parent)/invitations' as any) },
+    { key: 'message', label: 'Message', glyph: '💬', tint: 'indigo',  onPress: () => router.push('/(parent)/messages' as any) },
+    { key: 'remind',  label: 'Remind',  glyph: '🔔', tint: 'amber',   onPress: () => router.push('/(parent)/remind' as any) },
+    { key: 'pay',     label: 'Pay',     glyph: '💳', tint: 'emerald', onPress: () => router.push('/(parent)/pay' as any) },
+    { key: 'reports', label: 'Reports', glyph: '📄', tint: 'purple',  onPress: () => router.push('/(parent)/reports' as any) },
+    { key: 'support', label: 'Support', glyph: '🤝', tint: 'teal',    onPress: () => router.push('/(parent)/support' as any) },
+    { key: 'apply',   label: 'Apply',   glyph: '🏫', tint: 'orange',  onPress: () => router.push('/(parent)/apply' as any) },
   ], [router]);
 
   return (
     <>
       <AppScreen onRefresh={onRefresh} refreshing={refreshing}>
-      <LocaleStrip />
-      <View className="px-5 pt-3 pb-3">
-        <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Maple</Text>
-        <Text className="text-2xl font-extrabold text-slate-900">Hi, {firstName}</Text>
-      </View>
+      <ProfileHeader name={firstName} />
+      <HomeHero
+        eyebrow="Hi,"
+        name={firstName}
+        emoji="👋"
+        subtitle={child ? `${childFirstName}'s week` : 'Family overview'}
+      />
 
       <View className="px-5">
         {homeQuery.isLoading && !data ? (
@@ -113,9 +117,8 @@ export default function ParentHome() {
         ) : null}
       </View>
 
-      {/* Quick actions — full-bleed so the 7-tile horizontal scroll has room. */}
       {data && (
-        <View className="mt-5 pl-5">
+        <View className="mt-5 px-5">
           <Text className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-3">Quick actions</Text>
           <QuickActionGrid actions={quickActions} />
         </View>

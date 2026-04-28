@@ -70,8 +70,9 @@ export const palette = {
   orange:   { 50: '#FFEDD5', 100: '#FED7AA', 700: '#C2410C', 800: '#9A3412', 900: '#7C2D12' },
   purple:   { 50: '#EDE9FE', 100: '#DDD6FE', 700: '#6D28D9', 800: '#5B21B6', 900: '#4C1D95' },
 
-  /** Brand canvas — soft warm-cool gradient base. */
-  canvas: '#F4F6F9',
+  /** Brand canvas — soft cool-blue gradient base, slightly tinted away
+   *  from neutral so cards lift with subtle elevation against it. */
+  canvas: '#EEF1F6',
 } as const;
 
 // ── Semantic tokens ────────────────────────────────────────────────

@@ -3,7 +3,8 @@ import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { AppScreen } from '@/components/AppScreen';
-import { ProfileHeader } from '@/components/ProfileHeader';
+import { ProfileHeader, HomeHero } from '@/components/ProfileHeader';
+import { SectionHeader } from '@/components/SectionHeader';
 import { QuickActionGrid, type QuickAction } from '@/components/QuickActionGrid';
 import { DayPillSelector } from '@/components/DayPillSelector';
 import { TimelineScheduleRow } from '@/components/TimelineScheduleRow';
@@ -17,7 +18,6 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { studentApi, type StudentHomePayload } from '@/api/student.api';
 import { useAuthStore } from '@/auth/authStore';
 import { LowDataBanner } from '@/components/LowDataBanner';
-import { LocaleStrip } from '@/components/LocaleStrip';
 import { OnboardingTour } from '@/components/OnboardingTour';
 import { useOnboardingTour } from '@/onboarding/useOnboardingTour';
 
@@ -70,27 +70,30 @@ export default function StudentHome() {
   const firstName = (user?.full_name || data?.user?.full_name || 'there').split(' ')[0];
   const stageLabel = (data?.user?.stage || (user as any)?.stage) === 'primary' ? 'Primary · P4–P7' : 'Secondary · S1–S6';
 
+  // Four primary actions only. The other surfaces (AI Buddy, Ask
+  // Teacher, Mastery, Passport) are already promoted as full cards
+  // further down the page — duplicating them here makes the dashboard
+  // feel busy without adding utility.
   const quickActions = useMemo<QuickAction[]>(() => [
-    { key: 'live',     label: 'Live',         glyph: '🎥', tint: 'blue',    onPress: () => router.push('/(student)/live' as any) },
-    { key: 'tasks',    label: 'Tasks',        glyph: '📋', tint: 'amber',   onPress: () => router.push('/(student)/tasks' as any), badge: data?.kpis?.overdue_work || 0 },
-    { key: 'practice', label: 'Practice',     glyph: '🧪', tint: 'emerald', onPress: () => router.push('/(student)/practice' as any) },
-    { key: 'mastery',  label: 'Mastery',      glyph: '🎯', tint: 'rose',    onPress: () => router.push('/(student)/mastery' as any) },
-    { key: 'library',  label: 'Library',      glyph: '📚', tint: 'purple',  onPress: () => router.push('/(student)/learn' as any) },
-    { key: 'passport', label: 'Passport',     glyph: '🏅', tint: 'orange',  onPress: () => router.push('/(student)/passport' as any) },
-    { key: 'buddy',    label: 'AI Buddy',     glyph: '✨', tint: 'indigo',  onPress: () => router.push('/(student)/ai-buddy' as any) },
-    { key: 'ask',      label: 'Ask teacher',  glyph: '🤝', tint: 'teal',    onPress: () => router.push('/(student)/ask-teacher' as any) },
+    { key: 'live',     label: 'Live',     glyph: '🎥', tint: 'indigo',  onPress: () => router.push('/(student)/live' as any) },
+    { key: 'tasks',    label: 'Tasks',    glyph: '📋', tint: 'amber',   onPress: () => router.push('/(student)/tasks' as any), badge: data?.kpis?.overdue_work || 0 },
+    { key: 'practice', label: 'Practice', glyph: '🧪', tint: 'emerald', onPress: () => router.push('/(student)/practice' as any) },
+    { key: 'library',  label: 'Library',  glyph: '📚', tint: 'purple',  onPress: () => router.push('/(student)/learn' as any) },
   ], [router, data?.kpis?.overdue_work]);
 
   return (
     <>
       <AppScreen onRefresh={onRefresh} refreshing={refreshing}>
-      <LocaleStrip />
       <ProfileHeader
-        greeting="Welcome back"
         name={firstName}
-        subtitle={stageLabel}
         unreadCount={data?.kpis?.overdue_work || 0}
         onNotificationsPress={() => router.push('/(student)/notifications' as any)}
+      />
+      <HomeHero
+        eyebrow="Welcome back,"
+        name={firstName}
+        emoji="👋"
+        subtitle={stageLabel}
       />
       <LowDataBanner />
 
@@ -121,29 +124,29 @@ export default function StudentHome() {
           )}
 
           {/* 4. Quick actions */}
-          <View className="mt-7 pl-5">
-            <SectionLabel>Quick actions</SectionLabel>
+          <View className="mt-7 px-5">
+            <SectionHeader title="Quick actions" />
             <QuickActionGrid actions={quickActions} />
           </View>
 
           {/* 5. My standing */}
           <View className="px-5 mt-7">
-            <View className="flex-row items-end justify-between mb-3">
-              <SectionLabel className="mb-0">My standing</SectionLabel>
-              <Pressable onPress={() => router.push('/(student)/progress' as any)}>
-                <Text className="text-xs font-bold text-maple-900">Weekly →</Text>
-              </Pressable>
-            </View>
+            <SectionHeader
+              title="My standing"
+              seeAllLabel="Weekly"
+              onSeeAllPress={() => router.push('/(student)/progress' as any)}
+            />
             <KpiStrip kpis={data.kpis} />
           </View>
 
           {/* 6. Mastery tracks */}
           <View className="mt-7 pl-5">
-            <View className="flex-row items-end justify-between pr-5 mb-3">
-              <SectionLabel className="mb-0">Mastery tracks</SectionLabel>
-              <Pressable onPress={() => router.push('/(student)/mastery' as any)}>
-                <Text className="text-xs font-bold text-maple-900">View all →</Text>
-              </Pressable>
+            <View className="pr-5">
+              <SectionHeader
+                title="Mastery tracks"
+                seeAllLabel="See all"
+                onSeeAllPress={() => router.push('/(student)/mastery' as any)}
+              />
             </View>
             <MasteryStrip
               overall={data.kpis.overall_progress}
@@ -163,24 +166,22 @@ export default function StudentHome() {
           </View>
 
           <View className="px-5 mt-6">
-            <View className="flex-row items-end justify-between mb-3">
-              <SectionLabel className="mb-0">Today's plan</SectionLabel>
-              <Pressable onPress={() => router.push('/(student)/study-plan' as any)}>
-                <Text className="text-xs font-bold text-maple-900">Full plan →</Text>
-              </Pressable>
-            </View>
+            <SectionHeader
+              title="Today's plan"
+              seeAllLabel="Full plan"
+              onSeeAllPress={() => router.push('/(student)/study-plan' as any)}
+            />
             <TodayPlanTimeline tasks={data.today_tasks || []} />
           </View>
 
           {/* 8. Next live class */}
           {data.next_live_session && (
             <View className="px-5 mt-7">
-              <View className="flex-row items-end justify-between mb-3">
-                <SectionLabel className="mb-0">Next live class</SectionLabel>
-                <Pressable onPress={() => router.push('/(student)/live' as any)}>
-                  <Text className="text-xs font-bold text-maple-900">Calendar →</Text>
-                </Pressable>
-              </View>
+              <SectionHeader
+                title="Next live class"
+                seeAllLabel="Calendar"
+                onSeeAllPress={() => router.push('/(student)/live' as any)}
+              />
               <LiveClassCard
                 title={data.next_live_session.title}
                 subject={data.next_live_session.subject}
@@ -194,12 +195,11 @@ export default function StudentHome() {
           {/* 9. Upcoming work */}
           {data.upcoming_assignments && data.upcoming_assignments.length > 0 && (
             <View className="px-5 mt-7">
-              <View className="flex-row items-end justify-between mb-3">
-                <SectionLabel className="mb-0">Upcoming work</SectionLabel>
-                <Pressable onPress={() => router.push('/(student)/tasks' as any)}>
-                  <Text className="text-xs font-bold text-maple-900">All tasks →</Text>
-                </Pressable>
-              </View>
+              <SectionHeader
+                title="Upcoming work"
+                seeAllLabel="All tasks"
+                onSeeAllPress={() => router.push('/(student)/tasks' as any)}
+              />
               {data.upcoming_assignments.slice(0, 3).map((a) => (
                 <AssignmentCard
                   key={a.id}
@@ -212,23 +212,21 @@ export default function StudentHome() {
 
           {/* 10. Discover — Practice Lab + Exam Simulator */}
           <View className="px-5 mt-7">
-            <SectionLabel>Discover</SectionLabel>
-            <View className="flex-row -mx-1.5">
+            <SectionHeader title="Discover" />
+            <View style={{ flexDirection: 'row', gap: 12 }}>
               <DiscoverCard
                 icon="flask-outline"
-                tintBg="#D1FAE5"
-                tintFg="#065F46"
+                tone="emerald"
                 eyebrow="Practice Lab"
-                title="Sharpen the topics from this week."
+                title="Sharpen this week's topics"
                 cta="Start a 10-min lab"
                 onPress={() => router.push('/(student)/practice' as any)}
               />
               <DiscoverCard
                 icon="reader-outline"
-                tintBg="#E0E7FF"
-                tintFg="#3730A3"
+                tone="indigo"
                 eyebrow="Exam Simulator"
-                title="Sit a real-format mock and see your band."
+                title="Sit a real-format mock"
                 cta="Open simulator"
                 onPress={() => router.push('/(student)/exam-sim' as any)}
               />
@@ -242,12 +240,11 @@ export default function StudentHome() {
 
           {/* 12. Achievements */}
           <View className="px-5 mt-7">
-            <SectionLabel>Achievements</SectionLabel>
-            <View className="flex-row -mx-1.5">
+            <SectionHeader title="Achievements" />
+            <View style={{ flexDirection: 'row', gap: 12 }}>
               <AchievementCard
                 icon="medal-outline"
-                tintBg="#FFEDD5"
-                tintFg="#9A3412"
+                tone="orange"
                 title="Certificates"
                 count={data.kpis.assessments_completed || 0}
                 hint="earned this term"
@@ -255,8 +252,7 @@ export default function StudentHome() {
               />
               <AchievementCard
                 icon="ribbon-outline"
-                tintBg="#FEF3C7"
-                tintFg="#92400E"
+                tone="amber"
                 title="Passport"
                 count={null}
                 hint="Verified record"
@@ -423,39 +419,52 @@ const TodayPlanTimeline: React.FC<{ tasks: StudentHomePayload['today_tasks'] }> 
   );
 };
 
+type DiscoverTone = 'indigo' | 'emerald' | 'amber' | 'orange' | 'rose' | 'teal' | 'purple';
+
+const TONE_TINT: Record<DiscoverTone, { bg: string; fg: string }> = {
+  indigo:  { bg: '#E0E7FF', fg: '#3730A3' },
+  emerald: { bg: '#D1FAE5', fg: '#065F46' },
+  amber:   { bg: '#FEF3C7', fg: '#92400E' },
+  orange:  { bg: '#FFEDD5', fg: '#9A3412' },
+  rose:    { bg: '#FFE4E6', fg: '#9F1239' },
+  teal:    { bg: '#CCFBF1', fg: '#115E59' },
+  purple:  { bg: '#EDE9FE', fg: '#5B21B6' },
+};
+
 const DiscoverCard: React.FC<{
   icon: keyof typeof Ionicons.glyphMap;
-  tintBg: string;
-  tintFg: string;
+  tone: DiscoverTone;
   eyebrow: string;
   title: string;
   cta: string;
   onPress?: () => void;
-}> = ({ icon, tintBg, tintFg, eyebrow, title, cta, onPress }) => (
-  <View className="flex-1 px-1.5">
+}> = ({ icon, tone, eyebrow, title, cta, onPress }) => {
+  const tint = TONE_TINT[tone];
+  return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={eyebrow}
-      className="bg-white rounded-3xl p-4 h-full"
-      style={cardShadow}
+      className="flex-1 bg-white rounded-3xl p-4"
+      style={[cardShadow, { minHeight: 168 }]}
     >
       <View
         className="w-10 h-10 rounded-2xl items-center justify-center mb-3"
-        style={{ backgroundColor: tintBg }}
+        style={{ backgroundColor: tint.bg }}
       >
-        <Ionicons name={icon} size={20} color={tintFg} />
+        <Ionicons name={icon} size={20} color={tint.fg} />
       </View>
-      <Text className="text-[10px] font-bold uppercase tracking-wider" style={{ color: tintFg }}>
+      <Text className="text-[10px] font-bold uppercase tracking-wider" style={{ color: tint.fg }}>
         {eyebrow}
       </Text>
       <Text numberOfLines={2} className="text-sm font-bold text-slate-900 mt-1 leading-snug">
         {title}
       </Text>
+      <View style={{ flex: 1 }} />
       <Text className="text-xs font-bold text-maple-900 mt-3">{cta} →</Text>
     </Pressable>
-  </View>
-);
+  );
+};
 
 const AiBuddyCard: React.FC<{ onPress?: () => void }> = ({ onPress }) => (
   <Pressable
@@ -479,26 +488,26 @@ const AiBuddyCard: React.FC<{ onPress?: () => void }> = ({ onPress }) => (
 
 const AchievementCard: React.FC<{
   icon: keyof typeof Ionicons.glyphMap;
-  tintBg: string;
-  tintFg: string;
+  tone: DiscoverTone;
   title: string;
   count: number | null;
   hint: string;
   onPress?: () => void;
-}> = ({ icon, tintBg, tintFg, title, count, hint, onPress }) => (
-  <View className="flex-1 px-1.5">
+}> = ({ icon, tone, title, count, hint, onPress }) => {
+  const tint = TONE_TINT[tone];
+  return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={title}
-      className="bg-white rounded-3xl p-4"
-      style={cardShadow}
+      className="flex-1 bg-white rounded-3xl p-4"
+      style={[cardShadow, { minHeight: 144 }]}
     >
       <View
         className="w-10 h-10 rounded-2xl items-center justify-center mb-3"
-        style={{ backgroundColor: tintBg }}
+        style={{ backgroundColor: tint.bg }}
       >
-        <Ionicons name={icon} size={20} color={tintFg} />
+        <Ionicons name={icon} size={20} color={tint.fg} />
       </View>
       <Text className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{title}</Text>
       {count !== null ? (
@@ -508,8 +517,8 @@ const AchievementCard: React.FC<{
       )}
       <Text className="text-xs text-slate-500 mt-0.5">{hint}</Text>
     </Pressable>
-  </View>
-);
+  );
+};
 
 const MistakeNotebookCard: React.FC<{ onPress?: () => void }> = ({ onPress }) => (
   <Pressable

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { GraduationCap } from 'lucide-react';
 import { AICopilotWidget } from './copilot/AICopilotWidget';
@@ -7,10 +7,42 @@ import { TopNavbar } from './navigation/TopNavbar';
 
 export const Layout: React.FC = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  // Pages that own their own top navigation. Suppressing the global
+  // TopNavbar on these routes avoids stacking two headers and lets the
+  // page wear its own brand chrome.
+  // Pages that own their own top navigation. Suppressing the global
+  // TopNavbar on these routes avoids stacking two headers and lets the
+  // page wear its own brand chrome.
+  const path = location.pathname;
+  const ownsNav =
+    path === '/' ||
+    path.startsWith('/library') ||
+    path.startsWith('/secondary') ||
+    path === '/primary' ||
+    path === '/primary/' || // primary syllabus owns its own chrome (deeper /primary/* routes keep the global nav)
+    path === '/classes' ||
+    path === '/classes/' ||
+    path.startsWith('/live-sessions') ||
+    path.startsWith('/peer-learning') ||
+    path.startsWith('/syllabus') ||
+    /\/subject\/[^/]+$/.test(path) || // /classes/:classId/subject/:subjectId — topical arrangement page
+    path.startsWith('/learn') || // unified content reader (notes / textbooks / topics)
+    path.startsWith('/exercises') || // assessment / exercise page owns its own chrome
+    path.startsWith('/projects') || // projects workspace owns its own chrome
+    path.startsWith('/video-lessons') || // video lesson player owns its own chrome
+    path === '/dashboard/admin' ||
+    path === '/dashboard/admin/' ||
+    path === '/dashboard/parent' ||
+    path === '/dashboard/parent/';
+
+  // Pages that ship their own footer (and therefore don't want the
+  // global Maple Online School footer stacked underneath).
+  const ownsFooter = path.startsWith('/peer-learning');
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <TopNavbar />
+      {!ownsNav && <TopNavbar />}
 
       {/* Main Content */}
       <main>
@@ -18,6 +50,7 @@ export const Layout: React.FC = () => {
       </main>
 
       {/* Footer */}
+      {!ownsFooter && (
       <footer className="bg-[#0f2a45] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           {/* Main Footer Grid */}
@@ -84,7 +117,8 @@ export const Layout: React.FC = () => {
           </div>
         </div>
       </footer>
-      
+      )}
+
       {/* AI Copilot Widget */}
       {user?.role === 'universal_student' && <AICopilotWidget />}
     </div>
