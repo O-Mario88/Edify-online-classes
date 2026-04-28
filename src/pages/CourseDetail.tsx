@@ -189,10 +189,10 @@ export const CourseDetail: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#fbfaf8] font-sans pb-24 relative">
       <div 
-        className="fixed inset-0 bg-cover bg-center opacity-[0.4] pointer-events-none"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.4] pointer-events-none"
         style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
       />
-      <div className="fixed inset-0 bg-white/40 pointer-events-none" />
+      <div className="absolute inset-0 bg-white/40 pointer-events-none" />
 
       {/* Breadcrumb Area */}
       <div className="relative z-10 pt-8 pb-4 border-b border-white mix-blend-multiply">

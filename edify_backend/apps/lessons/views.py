@@ -1,6 +1,7 @@
-from rest_framework import viewsets, exceptions
+from rest_framework import viewsets, exceptions, serializers as drf_serializers
 from rest_framework.permissions import IsAuthenticated
-from .models import Lesson, LessonNote, LessonRecording, LessonAttendance, LessonInstance, LessonVerificationRecord
+from pilot_payments.permissions import IsActiveSubscription
+from .models import Lesson, LessonNote, LessonRecording, LessonAttendance, LessonInstance, LessonVerificationRecord, TeacherNote
 from .serializers import LessonSerializer, LessonNoteSerializer, LessonRecordingSerializer, LessonAttendanceSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -18,7 +19,7 @@ class TenantFilterMixin:
 
 class LessonViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     serializer_class = LessonSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['parent_class', 'topic', 'access_mode']
 
@@ -37,7 +38,7 @@ class LessonViewSet(TenantFilterMixin, viewsets.ModelViewSet):
 
 class LessonNoteViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     serializer_class = LessonNoteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         inst_ids = self.get_user_institutions()
@@ -48,7 +49,7 @@ class LessonNoteViewSet(TenantFilterMixin, viewsets.ModelViewSet):
 
 class LessonRecordingViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     serializer_class = LessonRecordingSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         inst_ids = self.get_user_institutions()
@@ -59,7 +60,7 @@ class LessonRecordingViewSet(TenantFilterMixin, viewsets.ModelViewSet):
 
 class LessonAttendanceViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     serializer_class = LessonAttendanceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         inst_ids = self.get_user_institutions()
@@ -71,7 +72,7 @@ class LessonAttendanceViewSet(TenantFilterMixin, viewsets.ModelViewSet):
 class LessonInstanceViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     queryset = LessonInstance.objects.select_related('timetable_slot', 'verification_record').all()
     # Assuming user defined a serializer or we can just bypass for standard actions
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     @action(detail=True, methods=['post'])
     def acknowledge(self, request, pk=None):
@@ -143,5 +144,53 @@ class LessonInstanceViewSet(TenantFilterMixin, viewsets.ModelViewSet):
         record.status = 'completed'
         record.linked_assignment = assignment
         record.save()
-        
+
         return Response({"status": "completed", "verified": True})
+
+
+class TeacherNoteSerializer(drf_serializers.ModelSerializer):
+    teacher_name = drf_serializers.CharField(source='teacher.full_name', read_only=True)
+
+    class Meta:
+        model = TeacherNote
+        fields = ('id', 'teacher', 'teacher_name', 'class_scope', 'title', 'body', 'photo_url', 'created_at')
+        read_only_fields = ('id', 'teacher', 'teacher_name', 'created_at')
+
+
+class TeacherNoteViewSet(viewsets.ModelViewSet):
+    """POST /api/v1/lessons/teacher-notes/  → publish a free-form note
+    GET  /api/v1/lessons/teacher-notes/  → list notes the caller can see
+
+    Teachers see notes they authored. Students see notes addressed to
+    classes they're enrolled in plus the notes their teachers
+    published with `class_scope=null` (visible to every student that
+    teacher teaches).
+    """
+    serializer_class = TeacherNoteSerializer
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
+
+    def get_queryset(self):
+        from classes.models import ClassEnrollment
+        user = self.request.user
+        role = (getattr(user, 'role', '') or '').lower()
+        if 'teacher' in role or user.is_staff:
+            return TeacherNote.objects.filter(teacher=user).select_related('teacher', 'class_scope')
+        # Students: notes scoped to their enrolled classes OR notes
+        # from those classes' teachers with no class_scope set.
+        enrolled_class_ids = ClassEnrollment.objects.filter(
+            student=user, status='active',
+        ).values_list('enrolled_class_id', flat=True)
+        teacher_ids = Lesson.objects.filter(
+            parent_class_id__in=enrolled_class_ids,
+        ).values_list('parent_class__teacher_id', flat=True).distinct()
+        return TeacherNote.objects.filter(
+            Q(class_scope_id__in=enrolled_class_ids)
+            | Q(class_scope__isnull=True, teacher_id__in=teacher_ids)
+        ).select_related('teacher', 'class_scope').order_by('-created_at')
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        role = (getattr(user, 'role', '') or '').lower()
+        if not (user.is_staff or 'teacher' in role):
+            raise exceptions.PermissionDenied('Only teachers can publish notes.')
+        serializer.save(teacher=user)

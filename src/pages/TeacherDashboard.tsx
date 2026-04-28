@@ -23,6 +23,9 @@ import { TeacherGrowthPassport } from '../components/teachers/TeacherGrowthPassp
 import { IndependentEarningsIntelligence } from '../components/teachers/IndependentEarningsIntelligence';
 import { TeacherCompetitionLeaderboards } from '../components/teachers/TeacherCompetitionLeaderboards';
 import { TeacherPayoutStatusCard } from '../components/teachers/TeacherPayoutStatusCard';
+import { MarkingQueuePanel } from '../components/teachers/MarkingQueuePanel';
+import { OperationalKpiRow } from '../components/dashboard/OperationalKpiRow';
+import { TodayHero } from '../components/dashboard/TodayHero';
 
 import { DashboardGrid } from '../components/dashboard/layout/DashboardGrid';
 import { DashboardSection } from '../components/dashboard/layout/DashboardSection';
@@ -33,6 +36,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { toast } from 'sonner';
 import { 
   BookOpen, 
   Calendar, 
@@ -73,6 +77,7 @@ interface TeacherStats {
   completedSessions: number;
   avgRating: number;
   totalContent: number;
+  markingBacklog: number;
   intelligence?: any[];
 }
 
@@ -110,6 +115,17 @@ interface TeacherDashboardData {
   }>;
 }
 
+interface UpcomingSession {
+  id: string;
+  title: string;
+  subject: string;
+  date: string;
+  time: string;
+  students: number;
+  duration: number;
+  meeting_link?: string;
+}
+
 export const TeacherDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -121,6 +137,25 @@ export const TeacherDashboard: React.FC = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isLibraryUploadOpen, setIsLibraryUploadOpen] = useState(false);
 
+  // Live upcoming-sessions state. Fetched from /live-sessions/live-session/
+  // and filtered by the subject chip. No more hardcoded mocks.
+  const [upcomingSessions, setUpcomingSessions] = useState<UpcomingSession[]>([]);
+  const [sessionSubjectFilter, setSessionSubjectFilter] = useState<string>('all');
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  // Active tab — URL ?tab=<name> wins (so TodayHero/KPI "Grade now" deep
+  // links land on Grading), then the personalised last-visited tab from
+  // localStorage, else "overview". Once we know the backlog, we flip to
+  // Grading if backlog > 0 *and* the user hasn't explicitly picked a tab
+  // this session.
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'overview';
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab) return urlTab;
+    return localStorage.getItem('teacher-dashboard-tab') || 'overview';
+  });
+  const [userPickedTab, setUserPickedTab] = useState(false);
+
   // Intelligence hooks
   const { actions: nbaActions } = useNextBestActions();
   const { dailyPlan: studyPlanDays } = useStudyPlanner();
@@ -130,11 +165,36 @@ export const TeacherDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [dashRes, classesRes, subjectsRes] = await Promise.all([
+        const [dashRes, classesRes, subjectsRes, sessionsRes] = await Promise.all([
           apiClient.get<TeacherDashboardData>('/analytics/teacher-dashboard/'),
           apiClient.get('/classes/').catch(() => ({ data: [] })),
-          apiClient.get('/curriculum/subjects/').catch(() => ({ data: [] }))
+          apiClient.get('/curriculum/subjects/').catch(() => ({ data: [] })),
+          apiClient.get('/live-sessions/live-session/').catch(() => ({ data: [] })),
         ]);
+
+        // Map live sessions — only future + non-cancelled — into the card shape.
+        const rawSessions: any[] = Array.isArray(sessionsRes.data) ? sessionsRes.data : [];
+        const now = Date.now();
+        const mapped: UpcomingSession[] = rawSessions
+          .filter((s: any) => s.status !== 'cancelled')
+          .filter((s: any) => !s.scheduled_start || new Date(s.scheduled_start).getTime() >= now)
+          .map((s: any) => {
+            const start = s.scheduled_start ? new Date(s.scheduled_start) : null;
+            const lessonTitle = s.lesson?.title || s.lesson_title || 'Live Session';
+            const subject = s.lesson?.subject_name || s.lesson?.parent_class?.subject?.name || 'General';
+            return {
+              id: String(s.id),
+              title: lessonTitle,
+              subject,
+              date: start ? start.toISOString().slice(0, 10) : '',
+              time: start ? start.toTimeString().slice(0, 5) : '',
+              students: s.enrolled_count ?? 0,
+              duration: s.duration_minutes ?? 60,
+              meeting_link: s.meeting_link,
+            };
+          })
+          .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+        setUpcomingSessions(mapped);
 
         const dashData: TeacherDashboardData = dashRes.data || {};
         const kpis = dashData.kpis || {};
@@ -146,9 +206,10 @@ export const TeacherDashboard: React.FC = () => {
           activeClasses: kpis.activeClasses || 0,
           totalEarnings: (kpis.monthlyEarnings || 0) * 6,
           monthlyEarnings: kpis.monthlyEarnings || 0,
-          pendingPayouts: 0, 
-          completedSessions: 0, 
+          pendingPayouts: 0,
+          completedSessions: 0,
           avgRating: kpis.avgRating || 0,
+          markingBacklog: kpis.markingBacklog || 0,
           totalContent: dashData.contentPerformance?.length || 0,
           intelligence: [
             {
@@ -222,50 +283,54 @@ export const TeacherDashboard: React.FC = () => {
             },
             {
               title: 'Submission Backlog',
-              value: `${kpis.markingBacklog || 12} Scripts`,
-              trendValue: 8,
-              trendLabel: 'ungraded exams',
-              trendDirection: 'up',
+              value: `${kpis.markingBacklog ?? 0} Scripts`,
+              trendValue: kpis.markingBacklog ?? 0,
+              trendLabel: 'ungraded',
+              trendDirection: (kpis.markingBacklog ?? 0) > 0 ? 'up' : 'neutral',
               trendIsGood: false,
-              riskLevel: 'warning',
-              alertText: 'Overdue turnaround',
+              riskLevel: (kpis.markingBacklog ?? 0) > 0 ? 'warning' : 'healthy',
+              alertText: (kpis.markingBacklog ?? 0) > 0 ? 'Open the Grading tab to clear the queue.' : 'All caught up — no scripts pending.',
               actionLabel: 'Grade now',
-              actionLink: '/dashboard/teacher/marks-upload',
+              actionLink: '/dashboard/teacher?tab=grading',
               drillDownText: 'View submissions',
-              drillDownLink: '/dashboard/teacher/marks-upload'
+              drillDownLink: '/dashboard/teacher?tab=grading'
             }
           ]
         };
         setStats(teacherStats);
 
-        // Map live class overview from API if present, otherwise fallback to class health
+        // Map live class overview from API if present, otherwise from class
+        // health. We deliberately do NOT seed two fake "Senior 4 Physics" /
+        // "Senior 5 Mathematics" rows on empty — an empty roster is a real
+        // signal that the teacher has nothing assigned and the empty state
+        // shown later in the JSX needs to be visible.
         if (classesList.length > 0) {
            const mappedClasses = classesList.map((c: any) => ({
              id: String(c.id),
              name: c.title,
-             level: c.subject?.class_level || 'A-Level',
+             level: c.subject?.class_level || '—',
              subject: c.subject?.name || 'Class',
-             enrolledStudents: c.capacity || 45,
-             completionRate: 65,
-             lastActive: c.created_at || new Date().toISOString()
+             // active_count > capacity > unknown. Never a magic 45.
+             enrolledStudents: typeof c.active_count === 'number'
+               ? c.active_count
+               : (typeof c.capacity === 'number' ? c.capacity : 0),
+             completionRate: typeof c.completion_rate === 'number' ? c.completion_rate : 0,
+             lastActive: c.created_at || new Date().toISOString(),
            }));
            setClasses(mappedClasses);
-        } else if (dashData.classHealth) {
+        } else if (dashData.classHealth && dashData.classHealth.length > 0) {
            const mappedHealth = dashData.classHealth.map((c: any, i: number) => ({
              id: `ch-${i}`,
              name: c.name,
-             level: 'O-Level',
+             level: '—',
              subject: 'Assigned Subject',
-             enrolledStudents: c.enrolled,
-             completionRate: c.attendance, 
-             lastActive: new Date().toISOString()
+             enrolledStudents: c.enrolled || 0,
+             completionRate: c.attendance || 0,
+             lastActive: new Date().toISOString(),
            }));
            setClasses(mappedHealth);
         } else {
-           setClasses([
-             { id: '1', name: 'Senior 4', level: 'O-Level', subject: 'Physics', enrolledStudents: 45, completionRate: 78, lastActive: '2 hours ago' },
-             { id: '2', name: 'Senior 5', level: 'A-Level', subject: 'Mathematics', enrolledStudents: 32, completionRate: 85, lastActive: '1 day ago' },
-           ]);
+           setClasses([]);
         }
         
       } catch (error) {
@@ -279,43 +344,58 @@ export const TeacherDashboard: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teacher.id]);
 
-  const upcomingSessions = [
-    {
-      id: '1',
-      title: 'Senior 2 Mathematics - Quadratic Equations',
-      date: '2025-07-03',
-      time: '15:00',
-      students: 28,
-      duration: 90
-    },
-    {
-      id: '2', 
-      title: 'Senior 5 Physics - Circular Motion Lab',
-      date: '2025-07-04',
-      time: '14:00',
-      students: 18,
-      duration: 120
+  // Smart default tab: once we know the backlog, and only if the user
+  // didn't explicitly click a tab yet, flip to Grading when there's
+  // anything to grade. A URL ?tab= override (from the KPI card "Grade
+  // now" link or TodayHero) wins — so we also skip this flip when the
+  // current tab was seeded from the URL.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (userPickedTab) return;
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab) return;
+    if (stats && stats.markingBacklog > 0 && activeTab !== 'grading') {
+      setActiveTab('grading');
     }
-  ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stats?.markingBacklog]);
 
-  const recentContent = [
-    {
-      id: '1',
-      title: 'Solving Linear Inequalities',
-      type: 'video',
-      uploadDate: '2025-06-28',
-      views: 142,
-      likes: 89
-    },
-    {
-      id: '2',
-      title: 'Quadratic Equations Practice Sheet',
-      type: 'document',
-      uploadDate: '2025-06-25',
-      views: 67,
-      likes: 45
+  const handleTabChange = (next: string) => {
+    setActiveTab(next);
+    setUserPickedTab(true);
+    try {
+      localStorage.setItem('teacher-dashboard-tab', next);
+    } catch { /* ignore quota issues */ }
+  };
+
+  // Derive the list of subject chips from whatever the backend actually
+  // returned — avoids hardcoding "Mathematics / Physics" forever.
+  const sessionSubjects = Array.from(
+    new Set(upcomingSessions.map((s) => s.subject).filter(Boolean)),
+  );
+  const filteredSessions = sessionSubjectFilter === 'all'
+    ? upcomingSessions
+    : upcomingSessions.filter((s) => s.subject === sessionSubjectFilter);
+
+  const cancelSession = async (sessionId: string) => {
+    if (cancellingId) return;
+    if (!window.confirm('Cancel this live session? Enrolled students will be notified.')) return;
+    setCancellingId(sessionId);
+    try {
+      const { error } = await apiClient.patch(
+        `/live-sessions/live-session/${sessionId}/`,
+        { status: 'cancelled' },
+      );
+      if (error) throw error;
+      setUpcomingSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      toast.success('Session cancelled. Reminders to students have been disabled.');
+    } catch (err) {
+      console.error('Cancel session failed', err);
+      toast.error('Could not cancel the session. Please try again.');
+    } finally {
+      setCancellingId(null);
     }
-  ];
+  };
 
   if (loading) {
     return <DashboardSkeleton type="teacher" />;
@@ -328,29 +408,45 @@ export const TeacherDashboard: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 pb-6 border-b border-white/10">
           <div className="space-y-1.5">
             <div className="flex items-center gap-3">
-               <h1 className="text-3xl font-extrabold tracking-tight text-white">Teaching Command Center</h1>
+               <h1 className="text-3xl font-extrabold tracking-tight text-white">Maple Teacher Studio</h1>
                <Badge className="bg-blue-900/50 text-blue-200 hover:bg-blue-900/80 border-blue-500/30 backdrop-blur-sm">Uganda Curriculum</Badge>
             </div>
-            <p className="text-slate-300 font-medium text-sm md:text-base">Welcome back, {teacher.name}. Here is your command center.</p>
+            <p className="text-slate-300 font-medium text-sm md:text-base">Welcome back, {teacher.name}. Teach, grade, and grow your reputation.</p>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
-             <Button variant="outline" className="hidden md:flex shadow-sm bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 text-white"><Calendar className="w-4 h-4 mr-2 text-slate-300" /> My Calendar</Button>
+             <Button
+               variant="outline"
+               onClick={() => navigate('/live-sessions')}
+               className="hidden md:flex shadow-sm bg-white/5 backdrop-blur-md border-white/10 hover:bg-white/10 text-white"
+             >
+               <Calendar className="w-4 h-4 mr-2 text-slate-300" /> My Calendar
+             </Button>
              <Button onClick={() => navigate('/dashboard/teacher/marks-upload')} size="lg" className="w-full md:w-auto shadow-lg shadow-blue-900/50 bg-blue-600 hover:bg-blue-500 font-semibold tracking-wide border border-blue-400/50">
                 Upload Target Grades
              </Button>
           </div>
         </div>
 
-        {/* Phase 0: Payout & Earnings Priority */}
-        <DashboardSection title="Earnings & Payouts Tracking">
-           <DashboardGrid className="!items-stretch">
-             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={6} variant="glass">
-                <TeacherPayoutStatusCard />
-             </DashboardCard>
-             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={6} variant="glass">
-                <IndependentEarningsIntelligence />
-             </DashboardCard>
-           </DashboardGrid>
+        {/* Today hero — the single highest-priority action for this
+            teacher right now (backlog > imminent class > calm day). */}
+        <DashboardSection>
+           <TodayHero variant="glass" />
+        </DashboardSection>
+
+        {/* Workload KPIs first — a teacher at 7am wants to see what's on
+            their plate, not their earnings. Earnings moved to its own
+            tab below. */}
+        <DashboardSection title="My Workload This Term">
+           <OperationalKpiRow
+             variant="glass"
+             ids={['active_classes', 'total_learners', 'marking_backlog', 'avg_rating']}
+             values={{
+               active_classes: stats?.activeClasses,
+               total_learners: stats?.totalStudents,
+               marking_backlog: stats?.markingBacklog,
+               avg_rating: stats?.avgRating,
+             }}
+           />
         </DashboardSection>
 
         {/* Intelligence System Block (Hero Strip) */}
@@ -364,8 +460,21 @@ export const TeacherDashboard: React.FC = () => {
            </DashboardGrid>
         </DashboardSection>
 
+        {/* Earnings & payouts — pushed below workload. A teacher under
+            marking pressure doesn't need payout first thing. */}
+        <DashboardSection title="Earnings & payouts">
+           <DashboardGrid className="!items-stretch">
+             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={6} variant="glass">
+                <TeacherPayoutStatusCard />
+             </DashboardCard>
+             <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={6} variant="glass">
+                <IndependentEarningsIntelligence />
+             </DashboardCard>
+           </DashboardGrid>
+        </DashboardSection>
+
         {/* Teacher Personal Planner & Resource Effectiveness */}
-        <DashboardSection title="Planning & Resource Impact">
+        <DashboardSection title="Today's Planner & Resource Impact">
            <DashboardGrid className="!items-stretch">
              <DashboardCard colSpan={1} mdColSpan={6} lgColSpan={7} variant="glass">
                 <SmartStudyPlanner 
@@ -387,7 +496,7 @@ export const TeacherDashboard: React.FC = () => {
         </DashboardSection>
 
         {/* Phase 2: Interventions & Rapid Actions */}
-        <DashboardSection title="Support Operations">
+        <DashboardSection title="Mentor Studio — Reviews & Parent Outreach">
            <DashboardGrid className="!items-stretch">
              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={5} variant="glass">
                <SmartInterventionBuilder data={{
@@ -411,7 +520,7 @@ export const TeacherDashboard: React.FC = () => {
         </DashboardSection>
 
         {/* Phase 3: AI Partner & Reputation */}
-        <DashboardSection title="Professional Growth Hub">
+        <DashboardSection title="Verified Teaching Delivery & Quality Score">
            <DashboardGrid>
              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={7} variant="glass">
                  <TeacherPerformanceStory />
@@ -590,10 +699,11 @@ export const TeacherDashboard: React.FC = () => {
         </Card>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="classes">My Classes</TabsTrigger>
+            <TabsTrigger value="grading">Grading</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="sessions">Live Sessions</TabsTrigger>
             <TabsTrigger value="earnings">Earnings</TabsTrigger>
@@ -670,6 +780,13 @@ export const TeacherDashboard: React.FC = () => {
                 <p className="text-gray-600">Manage your teaching assignments across different Uganda classes</p>
               </CardHeader>
               <CardContent>
+                {classes.length === 0 && (
+                  <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 py-10 text-center">
+                    <Users className="w-8 h-8 mx-auto mb-3 text-slate-400" />
+                    <p className="text-sm font-semibold text-slate-700 mb-1">You don't have any classes assigned yet.</p>
+                    <p className="text-xs text-slate-500">Once an institution admin assigns you a class — or you create one in Mentor Studio — it will appear here.</p>
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-6">
                   {classes.map((classItem) => (
                     <Card key={classItem.id} className="hover:shadow-md transition-shadow w-full lg:w-[calc(33.333%-1rem)] flex flex-col justify-between">
@@ -696,10 +813,19 @@ export const TeacherDashboard: React.FC = () => {
                             Last active: {new Date(classItem.lastActive).toLocaleDateString()}
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" className="flex-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1"
+                              onClick={() => navigate(`/classes/${classItem.id}`)}
+                            >
                               View Details
                             </Button>
-                            <Button size="sm" className="flex-1">
+                            <Button
+                              size="sm"
+                              className="flex-1"
+                              onClick={() => navigate(`/dashboard/teacher/marks-upload?class=${classItem.id}`)}
+                            >
                               Manage
                             </Button>
                           </div>
@@ -710,6 +836,13 @@ export const TeacherDashboard: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="grading" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Real grading queue — backed by useAssignmentSubmissions().
+                Replaces the previous flow where the "Submission Backlog: 12
+                Scripts" KPI tile was a dead-end with no inbound link. */}
+            <MarkingQueuePanel />
           </TabsContent>
 
           <TabsContent value="content" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -786,11 +919,33 @@ export const TeacherDashboard: React.FC = () => {
               <div>
                  <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-slate-800 tracking-tight">Upcoming Sessions</h3>
-                    <Button variant="ghost" className="text-primary hover:bg-primary/5 rounded-full px-4 h-9">See all</Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => navigate('/live-sessions')}
+                      className="text-primary hover:bg-primary/5 rounded-full px-4 h-9"
+                    >
+                      See all
+                    </Button>
                  </div>
-                 
+
+                 {filteredSessions.length === 0 && (
+                   <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center">
+                     <Calendar className="w-8 h-8 mx-auto mb-3 text-slate-400" />
+                     <p className="text-sm font-semibold text-slate-700 mb-1">
+                       {upcomingSessions.length === 0
+                         ? 'No upcoming live sessions yet.'
+                         : `No ${sessionSubjectFilter} sessions scheduled.`}
+                     </p>
+                     <p className="text-xs text-slate-500">
+                       {upcomingSessions.length === 0
+                         ? 'Use the Schedule Session panel on the right to add one.'
+                         : 'Pick another subject or clear the filter to see everything.'}
+                     </p>
+                   </div>
+                 )}
+
                  <div className="space-y-6">
-                    {upcomingSessions.map((session) => (
+                    {filteredSessions.map((session) => (
                       <div key={session.id} className="relative bg-primary rounded-[2rem] p-6 text-white shadow-[0_16px_40px_-16px_rgba(30,60,110,0.4)] overflow-hidden transition-all duration-300 hover:shadow-[0_20px_50px_-16px_rgba(30,60,110,0.5)] hover:-translate-y-1">
                         
                         {/* Decorative background shape */}
@@ -825,12 +980,17 @@ export const TeacherDashboard: React.FC = () => {
                         
                         {/* Pill Controls */}
                         <div className="flex gap-3">
-                          <Button className="flex-1 bg-white/[0.15] hover:bg-white/25 text-white rounded-full border-0 backdrop-blur-md h-12" variant="outline">
-                            Cancel
+                          <Button
+                            className="flex-1 bg-white/[0.15] hover:bg-white/25 text-white rounded-full border-0 backdrop-blur-md h-12"
+                            variant="outline"
+                            disabled={cancellingId === session.id}
+                            onClick={() => cancelSession(session.id)}
+                          >
+                            {cancellingId === session.id ? 'Cancelling…' : 'Cancel'}
                           </Button>
-                          <Button 
+                          <Button
                             className="flex-1 bg-white text-primary hover:bg-slate-50 rounded-full shadow-lg h-12 text-sm font-bold tracking-wide"
-                            onClick={() => window.open('https://meet.google.com/new', '_blank')}
+                            onClick={() => window.open(session.meeting_link || 'https://meet.google.com/new', '_blank')}
                           >
                             Start Session
                           </Button>
@@ -839,12 +999,37 @@ export const TeacherDashboard: React.FC = () => {
                     ))}
                  </div>
                  
-                 {/* Secondary Segmented Chips (Like Tab filters under Appointment) */}
-                 <div className="mt-8 flex gap-3 overflow-x-auto pb-4 hide-scrollbar">
-                    <Button className="rounded-full bg-primary text-white shadow-md w-auto h-10 px-6 shrink-0 border-0">All</Button>
-                    <Button variant="outline" className="rounded-full bg-white text-slate-600 border-none shadow-sm h-10 px-6 hover:bg-slate-50 shrink-0">Mathematics</Button>
-                    <Button variant="outline" className="rounded-full bg-white text-slate-600 border-none shadow-sm h-10 px-6 hover:bg-slate-50 shrink-0">Physics</Button>
-                 </div>
+                 {/* Subject filter chips — built from whatever subjects this
+                     teacher's upcoming sessions actually cover. */}
+                 {sessionSubjects.length > 0 && (
+                   <div className="mt-8 flex gap-3 overflow-x-auto pb-4 hide-scrollbar">
+                      <Button
+                        onClick={() => setSessionSubjectFilter('all')}
+                        className={
+                          sessionSubjectFilter === 'all'
+                            ? 'rounded-full bg-primary text-white shadow-md w-auto h-10 px-6 shrink-0 border-0'
+                            : 'rounded-full bg-white text-slate-600 border-none shadow-sm h-10 px-6 hover:bg-slate-50 shrink-0'
+                        }
+                        variant={sessionSubjectFilter === 'all' ? 'default' : 'outline'}
+                      >
+                        All
+                      </Button>
+                      {sessionSubjects.map((subj) => (
+                        <Button
+                          key={subj}
+                          onClick={() => setSessionSubjectFilter(subj)}
+                          className={
+                            sessionSubjectFilter === subj
+                              ? 'rounded-full bg-primary text-white shadow-md w-auto h-10 px-6 shrink-0 border-0'
+                              : 'rounded-full bg-white text-slate-600 border-none shadow-sm h-10 px-6 hover:bg-slate-50 shrink-0'
+                          }
+                          variant={sessionSubjectFilter === subj ? 'default' : 'outline'}
+                        >
+                          {subj}
+                        </Button>
+                      ))}
+                   </div>
+                 )}
               </div>
 
               {/* Schedule New Session (Right Panel) */}
@@ -855,23 +1040,42 @@ export const TeacherDashboard: React.FC = () => {
                  <div className="bg-white rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
                    <div className="space-y-5">
                       <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-2">Subject</label>
-                        <select className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                        <label htmlFor="session-subject" className="block text-sm font-semibold text-slate-700 mb-2">Subject</label>
+                        <select
+                          id="session-subject"
+                          title="Subject"
+                          aria-label="Subject"
+                          className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        >
                           <option>Select subject...</option>
                           {teacher.subjects?.map(subject => (
                             <option key={subject} value={subject}>{subject}</option>
                           ))}
                         </select>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">Date</label>
-                          <input type="date" className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none" />
+                          <label htmlFor="session-date" className="block text-sm font-semibold text-slate-700 mb-2">Date</label>
+                          <input
+                            id="session-date"
+                            type="date"
+                            title="Session date"
+                            aria-label="Session date"
+                            placeholder="Date"
+                            className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
+                          />
                         </div>
                         <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">Time</label>
-                          <input type="time" className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none" />
+                          <label htmlFor="session-time" className="block text-sm font-semibold text-slate-700 mb-2">Time</label>
+                          <input
+                            id="session-time"
+                            type="time"
+                            title="Session start time"
+                            aria-label="Session start time"
+                            placeholder="Time"
+                            className="w-full bg-slate-50 border-0 rounded-2xl px-4 py-3.5 text-slate-700 font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all appearance-none"
+                          />
                         </div>
                       </div>
 

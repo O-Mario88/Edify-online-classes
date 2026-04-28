@@ -1,8 +1,10 @@
+from django.db import models
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from pilot_payments.permissions import IsActiveSubscription
 
 from .models import (
     NextBestAction, InterventionPack, InterventionPackAssignment,
@@ -34,7 +36,7 @@ from .serializers import (
 
 class NextBestActionViewSet(viewsets.ModelViewSet):
     serializer_class = NextBestActionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -95,7 +97,7 @@ class NextBestActionViewSet(viewsets.ModelViewSet):
 
 class InterventionPackViewSet(viewsets.ModelViewSet):
     serializer_class = InterventionPackSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         user = self.request.user
@@ -131,20 +133,32 @@ class InterventionPackViewSet(viewsets.ModelViewSet):
 
 class InterventionPackAssignmentViewSet(viewsets.ModelViewSet):
     serializer_class = InterventionPackAssignmentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         user = self.request.user
         if user.role == 'student':
             return InterventionPackAssignment.objects.filter(student=user)
-        return InterventionPackAssignment.objects.all()
+        if user.role in ('platform_admin',):
+            return InterventionPackAssignment.objects.all()
+        # Teachers/institution admins only see assignments whose pack
+        # belongs to an institution they're a member of, or where they
+        # authored the pack.
+        from institutions.models import InstitutionMembership
+        inst_ids = InstitutionMembership.objects.filter(
+            user=user, status='active'
+        ).values_list('institution_id', flat=True)
+        return InterventionPackAssignment.objects.filter(
+            models.Q(pack__institution_id__in=inst_ids) |
+            models.Q(pack__created_by=user)
+        )
 
 
 # ─── Study Planner ───
 
 class StudyPlanViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = StudyPlanSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return StudyPlan.objects.filter(student=self.request.user)
@@ -170,7 +184,7 @@ class StudyPlanViewSet(viewsets.ReadOnlyModelViewSet):
 
 class StudyTaskViewSet(viewsets.ModelViewSet):
     serializer_class = StudyTaskSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return StudyTask.objects.filter(plan__student=self.request.user)
@@ -190,7 +204,7 @@ class StudyTaskViewSet(viewsets.ModelViewSet):
 
 class ParentActionViewSet(viewsets.ModelViewSet):
     serializer_class = ParentActionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return ParentAction.objects.filter(parent=self.request.user)
@@ -209,7 +223,7 @@ class ParentActionViewSet(viewsets.ModelViewSet):
 # ─── Passports ───
 
 class StudentPassportView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get(self, request):
         """Get the current student's passport."""
@@ -219,7 +233,7 @@ class StudentPassportView(APIView):
 
 
 class TeacherPassportView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get(self, request):
         """Get the current teacher's passport."""
@@ -232,7 +246,7 @@ class TeacherPassportView(APIView):
 
 class PointsLedgerViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PointsLedgerSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return PointsLedger.objects.filter(user=self.request.user)
@@ -250,12 +264,12 @@ class PointsLedgerViewSet(viewsets.ReadOnlyModelViewSet):
 class BadgeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Badge.objects.all()
     serializer_class = BadgeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
 
 class UserBadgeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UserBadgeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return UserBadge.objects.filter(user=self.request.user)
@@ -263,7 +277,7 @@ class UserBadgeViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ChallengeViewSet(viewsets.ModelViewSet):
     serializer_class = ChallengeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return Challenge.objects.filter(status__in=['upcoming', 'active'])
@@ -293,7 +307,7 @@ class ChallengeViewSet(viewsets.ModelViewSet):
 
 class HouseTeamViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = HouseTeamSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return HouseTeam.objects.all()
@@ -310,7 +324,7 @@ class HouseTeamViewSet(viewsets.ReadOnlyModelViewSet):
 
 class LearningProgressViewSet(viewsets.ModelViewSet):
     serializer_class = LearningProgressSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return LearningProgress.objects.filter(user=self.request.user)
@@ -349,10 +363,17 @@ class LearningProgressViewSet(viewsets.ModelViewSet):
 
 class NationalExamResultViewSet(viewsets.ModelViewSet):
     serializer_class = NationalExamResultSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
-        return NationalExamResult.objects.all()
+        user = self.request.user
+        if getattr(user, 'role', '') == 'platform_admin':
+            return NationalExamResult.objects.all()
+        from institutions.models import InstitutionMembership
+        inst_ids = InstitutionMembership.objects.filter(
+            user=user, status='active'
+        ).values_list('institution_id', flat=True)
+        return NationalExamResult.objects.filter(institution_id__in=inst_ids)
 
     def perform_create(self, serializer):
         serializer.save(uploaded_by=self.request.user)
@@ -362,7 +383,7 @@ class NationalExamResultViewSet(viewsets.ModelViewSet):
 
 class StoryCardViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = StoryCardSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         return StoryCard.objects.filter(user=self.request.user, is_read=False)
@@ -403,7 +424,7 @@ class StoryCardViewSet(viewsets.ReadOnlyModelViewSet):
 # ─── Institution Health ───
 
 class InstitutionHealthView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get(self, request):
         """Get or compute today's health snapshot."""
@@ -426,20 +447,36 @@ class InstitutionHealthView(APIView):
 
 class InstitutionHealthHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = InstitutionHealthSnapshotSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         institution_id = self.request.query_params.get('institution')
-        if institution_id:
+        if not institution_id:
+            return InstitutionHealthSnapshot.objects.none()
+        user = self.request.user
+        if getattr(user, 'role', '') == 'platform_admin':
             return InstitutionHealthSnapshot.objects.filter(institution_id=institution_id)
-        return InstitutionHealthSnapshot.objects.none()
+        from institutions.models import InstitutionMembership
+        is_member = InstitutionMembership.objects.filter(
+            user=user, institution_id=institution_id, status='active',
+        ).exists()
+        if not is_member:
+            return InstitutionHealthSnapshot.objects.none()
+        return InstitutionHealthSnapshot.objects.filter(institution_id=institution_id)
 
 
 # ─── Impact Comparison ───
 
 class ImpactComparisonViewSet(viewsets.ModelViewSet):
     serializer_class = ImpactComparisonSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
-        return ImpactComparison.objects.all()
+        user = self.request.user
+        if getattr(user, 'role', '') == 'platform_admin':
+            return ImpactComparison.objects.all()
+        from institutions.models import InstitutionMembership
+        inst_ids = InstitutionMembership.objects.filter(
+            user=user, status='active'
+        ).values_list('institution_id', flat=True)
+        return ImpactComparison.objects.filter(institution_id__in=inst_ids)

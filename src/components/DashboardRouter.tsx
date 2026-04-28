@@ -34,8 +34,13 @@ export const DashboardRouter: React.FC = () => {
     }
 
     const role = (user.role || '').toString().toLowerCase();
-    const schoolLevel = (user as any).school_level || (user as any).institution?.school_level || '';
-    const isPrimary = schoolLevel === 'primary';
+    // Primary/Secondary gate. `stage` is the canonical field set at
+    // registration; `school_level` is the legacy demo-account equivalent.
+    const stage = (user as any).stage
+      || (user as any).school_level
+      || (user as any).institution?.school_level
+      || '';
+    const isPrimary = stage === 'primary';
 
     if (role.includes('student')) {
       navigate(isPrimary ? '/dashboard/primary/student' : '/dashboard/student', { replace: true });

@@ -27,6 +27,34 @@ class LessonNote(models.Model):
     def __str__(self):
         return f"Notes for {self.lesson.title}"
 
+
+class TeacherNote(models.Model):
+    """Free-form note a teacher publishes to their students. Different
+    from LessonNote — not tied to a specific lesson, used for
+    "publish to my class" style quick announcements + tips. Optional
+    `class_scope` lets the teacher target one class; null = visible to
+    every student that teacher teaches.
+    """
+    teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name='authored_teacher_notes',
+    )
+    class_scope = models.ForeignKey(
+        'classes.Class', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='teacher_notes',
+        help_text='When null the note goes to every student of the teacher.',
+    )
+    title = models.CharField(max_length=255)
+    body = models.TextField()
+    photo_url = models.URLField(max_length=500, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.teacher.email}: {self.title}'
+
 class LessonRecording(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='recordings')
     url = models.URLField(max_length=500)

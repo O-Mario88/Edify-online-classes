@@ -11,6 +11,7 @@ import { Toaster } from './components/ui/sonner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage'));
+const SupportPage = lazy(() => import('./pages/SupportPage').then(m => ({ default: m.SupportPage })));
 // LibraryPage / AnalyticsPage / InterventionsPage / EarningsPage stubs removed in
 // Phase 3 — their routes now use DashboardLibraryPage, AnalyticsLayout,
 // InterventionsHub, and TeacherEarningsPage respectively.
@@ -21,6 +22,8 @@ const AboutUsPage = lazy(() => import('./pages/AboutUsPage').then(m => ({ defaul
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const CourseCatalog = lazy(() => import('./pages/CourseCatalog').then(m => ({ default: m.CourseCatalog })));
+const SecondarySyllabusPage = lazy(() => import('./pages/SecondarySyllabusPage').then(m => ({ default: m.SecondarySyllabusPage })));
+const PrimarySyllabusPage = lazy(() => import('./pages/PrimarySyllabusPage').then(m => ({ default: m.PrimarySyllabusPage })));
 const CourseDetail = lazy(() => import('./pages/CourseDetail').then(m => ({ default: m.CourseDetail })));
 const ClassSyllabusPage = lazy(() => import('./pages/ClassSyllabusPage').then(m => ({ default: m.ClassSyllabusPage })));
 const StudentDashboard = lazy(() => import('./pages/StudentDashboard').then(m => ({ default: m.StudentDashboard })));
@@ -33,10 +36,28 @@ const LiveSessionsPage = lazy(() => import('./pages/LiveSessionsPage').then(m =>
 const PaymentPage = lazy(() => import('./pages/PaymentPage').then(m => ({ default: m.PaymentPage })));
 const ExercisePage = lazy(() => import('./pages/ExercisePage').then(m => ({ default: m.ExercisePage })));
 const LearningPathPage = lazy(() => import('./pages/LearningPathPage'));
+const DiagnosticFlow = lazy(() => import('./pages/diagnostic/DiagnosticFlow'));
+const InstitutionProfilePage = lazy(() => import('./pages/institution-discovery/InstitutionProfilePage'));
+const MasteryTracksPage = lazy(() => import('./pages/mastery/MasteryTracksPage'));
+const MasteryTrackDetailPage = lazy(() => import('./pages/mastery/MasteryTrackDetailPage'));
+const PracticeLabPlayer = lazy(() => import('./pages/practice-labs/PracticeLabPlayer'));
+const TeacherProjectReviewQueue = lazy(() => import('./pages/mastery-projects/TeacherProjectReviewQueue'));
+const LearningPassportPage = lazy(() => import('./pages/passport/LearningPassportPage'));
+const ExamSimulatorPage = lazy(() => import('./pages/exam-simulator/ExamSimulatorPage'));
+const InstitutionAdmissionInbox = lazy(() => import('./pages/admissions/InstitutionAdmissionInbox'));
+const PricingPage = lazy(() => import('./pages/PricingPage'));
+const StandbyRequestsPage = lazy(() => import('./pages/standby/StandbyRequestsPage'));
+const CohortsPage = lazy(() => import('./pages/cohorts/CohortsPage'));
+const FuturePathwaysPage = lazy(() => import('./pages/pathways/FuturePathwaysPage'));
+const SchoolComparePage = lazy(() => import('./pages/schools/SchoolComparePage'));
+const LearnerSettingsPage = lazy(() => import('./pages/settings/LearnerSettingsPage'));
 const ProjectsPage = lazy(() => import('./pages/ProjectsPage'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace'));
 const AITeachingAssistant = lazy(() => import('./pages/AITeachingAssistant'));
 const PeerTutoringHub = lazy(() => import('./pages/PeerTutoringHub'));
+const PeerLearningPage = lazy(() => import('./pages/PeerLearningPage').then(m => ({ default: m.PeerLearningPage })));
+const ContentReaderPage = lazy(() => import('./pages/ContentReaderPage').then(m => ({ default: m.ContentReaderPage })));
+const VideoLessonPlayerPage = lazy(() => import('./pages/VideoLessonPlayerPage').then(m => ({ default: m.VideoLessonPlayerPage })));
 const MarketplacePage = lazy(() => import('./pages/MarketplacePage'));
 const MarketplaceSubjectPage = lazy(() => import('./pages/MarketplaceSubjectPage'));
 const MarketplaceTopicPage = lazy(() => import('./pages/MarketplaceTopicPage'));
@@ -75,6 +96,23 @@ const SystemHealthAnalytics = lazy(() => import('./pages/analytics/PlatformAnaly
 
 // New Dashboard Hubs
 const DashboardLibraryPage = lazy(() => import('./pages/dashboard/DashboardLibraryPage'));
+
+// Top-5 content-creation forms
+const QuestionBankBuilder = lazy(() => import('./pages/teacher/QuestionBankBuilder').then(m => ({ default: m.QuestionBankBuilder })));
+const LiveLessonScheduler = lazy(() => import('./pages/teacher/LiveLessonScheduler').then(m => ({ default: m.LiveLessonScheduler })));
+const LearnerRegistrationForm = lazy(() => import('./pages/institution/LearnerRegistrationForm').then(m => ({ default: m.LearnerRegistrationForm })));
+const TermSetupPage = lazy(() => import('./pages/institution/TermSetupPage').then(m => ({ default: m.TermSetupPage })));
+const AdmissionApplicationForm = lazy(() => import('./pages/admissions/AdmissionApplicationForm').then(m => ({ default: m.AdmissionApplicationForm })));
+
+// Tier-2 content-creation forms
+const ClassCreationForm = lazy(() => import('./pages/institution/ClassCreationForm').then(m => ({ default: m.ClassCreationForm })));
+const TimetableSlotForm = lazy(() => import('./pages/institution/TimetableSlotForm').then(m => ({ default: m.TimetableSlotForm })));
+const TopicCreationForm = lazy(() => import('./pages/teacher/TopicCreationForm').then(m => ({ default: m.TopicCreationForm })));
+const FeeAssessmentForm = lazy(() => import('./pages/institution/FeeAssessmentForm').then(m => ({ default: m.FeeAssessmentForm })));
+const PayoutRequestForm = lazy(() => import('./pages/teacher/PayoutRequestForm').then(m => ({ default: m.PayoutRequestForm })));
+const LessonVideoUploadForm = lazy(() => import('./pages/teacher/LessonVideoUploadForm').then(m => ({ default: m.LessonVideoUploadForm })));
+const PracticeLabBuilder = lazy(() => import('./pages/teacher/PracticeLabBuilder').then(m => ({ default: m.PracticeLabBuilder })));
+const ProjectAssignmentForm = lazy(() => import('./pages/teacher/ProjectAssignmentForm').then(m => ({ default: m.ProjectAssignmentForm })));
 const InterventionsHub = lazy(() => import('./pages/dashboard/InterventionsHub'));
 const TeacherEarningsPage = lazy(() => import('./pages/dashboard/TeacherEarningsPage'));
 
@@ -122,12 +160,44 @@ function App() {
           } />
         <Route path="/" element={<Layout />}>
                     <Route path="feedback" element={<FeedbackPage />} />
+                    <Route path="support" element={<SupportPage />} />
           <Route index element={<HomePage />} />
           <Route path="about" element={<AboutUsPage />} />
-          <Route path="classes" element={<CourseCatalog />} />
+          <Route path="cohorts" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
+              <CohortsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="pathways" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent']}>
+              <FuturePathwaysPage />
+            </ProtectedRoute>
+          } />
+          <Route path="schools/compare" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'institution_admin', 'platform_admin']}>
+              <SchoolComparePage />
+            </ProtectedRoute>
+          } />
+          <Route path="settings" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
+              <LearnerSettingsPage />
+            </ProtectedRoute>
+          } />
+          {/* /classes now serves the Syllabus page design (same component as /secondary). */}
+          <Route path="classes" element={<SecondarySyllabusPage />} />
           <Route path="classes/:classId" element={<ClassSyllabusPage />} />
           <Route path="classes/:classId/:termId/:subjectId" element={<CourseDetail />} />
           <Route path="classes/:classId/subject/:subjectId" element={<SubjectTopicsPage />} />
+          <Route path="syllabus" element={<SubjectTopicsPage />} />
+          <Route path="syllabus/:subjectKey" element={<SubjectTopicsPage />} />
+          {/* Unified content reader — notes / textbooks / topics. Powers every subject. */}
+          <Route path="learn" element={<ContentReaderPage />} />
+          <Route path="learn/:subjectSlug" element={<ContentReaderPage />} />
+          <Route path="learn/:subjectSlug/:chapterSlug" element={<ContentReaderPage />} />
+          <Route path="learn/:subjectSlug/:chapterSlug/:topicSlug" element={<ContentReaderPage />} />
+          {/* Video lesson player */}
+          <Route path="video-lessons" element={<VideoLessonPlayerPage />} />
+          <Route path="video-lessons/:lessonId" element={<VideoLessonPlayerPage />} />
           <Route path="classes/:classId/:termId/:subjectId/topic/:topicId" element={<TopicDetailPage />} />
           <Route path="forum/*" element={<ForumPage />} />
           <Route path="live-sessions" element={<LiveSessionsPage />} />
@@ -142,8 +212,19 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="payment" element={<PaymentPage />} />
+          <Route path="pricing" element={<PricingPage />} />
+          <Route path="standby-teachers" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
+              <StandbyRequestsPage />
+            </ProtectedRoute>
+          } />
           <Route path="p/:username" element={<PublicProfile />} />
           <Route path="t/:username" element={<TeacherStorefront />} />
+          <Route path="schools/:slug" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'independent_teacher', 'institution_teacher', 'teacher', 'institution_admin', 'platform_admin']}>
+              <InstitutionProfilePage />
+            </ProtectedRoute>
+          } />
           
           {/* Hybrid Business Model Features */}
           <Route path="marketplace" element={<MarketplacePage />} />
@@ -162,6 +243,49 @@ function App() {
           } />
 
           
+          {/* Flagship diagnostic flow — signup → diagnostic → report */}
+          <Route path="diagnostic" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student']}>
+              <DiagnosticFlow />
+            </ProtectedRoute>
+          } />
+          {/* Maple Mastery Studio — phase 1: tracks */}
+          <Route path="mastery" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'institution_teacher', 'teacher', 'independent_teacher', 'institution_admin', 'platform_admin']}>
+              <MasteryTracksPage />
+            </ProtectedRoute>
+          } />
+          <Route path="mastery/:slug" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student', 'parent', 'institution_teacher', 'teacher', 'independent_teacher', 'institution_admin', 'platform_admin']}>
+              <MasteryTrackDetailPage />
+            </ProtectedRoute>
+          } />
+          <Route path="practice-labs/:slug" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student']}>
+              <PracticeLabPlayer />
+            </ProtectedRoute>
+          } />
+          <Route path="dashboard/mentor-studio/reviews" element={
+            <ProtectedRoute allowedRoles={['teacher', 'independent_teacher', 'institution_teacher', 'institution_admin', 'platform_admin']}>
+              <TeacherProjectReviewQueue />
+            </ProtectedRoute>
+          } />
+          <Route path="passport" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student']}>
+              <LearningPassportPage />
+            </ProtectedRoute>
+          } />
+          <Route path="exam-simulator" element={
+            <ProtectedRoute allowedRoles={['universal_student', 'institution_student', 'student']}>
+              <ExamSimulatorPage />
+            </ProtectedRoute>
+          } />
+          <Route path="dashboard/institution/admissions" element={
+            <ProtectedRoute allowedRoles={['institution_admin', 'platform_admin']}>
+              <InstitutionAdmissionInbox />
+            </ProtectedRoute>
+          } />
+
           {/* AI-Powered Features */}
           <Route path="learning-path" element={
             <ProtectedRoute allowedRoles={['universal_student']}>
@@ -182,6 +306,7 @@ function App() {
           <Route path="projects/:projectId/submit" element={<ExercisePage />} />
           <Route path="assignments/:assignmentId" element={<ExercisePage />} />
           <Route path="peer-tutoring" element={<PeerTutoringHub />} />
+          <Route path="peer-learning" element={<PeerLearningPage />} />
           <Route path="ai-assistant" element={
             <ProtectedRoute allowedRoles={['independent_teacher', 'institution_admin']}>
               <AITeachingAssistant />
@@ -255,6 +380,66 @@ function App() {
               <TeacherMarksUpload />
             </ProtectedRoute>
           } />
+          <Route path="teacher/assessments/:assessmentId/questions" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <QuestionBankBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="teacher/live-lessons/new" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <LiveLessonScheduler />
+            </ProtectedRoute>
+          } />
+          <Route path="institution/learners/new" element={
+            <ProtectedRoute allowedRoles={['institution']}>
+              <LearnerRegistrationForm />
+            </ProtectedRoute>
+          } />
+          <Route path="institution/terms" element={
+            <ProtectedRoute allowedRoles={['institution']}>
+              <TermSetupPage />
+            </ProtectedRoute>
+          } />
+          <Route path="institution/classes/new" element={
+            <ProtectedRoute allowedRoles={['institution']}>
+              <ClassCreationForm />
+            </ProtectedRoute>
+          } />
+          <Route path="institution/timetable/slots/new" element={
+            <ProtectedRoute allowedRoles={['institution']}>
+              <TimetableSlotForm />
+            </ProtectedRoute>
+          } />
+          <Route path="institution/fees/new" element={
+            <ProtectedRoute allowedRoles={['institution']}>
+              <FeeAssessmentForm />
+            </ProtectedRoute>
+          } />
+          <Route path="teacher/topics/new" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <TopicCreationForm />
+            </ProtectedRoute>
+          } />
+          <Route path="teacher/payouts/new" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <PayoutRequestForm />
+            </ProtectedRoute>
+          } />
+          <Route path="teacher/lessons/:lessonId/video" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <LessonVideoUploadForm />
+            </ProtectedRoute>
+          } />
+          <Route path="teacher/practice-labs/new" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <PracticeLabBuilder />
+            </ProtectedRoute>
+          } />
+          <Route path="teacher/projects/new" element={
+            <ProtectedRoute allowedRoles={['teacher']}>
+              <ProjectAssignmentForm />
+            </ProtectedRoute>
+          } />
           <Route path="teacher/targeting" element={
             <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
               <AssignmentTargetingStudio />
@@ -322,10 +507,23 @@ function App() {
 
         {/* Primary School Content Routes (outside dashboard layout) */}
         <Route path="/primary" element={<Layout />}>
-          <Route index element={<PrimaryClassLanding />} />
+          <Route index element={<PrimarySyllabusPage />} />
+          <Route path="catalog" element={<PrimaryClassLanding />} />
           <Route path="class/:classId" element={<PrimaryClassDetail />} />
           <Route path="p7-readiness" element={<P7ReadinessDashboard />} />
         </Route>
+
+        {/* Secondary syllabus — owns its own navbar (suppressed in Layout) */}
+        <Route path="/secondary" element={<Layout />}>
+          <Route index element={<SecondarySyllabusPage />} />
+        </Route>
+
+        {/* Admissions — public-facing application form for parents */}
+        <Route path="/admissions/apply" element={
+          <ProtectedRoute allowedRoles={['parent', 'student', 'universal_student', 'institution_student']}>
+            <AdmissionApplicationForm />
+          </ProtectedRoute>
+        } />
 
         {/* Analytics Routes completely moved to /dashboard/analytics inside GlassDashboardLayout above */}
 

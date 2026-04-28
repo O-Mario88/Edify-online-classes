@@ -1,339 +1,215 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
-import { Progress } from '../components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import {
-  Target,
-  Brain,
-  CheckCircle,
-  Lock,
-  Lightbulb,
-  BookOpen,
-  Play,
-  Clock,
-  Calendar,
-  TrendingUp,
-  MapPin
-} from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Calendar, CheckCircle2, Circle, Clock, Sparkles, AlertTriangle } from 'lucide-react';
+import { apiGet, apiPost, API_BASE_URL } from '../lib/apiClient';
 
-export const LearningPathPage: React.FC = () => {
-  const { user } = useAuth();
+interface StudyTask {
+  id: number;
+  type: 'revision' | 'assignment' | 'practice' | 'video' | 'reading' | 'intervention' | 'live_session' | 'project' | string;
+  status: 'pending' | 'in_progress' | 'completed' | 'skipped' | 'rescheduled' | string;
+  urgency: 'urgent' | 'normal' | 'optional' | string;
+  title: string;
+  description?: string;
+  estimated_minutes: number;
+  subject?: string;
+  topic?: string;
+}
+
+interface StudyPlan {
+  id: number;
+  week_start: string;
+  week_end: string;
+  total_estimated_minutes: number;
+  completed_minutes: number;
+}
+
+const URGENCY_BADGE: Record<string, string> = {
+  urgent:   'bg-rose-50 text-rose-700 border-rose-200',
+  normal:   'bg-indigo-50 text-indigo-700 border-indigo-200',
+  optional: 'bg-slate-100 text-slate-700 border-slate-200',
+};
+
+/**
+ * Personalised learning path — bound to the intelligence app's study
+ * planner. Renders today's tasks first, with a "Generate this week"
+ * fallback when no plan exists yet.
+ */
+const LearningPathPage: React.FC = () => {
+  const [tasks, setTasks] = useState<StudyTask[]>([]);
+  const [plans, setPlans] = useState<StudyPlan[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSubject, setSelectedSubject] = useState('mathematics');
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Simulate data loading
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
-
-  const subjects = [
-    { id: 'mathematics', name: 'Mathematics', progress: 65, nextTopic: 'Quadratic Equations' },
-    { id: 'physics', name: 'Physics', progress: 42, nextTopic: 'Waves and Sound' },
-    { id: 'chemistry', name: 'Chemistry', progress: 78, nextTopic: 'Organic Chemistry' },
-    { id: 'biology', name: 'Biology', progress: 55, nextTopic: 'Cell Division' }
-  ];
-
-  const skillNodes = [
-    { id: 1, title: 'Basic Algebra', status: 'mastered', mastery: 95, x: 100, y: 100 },
-    { id: 2, title: 'Linear Equations', status: 'mastered', mastery: 88, x: 250, y: 80 },
-    { id: 3, title: 'Quadratic Equations', status: 'current', mastery: 45, x: 400, y: 120 },
-    { id: 4, title: 'Functions', status: 'recommended', mastery: 0, x: 550, y: 100 },
-    { id: 5, title: 'Polynomials', status: 'locked', mastery: 0, x: 400, y: 220 }
-  ];
-
-  const weeklyPlan = [
-    { day: 'Monday', activity: 'Complete Quadratic Equations - Part 1', duration: '45 min', type: 'Video Lesson' },
-    { day: 'Tuesday', activity: 'Practice Quadratic Formula', duration: '30 min', type: 'Exercise' },
-    { day: 'Wednesday', activity: 'Quadratic Equations - Part 2', duration: '45 min', type: 'Video Lesson' },
-    { day: 'Thursday', activity: 'Review and Practice', duration: '30 min', type: 'Review' },
-    { day: 'Friday', activity: 'Assessment Quiz', duration: '20 min', type: 'Quiz' }
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'mastered': return 'bg-green-500';
-      case 'current': return 'bg-blue-500';
-      case 'recommended': return 'bg-orange-500';
-      case 'locked': return 'bg-gray-400';
-      default: return 'bg-gray-400';
+  const refresh = async () => {
+    setLoading(true);
+    setError(null);
+    const [todayResp, plansResp] = await Promise.all([
+      apiGet<any>(`${API_BASE_URL}/api/v1/intelligence/study-plans/today/`),
+      apiGet<any>(`${API_BASE_URL}/api/v1/intelligence/study-plans/`),
+    ]);
+    if (todayResp.error) {
+      setError(todayResp.error.message);
+    } else {
+      const arr = Array.isArray(todayResp.data) ? todayResp.data : ((todayResp.data as any)?.results || []);
+      setTasks(arr as StudyTask[]);
     }
+    if (!plansResp.error) {
+      const arr = Array.isArray(plansResp.data) ? plansResp.data : ((plansResp.data as any)?.results || []);
+      setPlans(arr as StudyPlan[]);
+    }
+    setLoading(false);
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'mastered': return <CheckCircle className="h-4 w-4 text-white" />;
-      case 'current': return <Target className="h-4 w-4 text-white" />;
-      case 'recommended': return <Lightbulb className="h-4 w-4 text-white" />;
-      case 'locked': return <Lock className="h-4 w-4 text-white" />;
-      default: return <BookOpen className="h-4 w-4 text-white" />;
-    }
+  useEffect(() => { void refresh(); }, []);
+
+  const onGenerate = async () => {
+    setGenerating(true);
+    await apiPost<StudyPlan>(`${API_BASE_URL}/api/v1/intelligence/study-plans/generate/`, {});
+    setGenerating(false);
+    await refresh();
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your personalized learning path...</p>
-        </div>
-      </div>
+  const onComplete = async (taskId: number) => {
+    await apiPost<StudyTask>(
+      `${API_BASE_URL}/api/v1/intelligence/study-tasks/${taskId}/complete/`,
+      {},
     );
-  }
+    await refresh();
+  };
+
+  const totals = useMemo(() => {
+    const minutes = tasks.reduce((s, t) => s + (t.estimated_minutes || 0), 0);
+    const done = tasks.filter((t) => t.status === 'completed').length;
+    return { minutes, done, total: tasks.length };
+  }, [tasks]);
+
+  const currentPlan = plans[0];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-2 mb-4">
-            <MapPin className="h-5 w-5 text-blue-600" />
-            <span className="text-blue-600 font-medium">AI-Powered Learning for Uganda Students</span>
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <header className="mb-6">
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Learning path</p>
+        <h1 className="mt-1 text-3xl font-extrabold text-slate-900">Today's plan</h1>
+        <p className="mt-2 text-slate-600">
+          A short stack of tasks generated by Maple Intelligence — based on your weakest topics, attendance, and assessment trend.
+        </p>
+      </header>
+
+      {error && (
+        <div className="mb-4 flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 p-4">
+          <AlertTriangle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium text-rose-800">Could not load your plan.</p>
+            <p className="text-sm text-rose-700 mt-1">{error}</p>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Your Personal Learning Path</h1>
-          <p className="text-lg text-gray-600">
-            AI-customized study journey designed for UCE/UACE success
-          </p>
         </div>
-      </div>
+      )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <Brain className="h-4 w-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="skill-tree" className="flex items-center gap-2">
-              <Target className="h-4 w-4" />
-              Skill Tree
-            </TabsTrigger>
-            <TabsTrigger value="weekly-plan" className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Weekly Plan
-            </TabsTrigger>
-            <TabsTrigger value="insights" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              AI Insights
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {subjects.map((subject) => (
-                <Card key={subject.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="text-lg">{subject.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex justify-between text-sm mb-2">
-                          <span>Progress</span>
-                          <span>{subject.progress}%</span>
-                        </div>
-                        <Progress value={subject.progress} className="h-2" />
-                      </div>
-                      
-                      <div>
-                        <p className="text-sm text-gray-600 mb-2">Next Topic:</p>
-                        <p className="font-medium">{subject.nextTopic}</p>
-                      </div>
-                      
-                      <Button size="sm" className="w-full">
-                        <Play className="mr-2 h-4 w-4" />
-                        Continue Learning
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+      {loading ? (
+        <div className="space-y-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-20 rounded-xl bg-slate-100 animate-pulse" />
+          ))}
+        </div>
+      ) : tasks.length === 0 ? (
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+          <Sparkles className="w-8 h-8 text-amber-500 mx-auto" />
+          <h2 className="mt-3 text-lg font-bold text-slate-900">No plan for today yet</h2>
+          <p className="mt-1 text-sm text-slate-600 max-w-sm mx-auto">
+            Generate a fresh weekly plan based on your strongest and weakest subjects.
+          </p>
+          <button
+            type="button"
+            onClick={onGenerate}
+            disabled={generating}
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            <Sparkles className="w-4 h-4" />
+            {generating ? 'Generating…' : "Generate this week's plan"}
+          </button>
+        </div>
+      ) : (
+        <>
+          {currentPlan && (
+            <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-4 flex items-center gap-4">
+              <Calendar className="w-5 h-5 text-slate-500" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-slate-900">
+                  Week of {new Date(currentPlan.week_start).toLocaleDateString()}
+                </p>
+                <p className="text-xs text-slate-500">
+                  {totals.done} / {totals.total} done · {totals.minutes} minutes planned today
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onGenerate}
+                disabled={generating}
+                className="text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-slate-900 disabled:opacity-60"
+              >
+                Re-plan
+              </button>
             </div>
+          )}
 
-            <div className="mt-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="h-5 w-5 text-blue-600" />
-                    AI Recommendations
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-blue-900 mb-2">Focus Area This Week</h4>
-                      <p className="text-blue-800">
-                        Based on your recent performance, spend extra time on quadratic equations. 
-                        Your current understanding is 45% - aim for 80% by Friday.
-                      </p>
-                    </div>
-                    
-                    <div className="bg-green-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-green-900 mb-2">Strength</h4>
-                      <p className="text-green-800">
-                        You excel at basic algebra! This strong foundation will help with advanced topics.
-                      </p>
-                    </div>
-                    
-                    <div className="bg-orange-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-orange-900 mb-2">Study Tip</h4>
-                      <p className="text-orange-800">
-                        Try solving 3-4 practice problems daily to improve retention and speed.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+          <div className="space-y-2">
+            {tasks.map((t) => <TaskRow key={t.id} task={t} onComplete={() => onComplete(t.id)} />)}
+          </div>
 
-          <TabsContent value="skill-tree">
-            <Card>
-              <CardHeader>
-                <CardTitle>Mathematics Skill Tree</CardTitle>
-                <p className="text-gray-600">Interactive visualization of your learning journey</p>
-              </CardHeader>
-              <CardContent>
-                <div className="relative bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg p-8 min-h-[400px]">
-                  {skillNodes.map((node) => (
-                    <div
-                      key={node.id}
-                      className="absolute cursor-pointer transform transition-all duration-200 hover:scale-105"
-                      style={{ left: node.x, top: node.y }}
-                    >
-                      <div className={`w-24 h-16 rounded-lg ${getStatusColor(node.status)} shadow-lg flex flex-col items-center justify-center relative`}>
-                        {getStatusIcon(node.status)}
-                        <span className="text-xs text-white font-medium text-center px-1 mt-1">
-                          {node.title.split(' ').slice(0, 2).join(' ')}
-                        </span>
-                        {node.mastery > 0 && (
-                          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
-                            <div className="bg-white rounded-full px-2 py-1 text-xs font-bold text-gray-700">
-                              {node.mastery}%
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+          <p className="mt-6 text-center">
+            <Link to="/dashboard/student" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+              ← Back to dashboard
+            </Link>
+          </p>
+        </>
+      )}
+    </div>
+  );
+};
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-               <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader className="bg-purple-50 rounded-t-lg pb-4 border-b border-purple-100">
-                     <CardTitle className="text-purple-900 flex items-center gap-2"><Target className="w-5 h-5"/> Topic Readiness Diagnostic</CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-4 space-y-4">
-                     <p className="text-sm text-gray-600">You are currently struggling with solving Quadratic equations using the formula method. Practice to increase your NCDC mastery score.</p>
-                     <Button className="w-full bg-purple-600 hover:bg-purple-700">Start 15-Minute Practice Check</Button>
-                  </CardContent>
-               </Card>
-               <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader className="bg-indigo-50 rounded-t-lg pb-4 border-b border-indigo-100">
-                     <CardTitle className="text-indigo-900 flex items-center gap-2"><Lightbulb className="w-5 h-5"/> Copilot Topic Breakdown</CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-4 space-y-4">
-                     <p className="text-sm text-gray-600">Confused about the skill tree? Let the AI Copilot explain the current topic map in simpler terms before you attempt the practice drills.</p>
-                     <Button variant="outline" className="w-full border-indigo-200 text-indigo-700 hover:bg-indigo-50">Ask Copilot to Explain</Button>
-                  </CardContent>
-               </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="weekly-plan">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  AI-Generated Weekly Study Plan
-                </CardTitle>
-                <p className="text-gray-600">Optimized for your learning style and schedule</p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {weeklyPlan.map((day, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                          <span className="font-medium">{day.day}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {day.type}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1 ml-6">
-                          {day.activity}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">{day.duration}</span>
-                        <Button size="sm" variant="outline">
-                          Start
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="insights">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Learning Analytics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span>Study Streak</span>
-                      <span className="font-bold text-green-600">7 days</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Average Session Time</span>
-                      <span className="font-bold">42 minutes</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Topics Mastered</span>
-                      <span className="font-bold text-blue-600">12/25</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>Success Rate</span>
-                      <span className="font-bold text-purple-600">78%</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Adaptive Learning</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="bg-blue-50 p-3 rounded-lg">
-                      <h4 className="font-medium text-blue-900">Learning Style</h4>
-                      <p className="text-sm text-blue-800">Visual + Practice-based</p>
-                    </div>
-                    <div className="bg-green-50 p-3 rounded-lg">
-                      <h4 className="font-medium text-green-900">Best Study Time</h4>
-                      <p className="text-sm text-green-800">Evening (6-8 PM)</p>
-                    </div>
-                    <div className="bg-purple-50 p-3 rounded-lg">
-                      <h4 className="font-medium text-purple-900">Recommended Pace</h4>
-                      <p className="text-sm text-purple-800">2-3 topics per week</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
+const TaskRow: React.FC<{ task: StudyTask; onComplete: () => void }> = ({ task, onComplete }) => {
+  const completed = task.status === 'completed';
+  const badgeClass = URGENCY_BADGE[task.urgency] || URGENCY_BADGE.normal;
+  return (
+    <div className={`rounded-xl border bg-white p-4 ${completed ? 'opacity-60' : 'border-slate-200'}`}>
+      <div className="flex items-start gap-3">
+        <button
+          type="button"
+          onClick={completed ? undefined : onComplete}
+          disabled={completed}
+          aria-label={`Mark ${task.title} complete`}
+          className="mt-0.5"
+        >
+          {completed ? (
+            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+          ) : (
+            <Circle className="w-5 h-5 text-slate-400 hover:text-slate-600 transition-colors" />
+          )}
+        </button>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${badgeClass}`}>
+              {task.urgency}
+            </span>
+            {task.subject && (
+              <span className="text-xs text-slate-500">{task.subject}</span>
+            )}
+          </div>
+          <p className={`text-sm font-semibold text-slate-900 ${completed ? 'line-through' : ''}`}>
+            {task.title}
+          </p>
+          {task.description && (
+            <p className="mt-1 text-xs text-slate-600 line-clamp-2">{task.description}</p>
+          )}
+          <div className="mt-2 flex items-center gap-3 text-xs text-slate-500">
+            <span className="inline-flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {task.estimated_minutes} min
+            </span>
+            <span>{task.type.replace('_', ' ')}</span>
+          </div>
+        </div>
       </div>
     </div>
   );

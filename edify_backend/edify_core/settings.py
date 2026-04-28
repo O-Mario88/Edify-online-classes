@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     
     # Third Party Apps
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'django_filters',
     
@@ -83,6 +84,22 @@ INSTALLED_APPS = [
     'scheduling.apps.SchedulingConfig',
     'attendance.apps.AttendanceConfig',
     'intelligence.apps.IntelligenceConfig',
+    'diagnostics.apps.DiagnosticsConfig',
+    'institution_discovery.apps.InstitutionDiscoveryConfig',
+    'mastery.apps.MasteryConfig',
+    'practice_labs.apps.PracticeLabsConfig',
+    'mastery_projects.apps.MasteryProjectsConfig',
+    'mentor_reviews.apps.MentorReviewsConfig',
+    'passport.apps.PassportConfig',
+    'exam_simulator.apps.ExamSimulatorConfig',
+    'admission_passport.apps.AdmissionPassportConfig',
+    'standby_teachers.apps.StandbyTeachersConfig',
+    'cohorts.apps.CohortsConfig',
+    'pathways.apps.PathwaysConfig',
+    'learner_settings.apps.LearnerSettingsConfig',
+    'pilot_payments.apps.PilotPaymentsConfig',
+    'fees.apps.FeesConfig',
+    'mobile_api.apps.MobileApiConfig',
 ]
 
 MIDDLEWARE = [
@@ -328,3 +345,24 @@ FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, 'tmp')
 # Ensure upload directories exist
 os.makedirs(MEDIA_ROOT, exist_ok=True)
 os.makedirs(FILE_UPLOAD_TEMP_DIR, exist_ok=True)
+
+# --- Error tracking (Sentry) -------------------------------------
+# Env-gated: if SENTRY_DSN is unset, initialization is skipped entirely.
+# No network calls, no import cost in local dev or tests.
+_SENTRY_DSN = os.environ.get('SENTRY_DSN', '').strip()
+if _SENTRY_DSN and not DEBUG:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+        sentry_sdk.init(
+            dsn=_SENTRY_DSN,
+            integrations=[DjangoIntegration()],
+            # Conservative sampling — pilot has low volume; increase post-launch.
+            traces_sample_rate=0.1,
+            send_default_pii=False,
+            environment=os.environ.get('SENTRY_ENVIRONMENT', 'production'),
+            release=os.environ.get('GIT_SHA', ''),
+        )
+    except ImportError:
+        # sentry-sdk not installed — don't crash the app for this.
+        pass

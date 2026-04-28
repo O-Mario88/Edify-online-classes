@@ -81,7 +81,7 @@ export const ClassSyllabusPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#e2ddd1] font-sans pb-24 relative">
-      <div className="fixed inset-0 bg-white/40 pointer-events-none" />
+      <div className="absolute inset-0 bg-white/40 pointer-events-none" />
 
       {/* Header Area */}
       <div className="relative z-10 pt-16 pb-12">

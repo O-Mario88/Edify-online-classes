@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.utils import timezone
 from .models import Notification
 from .serializers import NotificationSerializer
 import time
@@ -10,6 +11,62 @@ class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """A user only ever sees their own notifications.
+
+        Previously the viewset returned `Notification.objects.all()` to any
+        authenticated caller, which would have leaked every user's inbox.
+        Staff still gets all (for the Django admin queue dashboard).
+        """
+        user = self.request.user
+        if getattr(user, 'is_staff', False):
+            return Notification.objects.all().select_related('user')
+        return Notification.objects.filter(user=user)
+
+    @action(detail=False, methods=['get'], url_path='inbox')
+    def inbox(self, request):
+        """GET /api/v1/notifications/notification/inbox/
+
+        Returns the caller's most recent N notifications (default 30) plus
+        an unread count. Powers the persistent NotificationsDrawer in the
+        top nav.
+        """
+        try:
+            limit = max(1, min(int(request.query_params.get('limit', 30)), 100))
+        except (TypeError, ValueError):
+            limit = 30
+        qs = Notification.objects.filter(user=request.user).order_by('-created_at')
+        unread_count = qs.filter(read_at__isnull=True).count()
+        items = [
+            {
+                'id': n.id,
+                'channel': n.channel,
+                'status': n.status,
+                'payload': n.payload,
+                'created_at': n.created_at.isoformat(),
+                'read_at': n.read_at.isoformat() if n.read_at else None,
+            }
+            for n in qs[:limit]
+        ]
+        return Response({'unread_count': unread_count, 'items': items})
+
+    @action(detail=True, methods=['post'], url_path='mark-read')
+    def mark_read(self, request, pk=None):
+        n = self.get_object()
+        if n.user_id != request.user.id and not getattr(request.user, 'is_staff', False):
+            return Response({'detail': 'Not your notification.'}, status=status.HTTP_403_FORBIDDEN)
+        if n.read_at is None:
+            n.read_at = timezone.now()
+            n.save(update_fields=['read_at'])
+        return Response({'id': n.id, 'read_at': n.read_at.isoformat()})
+
+    @action(detail=False, methods=['post'], url_path='mark-all-read')
+    def mark_all_read(self, request):
+        updated = Notification.objects.filter(
+            user=request.user, read_at__isnull=True,
+        ).update(read_at=timezone.now())
+        return Response({'updated': updated})
 
     @action(detail=False, methods=['post'], url_path='send-whatsapp')
     def send_whatsapp(self, request):

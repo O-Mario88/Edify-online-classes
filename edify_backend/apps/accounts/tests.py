@@ -295,6 +295,52 @@ class EmailVerificationTests(TestCase):
         self.assertIn('access', resp.data)
 
 
+class TokenBlacklistTests(TestCase):
+    """Logout must invalidate the refresh token server-side, not just drop it
+    from the browser. See docs/audit/FIX_PLAN.md §2.2."""
+
+    TOKEN_URL = '/api/v1/auth/token/'
+    REFRESH_URL = '/api/v1/auth/token/refresh/'
+    BLACKLIST_URL = '/api/v1/auth/token/blacklist/'
+
+    def setUp(self):
+        _clear_throttle_cache()
+        self.user = User.objects.create_user(
+            email='blacklist.user@edify.test',
+            full_name='Blacklist User',
+            country_code='UG',
+            password='BlacklistPass!',
+            role='student',
+        )
+        self.client = APIClient()
+        resp = self.client.post(
+            self.TOKEN_URL,
+            {'email': 'blacklist.user@edify.test', 'password': 'BlacklistPass!'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, resp.content)
+        self.refresh = resp.data['refresh']
+
+    def test_blacklist_endpoint_accepts_refresh_and_blocks_reuse(self):
+        # Refresh works before logout.
+        resp = self.client.post(self.REFRESH_URL, {'refresh': self.refresh}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, resp.content)
+        # After rotation the old refresh is now the rotated one in resp.data.
+        rotated_refresh = resp.data['refresh']
+
+        # Log out by blacklisting the current refresh.
+        resp = self.client.post(self.BLACKLIST_URL, {'refresh': rotated_refresh}, format='json')
+        self.assertIn(resp.status_code, (status.HTTP_200_OK, status.HTTP_205_RESET_CONTENT), resp.content)
+
+        # The blacklisted refresh can no longer be used.
+        resp = self.client.post(self.REFRESH_URL, {'refresh': rotated_refresh}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED, resp.content)
+
+    def test_blacklist_requires_refresh_token_field(self):
+        resp = self.client.post(self.BLACKLIST_URL, {}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+
 class PilotFeedbackTests(TestCase):
     """POST /api/v1/feedback/ — pilot user bug/feedback capture."""
 

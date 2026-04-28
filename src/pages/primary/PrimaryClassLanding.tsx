@@ -1,22 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import {
-  BookOpen, Users, GraduationCap, Star, ArrowRight,
-  Clock, CheckCircle, AlertTriangle, TrendingUp, Sparkles
+  BookOpen, Users, GraduationCap, ArrowRight,
+  TrendingUp, Sparkles
 } from 'lucide-react';
-import { getCurriculumForSchoolLevel, getGradesForSchoolLevel } from '../../lib/curriculum';
-import { getPrimarySubjectsForClass, getPrimaryTopics } from '../../lib/curriculum/ugandaPrimaryContent';
-import type { SchoolLevel } from '../../types';
+import { getGradesForSchoolLevel } from '../../lib/curriculum';
+import { apiGet } from '../../lib/apiClient';
 
-// Default stats — will be populated from analytics API when available
-const DEFAULT_STATS = { students: 0, teachers: 0, avgProgress: 0, activeSubjects: 0 };
+interface ClassLevelStats {
+  class_level_id?: number | string;
+  class_level_code?: string;
+  class_level_name?: string;
+  students: number;
+  teachers: number;
+  avg_progress: number;
+  active_subjects: number;
+}
+
+const EMPTY_STATS = { students: 0, teachers: 0, avgProgress: 0, activeSubjects: 0 };
+const arr = <T,>(d: any): T[] => (Array.isArray(d) ? d : (d?.results || []));
 
 export const PrimaryClassLanding: React.FC = () => {
   const navigate = useNavigate();
   const grades = getGradesForSchoolLevel('uganda', 'primary');
+  const [statsByCode, setStatsByCode] = useState<Record<string, ClassLevelStats>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const r = await apiGet<any>('/analytics/admin-dashboard/');
+      if (cancelled || r.error || !r.data) return;
+      const rows = arr<ClassLevelStats>((r.data as any).primary_class_stats || []);
+      const map: Record<string, ClassLevelStats> = {};
+      rows.forEach((row) => {
+        const key = (row.class_level_code || row.class_level_name || '').toLowerCase();
+        if (key) map[key] = row;
+      });
+      setStatsByCode(map);
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -28,7 +54,13 @@ export const PrimaryClassLanding: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {grades.map((grade) => {
-          const mock = DEFAULT_STATS;
+          const stats = statsByCode[grade.id.toLowerCase()];
+          const live = stats ? {
+            students: stats.students,
+            teachers: stats.teachers,
+            avgProgress: stats.avg_progress,
+            activeSubjects: stats.active_subjects,
+          } : EMPTY_STATS;
           const isP7 = grade.isExamYear;
           const isTransition = grade.isTransitionYear;
 
@@ -65,11 +97,11 @@ export const PrimaryClassLanding: React.FC = () => {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="flex items-center gap-1.5 text-gray-600">
                       <Users className="w-4 h-4" />
-                      <span>{mock.students} Learners</span>
+                      <span>{live.students} Learners</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-gray-600">
                       <BookOpen className="w-4 h-4" />
-                      <span>{mock.activeSubjects} Subjects</span>
+                      <span>{live.activeSubjects} Subjects</span>
                     </div>
                   </div>
 
@@ -77,18 +109,18 @@ export const PrimaryClassLanding: React.FC = () => {
                   <div>
                     <div className="flex justify-between text-xs text-gray-500 mb-1">
                       <span>Class Progress</span>
-                      <span>{mock.avgProgress}%</span>
+                      <span>{live.avgProgress}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className={`h-2 rounded-full ${
-                          mock.avgProgress >= 60
+                          live.avgProgress >= 60
                             ? 'bg-green-500'
-                            : mock.avgProgress >= 40
+                            : live.avgProgress >= 40
                             ? 'bg-yellow-500'
                             : 'bg-red-500'
                         }`}
-                        style={{ width: `${mock.avgProgress}%` }}
+                        style={{ width: `${live.avgProgress}%` }}
                       />
                     </div>
                   </div>

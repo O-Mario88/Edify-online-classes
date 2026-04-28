@@ -94,7 +94,7 @@ export const CourseCatalog: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#fbfaf8] font-sans pt-12 pb-24 relative">
-      <div className="fixed inset-0 bg-white/40 pointer-events-none" />
+      <div className="absolute inset-0 bg-white/40 pointer-events-none" />
 
       {/* 1. Top Filter Row (Picture 1) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mb-12">

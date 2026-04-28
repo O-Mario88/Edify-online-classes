@@ -186,7 +186,7 @@ const MarketplaceTopicPage: React.FC = () => {
 
         <TabsContent value="videos">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-             {resources.videos.length > 0 ? resources.videos.map(renderResourceCard) : <div className="p-8 text-center text-gray-500 bg-gray-50 rounded-xl w-full col-span-full">No active video listings for this topic.</div>}
+             {resources.videos.length > 0 ? resources.videos.map(renderResourceCard) : <div className="p-8 text-center text-gray-500 bg-gray-50 rounded-xl w-full col-span-full">No video lessons listed for this topic yet. Teachers can upload a lesson and reach every learner studying it.</div>}
           </div>
         </TabsContent>
 

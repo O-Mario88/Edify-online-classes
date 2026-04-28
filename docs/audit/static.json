@@ -4,11 +4,11 @@
     "frontend_api_call_sites": 116,
     "frontend_distinct_endpoints": 74,
     "backend_router_endpoints": 82,
-    "backend_path_endpoints": 29,
-    "allow_any_views": 11,
-    "open_queryset_views": 14,
-    "coming_soon_buttons": 4,
-    "window_alerts": 1,
+    "backend_path_endpoints": 30,
+    "allow_any_views": 7,
+    "open_queryset_views": 16,
+    "coming_soon_buttons": 0,
+    "window_alerts": 0,
     "pages_with_mock_data": 5
   },
   "routes": [
@@ -799,7 +799,7 @@
     },
     {
       "file": "src/pages/PaymentPage.tsx",
-      "line": 144,
+      "line": 145,
       "method": "POST",
       "endpoint": "/marketplace/pesapal-checkout/"
     },
@@ -1062,6 +1062,10 @@
       "view": "TokenRefreshView.as_view"
     },
     {
+      "url": "/api/v1/auth/token/blacklist/",
+      "view": "TokenBlacklistView.as_view"
+    },
+    {
       "url": "/api/v1/tutoring/dashboard/",
       "view": "PeerTutoringDashboardView.as_view"
     },
@@ -1162,63 +1166,39 @@
       "kind": "AllowAny"
     },
     {
-      "file": "edify_backend/apps/tutoring/views.py",
-      "line": 12,
-      "class": "MatchRequestViewSet",
-      "kind": "AllowAny"
-    },
-    {
-      "file": "edify_backend/apps/tutoring/views.py",
-      "line": 30,
-      "class": "TutoringBountyViewSet",
-      "kind": "AllowAny"
-    },
-    {
-      "file": "edify_backend/apps/tutoring/views.py",
-      "line": 45,
-      "class": "PeerTutoringDashboardView",
-      "kind": "AllowAny"
-    },
-    {
       "file": "edify_backend/apps/intelligence/views.py",
-      "line": 35,
+      "line": 36,
       "class": "NextBestActionViewSet",
       "model": "InterventionPack",
       "kind": "open_queryset"
     },
     {
       "file": "edify_backend/apps/intelligence/views.py",
-      "line": 132,
+      "line": 133,
       "class": "InterventionPackAssignmentViewSet",
       "model": "InterventionPackAssignment",
       "kind": "open_queryset"
     },
     {
       "file": "edify_backend/apps/intelligence/views.py",
-      "line": 191,
+      "line": 204,
       "class": "ParentActionViewSet",
       "model": "HouseTeam",
       "kind": "open_queryset"
     },
     {
       "file": "edify_backend/apps/intelligence/views.py",
-      "line": 311,
+      "line": 324,
       "class": "LearningProgressViewSet",
       "model": "NationalExamResult",
       "kind": "open_queryset"
     },
     {
       "file": "edify_backend/apps/intelligence/views.py",
-      "line": 363,
+      "line": 383,
       "class": "StoryCardViewSet",
       "model": "ImpactComparison",
       "kind": "open_queryset"
-    },
-    {
-      "file": "edify_backend/apps/live_sessions/views.py",
-      "line": 92,
-      "class": "SessionReminderViewSet",
-      "kind": "AllowAny"
     },
     {
       "file": "edify_backend/apps/resources/content_views.py",
@@ -1243,14 +1223,14 @@
     },
     {
       "file": "edify_backend/apps/resources/content_views.py",
-      "line": 646,
+      "line": 650,
       "class": "ContentTagViewSet",
       "model": "ContentAssignment",
       "kind": "open_queryset"
     },
     {
       "file": "edify_backend/apps/resources/content_views.py",
-      "line": 824,
+      "line": 828,
       "class": "ContentRecommendationViewSet",
       "model": "ContentRecommendation",
       "kind": "open_queryset"
@@ -1309,49 +1289,32 @@
       "file": "edify_backend/apps/analytics/views.py",
       "line": 35,
       "class": "DailyPlatformMetricViewSet",
+      "model": "DailyPlatformMetric",
+      "kind": "open_queryset"
+    },
+    {
+      "file": "edify_backend/apps/analytics/views.py",
+      "line": 44,
+      "class": "DailyInstitutionMetricViewSet",
       "model": "DailyInstitutionMetric",
       "kind": "open_queryset"
     },
     {
       "file": "edify_backend/apps/analytics/views.py",
-      "line": 49,
+      "line": 53,
       "class": "SubjectPerformanceSnapshotViewSet",
       "model": "SubjectPerformanceSnapshot",
       "kind": "open_queryset"
-    }
-  ],
-  "dead_buttons": [
+    },
     {
-      "file": "src/components/ui/PremiumGate.tsx",
+      "file": "edify_backend/apps/analytics/views.py",
       "line": 62,
-      "kind": "window_alert",
-      "text": ""
-    },
-    {
-      "file": "src/components/dashboard/WhatsAppCommunicationHub.tsx",
-      "line": 164,
-      "kind": "coming_soon_toast",
-      "text": "File attachments coming soon."
-    },
-    {
-      "file": "src/pages/TeacherLessonStudio.tsx",
-      "line": 106,
-      "kind": "coming_soon_toast",
-      "text": "Lesson creation wizard coming soon \u2014 use the Assessment Engine below to create assessments."
-    },
-    {
-      "file": "src/pages/TeacherLessonStudio.tsx",
-      "line": 216,
-      "kind": "coming_soon_toast",
-      "text": "Quiz creator coming soon \u2014 auto-graded MCQ assessments with UNEB Readiness scoring."
-    },
-    {
-      "file": "src/pages/primary/P7ReadinessDashboard.tsx",
-      "line": 429,
-      "kind": "coming_soon_toast",
-      "text": "File picker coming soon \u2014 upload CSV/XLSX mock exam results."
+      "class": "SystemHealthSnapshotViewSet",
+      "model": "SystemHealthSnapshot",
+      "kind": "open_queryset"
     }
   ],
+  "dead_buttons": [],
   "mock_pages": [
     {
       "file": "src/pages/AssignmentTargetingStudio.tsx",

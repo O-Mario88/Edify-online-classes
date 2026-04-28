@@ -3,17 +3,33 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../co
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
 import { Input } from '../components/ui/input';
-import { CheckCircle, Star, Send } from 'lucide-react';
+import { CheckCircle, Star, Send, AlertTriangle } from 'lucide-react';
+import { apiPost, API_BASE_URL } from '../lib/apiClient';
 
 export default function FeedbackPage() {
   const [feedback, setFeedback] = useState('');
   const [email, setEmail] = useState('');
   const [rating, setRating] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Send feedback to backend
+    if (submitting || !feedback.trim()) return;
+    setSubmitting(true);
+    setError(null);
+    const r = await apiPost<{ id?: number }>(`${API_BASE_URL}/api/v1/feedback/`, {
+      message: feedback,
+      contact_email: email || undefined,
+      rating: rating || undefined,
+      kind: 'pilot_general',
+    });
+    setSubmitting(false);
+    if (r.error) {
+      setError(r.error.message);
+      return;
+    }
     setSubmitted(true);
   };
 
@@ -79,11 +95,19 @@ export default function FeedbackPage() {
                   <span className="ml-2 text-sm text-gray-500">{rating > 0 ? `${rating}/5` : 'No rating'}</span>
                 </div>
               </div>
+              {error && (
+                <div className="flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3">
+                  <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-rose-700">{error}</p>
+                </div>
+              )}
               <Button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold h-12 text-lg flex items-center justify-center gap-2 shadow-lg"
+                disabled={submitting}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold h-12 text-lg flex items-center justify-center gap-2 shadow-lg disabled:opacity-60"
               >
-                <Send className="w-5 h-5" /> Submit Feedback
+                <Send className="w-5 h-5" />
+                {submitting ? 'Sending…' : 'Submit Feedback'}
               </Button>
             </form>
           )}

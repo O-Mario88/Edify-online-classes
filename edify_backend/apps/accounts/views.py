@@ -90,9 +90,15 @@ class StudentOnboardingAPIView(APIView):
             full_name=student_data.get('full_name'),
             country_code=student_data.get('country_code'),
             password=student_data.get('password'),
-            role='student'
+            role='student',
+            stage=student_data.get('stage', 'secondary'),
         )
         student_profile = StudentProfile.objects.create(user=student_user)
+        # Parent inherits the student's stage so their dashboard doesn't
+        # mix primary/secondary content either.
+        if student_user.stage != parent_user.stage:
+            parent_user.stage = student_user.stage
+            parent_user.save(update_fields=['stage'])
 
         # 3. Create Parent-Student Link
         ParentStudentLink.objects.create(
@@ -201,12 +207,28 @@ from rest_framework.exceptions import AuthenticationFailed
 class VerifiedEmailTokenObtainPairSerializer(TokenObtainPairSerializer):
     """JWT login serializer that enforces email verification when REQUIRE_EMAIL_VERIFICATION is on."""
 
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Embed stage + role in the JWT so the frontend can gate nav
+        # without an extra /me roundtrip.
+        token['stage'] = user.stage
+        token['role'] = user.role
+        token['email'] = user.email
+        return token
+
     def validate(self, attrs):
         data = super().validate(attrs)
         if getattr(dj_settings, 'REQUIRE_EMAIL_VERIFICATION', False) and not self.user.email_verified:
             raise AuthenticationFailed(
                 detail={'code': 'email_not_verified', 'detail': 'Please verify your email before signing in.'},
             )
+        # Surface stage in the login response body too (frontend reads this
+        # directly into AuthContext).
+        data['stage'] = self.user.stage
+        data['role'] = self.user.role
+        data['email'] = self.user.email
+        data['full_name'] = self.user.full_name
         return data
 
 
@@ -237,6 +259,62 @@ class ForgotPasswordView(APIView):
         return Response({'message': 'If an account with that email exists, we have sent a password reset link.'}, status=status.HTTP_200_OK)
 
 
+class ResetPasswordView(APIView):
+    """POST /api/v1/auth/reset-password/
+
+    Accepts {uid, token, new_password} and, on a valid (uid, token)
+    pair from the ForgotPasswordView email, sets the new password.
+    Same uid+token mechanism used by Django's built-in
+    PasswordResetTokenGenerator — tokens are single-use and expire
+    per Django's PASSWORD_RESET_TIMEOUT setting.
+
+    Returns 400 with `code` so the mobile/web client can localize.
+    """
+    permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'password_reset'
+
+    def post(self, request, *args, **kwargs):
+        from django.utils.http import urlsafe_base64_decode
+        uid = request.data.get('uid')
+        token = request.data.get('token')
+        new_password = request.data.get('new_password')
+
+        if not (uid and token and new_password):
+            return Response(
+                {'detail': 'uid, token, and new_password are required.', 'code': 'missing_fields'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if len(new_password) < 8:
+            return Response(
+                {'detail': 'Password must be at least 8 characters.', 'code': 'weak_password'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user_id = urlsafe_base64_decode(uid).decode()
+            user = User.objects.get(pk=user_id)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response(
+                {'detail': 'Invalid or expired reset link.', 'code': 'invalid_link'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not PasswordResetTokenGenerator().check_token(user, token):
+            return Response(
+                {'detail': 'Invalid or expired reset link.', 'code': 'invalid_link'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.set_password(new_password)
+        user.save(update_fields=['password'])
+        return Response(
+            {'message': 'Password updated. Sign in with your new password.'},
+            status=status.HTTP_200_OK,
+        )
+
+
 from rest_framework.permissions import IsAuthenticated
 from .models import PilotFeedback
 from .serializers import PilotFeedbackSerializer
@@ -246,9 +324,7 @@ class PilotFeedbackCreateView(APIView):
     """POST /api/v1/feedback/ — capture bug reports + comments from pilot users.
 
     Authenticated-only (so we always know who it came from and can follow
-    up). Read is via Django admin at /admin/accounts/pilotfeedback/ —
-    there's no list endpoint by design; we don't want a 'see everyone's
-    complaints' leak.
+    up).
     """
     permission_classes = [IsAuthenticated]
 
@@ -264,3 +340,39 @@ class PilotFeedbackCreateView(APIView):
             user_agent=(request.META.get('HTTP_USER_AGENT') or '')[:500],
         )
         return Response({'message': 'Thanks — logged.'}, status=status.HTTP_201_CREATED)
+
+
+class PilotFeedbackInboxView(APIView):
+    """GET /api/v1/feedback/inbox/ — platform-admin-only inbox of pilot feedback.
+
+    Returns the most recent N items (default 50) with the submitter's email
+    and role. Used by the AdminDashboard's feedback panel so the team can
+    triage bugs and comments without dropping into the Django admin.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        if getattr(request.user, 'role', '') not in ('admin', 'platform_admin'):
+            return Response({'detail': 'Platform admin role required.'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            limit = max(1, min(int(request.query_params.get('limit', 50)), 200))
+        except (TypeError, ValueError):
+            limit = 50
+        severity = request.query_params.get('severity') or ''
+        qs = PilotFeedback.objects.all()
+        if severity:
+            qs = qs.filter(severity=severity)
+        items = qs[:limit]
+        payload = [{
+            'id': f.id,
+            'severity': f.severity,
+            'message': f.message,
+            'page_url': f.page_url,
+            'user_email': f.user.email if f.user else None,
+            'user_role': f.user_role,
+            'created_at': f.created_at.isoformat(),
+        } for f in items]
+        return Response({
+            'count': qs.count(),
+            'items': payload,
+        })

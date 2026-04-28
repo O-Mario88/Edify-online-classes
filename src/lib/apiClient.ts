@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
   AUTH_REGISTER: `${API_BASE_URL}${API_V1}/auth/register/`,
   AUTH_LOGIN: `${API_BASE_URL}${API_V1}/auth/token/`,
   AUTH_REFRESH: `${API_BASE_URL}${API_V1}/auth/token/refresh/`,
+  AUTH_BLACKLIST: `${API_BASE_URL}${API_V1}/auth/token/blacklist/`,
   
   // Curriculum
   COUNTRIES: `${API_BASE_URL}${API_V1}/curriculum/countries/`,
@@ -355,9 +356,23 @@ export const loginUser = async (email: string, password: string) => {
 };
 
 /**
- * Logout user by clearing tokens
+ * Logout user — blacklist the refresh token server-side before clearing local
+ * storage so a stolen refresh cannot be used after sign-out.
+ * See docs/audit/FIX_PLAN.md §2.2.
  */
-export const logoutUser = () => {
+export const logoutUser = async () => {
+  const { refreshToken } = getStoredTokens();
+  if (refreshToken) {
+    try {
+      await fetch(API_ENDPOINTS.AUTH_BLACKLIST, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh: refreshToken }),
+      });
+    } catch {
+      // Network errors on logout must not block the user from signing out.
+    }
+  }
   clearTokens();
   window.location.href = '/login';
 };

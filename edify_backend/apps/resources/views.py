@@ -2,6 +2,7 @@ from rest_framework import viewsets, exceptions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from apps.curriculum.stage_filter import filter_queryset_by_stage
 from .models import Resource, SharedResourceLink
 from .serializers import ResourceSerializer, SharedResourceLinkSerializer
 from institutions.models import InstitutionMembership
@@ -26,12 +27,13 @@ class ResourceViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         inst_ids = self.get_user_institutions()
-        
-        return Resource.objects.filter(
+
+        qs = Resource.objects.filter(
             Q(visibility__in=['platform_shared', 'marketplace_public']) |
             Q(visibility='institution_only', owner_institution_id__in=inst_ids) |
             Q(visibility='private', uploaded_by=user)
         ).distinct()
+        return filter_queryset_by_stage(qs, user)
 
     def perform_create(self, serializer):
         # Default to private internal if creating inside an institution boundary

@@ -16,11 +16,20 @@ import { IntelligenceCard } from '../components/dashboard/IntelligenceCard';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 import { CareerGuidanceWidget } from '../components/dashboard/CareerGuidanceWidget';
 import { StudentResourceEngagementPanel } from '../components/dashboard/StudentResourceEngagementPanel';
+import { StudentRecommendedInstitutions } from '../components/students/StudentRecommendedInstitutions';
+import { StudentMasteryTracksCard } from '../components/mastery/StudentMasteryTracksCard';
+import { AskStandbyTeacherCard } from '../components/standby/AskStandbyTeacherCard';
+import { TodaysLearningPlanCard } from '../components/dashboard/TodaysLearningPlanCard';
 import { StudentAssignmentsPanel } from '../components/students/StudentAssignmentsPanel';
 import { PilotFeedbackButton } from '../components/PilotFeedbackButton';
 import { StudentActionCenter } from '../components/dashboard/StudentActionCenter';
 import { StudentPlatformLaunchpad } from '../components/dashboard/StudentPlatformLaunchpad';
 import { StudentMotivationEngine } from '../components/dashboard/StudentMotivationEngine';
+import { AccessStatusBanner } from '../components/dashboard/AccessStatusBanner';
+import { WeeklyScheduleCard } from '../components/dashboard/WeeklyScheduleCard';
+import { AcademicTermBanner } from '../components/dashboard/AcademicTermBanner';
+import { LearnerKpiRow } from '../components/dashboard/LearnerKpiRow';
+import { TodayHero } from '../components/dashboard/TodayHero';
 
 import { DashboardGrid } from '../components/dashboard/layout/DashboardGrid';
 import { DashboardSection } from '../components/dashboard/layout/DashboardSection';
@@ -69,7 +78,7 @@ export const StudentDashboard: React.FC = () => {
   const getEmptyDashboardData = () => ({
     kpis: { overallProgress: 0, progressTrend: '0', attendance: 0, attendanceTrend: '0', assessmentsCompleted: 0, readinessScore: 0, overdueTasks: 0, liveSessionsAttended: 0 },
     subjectPerformance: [],
-    nextSession: { subject: '—', topic: 'No upcoming sessions', tutor: '—', time: '—', countdown: '—', streak: 0, readinessState: '—' },
+    nextSession: { subject: '—', topic: 'Your next live class will show here once one is scheduled.', tutor: '—', time: '—', countdown: '—', streak: 0, readinessState: '—' },
     intelligence: [],
     assessmentSnapshot: []
   });
@@ -94,7 +103,7 @@ export const StudentDashboard: React.FC = () => {
         // those IDs to the API response would let us deep-link further.
         navigate('/library');
       } else {
-        toast.info('No active lesson found. Taking you to classes.');
+        toast.info('No lesson in progress yet. Browsing classes so you can pick one up.');
         navigate('/classes');
       }
     } catch (e) {
@@ -133,10 +142,10 @@ export const StudentDashboard: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pb-6 border-b border-slate-200/50">
           <div className="space-y-1.5">
             <div className="flex items-center gap-3">
-               <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Learning Command Center</h1>
+               <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">My Learning Evidence</h1>
                <Badge className="bg-emerald-100/50 text-emerald-700 hover:bg-emerald-100/80 border-emerald-200">Active Term</Badge>
             </div>
-            <p className="text-slate-700 font-medium text-sm md:text-base">Welcome back, {student?.name?.split(' ')[0] || 'Learner'}. Here is your real-time diagnostic overview.</p>
+            <p className="text-slate-700 font-medium text-sm md:text-base">Welcome back, {student?.name?.split(' ')[0] || 'Learner'}. Here's where you stand — and what to study next.</p>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
              <Button variant="outline" className="hidden md:flex shadow-sm bg-white/50 backdrop-blur-sm" onClick={() => setIsScheduleOpen(true)}><Calendar className="w-4 h-4 mr-2 text-slate-700" /> View Schedule</Button>
@@ -145,6 +154,27 @@ export const StudentDashboard: React.FC = () => {
              </Button>
           </div>
         </div>
+
+        <AcademicTermBanner />
+
+        {/* "Today" hero — the single highest-priority action for this
+            learner right now. Replaces the "wall of features" problem:
+            a student opens the dashboard and sees exactly one thing to
+            do next (or "all caught up" when nothing's urgent). */}
+        <DashboardSection>
+           <TodayHero variant="glass" />
+        </DashboardSection>
+
+        {/* Account access state — replaces the silent assumption that every
+            learner is institutional. Trial / Premium / Free is now visible. */}
+        <DashboardSection>
+           <AccessStatusBanner />
+        </DashboardSection>
+
+        {/* Priority 1: Today's Learning Plan — the first thing a learner sees. */}
+        <DashboardSection>
+           <TodaysLearningPlanCard />
+        </DashboardSection>
 
         {/* Row 1: KPI Strip (Intelligence Cards) */}
         <DashboardSection>
@@ -157,23 +187,135 @@ export const StudentDashboard: React.FC = () => {
            </DashboardGrid>
         </DashboardSection>
 
-        {/* Phase 8 Resource Engagement */}
-        <DashboardSection>
-           <StudentResourceEngagementPanel />
+        {/* Headline numbers — overall progress, attendance, readiness, overdue —
+            rendered through the shared LearnerKpiRow so the same vocabulary
+            shows up on the parent dashboard. Source of truth for both:
+            /analytics/{student,parent}-dashboard/.kpis. */}
+        <DashboardSection title="My Standing This Term">
+           <LearnerKpiRow kpis={kpis} />
         </DashboardSection>
 
-        {/* Phase 4.3 — assignments + grades */}
-        <DashboardSection title="My assignments">
+        {/* Subject Performance Grid — moved up from the buried "Exam Readiness
+            Tracker" position so academic accountability sits above motivational
+            cards. Source of truth: /analytics/student-dashboard/.subjectPerformance. */}
+        {subjectPerformance && subjectPerformance.length > 0 && (
+          <DashboardSection title="Subject-by-subject standing">
+             <DashboardGrid>
+               <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12} variant="transparent">
+                 <Card className="shadow-sm">
+                   <CardHeader className="border-b border-slate-100 pb-4">
+                      <CardTitle className="text-lg">Where you stand in each subject</CardTitle>
+                      <CardDescription>Completion, average score, and weak topics from your real assessments.</CardDescription>
+                   </CardHeader>
+                   <CardContent className="p-0">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left border-collapse">
+                          <thead className="bg-slate-50 text-slate-600">
+                            <tr>
+                              <th className="font-semibold p-4 uppercase text-xs">Subject</th>
+                              <th className="font-semibold p-4 uppercase text-xs text-center">Completion</th>
+                              <th className="font-semibold p-4 uppercase text-xs text-center">Avg Score</th>
+                              <th className="font-semibold p-4 uppercase text-xs text-center">Weak Topics</th>
+                              <th className="font-semibold p-4 uppercase text-xs text-center">Confidence</th>
+                              <th className="font-semibold p-4 uppercase text-xs text-right">Last Activity</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {subjectPerformance.map((subj: any, index: number) => (
+                              <tr key={index} className="hover:bg-slate-50 transition-colors">
+                                 <td className="p-4">
+                                   <div className="flex items-center gap-2">
+                                     <div className={`w-2 h-2 rounded-full ${subj.readinessColor || 'bg-slate-400'}`}></div>
+                                     <span className="font-bold text-slate-900">{subj.subject}</span>
+                                   </div>
+                                 </td>
+                                 <td className="p-4 text-center">
+                                   <div className="flex items-center justify-center gap-2">
+                                     <Progress value={subj.completion} className="w-16 h-2" />
+                                     <span className="text-slate-700 font-medium">{subj.completion}%</span>
+                                   </div>
+                                 </td>
+                                 <td className="p-4 text-center">
+                                   <Badge variant="outline" className={`${subj.avgScore < 60 ? "text-rose-700 border-rose-300 bg-rose-50" : "text-emerald-700 border-emerald-300 bg-emerald-50"}`}>
+                                     {subj.avgScore}%
+                                   </Badge>
+                                 </td>
+                                 <td className="p-4 text-center">
+                                   {subj.weakTopics > 0 ? (
+                                     <span className="text-rose-600 font-bold flex items-center justify-center gap-1">
+                                       {subj.weakTopics} <AlertTriangle className="w-3 h-3" />
+                                     </span>
+                                   ) : (
+                                     <span className="text-emerald-600 font-bold"><CheckCircle className="w-4 h-4 mx-auto" /></span>
+                                   )}
+                                 </td>
+                                 <td className="p-4 text-center">
+                                   <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
+                                     subj.confidence === 'High' ? 'bg-emerald-100 text-emerald-700' :
+                                     subj.confidence === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'
+                                   }`}>
+                                     {subj.confidence}
+                                   </span>
+                                 </td>
+                                 <td className="p-4 text-right text-slate-700 font-medium whitespace-nowrap">
+                                   {subj.lastActivity}
+                                 </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                   </CardContent>
+                 </Card>
+               </DashboardCard>
+             </DashboardGrid>
+          </DashboardSection>
+        )}
+
+        {/* Weekly Schedule — replaces the single-session "Next Live Session"
+            promise with a full Mon-Sun view sourced from real LiveSession rows. */}
+        <DashboardSection>
+           <WeeklyScheduleCard />
+        </DashboardSection>
+
+        {/* Phase 4.3 — assignments + grades. Promoted above motivational
+            content so a learner sees what's due before what's optional. */}
+        <DashboardSection title="My Assignments">
            <StudentAssignmentsPanel />
         </DashboardSection>
 
         {/* Global Action Center - Surfacing critical pending tasks & collaborative duties */}
-        <DashboardSection title="Action Center">
+        <DashboardSection title="What To Do Today">
            <StudentActionCenter />
         </DashboardSection>
 
+        {/* Resource Engagement (academic — recently-used resources). */}
+        <DashboardSection>
+           <StudentResourceEngagementPanel />
+        </DashboardSection>
+
+        {/* Standby Teacher Network — real teachers on call */}
+        <DashboardSection title="Real Teachers, On Call">
+           <AskStandbyTeacherCard />
+        </DashboardSection>
+
+        {/* ─── Discovery & enrichment (motivational, optional) ─────────
+            The audit flagged that motivational content (career paths,
+            school discovery, mastery tracks) was sitting above academic
+            accountability. These now live BELOW grades + assignments. */}
+
+        {/* Maple Mastery Studio entry point */}
+        <DashboardSection title="Maple Mastery Studio">
+           <StudentMasteryTracksCard />
+        </DashboardSection>
+
+        {/* Institution Discovery — recommended schools for in-person learning */}
+        <DashboardSection title="Recommended Schools for In-Person Learning">
+           <StudentRecommendedInstitutions />
+        </DashboardSection>
+
         {/* Row 2: Live Session + Risk + AI Guide */}
-        <DashboardSection title="Current Priorities">
+        <DashboardSection title="This Week's Priorities">
            <DashboardGrid className="!items-stretch">
              {/* Next Live Session Upgrade (Hero Aesthetic) */}
              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={5} variant="transparent">
@@ -292,7 +434,7 @@ export const StudentDashboard: React.FC = () => {
         </DashboardSection>
 
         {/* Row 3: Automated Resource Recommendations */}
-        <DashboardSection title="Resource Recommendations">
+        <DashboardSection title="Recommended for You">
            <DashboardGrid className="!items-stretch">
 
               {/* ----------------- RESOURCE RECOMMENDATIONS ROW (4 + 4 + 4 = 12 cols) ----------------- */}
@@ -377,7 +519,7 @@ export const StudentDashboard: React.FC = () => {
                        </div>
                        
                        <div className="pt-3 border-t border-white/10 mt-auto">
-                          <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-500 font-bold" onClick={() => navigate('/classes/c1/t1/chemistry_s3/topic/hydrocarbons_1')}>Resume Study Module</Button>
+                          <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-500 font-bold" onClick={() => navigate('/classes')}>Resume Study Module</Button>
                        </div>
                      </div>
                   </CardContent>
@@ -437,86 +579,13 @@ export const StudentDashboard: React.FC = () => {
          </DashboardSection>
 
          {/* Row 4: Motivation Engine */}
-         <DashboardSection title="Trajectory & Velocity">
+         <DashboardSection title="My Progress & Badges">
             <StudentMotivationEngine />
          </DashboardSection>
 
          {/* Row 5: Career Engine Injection */}
          <DashboardSection>
             <CareerGuidanceWidget />
-         </DashboardSection>
-
-         {/* Row 4: Subject Performance Grid */}
-         <DashboardSection title="Academic Diagnostic">
-            <DashboardGrid>
-              <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12} variant="transparent">
-                <Card className="shadow-sm">
-                  <CardHeader className="border-b border-white/10 pb-4">
-                     <CardTitle className="text-lg text-white">Subject Performance Grid</CardTitle>
-                     <CardDescription className="text-slate-800">Comprehensive diagnostic of your current academic standing</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                     <div className="overflow-x-auto">
-                       <table className="w-full text-sm text-left border-collapse">
-                         <thead>
-                           <tr>
-                             <th className="font-semibold p-4 uppercase text-xs text-slate-800">Subject</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-800">Completion</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-800">Avg Score</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-800">Weak Topics</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-center text-slate-800">Confidence</th>
-                             <th className="font-semibold p-4 uppercase text-xs text-right text-slate-800">Last Activity</th>
-                           </tr>
-                         </thead>
-                         <tbody className="divide-y divide-white/5">
-                           {subjectPerformance.map((subj, index) => (
-                             <tr key={index} className="hover:bg-white/5 transition-colors">
-                                <td className="p-4">
-                                  <div className="flex items-center gap-2">
-                                    <div className={`w-2 h-2 rounded-full ${subj.readinessColor}`}></div>
-                                    <span className="font-bold text-white">{subj.subject}</span>
-                                  </div>
-                                </td>
-                                <td className="p-4 text-center">
-                                  <div className="flex items-center justify-center gap-2">
-                                    <Progress value={subj.completion} className="w-16 h-2" />
-                                    <span className="text-slate-300 font-medium">{subj.completion}%</span>
-                                  </div>
-                                </td>
-                                <td className="p-4 text-center">
-                                  <Badge variant="outline" className={`border-white/20 ${subj.avgScore < 60 ? "text-rose-400 border-rose-500/30" : "text-emerald-400 border-emerald-500/30"}`}>
-                                    {subj.avgScore}%
-                                  </Badge>
-                                </td>
-                                <td className="p-4 text-center">
-                                  {subj.weakTopics > 0 ? (
-                                    <span className="text-rose-400 font-bold flex items-center justify-center gap-1">
-                                      {subj.weakTopics} <AlertTriangle className="w-3 h-3" />
-                                    </span>
-                                  ) : (
-                                    <span className="text-emerald-400 font-bold"><CheckCircle className="w-4 h-4 mx-auto" /></span>
-                                  )}
-                                </td>
-                                <td className="p-4 text-center">
-                                  <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-                                    subj.confidence === 'High' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                                    subj.confidence === 'Medium' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                                  }`}>
-                                    {subj.confidence}
-                                  </span>
-                                </td>
-                                <td className="p-4 text-right text-slate-800 font-medium whitespace-nowrap">
-                                  {subj.lastActivity}
-                                </td>
-                             </tr>
-                           ))}
-                         </tbody>
-                       </table>
-                     </div>
-                  </CardContent>
-                </Card>
-              </DashboardCard>
-            </DashboardGrid>
          </DashboardSection>
 
          {/* Row 5: Assessment Snapshot (only show if there's data) */}
@@ -526,7 +595,7 @@ export const StudentDashboard: React.FC = () => {
                 <DashboardCard colSpan={1} mdColSpan={12} lgColSpan={12} variant="transparent">
                   <Card className="shadow-sm flex flex-col h-full">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-md flex items-center gap-2"><BarChart3 className="w-4 h-4 text-blue-400" /> Assessment Snapshot</CardTitle>
+                      <CardTitle className="text-md flex items-center gap-2"><BarChart3 className="w-4 h-4 text-blue-400" /> Recent Scores</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
@@ -553,7 +622,7 @@ export const StudentDashboard: React.FC = () => {
          )}
 
          {/* Row 6: Deep Ecosystem Navigation (Platform Launchpad) */}
-         <DashboardSection title="Learning Ecosystem Hubs">
+         <DashboardSection title="Live Classes & Peer Learning">
             <StudentPlatformLaunchpad />
          </DashboardSection>
 

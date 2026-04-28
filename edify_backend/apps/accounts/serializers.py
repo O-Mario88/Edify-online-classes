@@ -22,12 +22,17 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'full_name', 'country_code', 'password', 'role']
+        fields = ['email', 'full_name', 'country_code', 'password', 'role', 'stage']
         extra_kwargs = {
             'email': {'required': True},
             'full_name': {'required': True},
             'country_code': {'required': True},
             'role': {'required': True},
+            # Stage is set from the UI's mandatory first step; not required
+            # at the serializer layer so programmatic callers (tests,
+            # internal scripts) can omit it and fall through to the model
+            # default ('secondary').
+            'stage': {'required': False},
         }
 
     def create(self, validated_data):
@@ -36,7 +41,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             full_name=validated_data['full_name'],
             country_code=validated_data['country_code'],
             password=validated_data['password'],
-            role=validated_data['role']
+            role=validated_data['role'],
+            stage=validated_data.get('stage', 'secondary'),
         )
         
         # Hydrate proper role profiles guaranteeing isolated dashboards

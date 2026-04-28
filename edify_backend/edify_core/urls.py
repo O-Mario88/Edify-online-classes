@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView
 
 from edify_core.health import HealthView
 from accounts.views import VerifiedEmailTokenObtainPairView as TokenObtainPairView
@@ -27,14 +27,15 @@ from marketplace.views import ListingViewSet
 from ai_services.views import CopilotInferenceView
 from institutions.views import InstitutionViewSet, InstitutionMembershipViewSet, LearnerRegistrationViewSet, AdminPinResetView
 from classes.views import ClassViewSet, ClassEnrollmentViewSet
-from scheduling.views import TimetableSlotViewSet
+from scheduling.views import TimetableSlotViewSet, AcademicTermViewSet, RoomViewSet
 from attendance.views import DailyRegisterViewSet, LessonAttendanceViewSet
 from grading.views import SubjectGradeViewSet, ReportCardViewSet, GradeRecordViewSet
 from analytics.views import AnalyticsEventViewSet, DailyPlatformMetricViewSet, DailyInstitutionMetricViewSet, SubjectPerformanceSnapshotViewSet, SystemHealthSnapshotViewSet, StudentDashboardView, TeacherDashboardView, ParentDashboardView, AdminDashboardView, InstitutionDashboardView, CustomerSuccessChurnView
+from analytics.admin_ops import AdminSyncDataView, AdminLogsListView, AdminLogsClearView
 from assessments.views import AssessmentWindowViewSet, AssessmentViewSet, QuestionViewSet, SubmissionViewSet
 from discussions.views import ThreadViewSet, PostViewSet
 from exams.views import ExamCenterViewSet, CandidateRegistrationViewSet, SubjectSelectionViewSet, BoardSubmissionBatchViewSet
-from lessons.views import LessonViewSet, LessonNoteViewSet, LessonRecordingViewSet, LessonAttendanceViewSet
+from lessons.views import LessonViewSet, LessonNoteViewSet, LessonRecordingViewSet, LessonAttendanceViewSet, TeacherNoteViewSet
 from live_sessions.views import LiveSessionViewSet, SessionReminderViewSet
 from notifications.views import NotificationViewSet
 from parent_portal.views import ParentStudentLinkViewSet, WeeklySummaryViewSet, RiskAlertViewSet
@@ -65,7 +66,7 @@ router.register(r'curriculum/subjects', SubjectViewSet)
 router.register(r'curriculum/class-levels', ClassLevelViewSet)
 router.register(r'curriculum/topics', TopicViewSet)
 
-from curriculum.views import CurriculumTreeView
+from curriculum.views import CurriculumTreeView, CurrentTermView
 
 # New Phase 1: NCDC Foundations
 from curriculum.views import TopicCompetencyViewSet, ResourceQualityReviewViewSet
@@ -84,10 +85,14 @@ router.register(r'marketplace/lesson-qualifications', LessonQualificationViewSet
 # School OS Endpoints
 router.register(r'institutions', InstitutionViewSet, basename='institution')
 router.register(r'institution-memberships', InstitutionMembershipViewSet, basename='institution-membership')
+from institutions.views import BillingStatusView
+router.register(r'institutions-billing', BillingStatusView, basename='institutions-billing')
 router.register(r'institutions/learner-registrations', LearnerRegistrationViewSet, basename='learner-registration')
 router.register(r'classes', ClassViewSet, basename='class')
 router.register(r'class-enrollments', ClassEnrollmentViewSet, basename='class-enrollment')
 router.register(r'scheduling/timetable', TimetableSlotViewSet, basename='timetable-slot')
+router.register(r'scheduling/terms', AcademicTermViewSet, basename='academic-term')
+router.register(r'scheduling/rooms', RoomViewSet, basename='scheduling-room')
 router.register(r'attendance/daily', DailyRegisterViewSet, basename='daily-register')
 router.register(r'attendance/lesson', LessonAttendanceViewSet, basename='lesson-attendance')
 router.register(r'grading/subjects', SubjectGradeViewSet, basename='subject-grade')
@@ -115,6 +120,7 @@ router.register(r'exams/board-submission-batch', BoardSubmissionBatchViewSet, ba
 router.register(r'lessons/lesson', LessonViewSet, basename='lessons-lesson')
 router.register(r'lessons/lesson-note', LessonNoteViewSet, basename='lessons-lesson-note')
 router.register(r'lessons/lesson-recording', LessonRecordingViewSet, basename='lessons-lesson-recording')
+router.register(r'lessons/teacher-notes', TeacherNoteViewSet, basename='lessons-teacher-notes')
 router.register(r'lessons/lesson-attendance', LessonAttendanceViewSet, basename='lessons-lesson-attendance')
 router.register(r'live-sessions/live-session', LiveSessionViewSet, basename='live_sessions-live-session')
 router.register(r'live-sessions/session-reminder', SessionReminderViewSet, basename='live_sessions-session-reminder')
@@ -175,7 +181,7 @@ router.register(r'interventions/actions', InterventionActionViewSet, basename='i
 from institutions.views import InstitutionOnboardingAPIView
 from marketplace.views import IndependentTeacherOnboardingView
 
-from accounts.views import PublicProfileView, PilotFeedbackCreateView
+from accounts.views import PublicProfileView, PilotFeedbackCreateView, PilotFeedbackInboxView
 from tutoring.views import PeerTutoringDashboardView
 
 urlpatterns = [
@@ -183,15 +189,45 @@ urlpatterns = [
     path('api/health/', HealthView.as_view(), name='health'),
     path('api/v1/', include(router.urls)),
     path('api/v1/ai/copilot/ask/', CopilotInferenceView.as_view(), name='copilot_ask'),
+    path('api/v1/study-buddy/', include('ai_services.urls')),
     path('api/v1/auth/', include('accounts.urls')),
+    path('api/v1/institution-discovery/', include('institution_discovery.urls')),
+    path('api/v1/school-match/', include('institution_discovery.match_urls')),
+    path('api/v1/institution-match/', include('institution_discovery.institution_match_urls')),
+    path('api/v1/mastery/', include('mastery.urls')),
+    path('api/v1/practice-labs/', include('practice_labs.urls')),
+    path('api/v1/mastery-projects/', include('mastery_projects.urls')),
+    path('api/v1/mentor-reviews/', include('mentor_reviews.urls')),
+    path('api/v1/passport/', include('passport.urls')),
+    path('api/v1/exam-simulator/', include('exam_simulator.urls')),
+    path('api/v1/admission-passport/', include('admission_passport.urls')),
+    path('api/v1/standby-teachers/', include('standby_teachers.urls')),
+    path('api/v1/cohorts/', include('cohorts.urls')),
+    path('api/v1/pathways/', include('pathways.urls')),
+    path('api/v1/learner-settings/', include('learner_settings.urls')),
+    path('api/v1/pilot-payments/', include('pilot_payments.urls')),
+    path('api/v1/fees/', include('fees.urls')),
+    path('api/v1/mobile/', include('mobile_api.urls')),
     path('api/v1/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    
+    path('api/v1/auth/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
+
+    # Flagship diagnostic flow — see apps/diagnostics/
+    path('api/v1/diagnostic/', include('diagnostics.urls')),
+
+
     path('api/v1/tutoring/dashboard/', PeerTutoringDashboardView.as_view(), name='tutoring-dashboard'),
     path('api/v1/users/profile/<str:username>/', PublicProfileView.as_view(), name='public-profile'),
 
     # Pilot feedback capture — see docs/PILOT.md.
     path('api/v1/feedback/', PilotFeedbackCreateView.as_view(), name='pilot-feedback'),
+    path('api/v1/feedback/inbox/', PilotFeedbackInboxView.as_view(), name='pilot-feedback-inbox'),
+
+    # Platform-admin operations — backs the AdminDashboard sync /
+    # logs / clear-logs controls. Admin role gate enforced in views.
+    path('api/v1/admin/sync-data/', AdminSyncDataView.as_view(), name='admin-sync-data'),
+    path('api/v1/admin/logs/', AdminLogsListView.as_view(), name='admin-logs-list'),
+    path('api/v1/admin/logs/clear/', AdminLogsClearView.as_view(), name='admin-logs-clear'),
     
     # Custom dashboard routes
     path('api/v1/analytics/student-dashboard/', StudentDashboardView.as_view(), name='student_dashboard_api'),
@@ -207,6 +243,9 @@ urlpatterns = [
 
     # Full Curriculum Tree Endpoint
     path('api/v1/curriculum/full-tree/', CurriculumTreeView.as_view(), name='curriculum_full_tree'),
+    path('api/v1/curriculum/current-term/', CurrentTermView.as_view(), name='curriculum_current_term'),
+    path('api/v1/dashboard/today/', __import__('analytics.today', fromlist=['TodayHeroView']).TodayHeroView.as_view(), name='dashboard_today'),
+    path('api/v1/analytics/signup-funnel/', __import__('analytics.funnel', fromlist=['SignupFunnelView']).SignupFunnelView.as_view(), name='analytics_signup_funnel'),
 
     # Intelligence: APIView endpoints
     path('api/v1/intelligence/passport/student/', StudentPassportView.as_view(), name='intelligence-student-passport'),

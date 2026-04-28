@@ -33,9 +33,13 @@ class AnalyticsEventViewSet(TenantFilterMixin, viewsets.ModelViewSet):
         return AnalyticsEvent.objects.filter(institution_id__in=self.get_user_institutions())
 
 class DailyPlatformMetricViewSet(viewsets.ModelViewSet):
-    queryset = DailyPlatformMetric.objects.all()
     serializer_class = DailyPlatformMetricSerializer
-    permission_classes = [IsAuthenticated] # Will be platform admin only in future
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if getattr(self.request.user, 'role', '') == 'platform_admin':
+            return DailyPlatformMetric.objects.all()
+        return DailyPlatformMetric.objects.none()
 
 class DailyInstitutionMetricViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     serializer_class = DailyInstitutionMetricSerializer
@@ -56,9 +60,13 @@ class SubjectPerformanceSnapshotViewSet(TenantFilterMixin, viewsets.ModelViewSet
         return SubjectPerformanceSnapshot.objects.filter(institution_id__in=self.get_user_institutions())
 
 class SystemHealthSnapshotViewSet(viewsets.ModelViewSet):
-    queryset = SystemHealthSnapshot.objects.all()
     serializer_class = SystemHealthSnapshotSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if getattr(self.request.user, 'role', '') == 'platform_admin':
+            return SystemHealthSnapshot.objects.all()
+        return SystemHealthSnapshot.objects.none()
 
 from .churn_signals import ChurnSignalAnalyzer
 

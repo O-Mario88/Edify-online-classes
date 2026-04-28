@@ -3,11 +3,12 @@ import os
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from pilot_payments.permissions import IsActiveSubscription
 from django.conf import settings
 from .models import AIJob
 
 class CopilotInferenceView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get(self, request):
         jobs = AIJob.objects.filter(requestor=request.user).order_by('-created_at')[:20]
@@ -120,8 +121,162 @@ class CopilotInferenceView(APIView):
         # 3. Complete the Job
         job.status = 'done'
         job.save()
-        
+
         return Response({
             'reply': ai_response,
             'job_id': job.id
         })
+
+
+# ── Maple Study Buddy (Phase 10.B) ──────────────────────────────────
+
+
+class StudyBuddyConversationsListView(APIView):
+    """GET /api/v1/study-buddy/conversations/ — list the caller's
+    Study Buddy threads, newest first. Limited to 50 to keep mobile
+    payloads small."""
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
+
+    def get(self, request, *args, **kwargs):
+        from .models import StudyBuddyConversation
+        qs = (StudyBuddyConversation.objects
+              .filter(user=request.user, archived=False)[:50])
+        return Response({
+            'conversations': [_serialize_conversation(c) for c in qs],
+        })
+
+
+class StudyBuddyConversationDetailView(APIView):
+    """GET /api/v1/study-buddy/conversations/<id>/ — full message list
+    for a single thread the caller owns."""
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
+
+    def get(self, request, conversation_id: int, *args, **kwargs):
+        from rest_framework import status as http_status
+        from .models import StudyBuddyConversation
+        conv = StudyBuddyConversation.objects.filter(
+            id=conversation_id, user=request.user,
+        ).first()
+        if not conv:
+            return Response({'detail': 'Conversation not found.'}, status=http_status.HTTP_404_NOT_FOUND)
+        messages = [_serialize_message(m) for m in conv.messages.all()]
+        return Response({'conversation': _serialize_conversation(conv), 'messages': messages})
+
+
+class StudyBuddyAskView(APIView):
+    """POST /api/v1/study-buddy/ask/
+
+    Body:
+      { "message": "...", "conversation_id"?: <int>,
+        "persona"?: "student"|"parent"|"teacher",
+        "subject"?: "...", "topic"?: "..." }
+
+    If conversation_id is omitted, a new conversation is created on
+    the caller's account (title derived from the first message).
+    Returns the assistant message + an updated conversation snapshot.
+    """
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
+
+    def post(self, request, *args, **kwargs):
+        from rest_framework import status as http_status
+        from django.db import transaction
+        from .models import StudyBuddyConversation, StudyBuddyMessage
+        from .services_study_buddy import ask_study_buddy
+
+        message = (request.data.get('message') or '').strip()
+        if not message:
+            return Response({'detail': 'message is required.'}, status=http_status.HTTP_400_BAD_REQUEST)
+        if len(message) > 4000:
+            return Response({'detail': 'message too long.'}, status=http_status.HTTP_400_BAD_REQUEST)
+
+        persona = request.data.get('persona') or _default_persona(request.user)
+        if persona not in {'student', 'parent', 'teacher'}:
+            persona = 'student'
+
+        conversation_id = request.data.get('conversation_id')
+        with transaction.atomic():
+            if conversation_id:
+                conv = StudyBuddyConversation.objects.filter(
+                    id=conversation_id, user=request.user,
+                ).first()
+                if not conv:
+                    return Response({'detail': 'Conversation not found.'},
+                                    status=http_status.HTTP_404_NOT_FOUND)
+            else:
+                conv = StudyBuddyConversation.objects.create(
+                    user=request.user,
+                    persona=persona,
+                    title=message[:80],
+                    subject=(request.data.get('subject') or '')[:64],
+                    topic=(request.data.get('topic') or '')[:120],
+                )
+            StudyBuddyMessage.objects.create(
+                conversation=conv, role='user', content=message,
+            )
+
+        # Pull the last N messages as context for the model.
+        history = list(
+            conv.messages.order_by('-created_at')[:11].values_list('role', 'content')
+        )
+        history.reverse()
+        # The most recent row is the user message we just stored — the
+        # service appends the user message itself, so drop the last row
+        # to avoid duplication.
+        history_for_model = history[:-1]
+
+        result = ask_study_buddy(
+            user=request.user,
+            persona=persona,
+            history=history_for_model,
+            user_message=message,
+        )
+
+        assistant = StudyBuddyMessage.objects.create(
+            conversation=conv,
+            role='assistant',
+            content=result.content,
+            escalation_hint=result.escalation_hint,
+            model=result.model,
+            input_tokens=result.input_tokens,
+            output_tokens=result.output_tokens,
+        )
+        if result.escalation_hint and not conv.escalated:
+            conv.escalated = True
+            conv.save(update_fields=['escalated'])
+
+        return Response({
+            'conversation': _serialize_conversation(conv),
+            'message': _serialize_message(assistant),
+        })
+
+
+def _default_persona(user) -> str:
+    role = (getattr(user, 'role', '') or '').lower()
+    if role == 'parent' or role.endswith('parent'):
+        return 'parent'
+    if 'teacher' in role:
+        return 'teacher'
+    return 'student'
+
+
+def _serialize_conversation(c) -> dict:
+    return {
+        'id': c.id,
+        'persona': c.persona,
+        'title': c.title or 'New chat',
+        'subject': c.subject,
+        'topic': c.topic,
+        'escalated': c.escalated,
+        'created_at': c.created_at.isoformat(),
+        'updated_at': c.updated_at.isoformat(),
+    }
+
+
+def _serialize_message(m) -> dict:
+    return {
+        'id': m.id,
+        'role': m.role,
+        'content': m.content,
+        'escalation_hint': m.escalation_hint,
+        'created_at': m.created_at.isoformat(),
+    }

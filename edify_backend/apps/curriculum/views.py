@@ -1,8 +1,10 @@
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 import math
+from datetime import date, timedelta
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from .models import Country, Subject, ClassLevel, Topic
+from .models import Country, Subject, ClassLevel, Topic, AcademicYear
 from .serializers import CountrySerializer, SubjectSerializer, ClassLevelSerializer, TopicSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -183,6 +185,85 @@ class CurriculumTreeView(APIView):
                     class_dict["terms"].append(term_dict)
                 level_dict["classes"].append(class_dict)
             data["levels"].append(level_dict)
-            
+
         return Response(data)
+
+
+class CurrentTermView(APIView):
+    """GET /api/v1/curriculum/current-term/
+
+    Returns the active AcademicYear plus a derived term label
+    (Term 1 / 2 / 3) based on today's position inside the year. Used by
+    the AcademicTermBanner component shown across every dashboard.
+
+    Term boundaries are computed from the year's start_date / end_date.
+    If neither is set, we return a label-less payload so the frontend
+    falls back to showing the year alone.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        year = AcademicYear.objects.filter(is_current=True).first()
+        if not year:
+            year = AcademicYear.objects.order_by('-year_label').first()
+
+        payload = {
+            'year': None,
+            'year_label': None,
+            'term': None,
+            'term_label': None,
+            'term_starts': None,
+            'term_ends': None,
+            'days_remaining_in_term': None,
+            'days_remaining_in_year': None,
+        }
+        if not year:
+            return Response(payload)
+
+        payload['year'] = year.id
+        payload['year_label'] = year.year_label
+
+        if year.start_date and year.end_date:
+            today = date.today()
+            total_days = (year.end_date - year.start_date).days
+            if total_days <= 0 or today < year.start_date:
+                # Pre-term: show Term 1 starting on year start
+                payload['term'] = 1
+                payload['term_label'] = 'Term 1'
+                payload['term_starts'] = year.start_date.isoformat()
+                payload['term_ends'] = (year.start_date + timedelta(days=max(1, total_days // 3))).isoformat()
+                payload['days_remaining_in_term'] = (year.start_date - today).days
+                payload['days_remaining_in_year'] = (year.end_date - today).days
+                return Response(payload)
+            if today > year.end_date:
+                payload['term'] = 3
+                payload['term_label'] = 'Term 3 (ended)'
+                payload['days_remaining_in_term'] = 0
+                payload['days_remaining_in_year'] = 0
+                return Response(payload)
+
+            # In-year: thirds
+            third = max(1, total_days // 3)
+            t1_end = year.start_date + timedelta(days=third)
+            t2_end = year.start_date + timedelta(days=third * 2)
+            if today <= t1_end:
+                term_no = 1
+                term_starts = year.start_date
+                term_ends = t1_end
+            elif today <= t2_end:
+                term_no = 2
+                term_starts = t1_end + timedelta(days=1)
+                term_ends = t2_end
+            else:
+                term_no = 3
+                term_starts = t2_end + timedelta(days=1)
+                term_ends = year.end_date
+            payload['term'] = term_no
+            payload['term_label'] = f'Term {term_no}'
+            payload['term_starts'] = term_starts.isoformat()
+            payload['term_ends'] = term_ends.isoformat()
+            payload['days_remaining_in_term'] = max(0, (term_ends - today).days)
+            payload['days_remaining_in_year'] = max(0, (year.end_date - today).days)
+
+        return Response(payload)
 

@@ -51,3 +51,4 @@ google-auth-oauthlib
 gunicorn==23.0.0
 whitenoise==6.8.2
 dj-database-url==2.3.0
+sentry-sdk==2.19.2

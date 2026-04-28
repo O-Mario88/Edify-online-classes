@@ -2,12 +2,14 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from pilot_payments.permissions import IsActiveSubscription
 from django.utils import timezone
 from .models import AssessmentWindow, Assessment, Question, Submission
 from .serializers import (
-    AssessmentWindowSerializer, AssessmentSerializer, 
+    AssessmentWindowSerializer, AssessmentSerializer,
     AssessmentAdminSerializer, QuestionSerializer, SubmissionSerializer
 )
+from notifications.utils import notify
 
 from django.db.models import Q
 from institutions.models import InstitutionMembership
@@ -47,13 +49,13 @@ class TenantFilterMixin:
 class AssessmentWindowViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     queryset = AssessmentWindow.objects.select_related('class_reference').all()
     serializer_class = AssessmentWindowSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
 class AssessmentViewSet(viewsets.ModelViewSet):
     # Bypasses TenantFilterMixin — Assessments are scoped via the creator's
     # institution memberships, which covers creations with no window/target_group.
     queryset = Assessment.objects.select_related('window', 'topic', 'term', 'target_group').prefetch_related('questions')
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def get_queryset(self):
         user = self.request.user
@@ -94,12 +96,12 @@ class AssessmentViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     queryset = Question.objects.select_related('assessment').all()
     serializer_class = QuestionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
 class SubmissionViewSet(TenantFilterMixin, viewsets.ModelViewSet):
     queryset = Submission.objects.select_related('assessment', 'student').all()
     serializer_class = SubmissionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveSubscription]
 
     def create(self, request, *args, **kwargs):
         data = request.data
@@ -124,7 +126,7 @@ class SubmissionViewSet(TenantFilterMixin, viewsets.ModelViewSet):
                 all_objective = False
 
         submission_status = 'graded' if all_objective else 'submitted'
-        
+
         submission = Submission.objects.create(
             assessment=assessment,
             student=request.user,
@@ -133,6 +135,17 @@ class SubmissionViewSet(TenantFilterMixin, viewsets.ModelViewSet):
             total_score=total_score,
             submitted_at=timezone.now()
         )
+
+        # Auto-graded: tell the student their score landed.
+        if submission_status == 'graded':
+            max_score = assessment.max_score or sum(float(q.marks) for q in assessment.questions.all())
+            notify(
+                user=request.user,
+                title=f'{assessment.title}: graded',
+                message=f'You scored {total_score} / {max_score}. Open the assessment to review your answers.',
+                kind='assessment_graded',
+                link='/library',
+            )
 
         serializer = self.get_serializer(submission)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
