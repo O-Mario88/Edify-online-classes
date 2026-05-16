@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Send, Phone, Video, Search, MessageSquare, MoreVertical, Paperclip, Smile, ShieldAlert, CheckCheck, TrendingUp, Clock } from 'lucide-react';
+import { X, Send, Phone, Video, Search, MessageSquare, MoreVertical, Smile, ShieldAlert, CheckCheck, TrendingUp, Clock } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
@@ -96,10 +96,10 @@ export const WhatsAppCommunicationHub: React.FC<WhatsAppCommunicationHubProps> =
   return (
     <>
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]" onClick={onClose} />
-      <div className="fixed inset-y-0 right-0 z-[110] w-full max-w-md bg-[#efeae2] shadow-2xl flex flex-col transform transition-transform animate-in slide-in-from-right duration-300">
+      <div className="fixed inset-y-0 right-0 z-[110] w-full max-w-md bg-paper-100 shadow-2xl flex flex-col transform transition-transform animate-in slide-in-from-right duration-300">
         
         {/* WhatsApp Style Header */}
-        <div className="bg-[#00a884] text-white px-4 py-3 flex items-center justify-between shadow-md z-10">
+        <div className="bg-emerald-500 text-white px-4 py-3 flex items-center justify-between shadow-md z-10">
           <div className="flex items-center gap-3">
              <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-white overflow-hidden shadow-inner flex items-center justify-center text-slate-700 font-bold">
                 {recipient.name.charAt(0)}
@@ -143,7 +143,7 @@ export const WhatsAppCommunicationHub: React.FC<WhatsAppCommunicationHubProps> =
 
            {messages.map(msg => (
              <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
-               <div className={`max-w-[85%] rounded-lg px-3 py-2 shadow-sm text-sm ${msg.sender === 'me' ? 'bg-[#d9fdd3] rounded-tr-none' : 'bg-white rounded-tl-none'}`}>
+               <div className={`max-w-[85%] rounded-lg px-3 py-2 shadow-sm text-sm ${msg.sender === 'me' ? 'bg-green-100 rounded-tr-none' : 'bg-white rounded-tl-none'}`}>
                  <p className="text-slate-800">{msg.text}</p>
                  <div className="flex justify-end items-center gap-1 mt-1">
                    <span className="text-[10px] text-slate-700">{msg.time}</span>
@@ -159,9 +159,9 @@ export const WhatsAppCommunicationHub: React.FC<WhatsAppCommunicationHubProps> =
         </div>
 
         {/* Action Panel */}
-        <div className="bg-[#f0f2f5] p-3 flex items-center gap-2">
+        <div className="bg-gray-100 p-3 flex items-center gap-2">
            <Smile className="w-6 h-6 text-slate-700 cursor-pointer hover:text-slate-900 transition-colors shrink-0" onClick={() => setInputValue(prev => prev + ' 😊')} />
-           <Paperclip className="w-6 h-6 text-slate-700 cursor-pointer hover:text-slate-900 transition-colors shrink-0" onClick={() => toast.info('File attachments coming soon.')} />
+           {/* Paperclip attachment hidden until file upload is real. */}
            <Input 
              className="flex-1 bg-white border-none rounded-lg h-10 shadow-sm"
              placeholder="Type a message or use /ai for auto-reply"
@@ -170,7 +170,7 @@ export const WhatsAppCommunicationHub: React.FC<WhatsAppCommunicationHubProps> =
              onKeyDown={(e) => { if (e.key === 'Enter') handleSend(); }}
            />
            {inputValue.trim() ? (
-             <div className="w-10 h-10 rounded-full bg-[#00a884] text-white flex items-center justify-center cursor-pointer shadow-sm" onClick={handleSend}>
+             <div className="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center cursor-pointer shadow-sm" onClick={handleSend}>
                  <Send className="w-5 h-5 ml-1" />
              </div>
            ) : (

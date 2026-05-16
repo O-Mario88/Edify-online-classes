@@ -88,14 +88,14 @@ export const HomePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
         <div className="animate-pulse w-12 h-12 rounded-full bg-blue-100"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#fbfaf8] text-slate-800 font-sans overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 pb-20">
+    <div className="bg-paper-50 text-slate-800 font-sans overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 pb-20">
       
       {/* =========================================
           SECTION 1: HERO (Structure based on reference)
@@ -184,7 +184,7 @@ export const HomePage: React.FC = () => {
 
                {/* External floating stat card #2 (Top Right) */}
                <div className="absolute top-12 -right-4 sm:-right-8 bg-white rounded-2xl pb-4 px-4 pt-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-100 z-20 flex flex-col items-center">
-                  <div className="w-14 h-14 rounded-full bg-[#fde68a] flex items-center justify-center mb-2 shadow-inner border border-amber-200">
+                  <div className="w-14 h-14 rounded-full bg-amber-200 flex items-center justify-center mb-2 shadow-inner border border-amber-200">
                      <Sparkles className="w-7 h-7 text-amber-600" />
                   </div>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Quality Material</p>
@@ -231,7 +231,7 @@ export const HomePage: React.FC = () => {
                   <img src="/images/african_students_computer_lab.png" alt="African students in computer lab" className="w-full h-full object-cover" />
                </div>
                
-               <div className="absolute right-0 bottom-4 w-2/5 aspect-square rounded-3xl overflow-hidden shadow-2xl border-4 border-[#fbfaf8]">
+               <div className="absolute right-0 bottom-4 w-2/5 aspect-square rounded-3xl overflow-hidden shadow-2xl border-4 border-paper-50">
                   <img src="/images/african_child_learning_tablet.png" alt="African child learning on tablet" className="w-full h-full object-cover" />
                </div>
 
@@ -310,7 +310,7 @@ export const HomePage: React.FC = () => {
             {/* Class Cards Grid */}
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                {popularClasses.map(cls => (
-                  <div key={cls.id} className="bg-[#fbfaf8] border border-slate-100 rounded-[1.5rem] overflow-hidden hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 group flex flex-col">
+                  <div key={cls.id} className="bg-paper-50 border border-slate-100 rounded-[1.5rem] overflow-hidden hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 group flex flex-col">
                      {/* Image Frame */}
                      <div className="relative aspect-[4/3] overflow-hidden">
                         <img src={cls.image} alt={cls.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -368,7 +368,7 @@ export const HomePage: React.FC = () => {
           SECTION 5: BOTTOM CTA SECTION
           ========================================= */}
       <section className="pt-32 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto">
-         <div className="bg-[#0f2a45] rounded-[3rem] p-12 lg:p-20 relative overflow-hidden shadow-2xl shadow-[#0f2a45]/20">
+         <div className="bg-slate-900 rounded-[3rem] p-12 lg:p-20 relative overflow-hidden shadow-2xl shadow-slate-900/20">
             {/* Soft background shape */}
             <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-600 rounded-full blur-3xl opacity-30" />
             

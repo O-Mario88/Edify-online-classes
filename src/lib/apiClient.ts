@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
   AUTH_REGISTER: `${API_BASE_URL}${API_V1}/auth/register/`,
   AUTH_LOGIN: `${API_BASE_URL}${API_V1}/auth/token/`,
   AUTH_REFRESH: `${API_BASE_URL}${API_V1}/auth/token/refresh/`,
+  AUTH_BLACKLIST: `${API_BASE_URL}${API_V1}/auth/token/blacklist/`,
   
   // Curriculum
   COUNTRIES: `${API_BASE_URL}${API_V1}/curriculum/countries/`,
@@ -355,9 +356,23 @@ export const loginUser = async (email: string, password: string) => {
 };
 
 /**
- * Logout user by clearing tokens
+ * Logout user. Sends the refresh token to the blacklist endpoint so a stolen
+ * copy can't be used during the rotation window, then clears local storage.
+ * Failure to blacklist is non-fatal — we still clear locally and redirect.
  */
-export const logoutUser = () => {
+export const logoutUser = async () => {
+  const refreshToken = localStorage.getItem('refresh_token');
+  if (refreshToken) {
+    try {
+      await fetch(API_ENDPOINTS.AUTH_BLACKLIST, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh: refreshToken }),
+      });
+    } catch {
+      // Network/server unreachable — local clear is still the priority.
+    }
+  }
   clearTokens();
   window.location.href = '/login';
 };

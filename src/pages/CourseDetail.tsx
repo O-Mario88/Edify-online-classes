@@ -165,15 +165,15 @@ export const CourseDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
-        <div className="animate-pulse w-12 h-12 rounded-full bg-[#f4efe2]"></div>
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
+        <div className="animate-pulse w-12 h-12 rounded-full bg-paper-100"></div>
       </div>
     );
   }
 
   if (!currentClass || !currentSubject) {
     return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
         <EditorialPanel className="text-center py-20 max-w-lg">
           <BookOpen className="h-12 w-12 text-slate-300 mx-auto mb-6" />
           <EditorialHeader level="h3" className="text-slate-800 mb-2">Subject Unavailable</EditorialHeader>
@@ -187,7 +187,7 @@ export const CourseDetail: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfaf8] font-sans pb-24 relative">
+    <div className="min-h-screen bg-paper-50 font-sans pb-24 relative">
       <div 
         className="fixed inset-0 bg-cover bg-center opacity-[0.4] pointer-events-none"
         style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
@@ -217,7 +217,7 @@ export const CourseDetail: React.FC = () => {
             
             {/* Header Panel */}
             <EditorialPanel variant="glass" radius="xl" className="border border-white shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#f4efe2] rounded-full blur-3xl opacity-50 -z-10 pointer-events-none" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-paper-100 rounded-full blur-3xl opacity-50 -z-10 pointer-events-none" />
               
               <div className="flex flex-wrap items-start justify-between gap-4 mb-8 border-b border-white mix-blend-multiply pb-6">
                 <div className="flex flex-wrap items-center gap-3">
@@ -239,7 +239,7 @@ export const CourseDetail: React.FC = () => {
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#8e8268]">
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-paper-600">
                   <MapPin className="h-3.5 w-3.5" />
                   National Curriculum
                 </div>
@@ -333,7 +333,7 @@ export const CourseDetail: React.FC = () => {
 
               <TabsContent value="curriculum">
                 <EditorialPanel variant="elevated" radius="large" className="border border-slate-100 p-0 overflow-hidden">
-                  <div className="p-8 border-b border-slate-50 bg-[#fbfaf8]">
+                  <div className="p-8 border-b border-slate-50 bg-paper-50">
                     <EditorialHeader level="h3" className="text-slate-800">Academic Sequence</EditorialHeader>
                     <p className="text-slate-500 font-light mt-2 text-sm">Rigorous progression aligned strictly with national standards.</p>
                   </div>
@@ -343,10 +343,10 @@ export const CourseDetail: React.FC = () => {
                       <div key={topic.id} className="group">
                         <button
                           onClick={() => setSelectedTopic(selectedTopic === topic.id ? '' : topic.id)}
-                          className={`w-full p-6 text-left flex items-center justify-between transition-colors ${selectedTopic === topic.id ? 'bg-[#f4efe2]/30' : 'bg-white hover:bg-slate-50'}`}
+                          className={`w-full p-6 text-left flex items-center justify-between transition-colors ${selectedTopic === topic.id ? 'bg-paper-100/30' : 'bg-white hover:bg-slate-50'}`}
                         >
                           <div className="flex items-center gap-6">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black border transition-colors ${selectedTopic === topic.id ? 'bg-[#f4efe2] border-white text-[#8e8268]' : 'bg-slate-50 border-slate-100 text-slate-400 group-hover:bg-slate-100'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black border transition-colors ${selectedTopic === topic.id ? 'bg-paper-100 border-white text-paper-600' : 'bg-slate-50 border-slate-100 text-slate-400 group-hover:bg-slate-100'}`}>
                               {topicIndex + 1}
                             </div>
                             <div>
@@ -357,7 +357,7 @@ export const CourseDetail: React.FC = () => {
                           <div className="flex items-center gap-4">
                             <Link
                               to={`/classes/${classId}/${currentClass.terms[0]?.id || 'term-1'}/${subjectId}/topic/${topic.id}`}
-                              className="text-[10px] font-bold uppercase tracking-widest text-[#8e8268] hover:text-blue-600 hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="text-[10px] font-bold uppercase tracking-widest text-paper-600 hover:text-blue-600 hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
                               onClick={(e) => e.stopPropagation()}
                             >
                               Enter Space <ArrowRight className="h-3 w-3" />
@@ -369,7 +369,7 @@ export const CourseDetail: React.FC = () => {
                         </button>
                         
                         <div className={`grid transition-all duration-300 ease-in-out ${selectedTopic === topic.id ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-                          <div className="overflow-hidden bg-[#fbfaf8]">
+                          <div className="overflow-hidden bg-paper-50">
                             <div className="p-6">
                               {topic.subtopics.map((subtopic, subtopicIndex) => (
                                 <div key={subtopic.id} className="mb-8 last:mb-0">
@@ -384,7 +384,7 @@ export const CourseDetail: React.FC = () => {
                                           <div className="flex items-start sm:items-center gap-4">
                                             <div className={`p-3 rounded-full flex-shrink-0 ${
                                               lesson.type === 'video' ? 'bg-rose-50 text-rose-600' :
-                                              lesson.type === 'exercise' ? 'bg-[#f4efe2] text-[#8e8268]' :
+                                              lesson.type === 'exercise' ? 'bg-paper-100 text-paper-600' :
                                               'bg-slate-50 text-slate-600'
                                             }`}>
                                               {lesson.type === 'video' && <Play className="h-4 w-4" />}
@@ -454,7 +454,7 @@ export const CourseDetail: React.FC = () => {
                       
                       <div className="flex-1 text-center md:text-left">
                         <EditorialHeader level="h2" className="text-slate-900 mb-1">{currentTeacher.name}</EditorialHeader>
-                        <p className="text-sm font-bold uppercase tracking-widest text-[#8e8268] mb-6">{currentTeacher.qualification}</p>
+                        <p className="text-sm font-bold uppercase tracking-widest text-paper-600 mb-6">{currentTeacher.qualification}</p>
                         
                         <div className="flex flex-wrap justify-center md:justify-start gap-6 mb-8 py-6 border-y border-slate-100 mix-blend-multiply">
                           <div>
@@ -498,7 +498,7 @@ export const CourseDetail: React.FC = () => {
 
               <TabsContent value="reviews">
                 <EditorialPanel variant="elevated" radius="large" className="border border-slate-100 p-0 overflow-hidden">
-                  <div className="p-8 border-b border-slate-50 bg-[#fbfaf8] flex flex-col md:flex-row items-center gap-8">
+                  <div className="p-8 border-b border-slate-50 bg-paper-50 flex flex-col md:flex-row items-center gap-8">
                     <div className="text-center md:text-left border-b md:border-b-0 md:border-r border-slate-200 pb-6 md:pb-0 md:pr-8 mx-auto md:mx-0">
                       <div className="text-5xl font-black text-slate-900 mb-3 tracking-tighter">4.8</div>
                       <div className="flex justify-center md:justify-start gap-1 mb-2">
@@ -526,8 +526,8 @@ export const CourseDetail: React.FC = () => {
                     ].map((review, index) => (
                       <div key={index} className="p-8 bg-white">
                         <div className="flex items-center gap-4 mb-4">
-                          <div className="w-12 h-12 bg-[#f4efe2] rounded-full flex items-center justify-center border border-white shadow-sm">
-                            <span className="text-[#8e8268] font-black tracking-widest">{review.init}</span>
+                          <div className="w-12 h-12 bg-paper-100 rounded-full flex items-center justify-center border border-white shadow-sm">
+                            <span className="text-paper-600 font-black tracking-widest">{review.init}</span>
                           </div>
                           <div>
                             <h4 className="font-bold text-slate-900">{review.name}</h4>
@@ -550,7 +550,7 @@ export const CourseDetail: React.FC = () => {
 
               <TabsContent value="resources">
                 <EditorialPanel variant="elevated" radius="large" className="border border-slate-100 p-0 overflow-hidden">
-                  <div className="p-8 border-b border-slate-50 bg-[#fbfaf8]">
+                  <div className="p-8 border-b border-slate-50 bg-paper-50">
                     <EditorialHeader level="h3" className="text-slate-800">Resource Archives</EditorialHeader>
                     <p className="text-slate-500 font-light mt-2 text-sm">Supplementary materials curated for excellence.</p>
                   </div>
@@ -564,7 +564,7 @@ export const CourseDetail: React.FC = () => {
                         icon: ['video', 'video_lecture', 'recorded_lesson'].includes(item.content_type) ? Play : 
                               ['interactive_sim', 'interactive_exercise'].includes(item.content_type) ? BookOpen : FileText,
                         color: ['video', 'video_lecture', 'recorded_lesson'].includes(item.content_type) ? 'text-amber-600 bg-amber-50 border-amber-100' :
-                               ['interactive_sim', 'interactive_exercise'].includes(item.content_type) ? 'text-[#8e8268] bg-[#f4efe2] border-white' :
+                               ['interactive_sim', 'interactive_exercise'].includes(item.content_type) ? 'text-paper-600 bg-paper-100 border-white' :
                                'text-blue-600 bg-blue-50 border-blue-100',
                         fileUrl: item.file_url
                       })) : []).map((resource, index) => (
@@ -597,7 +597,7 @@ export const CourseDetail: React.FC = () => {
             {/* Class Info Box */}
             <EditorialPanel variant="glass" padding="md" className="border border-white shadow-sm sticky top-24">
                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                 <BookOpen className="w-3 h-3 text-[#8e8268]" />
+                 <BookOpen className="w-3 h-3 text-paper-600" />
                  Logistics
                </h4>
                
@@ -642,7 +642,7 @@ export const CourseDetail: React.FC = () => {
             {/* Related Sequences */}
             <EditorialPanel variant="glass" padding="md" className="border border-white shadow-sm">
                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                 <Layers className="w-3 h-3 text-[#8e8268]" />
+                 <Layers className="w-3 h-3 text-paper-600" />
                  Related Disciplines
                </h4>
                <div className="space-y-4">

@@ -104,7 +104,7 @@ export const TopicSectionBlock: React.FC<TopicSectionBlockProps> = ({
         <div>
           {practiceItems.length > 0 && (
             <>
-              <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#8e8268] mb-3 flex items-center gap-1.5">
+              <h3 className="text-[11px] font-bold uppercase tracking-widest text-paper-600 mb-3 flex items-center gap-1.5">
                 <ClipboardList className="w-3.5 h-3.5" />
                 Practice
                 {allPracticeDone && <CheckCircle2 className="w-3 h-3 text-emerald-400 ml-1" />}

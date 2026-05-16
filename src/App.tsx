@@ -50,7 +50,10 @@ const ExamRegistrationPage = lazy(() => import('./pages/ExamRegistrationPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
 const ParentDashboard = lazy(() => import('./pages/ParentDashboard').then(m => ({ default: m.ParentDashboard })));
 const TeacherLessonStudio = lazy(() => import('./pages/TeacherLessonStudio').then(m => ({ default: m.TeacherLessonStudio })));
-const AttendanceRegisterPage = lazy(() => import('./pages/AttendanceRegisterPage').then(m => ({ default: m.AttendanceRegisterPage })));
+// New mobile-first wedge surface (Phase 0 redesign — see docs/DESIGN_SYSTEM.md).
+// The legacy desktop table at src/pages/AttendanceRegisterPage.tsx remains in
+// the repo for reference but is no longer routed.
+const AttendanceTodayPage = lazy(() => import('./pages/teacher/AttendanceTodayPage'));
 const PublicProfile = lazy(() => import('./pages/PublicProfile').then(m => ({ default: m.PublicProfile })));
 const TeacherStorefront = lazy(() => import('./pages/TeacherStorefront').then(m => ({ default: m.TeacherStorefront })));
 const TeacherMarksUpload = lazy(() => import('./pages/TeacherMarksUpload').then(m => ({ default: m.TeacherMarksUpload })));
@@ -247,7 +250,7 @@ function App() {
           } />
           <Route path="teacher/attendance" element={
             <ProtectedRoute allowedRoles={['institution_teacher', 'universal_teacher', 'independent_teacher', 'teacher']}>
-              <AttendanceRegisterPage />
+              <AttendanceTodayPage />
             </ProtectedRoute>
           } />
           <Route path="teacher/marks-upload" element={

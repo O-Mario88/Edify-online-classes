@@ -73,8 +73,8 @@ export const CourseCatalog: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
-        <div className="animate-pulse w-12 h-12 rounded-full bg-[#f4efe2]"></div>
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
+        <div className="animate-pulse w-12 h-12 rounded-full bg-paper-100"></div>
       </div>
     );
   }
@@ -93,7 +93,7 @@ export const CourseCatalog: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fbfaf8] font-sans pt-12 pb-24 relative">
+    <div className="min-h-screen bg-paper-50 font-sans pt-12 pb-24 relative">
       <div className="fixed inset-0 bg-white/40 pointer-events-none" />
 
       {/* 1. Top Filter Row (Picture 1) */}
@@ -156,17 +156,17 @@ export const CourseCatalog: React.FC = () => {
                     {/* Teacher / Meta Row */}
                     <div className="flex items-center gap-3 mb-5 mt-[-36px] z-20">
                       <div className="w-10 h-10 rounded-[0.8rem] bg-white p-1 shadow-sm border border-slate-100">
-                         <div className="w-full h-full bg-[#f4efe2] rounded-[0.6rem] flex items-center justify-center overflow-hidden">
+                         <div className="w-full h-full bg-paper-100 rounded-[0.6rem] flex items-center justify-center overflow-hidden">
                            {teacher ? (
                              <img src={teacher.avatar} alt="teacher" className="w-full h-full object-cover" />
                            ) : (
-                             <span className="text-[10px] font-black text-[#8e8268]">ED</span>
+                             <span className="text-[10px] font-black text-paper-600">ED</span>
                            )}
                          </div>
                       </div>
                       <div className="mt-6 flex items-center gap-2 flex-wrap">
                          <span className="text-[11px] font-black uppercase tracking-wider text-slate-500">{teacher?.name || 'Maple Educators'}</span>
-                         <span className="text-[9px] font-black text-[#8e8268] uppercase tracking-widest bg-[#f4efe2] px-2 py-0.5 rounded-full">Core</span>
+                         <span className="text-[9px] font-black text-paper-600 uppercase tracking-widest bg-paper-100 px-2 py-0.5 rounded-full">Core</span>
                       </div>
                     </div>
 

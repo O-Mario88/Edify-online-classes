@@ -19,7 +19,7 @@ export const GlassDashboardLayout: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen bg-[#0B1120] text-slate-100 flex flex-col relative overflow-x-hidden font-sans"
+      className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-x-hidden font-sans"
     >
       {/* Top Navigation */}
       <TopNavbar isGlass={true} />

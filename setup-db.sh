@@ -4,6 +4,9 @@
 cd "$(dirname "$0")/edify_backend"
 source venv/bin/activate
 
+# Local dev — settings.py defaults DEBUG to false (prod-safe). Opt in here.
+export DJANGO_DEBUG="${DJANGO_DEBUG:-true}"
+
 # Delete old database
 rm -f db.sqlite3
 

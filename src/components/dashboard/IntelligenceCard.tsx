@@ -55,7 +55,7 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
   if (trendDirection === 'down') trendColor = trendIsGood ? 'text-rose-600' : 'text-emerald-600';
 
   // Determine Risk Styling
-  let riskBg = 'bg-white/5 backdrop-blur-lg border-[#1E293B] shadow-[0_4px_24px_rgba(0,0,0,0.2)]';
+  let riskBg = 'bg-white/5 backdrop-blur-lg border-slate-800 shadow-[0_4px_24px_rgba(0,0,0,0.2)]';
   let alertIcon = null;
   let alertClass = '';
   
@@ -67,13 +67,13 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
       break;
     case 'warning':
       riskBg = 'bg-amber-500/5 backdrop-blur-lg border-amber-900/50 shadow-[0_4px_24px_rgba(251,189,35,0.05)]';
-      alertIcon = <AlertCircle className="w-4 h-4 text-[#FBBD23] mr-1.5 flex-shrink-0" />;
-      alertClass = 'text-[#FBBD23] font-bold';
+      alertIcon = <AlertCircle className="w-4 h-4 text-amber-400 mr-1.5 flex-shrink-0" />;
+      alertClass = 'text-amber-400 font-bold';
       break;
     case 'healthy':
-      riskBg = 'bg-[#36D399]/5 backdrop-blur-lg border-emerald-900/50 shadow-[0_4px_24px_rgba(16,185,129,0.05)]';
-      alertIcon = <CheckCircle className="w-4 h-4 text-[#36D399] mr-1.5 flex-shrink-0" />;
-      alertClass = 'text-[#36D399] font-bold';
+      riskBg = 'bg-emerald-400/5 backdrop-blur-lg border-emerald-900/50 shadow-[0_4px_24px_rgba(16,185,129,0.05)]';
+      alertIcon = <CheckCircle className="w-4 h-4 text-emerald-400 mr-1.5 flex-shrink-0" />;
+      alertClass = 'text-emerald-400 font-bold';
       break;
     default:
       alertIcon = <Minus className="w-4 h-4 text-slate-700 mr-1.5 flex-shrink-0" />;
@@ -108,17 +108,17 @@ export const IntelligenceCard: React.FC<IntelligenceCardProps> = ({
     <Card className={`h-full transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between overflow-hidden relative rounded-2xl group ${riskBg}`}>
       <CardHeader className="p-5 pb-2 flex flex-row items-center justify-between">
         <p className="text-[13px] font-medium text-slate-800 truncate max-w-full" title={title}>{title}</p>
-        {icon && <div className="text-slate-700 group-hover:text-[#3ABFF8] transition-colors opacity-70">{icon}</div>}
+        {icon && <div className="text-slate-700 group-hover:text-sky-400 transition-colors opacity-70">{icon}</div>}
       </CardHeader>
       
       <CardContent className="p-5 pt-1 flex-grow">
         {/* Live Status & Trend */}
         <div className="flex justify-between items-center mb-4 gap-2">
-          <div className="text-xl md:text-[22px] font-medium text-[#3ABFF8] tracking-tight shrink-0 mr-2 max-w-[65%] break-words">{value}</div>
+          <div className="text-xl md:text-[22px] font-medium text-sky-400 tracking-tight shrink-0 mr-2 max-w-[65%] break-words">{value}</div>
           
           {trendValue !== undefined && (
             <div className={`flex flex-col items-end flex-shrink-0`}>
-               <div className={`flex items-center text-[15px] font-medium ${trendColor.includes('emerald') ? 'text-[#36D399]' : trendColor.includes('rose') ? 'text-rose-500' : 'text-slate-300'}`}>
+               <div className={`flex items-center text-[15px] font-medium ${trendColor.includes('emerald') ? 'text-emerald-400' : trendColor.includes('rose') ? 'text-rose-500' : 'text-slate-300'}`}>
                  {trendDirection === 'up' && '+'}
                  {trendDirection === 'down' && '-'}
                  {Math.abs(trendValue)}{typeof trendValue === 'number' && trendValue < 1000 ? '%' : ''}

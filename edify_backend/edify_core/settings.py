@@ -25,7 +25,9 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes', 'on')
+# Default is 'false' — production-safe by construction. Local dev must set
+# DJANGO_DEBUG=true explicitly (compose files, .env, or the dev runner do this).
+DEBUG = os.environ.get('DJANGO_DEBUG', 'false').lower() in ('1', 'true', 'yes', 'on')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # In DEBUG mode we fall back to the historical dev key so local workflows and
@@ -58,10 +60,11 @@ INSTALLED_APPS = [
     
     # Third Party Apps
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'django_filters',
     
-    # Internal Apps
+    # Internal Apps (v1 scope per docs/STRATEGY.md)
     'accounts.apps.AccountsConfig',
     'institutions.apps.InstitutionsConfig',
     'curriculum.apps.CurriculumConfig',
@@ -70,19 +73,31 @@ INSTALLED_APPS = [
     'resources.apps.ResourcesConfig',
     'assessments.apps.AssessmentsConfig',
     'grading.apps.GradingConfig',
-    'marketplace.apps.MarketplaceConfig',
-    'live_sessions.apps.LiveSessionsConfig',
-    'discussions.apps.DiscussionsConfig',
-    'tutoring.apps.TutoringConfig',
-    'interventions.apps.InterventionsConfig',
     'exams.apps.ExamsConfig',
     'parent_portal.apps.ParentPortalConfig',
     'notifications.apps.NotificationsConfig',
     'analytics.apps.AnalyticsConfig',
-    'ai_services.apps.AiServicesConfig',
     'scheduling.apps.SchedulingConfig',
     'attendance.apps.AttendanceConfig',
-    'intelligence.apps.IntelligenceConfig',
+
+    # Endpoint-archived in Phase 0 (URL routes removed in edify_core/urls.py) —
+    # but kept in INSTALLED_APPS because in-scope apps still hold model FKs that
+    # reference these tables. A follow-up migration will drop the orphan columns
+    # (`lessons.LessonQualificationRecord.payout_batch` -> marketplace,
+    #  `resources.ContentItem.intervention` -> interventions), after which these
+    # two can be fully removed from INSTALLED_APPS as well.
+    'marketplace.apps.MarketplaceConfig',
+    'interventions.apps.InterventionsConfig',
+
+    # Fully archived in Phase 0 — out of v1 scope per docs/STRATEGY.md decisions
+    # 8 & 9. No in-scope app holds a model FK to these, so the apps are removed
+    # from runtime entirely. Code retained in apps/; reactivate by uncommenting
+    # + restoring URL routes in edify_core/urls.py.
+    # 'live_sessions.apps.LiveSessionsConfig',
+    # 'discussions.apps.DiscussionsConfig',
+    # 'tutoring.apps.TutoringConfig',
+    # 'ai_services.apps.AiServicesConfig',
+    # 'intelligence.apps.IntelligenceConfig',
 ]
 
 MIDDLEWARE = [

@@ -209,8 +209,8 @@ export const InstitutionManagementPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-white/5 backdrop-blur-md rounded-xl border border-[#1E293B] shadow-lg">
-            <School className="h-8 w-8 text-[#3ABFF8]" />
+          <div className="p-3 bg-white/5 backdrop-blur-md rounded-xl border border-slate-800 shadow-lg">
+            <School className="h-8 w-8 text-sky-400" />
           </div>
           <div>
             <h1 className="text-3xl font-bold text-white tracking-tight">Kampala Model High School</h1>
@@ -263,33 +263,33 @@ export const InstitutionManagementPage: React.FC = () => {
 
       {/* NCDC Compliance Tracking visual ring */}
       <div className="flex flex-wrap gap-6">
-         <Card className="flex-[1_1_250px] shadow-lg border-[#1E293B] bg-white/5 backdrop-blur-md">
+         <Card className="flex-[1_1_250px] shadow-lg border-slate-800 bg-white/5 backdrop-blur-md">
            <CardContent className="p-6 flex justify-between items-center h-full">
              <div>
-                <p className="text-[13px] font-medium text-[#3ABFF8] mb-1">Syllabus Coverage</p>
+                <p className="text-[13px] font-medium text-sky-400 mb-1">Syllabus Coverage</p>
                 <p className="text-3xl font-bold text-white tracking-tight">{dashboardData.complianceTracking?.syllabusCoveragePct || 0}%</p>
              </div>
-             <BookOpen className="w-10 h-10 text-[#3ABFF8]/30" />
+             <BookOpen className="w-10 h-10 text-sky-400/30" />
            </CardContent>
          </Card>
 
-         <Card className="flex-[1_1_250px] shadow-lg border-[#1E293B] bg-white/5 backdrop-blur-md">
+         <Card className="flex-[1_1_250px] shadow-lg border-slate-800 bg-white/5 backdrop-blur-md">
            <CardContent className="p-6 flex justify-between items-center h-full">
              <div>
-                <p className="text-[13px] font-medium text-[#36D399] mb-1">Assessment Compliance</p>
+                <p className="text-[13px] font-medium text-emerald-400 mb-1">Assessment Compliance</p>
                 <p className="text-3xl font-bold text-white tracking-tight">{dashboardData.complianceTracking?.assessmentCompliance || 0}%</p>
              </div>
-             <CheckCircle className="w-10 h-10 text-[#36D399]/30" />
+             <CheckCircle className="w-10 h-10 text-emerald-400/30" />
            </CardContent>
          </Card>
 
-         <Card className="flex-[1_1_250px] shadow-lg border-[#1E293B] bg-white/5 backdrop-blur-md">
+         <Card className="flex-[1_1_250px] shadow-lg border-slate-800 bg-white/5 backdrop-blur-md">
            <CardContent className="p-6 flex justify-between items-center h-full">
              <div>
-                <p className="text-[13px] font-medium text-[#DA42FA] mb-1">Practical Learning</p>
+                <p className="text-[13px] font-medium text-fuchsia-400 mb-1">Practical Learning</p>
                 <p className="text-3xl font-bold text-white tracking-tight">{dashboardData.complianceTracking?.practicalLearning || 0}%</p>
              </div>
-             <Activity className="w-10 h-10 text-[#DA42FA]/30" />
+             <Activity className="w-10 h-10 text-fuchsia-400/30" />
            </CardContent>
          </Card>
       </div>
@@ -328,11 +328,11 @@ export const InstitutionManagementPage: React.FC = () => {
 
       {/* 4-Lens Executive Command Center Layout (Consolidated for Scale) */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-white/5 backdrop-blur-md mb-6 h-auto p-1 rounded-xl border border-[#1E293B]">
-          <TabsTrigger value="overview" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-3 shadow-sm rounded-lg text-slate-400 font-semibold tracking-wide">Executive Overview</TabsTrigger>
-          <TabsTrigger value="academics" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-3 shadow-sm rounded-lg text-slate-400 font-semibold tracking-wide">Academics & Timetable</TabsTrigger>
-          <TabsTrigger value="operations" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-3 shadow-sm rounded-lg text-slate-400 font-semibold tracking-wide">Roster Operations</TabsTrigger>
-          <TabsTrigger value="resources" className="data-[state=active]:bg-white/5 data-[state=active]:text-[#3ABFF8] py-3 shadow-sm rounded-lg text-slate-400 font-semibold tracking-wide">Resource Centers</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-white/5 backdrop-blur-md mb-6 h-auto p-1 rounded-xl border border-slate-800">
+          <TabsTrigger value="overview" className="data-[state=active]:bg-white/5 data-[state=active]:text-sky-400 py-3 shadow-sm rounded-lg text-slate-400 font-semibold tracking-wide">Executive Overview</TabsTrigger>
+          <TabsTrigger value="academics" className="data-[state=active]:bg-white/5 data-[state=active]:text-sky-400 py-3 shadow-sm rounded-lg text-slate-400 font-semibold tracking-wide">Academics & Timetable</TabsTrigger>
+          <TabsTrigger value="operations" className="data-[state=active]:bg-white/5 data-[state=active]:text-sky-400 py-3 shadow-sm rounded-lg text-slate-400 font-semibold tracking-wide">Roster Operations</TabsTrigger>
+          <TabsTrigger value="resources" className="data-[state=active]:bg-white/5 data-[state=active]:text-sky-400 py-3 shadow-sm rounded-lg text-slate-400 font-semibold tracking-wide">Resource Centers</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -372,8 +372,8 @@ export const InstitutionManagementPage: React.FC = () => {
              </div>
            )}
 
-           <Card className="shadow-lg border-[#1E293B] bg-white/5 backdrop-blur-md mb-6">
-             <CardHeader className="pb-4 border-b border-[#1E293B] bg-transparent rounded-t-xl">
+           <Card className="shadow-lg border-slate-800 bg-white/5 backdrop-blur-md mb-6">
+             <CardHeader className="pb-4 border-b border-slate-800 bg-transparent rounded-t-xl">
                <CardTitle className="text-white">Workspace Identity</CardTitle>
                <CardDescription className="text-slate-400">Setup your institution's name, colors, and country localization.</CardDescription>
              </CardHeader>
@@ -381,11 +381,11 @@ export const InstitutionManagementPage: React.FC = () => {
                  <div className="flex flex-wrap gap-4 max-w-3xl">
                     <div className="space-y-2 flex-[1_1_250px]">
                        <label className="text-sm font-medium text-slate-400">Institution Name</label>
-                       <input className="flex h-10 w-full rounded-lg border border-[#1E293B] bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ABFF8] focus-visible:ring-offset-0 disabled:opacity-50" defaultValue="Kampala Model High School" />
+                       <input className="flex h-10 w-full rounded-lg border border-slate-800 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-0 disabled:opacity-50" defaultValue="Kampala Model High School" />
                     </div>
                     <div className="space-y-2 flex-[1_1_250px]">
                        <label className="text-sm font-medium text-slate-400">Platform Scope Slug</label>
-                       <input className="flex h-10 w-full rounded-lg border border-[#1E293B] bg-transparent px-3 py-2 text-sm text-slate-500 placeholder:text-slate-500 disabled:cursor-not-allowed disabled:opacity-50" defaultValue="kampalahigh" disabled />
+                       <input className="flex h-10 w-full rounded-lg border border-slate-800 bg-transparent px-3 py-2 text-sm text-slate-500 placeholder:text-slate-500 disabled:cursor-not-allowed disabled:opacity-50" defaultValue="kampalahigh" disabled />
                     </div>
                  </div>
              </CardContent>
@@ -395,8 +395,8 @@ export const InstitutionManagementPage: React.FC = () => {
         <TabsContent value="operations" className="space-y-12">
            {/* Unified Operations View containing Staff, Students, Parents, Pastoral previously separated */}
            <div className="space-y-6">
-             <Card className="shadow-lg border-[#1E293B] bg-white/5 backdrop-blur-md">
-               <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-[#1E293B] bg-transparent rounded-t-xl">
+             <Card className="shadow-lg border-slate-800 bg-white/5 backdrop-blur-md">
+               <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-slate-800 bg-transparent rounded-t-xl">
                  <div>
                     <CardTitle className="text-white">Staff Management & Workload</CardTitle>
                     <CardDescription className="text-slate-400">Monitor teacher attendance, assign subjects, and track grading compliance.</CardDescription>

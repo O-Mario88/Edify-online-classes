@@ -108,7 +108,9 @@ class StudentOnboardingAPIView(APIView):
 
 
 from .serializers import PublicProfileSerializer
-from intelligence.models import UserBadge
+# `intelligence` app is archived in Phase 0 (out of v1 scope per docs/STRATEGY.md
+# decision 9). PublicProfileView still answers but returns no badges/certs until
+# intelligence is re-enabled.
 from django.shortcuts import get_object_or_404
 
 class PublicProfileView(APIView):
@@ -132,29 +134,11 @@ class PublicProfileView(APIView):
         if not user:
             return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Gather badges
-        user_badges = UserBadge.objects.filter(user=user).select_related('badge')
+        # Badges and certificates were sourced from the `intelligence` app, which
+        # is archived in Phase 0. Endpoint stays alive so frontend doesn't 404;
+        # returns empty arrays until intelligence is re-enabled post-PMF.
         badges_data = []
-        for ub in user_badges:
-            badges_data.append({
-                'id': f"b-{ub.badge.id}",
-                'name': ub.badge.name,
-                'description': ub.badge.description,
-                'rarity': ub.badge.rarity,
-                'unlockedAt': ub.earned_at.isoformat() if ub.earned_at else None
-            })
-
-        # Mock certificates for now (we can add a Certificate model later)
         certificates_data = []
-        if user_badges.count() > 3:
-            certificates_data.append({
-                'id': f"cert-{user.id}-1",
-                'title': "Platform Foundation Graduate",
-                'issuedTo': user.full_name,
-                'issuedDate': user.date_joined.isoformat(),
-                'issuerLogo': "/icons/maple.png",
-                'verificationHash': f"0x{user.id}A8B9C"
-            })
 
         profile_data = {
             'name': user.full_name,

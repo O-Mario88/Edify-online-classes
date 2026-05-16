@@ -50,15 +50,15 @@ export const ClassSyllabusPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#e2ddd1] flex items-center justify-center">
-        <div className="animate-pulse w-12 h-12 rounded-full bg-[#f4efe2]"></div>
+      <div className="min-h-screen bg-paper-200 flex items-center justify-center">
+        <div className="animate-pulse w-12 h-12 rounded-full bg-paper-100"></div>
       </div>
     );
   }
 
   if (!classData) {
     return (
-      <div className="min-h-screen bg-[#e2ddd1] flex items-center justify-center flex-col gap-4">
+      <div className="min-h-screen bg-paper-200 flex items-center justify-center flex-col gap-4">
         <EditorialPanel className="text-center py-20">
           <EditorialHeader level="h2" className="text-slate-800 mb-4">Class Not Found</EditorialHeader>
           <Link to="/classes"><EditorialPill variant="outline">Browse All Classes</EditorialPill></Link>
@@ -76,11 +76,11 @@ export const ClassSyllabusPage: React.FC = () => {
     if (str.includes('bio') || str.includes('chem') || str.includes('phy') || str.includes('sci')) return { icon: Beaker, color: 'bg-rose-100 text-rose-700' };
     if (str.includes('geo') || str.includes('hist') || str.includes('sst') || str.includes('social studies')) return { icon: Globe, color: 'bg-emerald-100 text-emerald-700' };
     if (str.includes('eng') || str.includes('art') || str.includes('lit')) return { icon: PenTool, color: 'bg-purple-100 text-purple-700' };
-    return { icon: BookOpen, color: 'bg-[#e5dfd3] text-[#8e8268]' };
+    return { icon: BookOpen, color: 'bg-paper-200 text-paper-600' };
   };
 
   return (
-    <div className="min-h-screen bg-[#e2ddd1] font-sans pb-24 relative">
+    <div className="min-h-screen bg-paper-200 font-sans pb-24 relative">
       <div className="fixed inset-0 bg-white/40 pointer-events-none" />
 
       {/* Header Area */}
@@ -180,7 +180,7 @@ export const ClassSyllabusPage: React.FC = () => {
                        <div className="mt-8 pt-5 border-t border-slate-100">
                          <button 
                            onClick={() => navigate(`/classes/${classId}/subject/${subject.id}`)}
-                           className="text-sm font-bold text-[#8e8268] flex items-center gap-2 group/btn"
+                           className="text-sm font-bold text-paper-600 flex items-center gap-2 group/btn"
                          >
                            <span className="bg-gradient-to-r from-slate-900 to-slate-900 bg-[length:0%_2px] bg-no-repeat bg-left-bottom group-hover/btn:bg-[length:100%_2px] group-hover/btn:text-slate-900 transition-all duration-300 ease-out pb-0.5">
                              See all {subject.name} topics

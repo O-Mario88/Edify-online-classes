@@ -6,7 +6,7 @@ import React from 'react';
 
 export const TopicPageSkeleton: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#f6f4f0]">
+    <div className="min-h-screen bg-paper-50">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-10">
         <div className="flex gap-10">
           {/* Sidebar skeleton */}

@@ -83,15 +83,15 @@ export const SubjectTopicsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
-        <div className="animate-pulse w-12 h-12 rounded-full bg-[#f4efe2]" />
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
+        <div className="animate-pulse w-12 h-12 rounded-full bg-paper-100" />
       </div>
     );
   }
 
   if (!classData || !subject) {
     return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
         <EditorialPanel className="text-center py-20 border border-white">
           <BookOpen className="h-12 w-12 text-slate-300 mx-auto mb-4" />
           <EditorialHeader level="h3" className="text-slate-800 mb-4">Subject Not Found</EditorialHeader>
@@ -116,7 +116,7 @@ export const SubjectTopicsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fbfaf8] font-sans pb-24 relative">
+    <div className="min-h-screen bg-paper-50 font-sans pb-24 relative">
       <div className="fixed inset-0 bg-white/40 pointer-events-none" />
 
       {/* Header */}
@@ -204,8 +204,8 @@ export const SubjectTopicsPage: React.FC = () => {
                   >
                     <div className="flex items-center gap-6 p-6 sm:p-8">
                       {/* Number */}
-                      <div className="w-14 h-14 rounded-2xl bg-[#f4efe2] flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 transition-colors duration-300">
-                        <span className="text-xl font-black text-[#8e8268] group-hover:text-white transition-colors duration-300 leading-none">
+                      <div className="w-14 h-14 rounded-2xl bg-paper-100 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 transition-colors duration-300">
+                        <span className="text-xl font-black text-paper-600 group-hover:text-white transition-colors duration-300 leading-none">
                           {topic.globalIndex}
                         </span>
                       </div>
@@ -231,7 +231,7 @@ export const SubjectTopicsPage: React.FC = () => {
                               className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${
                                 type === 'video'    ? 'bg-rose-50 text-rose-600' :
                                 type === 'notes'    ? 'bg-blue-50 text-blue-600' :
-                                type === 'exercise' ? 'bg-[#f4efe2] text-[#8e8268]' :
+                                type === 'exercise' ? 'bg-paper-100 text-paper-600' :
                                 type === 'project'  ? 'bg-emerald-50 text-emerald-600' :
                                 'bg-slate-100 text-slate-500'
                               }`}
