@@ -1,11 +1,42 @@
 # STATUS.md — Single source of truth
 
-> This file is the **only** authoritative inventory of what exists in the Edify platform.
+> This file is the **only** authoritative inventory of what exists in the Maple platform.
 > It supersedes every `PHASE_*.md`, `*_AUDIT*.md`, `*_TESTING_*.md`, and other report file that used to live at the repo root.
 > Those files are stale marketing; this file is reality.
 >
-> **Last verified:** 2026-04-22 (Phase 0.1 inventory).
+> **Last verified:** 2026-04-22 (Phase 0.1 inventory). v1 scope section added 2026-05-16.
 > **How to maintain:** when you ship a slice, flip the row. When a feature is cut, delete the row. Do not add a row for a feature that doesn't have running code.
+
+---
+
+## v1 scope (per [docs/STRATEGY.md](docs/STRATEGY.md))
+
+The wedge for v1 is: **teacher attendance + marks → parent WhatsApp notification → admin follow-up**. Everything else is either supporting infrastructure or postponed.
+
+**In scope for v1 (must be `verified` before pilot):**
+- Auth — login, register, activation, forgot password (`accounts`)
+- Institution onboarding (`institutions`)
+- Class / student / curriculum (`classes`, `curriculum`)
+- Attendance (`attendance`)
+- Grading / marks entry (`grading`)
+- Parent portal — weekly summaries (`parent_portal`)
+- Notifications — WhatsApp + email (`notifications`)
+- Admin dashboards (institution health views, `analytics` slimmed to v1 needs)
+
+**Postponed (kept in code, removed from any sales surface, no work done):**
+- AI services (`ai_services`)
+- Marketplace (`marketplace`)
+- Peer tutoring (`tutoring`)
+- Live sessions (`live_sessions`)
+- Interventions hub (`interventions`)
+- Intelligence engine (`intelligence`)
+- Discussions / forum (`discussions`)
+- Exam centers (`exams`)
+- Projects, public profiles, teacher storefronts, learning paths, feedback page
+
+If you find yourself building anything in the postponed list, stop and re-read STRATEGY.md.
+
+---
 
 ## Legend
 
