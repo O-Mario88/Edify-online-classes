@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UniversalStudent, IndependentTeacher, Institution, ParentUser } from '../types';
-import { loginUser, registerUser as registerUserAPI, storeTokens, clearTokens } from '@/lib/apiClient';
+import { loginUser, registerUser as registerUserAPI, storeTokens, clearTokens, API_ENDPOINTS } from '@/lib/apiClient';
 
 interface AuthContextType {
   user: User | null;
   userProfile: UniversalStudent | IndependentTeacher | Institution | ParentUser | null;
   login: (email: string, password: string, overrideRole?: string) => Promise<boolean>;
   register: (email: string, fullName: string, countryCode: string, password: string, role: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
   switchStudentContext: (institutionId?: string) => void;
   currentContext: 'independent' | 'institutional' | 'mixed';
@@ -318,7 +318,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    // Blacklist the refresh token server-side before tearing down local state.
+    // Best-effort: if the network is down, we still clear locally so the user
+    // can't be left "logged in" because of a server hiccup.
+    const refreshToken =
+      localStorage.getItem('refresh_token') ||
+      localStorage.getItem('maple-refresh-token');
+    if (refreshToken) {
+      try {
+        await fetch(API_ENDPOINTS.AUTH_BLACKLIST, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh: refreshToken }),
+        });
+      } catch {
+        // Non-fatal — local cleanup proceeds regardless.
+      }
+    }
+
     setUser(null);
     setUserProfile(null);
     setCurrentContext('mixed');
@@ -329,7 +347,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     clearTokens();
     localStorage.removeItem('maple-access-token');
     localStorage.removeItem('maple-refresh-token');
-    
+
     // Redirect to login
     window.location.href = '/login';
   };

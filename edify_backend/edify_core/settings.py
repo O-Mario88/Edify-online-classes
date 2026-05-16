@@ -25,7 +25,9 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'true').lower() in ('1', 'true', 'yes', 'on')
+# Default is 'false' — production-safe by construction. Local dev must set
+# DJANGO_DEBUG=true explicitly (compose files, .env, or the dev runner do this).
+DEBUG = os.environ.get('DJANGO_DEBUG', 'false').lower() in ('1', 'true', 'yes', 'on')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # In DEBUG mode we fall back to the historical dev key so local workflows and
@@ -58,6 +60,7 @@ INSTALLED_APPS = [
     
     # Third Party Apps
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'django_filters',
     

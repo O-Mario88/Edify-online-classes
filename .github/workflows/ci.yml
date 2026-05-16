@@ -10,6 +10,11 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # CI behaves like local dev — DEBUG on so settings.py uses the dev-fallback secret.
+  # Production deploys must set DJANGO_DEBUG=false and provide DJANGO_SECRET_KEY.
+  DJANGO_DEBUG: 'true'
+
 jobs:
   backend:
     name: Django tests

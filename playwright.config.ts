@@ -36,5 +36,11 @@ export default defineConfig({
     timeout: 60_000,
     stdout: 'pipe',
     stderr: 'pipe',
+    // settings.py defaults DJANGO_DEBUG to false; the Playwright server is local-dev,
+    // so opt in here. Production builds set DJANGO_DEBUG=false explicitly.
+    env: {
+      ...process.env,
+      DJANGO_DEBUG: process.env.DJANGO_DEBUG ?? 'true',
+    } as Record<string, string>,
   },
 });

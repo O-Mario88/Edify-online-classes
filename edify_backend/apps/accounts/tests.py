@@ -154,6 +154,58 @@ class StudentSliceTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
 
+class TokenBlacklistTests(TestCase):
+    """Logout posts the refresh token to /auth/token/blacklist/. Once blacklisted,
+    a previously-valid refresh token must be rejected by /auth/token/refresh/.
+    Closes the stolen-refresh-token window flagged in docs/audit/AUDIT.md §2.6.
+    """
+
+    REGISTER_URL = '/api/v1/auth/register/'
+    TOKEN_URL = '/api/v1/auth/token/'
+    BLACKLIST_URL = '/api/v1/auth/token/blacklist/'
+    REFRESH_URL = '/api/v1/auth/token/refresh/'
+
+    EMAIL = 'logout.test@edify.test'
+    PASSWORD = 'LogoutTestPass!'
+
+    def setUp(self):
+        _clear_throttle_cache()
+        self.client = APIClient()
+        register = self.client.post(
+            self.REGISTER_URL,
+            {
+                'email': self.EMAIL,
+                'full_name': 'Logout Test',
+                'country_code': 'UG',
+                'password': self.PASSWORD,
+                'role': 'student',
+            },
+            format='json',
+        )
+        self.assertEqual(register.status_code, status.HTTP_201_CREATED, register.content)
+        # Exchange creds for a refresh token (the registration response doesn't
+        # include one — by design, it returns user info only).
+        token = self.client.post(
+            self.TOKEN_URL,
+            {'email': self.EMAIL, 'password': self.PASSWORD},
+            format='json',
+        )
+        self.assertEqual(token.status_code, status.HTTP_200_OK, token.content)
+        self.refresh = token.data['refresh']
+
+    def test_refresh_works_before_blacklist(self):
+        resp = self.client.post(self.REFRESH_URL, {'refresh': self.refresh}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, resp.content)
+        self.assertIn('access', resp.data)
+
+    def test_blacklist_rejects_subsequent_refresh(self):
+        resp = self.client.post(self.BLACKLIST_URL, {'refresh': self.refresh}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, resp.content)
+
+        replay = self.client.post(self.REFRESH_URL, {'refresh': self.refresh}, format='json')
+        self.assertEqual(replay.status_code, status.HTTP_401_UNAUTHORIZED, replay.content)
+
+
 class RegistrationThrottleTests(TestCase):
     """Verify the anon throttle on the registration scope actually trips at 429.
 

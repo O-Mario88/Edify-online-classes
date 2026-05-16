@@ -10,6 +10,10 @@ cd "$(dirname "$0")/edify_backend"
 # Activate virtual environment
 source venv/bin/activate
 
+# Local dev defaults. settings.py treats DEBUG as false unless explicitly set —
+# this keeps prod safe by construction. Local runs opt in here.
+export DJANGO_DEBUG="${DJANGO_DEBUG:-true}"
+
 # Run migrations (safe - only applies pending ones)
 echo "📦 Running database migrations..."
 python manage.py migrate

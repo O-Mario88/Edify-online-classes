@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView
 
 from edify_core.health import HealthView
 from accounts.views import VerifiedEmailTokenObtainPairView as TokenObtainPairView
@@ -186,6 +186,9 @@ urlpatterns = [
     path('api/v1/auth/', include('accounts.urls')),
     path('api/v1/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # Logout posts the refresh token here so it's invalidated server-side. Combined
+    # with BLACKLIST_AFTER_ROTATION=True this kills the stolen-refresh-token window.
+    path('api/v1/auth/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
     
     path('api/v1/tutoring/dashboard/', PeerTutoringDashboardView.as_view(), name='tutoring-dashboard'),
     path('api/v1/users/profile/<str:username>/', PublicProfileView.as_view(), name='public-profile'),
