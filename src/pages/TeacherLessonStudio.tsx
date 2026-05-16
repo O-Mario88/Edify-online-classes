@@ -103,9 +103,8 @@ export const TeacherLessonStudio: React.FC = () => {
              <Button variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100" onClick={provisionWebinar} disabled={isProvisioning}>
                <CalendarIcon className="w-4 h-4 mr-2" /> {isProvisioning ? 'Provisioning...' : 'Live Schedule'}
              </Button>
-             <Button onClick={() => toast.info('Lesson creation wizard coming soon — use the Assessment Engine below to create assessments.')}>
-               <PlusCircle className="w-4 h-4 mr-2" /> New Lesson
-             </Button>
+             {/* "New Lesson" was a coming-soon stub. Use the Quick Note / Quick Assignment
+                 widgets below until a lesson creation wizard ships. Hidden, not toasting. */}
           </div>
         </div>
       </div>
@@ -210,12 +209,10 @@ export const TeacherLessonStudio: React.FC = () => {
                       <CheckCircle className="w-8 h-8 text-green-500" />
                    </div>
                    <h3 className="text-xl font-bold text-gray-900 mb-2">Assessment & Exams Engine</h3>
-                   <p className="text-gray-500 mb-6 font-medium text-sm">
+                   <p className="text-gray-500 font-medium text-sm">
                      Create timed quizzes or standard assignments. The system will auto-grade objective MCQ questions and update the UNEB Readiness scores.
                    </p>
-                   <Button onClick={() => toast.info('Quiz creator coming soon — auto-graded MCQ assessments with UNEB Readiness scoring.')}>
-                     <PlusCircle className="w-4 h-4 mr-2" /> Create New Assessment
-                   </Button>
+                   <p className="text-xs text-gray-400 mt-4 italic">In development — use Quick Assignment above to publish coursework today.</p>
                 </div>
              </Card>
           </TabsContent>

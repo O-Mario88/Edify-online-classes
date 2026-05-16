@@ -426,7 +426,7 @@ export const P7ReadinessDashboard: React.FC = () => {
                   <Button variant="outline" onClick={() => { const blob = new Blob(['Student Name,English,Mathematics,Science,Social Studies,Total\n'], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'PLE_Mock_Results_Template.csv'; a.click(); URL.revokeObjectURL(url); toast.success('Template downloaded: PLE_Mock_Results_Template.csv'); }}>
                     <FileText className="w-4 h-4 mr-2" /> Download Template
                   </Button>
-                  <Button onClick={() => toast.info('File picker coming soon — upload CSV/XLSX mock exam results.')}>
+                  <Button onClick={() => navigate('/dashboard/institution/health/upload')}>
                     <Upload className="w-4 h-4 mr-2" /> Upload Results
                   </Button>
                 </div>

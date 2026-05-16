@@ -25,6 +25,23 @@ export default tseslint.config(
       ],
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      // Design tokens are the source of truth. Hardcoded hex/rgb in className strings
+      // creates the "three competing design languages" problem flagged in the audit.
+      // Bypass by using semantic Tailwind tokens (e.g. bg-primary) or, if a one-off
+      // is truly needed, refactor to add a token in tailwind.config.js and use that.
+      // Currently 'warn' because ~196 legacy violations exist; flip to 'error' once
+      // the design-token sweep lands (tracked in docs/STRATEGY.md commitments).
+      'no-restricted-syntax': [
+        'warn',
+        {
+          selector: "Literal[value=/(?:bg|text|border|ring|from|to|via|fill|stroke|outline|decoration|placeholder|accent|caret|divide|shadow)-\\[#[0-9a-fA-F]{3,8}\\]/]",
+          message: 'Tailwind arbitrary hex color literal — replace with a semantic design token from tailwind.config.js. See docs/STRATEGY.md.',
+        },
+        {
+          selector: "TemplateElement[value.raw=/(?:bg|text|border|ring|from|to|via|fill|stroke|outline|decoration|placeholder|accent|caret|divide|shadow)-\\[#[0-9a-fA-F]{3,8}\\]/]",
+          message: 'Tailwind arbitrary hex color in template literal — replace with a semantic design token.',
+        },
+      ],
     },
   },
 )
