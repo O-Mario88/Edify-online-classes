@@ -38,6 +38,18 @@ module.exports = {
 					900: '#0e2b45',
 					950: '#0a1c2e',
 				},
+				// "Paper" scale — the editorial / academic-library theme. Used for
+				// content-heavy reading surfaces (login hero, library, primary content).
+				// Pinned to specific hex values that already lived in the codebase as
+				// arbitrary `bg-[#fbfaf8]` etc.; tokenised here so they can be reskinned
+				// or removed in one place.
+				paper: {
+					50: '#fdfbf7',
+					100: '#f4efe2',
+					200: '#e2ddd1',
+					600: '#8e8268',
+					900: '#2a2b2a',
+				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))',

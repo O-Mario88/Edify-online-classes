@@ -112,7 +112,7 @@ export function AcademicLibraryPage() {
   // Show loading state
   if (loading && resources.length === 0) {
     return (
-      <div className="min-h-screen bg-[#e2ddd1] flex items-center justify-center">
+      <div className="min-h-screen bg-paper-200 flex items-center justify-center">
         <DashboardSkeleton />
       </div>
     );
@@ -121,7 +121,7 @@ export function AcademicLibraryPage() {
   // Show error state with retry option
   if (error && resources.length === 0) {
     return (
-      <div className="min-h-screen bg-[#e2ddd1] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-paper-200 flex items-center justify-center p-4">
         <EmptyState
           icon={AlertCircle}
           title="Unable to Load Resources"
@@ -136,7 +136,7 @@ export function AcademicLibraryPage() {
   // Show empty state
   if (!loading && resources.length === 0) {
     return (
-      <div className="min-h-screen bg-[#e2ddd1] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-paper-200 flex items-center justify-center p-4">
         <EmptyState
           icon={BookOpen}
           title="No Academic Resources Available"
@@ -157,7 +157,7 @@ export function AcademicLibraryPage() {
   const featuredResources = resources.filter(r => r.is_featured).slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-[#e2ddd1] font-sans pb-24 relative">
+    <div className="min-h-screen bg-paper-200 font-sans pb-24 relative">
       <div 
         className="fixed inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
         style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
@@ -165,7 +165,7 @@ export function AcademicLibraryPage() {
       <div className="fixed inset-0 bg-white/40 pointer-events-none" />
 
       {/* 1. Top Header Zone */}
-      <div className="relative z-10 sticky top-0 bg-[#e2ddd1]/90 backdrop-blur-md border-b border-white z-50 py-4">
+      <div className="relative z-10 sticky top-0 bg-paper-200/90 backdrop-blur-md border-b border-white z-50 py-4">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
            <div className="flex items-center gap-4 w-full md:w-auto">
              <EditorialPill variant="outline" className="bg-white border-white shadow-sm flex items-center gap-2 px-4 py-2">
@@ -245,9 +245,9 @@ export function AcademicLibraryPage() {
               <div className="space-y-5">
                 {TEACHERS_OF_WEEK.map((teacher, idx) => (
                   <div key={idx} className="flex items-center gap-4 group cursor-pointer">
-                    <img src={teacher.avatar} alt={teacher.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 group-hover:border-[#8e8268] transition-colors" />
+                    <img src={teacher.avatar} alt={teacher.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 group-hover:border-paper-600 transition-colors" />
                     <div>
-                      <h5 className="font-semibold text-slate-700 text-sm group-hover:text-[#8e8268] transition-colors">{teacher.name}</h5>
+                      <h5 className="font-semibold text-slate-700 text-sm group-hover:text-paper-600 transition-colors">{teacher.name}</h5>
                       <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{teacher.subject}</span>
                     </div>
                   </div>
@@ -318,7 +318,7 @@ export function AcademicLibraryPage() {
                        onClick={() => setActiveCategory(cat)}
                        className={`px-3 py-1 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${
                          activeCategory === cat
-                           ? 'bg-[#8e8268] text-white border-[#8e8268]'
+                           ? 'bg-paper-600 text-white border-paper-600'
                            : 'border-slate-200 text-slate-500 hover:border-slate-400'
                        }`}
                      >
@@ -363,7 +363,7 @@ export function AcademicLibraryPage() {
                        )}
                      </div>
                      {/* Category badge */}
-                     <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm text-[9px] font-black uppercase tracking-widest text-[#8e8268]">
+                     <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm text-[9px] font-black uppercase tracking-widest text-paper-600">
                        {book.category || 'General'}
                      </div>
                    </div>

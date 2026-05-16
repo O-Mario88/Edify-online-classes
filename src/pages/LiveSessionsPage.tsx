@@ -105,8 +105,8 @@ export const LiveSessionsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
-        <div className="animate-pulse w-12 h-12 rounded-full bg-[#f4efe2]"></div>
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
+        <div className="animate-pulse w-12 h-12 rounded-full bg-paper-100"></div>
       </div>
     );
   }
@@ -163,14 +163,14 @@ export const LiveSessionsPage: React.FC = () => {
            {/* Host Row */}
            <div className="flex items-center gap-3 mb-4 mt-[-40px] z-20">
              <div className="w-12 h-12 rounded-full bg-white p-1 shadow-md border border-slate-100">
-                <div className="w-full h-full bg-[#f4efe2] rounded-full flex items-center justify-center overflow-hidden text-[#8e8268]">
+                <div className="w-full h-full bg-paper-100 rounded-full flex items-center justify-center overflow-hidden text-paper-600">
                   <User className="h-5 w-5" />
                 </div>
              </div>
              <div className="mt-6 flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-500">{session.hostName}</span>
                 <span className="w-1 h-1 rounded-full bg-slate-300" />
-                <span className="text-[10px] font-bold text-[#8e8268] uppercase tracking-wider bg-[#f4efe2] px-2 py-0.5 rounded-sm">Host</span>
+                <span className="text-[10px] font-bold text-paper-600 uppercase tracking-wider bg-paper-100 px-2 py-0.5 rounded-sm">Host</span>
              </div>
            </div>
 
@@ -235,7 +235,7 @@ export const LiveSessionsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fbfaf8] font-sans pb-24 relative">
+    <div className="min-h-screen bg-paper-50 font-sans pb-24 relative">
       <div 
         className="fixed inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
         style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}

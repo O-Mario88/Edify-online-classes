@@ -53,7 +53,7 @@ export const LoginPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#fafaeb] flex items-center justify-center p-4 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-paper-50 flex items-center justify-center p-4 relative overflow-hidden font-sans">
       
       {/* Editorial aesthetic background layer */}
       <div 

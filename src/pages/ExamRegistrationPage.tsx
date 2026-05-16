@@ -218,15 +218,15 @@ const ExamRegistrationPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
-        <div className="animate-pulse w-12 h-12 rounded-full bg-[#f4efe2]"></div>
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
+        <div className="animate-pulse w-12 h-12 rounded-full bg-paper-100"></div>
       </div>
     );
   }
 
   if (user?.role !== 'universal_student') {
     return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
         <EditorialPanel className="text-center py-20 max-w-lg">
           <AlertCircle className="h-12 w-12 text-rose-500 mx-auto mb-6 opacity-80" />
           <EditorialHeader level="h2" className="text-slate-800 mb-2">Access Restricted</EditorialHeader>
@@ -238,7 +238,7 @@ const ExamRegistrationPage: React.FC = () => {
 
   if (countryCode !== 'uganda') {
     return (
-      <div className="min-h-screen bg-[#fbfaf8] flex items-center justify-center">
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
         <EditorialPanel className="text-center py-20 max-w-xl">
           <Globe className="h-12 w-12 text-blue-500 mx-auto mb-6 opacity-80" />
           <EditorialHeader level="h2" className="text-slate-800 mb-4">National Exam Integration</EditorialHeader>
@@ -255,7 +255,7 @@ const ExamRegistrationPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfaf8] font-sans pb-24 relative">
+    <div className="min-h-screen bg-paper-50 font-sans pb-24 relative">
       <div 
         className="fixed inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
         style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
@@ -325,15 +325,15 @@ const ExamRegistrationPage: React.FC = () => {
             <EditorialPanel variant="glass" radius="xl" className="border border-white shadow-sm overflow-hidden p-0">
               <div className="bg-white/60 backdrop-blur border-b border-white p-8 sm:px-10">
                 <EditorialHeader level="h3" className="flex items-center gap-3">
-                  <span className="w-10 h-10 rounded-full bg-[#f4efe2] flex items-center justify-center shadow-inner">
-                    <School className="h-5 w-5 text-[#8e8268]" />
+                  <span className="w-10 h-10 rounded-full bg-paper-100 flex items-center justify-center shadow-inner">
+                    <School className="h-5 w-5 text-paper-600" />
                   </span>
                   Examination Modality
                 </EditorialHeader>
                 <p className="text-slate-500 font-light mt-2 ml-14">Select your level and choose an approved sitting center</p>
               </div>
 
-              <div className="p-8 sm:p-10 bg-[#fbfaf8]">
+              <div className="p-8 sm:p-10 bg-paper-50">
                 <div className="mb-10">
                   <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 block">1. Select Academic Level</h4>
                   <RadioGroup
@@ -469,14 +469,14 @@ const ExamRegistrationPage: React.FC = () => {
                     <p className="text-slate-500 font-light mt-2 ml-14">Choose your subjects for {registration.exam_type} 2025</p>
                   </div>
                   {selectedCenter && (
-                    <div className="bg-[#fbfaf8] border border-white px-4 py-2 rounded-xl text-right">
+                    <div className="bg-paper-50 border border-white px-4 py-2 rounded-xl text-right">
                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">Target Center</span>
                        <span className="text-sm font-bold text-slate-900">{selectedCenter.name}</span>
                     </div>
                   )}
                </div>
 
-               <div className="p-8 sm:p-10 bg-[#fbfaf8]">
+               <div className="p-8 sm:p-10 bg-paper-50">
                  <div className="space-y-8">
                   
                   {registration.exam_type === 'UCE' ? (
@@ -617,7 +617,7 @@ const ExamRegistrationPage: React.FC = () => {
                   <p className="text-slate-500 font-light mt-2 ml-14">Upload verification documents securely</p>
                </div>
                
-               <div className="p-8 sm:p-10 bg-[#fbfaf8]">
+               <div className="p-8 sm:p-10 bg-paper-50">
                  <div className="space-y-6">
                     {/* Document Dropzones */}
                     {[
@@ -722,7 +722,7 @@ const ExamRegistrationPage: React.FC = () => {
                   <p className="text-slate-500 font-light mt-2 ml-14">Review your curriculum choices and process payment</p>
                </div>
 
-               <div className="p-8 sm:p-10 bg-[#fbfaf8]">
+               <div className="p-8 sm:p-10 bg-paper-50">
                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                     
                     {/* Invoice Summary */}

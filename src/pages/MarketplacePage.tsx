@@ -60,7 +60,7 @@ const MarketplacePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fbfaf8] font-sans pb-24 relative">
+    <div className="min-h-screen bg-paper-50 font-sans pb-24 relative">
       <div 
         className="fixed inset-0 bg-cover bg-center opacity-[0.35] pointer-events-none"
         style={{ backgroundImage: "url('/images/bg-editorial-sand.png')" }}
@@ -99,14 +99,14 @@ const MarketplacePage: React.FC = () => {
                 placeholder="Search subjects..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-[#fbfaf8]/80 border-none rounded-full py-4 pl-12 pr-6 text-sm outline-none focus:ring-2 focus:ring-slate-200 transition-all font-medium text-slate-800 placeholder:text-slate-400"
+                className="w-full bg-paper-50/80 border-none rounded-full py-4 pl-12 pr-6 text-sm outline-none focus:ring-2 focus:ring-slate-200 transition-all font-medium text-slate-800 placeholder:text-slate-400"
               />
             </div>
 
             <div className="hidden lg:block w-px h-8 bg-slate-200" />
 
             {/* Region Filter */}
-            <div className="flex items-center gap-3 bg-[#fbfaf8]/80 rounded-full px-4 py-2 flex-grow sm:flex-grow-0">
+            <div className="flex items-center gap-3 bg-paper-50/80 rounded-full px-4 py-2 flex-grow sm:flex-grow-0">
               <Globe2 className="h-4 w-4 text-slate-400 flex-shrink-0" />
               <select
                 value={selectedCountry}
@@ -125,7 +125,7 @@ const MarketplacePage: React.FC = () => {
            <h2 className="text-xl font-medium text-slate-800">
               Disciplines in {selectedCountry.charAt(0).toUpperCase() + selectedCountry.slice(1)}
            </h2>
-           <span className="text-[10px] font-black uppercase tracking-widest text-[#8e8268] bg-[#f4efe2] px-3 py-1.5 rounded-full border border-white">
+           <span className="text-[10px] font-black uppercase tracking-widest text-paper-600 bg-paper-100 px-3 py-1.5 rounded-full border border-white">
               {filteredSubjects.length} Curated
            </span>
         </div>
@@ -134,7 +134,7 @@ const MarketplacePage: React.FC = () => {
           {loading ? (
             <div className="col-span-full py-24 text-center">
                <div className="animate-pulse flex items-center justify-center space-x-4">
-                 <div className="w-12 h-12 bg-[#f4efe2] rounded-full"></div>
+                 <div className="w-12 h-12 bg-paper-100 rounded-full"></div>
                  <div className="text-slate-400 font-medium tracking-widest uppercase text-sm">Syncing Records...</div>
                </div>
             </div>
@@ -154,7 +154,7 @@ const MarketplacePage: React.FC = () => {
                 className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full border border-slate-100"
                 onClick={() => handleSubjectClick(subject.id)}
               >
-                <div className="h-40 bg-[#fbfaf8] relative overflow-hidden flex flex-col justify-end p-6 border-b border-slate-100">
+                <div className="h-40 bg-paper-50 relative overflow-hidden flex flex-col justify-end p-6 border-b border-slate-100">
                   {/* Soft Background Accent */}
                   <div className="absolute top-[-50%] right-[-20%] w-64 h-64 bg-rose-100/50 rounded-full blur-3xl pointer-events-none group-hover:bg-rose-200/50 transition-colors" />
                   

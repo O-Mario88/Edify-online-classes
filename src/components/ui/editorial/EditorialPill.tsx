@@ -17,12 +17,12 @@ export const EditorialPill = React.forwardRef<HTMLButtonElement, EditorialPillPr
     const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-full font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-400 disabled:pointer-events-none disabled:opacity-50";
 
     const variants = {
-      primary: "bg-[#2A2B2A] text-white hover:bg-black shadow-lg shadow-black/10", // Strong dark contrast like reference
-      secondary: "bg-[#f4efe2] text-[#2A2B2A] hover:bg-[#ebe1cf]", // Warm creamy pastel
-      outline: "border-[1.5px] border-[#2A2B2A]/20 bg-transparent text-[#2A2B2A] hover:border-[#2A2B2A]",
-      ghost: "hover:bg-slate-100 text-[#2A2B2A]",
+      primary: "bg-paper-900 text-white hover:bg-black shadow-lg shadow-black/10", // Strong dark contrast like reference
+      secondary: "bg-paper-100 text-paper-900 hover:bg-paper-200", // Warm creamy pastel
+      outline: "border-[1.5px] border-paper-900/20 bg-transparent text-paper-900 hover:border-paper-900",
+      ghost: "hover:bg-slate-100 text-paper-900",
       dark: "bg-slate-900 text-white hover:bg-slate-800",
-      glass: "bg-white/40 backdrop-blur-md border border-white/60 text-[#2A2B2A] hover:bg-white/60"
+      glass: "bg-white/40 backdrop-blur-md border border-white/60 text-paper-900 hover:bg-white/60"
     };
 
     const sizes = {

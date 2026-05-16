@@ -5,7 +5,7 @@ import { Button } from '../components/ui/button';
 
 export const AboutUsPage: React.FC = () => {
   return (
-    <div className="bg-[#fbfaf8] min-h-screen text-slate-800 font-sans pb-20">
+    <div className="bg-paper-50 min-h-screen text-slate-800 font-sans pb-20">
       {/* Hero Section */}
       <section className="relative pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-[1200px] mx-auto text-center">
         <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight mb-6">
@@ -20,7 +20,7 @@ export const AboutUsPage: React.FC = () => {
       <section className="py-16 bg-white border-y border-slate-100">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-3xl bg-[#fbfaf8] border border-slate-100 text-center">
+            <div className="p-8 rounded-3xl bg-paper-50 border border-slate-100 text-center">
               <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <BookOpen className="w-6 h-6" />
               </div>
@@ -30,7 +30,7 @@ export const AboutUsPage: React.FC = () => {
               </p>
             </div>
             
-            <div className="p-8 rounded-3xl bg-[#fbfaf8] border border-slate-100 text-center">
+            <div className="p-8 rounded-3xl bg-paper-50 border border-slate-100 text-center">
               <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <ShieldCheck className="w-6 h-6" />
               </div>
@@ -40,7 +40,7 @@ export const AboutUsPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="p-8 rounded-3xl bg-[#fbfaf8] border border-slate-100 text-center">
+            <div className="p-8 rounded-3xl bg-paper-50 border border-slate-100 text-center">
               <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Users className="w-6 h-6" />
               </div>

@@ -58,11 +58,11 @@ const TYPE_CONFIG: Record<string, {
   },
   exercise: {
     icon: ClipboardList,
-    accent: 'bg-[#b8a97e]',
-    accentText: 'text-[#8e8268]',
+    accent: 'bg-paper-600',
+    accentText: 'text-paper-600',
     label: 'Practice Set',
-    bg: 'hover:bg-[#faf8f3]',
-    hoverBorder: 'hover:border-[#ddd5c2]',
+    bg: 'hover:bg-paper-50',
+    hoverBorder: 'hover:border-paper-200',
   },
   quiz: {
     icon: Zap,

@@ -24,7 +24,7 @@ export function EditorialPanel({
     flat: "bg-slate-50",
     elevated: "bg-white",
     glass: "bg-white/60 backdrop-blur-2xl border border-white/50",
-    'frosted-rose': "bg-[#f5eef1]/80 backdrop-blur-2xl border border-[#ffffff]/60" // Matches reference image pink/rose tone
+    'frosted-rose': "bg-rose-50/80 backdrop-blur-2xl border border-white/60" // Matches reference image pink/rose tone
   };
 
   const elevations = {

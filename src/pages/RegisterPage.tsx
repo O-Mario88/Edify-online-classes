@@ -82,7 +82,7 @@ export const RegisterPage: React.FC = () => {
     <div className="min-h-screen bg-white flex flex-col md:flex-row p-0 m-0 w-full relative overflow-hidden font-sans">
       
       {/* LEFT COLUMN: Editorial Splash */}
-      <div className="hidden md:flex md:w-[55%] lg:w-[55%] xl:w-[55%] px-10 py-10 bg-[#F9F7F3] flex-col justify-center relative">
+      <div className="hidden md:flex md:w-[55%] lg:w-[55%] xl:w-[55%] px-10 py-10 bg-paper-50 flex-col justify-center relative">
         <div className="max-w-md mx-auto w-full">
           <EditorialHeader level="h1" className="mb-4 text-slate-900 leading-snug text-2xl lg:text-3xl">
             Maple Online School<br/>— learning from anywhere!
@@ -92,7 +92,7 @@ export const RegisterPage: React.FC = () => {
           </p>
           
           <div className="relative w-full aspect-[4/3] max-w-[420px] mx-auto overflow-hidden rounded-2xl shadow-lg border border-slate-200">
-             <div className="absolute inset-0 bg-gradient-to-tr from-[#98d8c6] to-[#fcb97d] opacity-40 mix-blend-multiply rounded-2xl" />
+             <div className="absolute inset-0 bg-gradient-to-tr from-teal-300 to-orange-300 opacity-40 mix-blend-multiply rounded-2xl" />
              <img src="/images/teenager_studying_at_home.png" alt="African teenager studying at home" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=2070&auto=format&fit=crop' }} />
           </div>
 
@@ -122,17 +122,17 @@ export const RegisterPage: React.FC = () => {
             <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-8 tracking-tight mt-4">Start learning today by signing up!</h2>
             
             <div className="space-y-4">
-              <button onClick={() => handleRoleSelection('learner')} className="w-full bg-[#f8f9fa] hover:bg-[#edf2f7] border border-blue-100/50 rounded-xl p-5 flex items-center justify-between transition-colors group">
+              <button onClick={() => handleRoleSelection('learner')} className="w-full bg-gray-50 hover:bg-slate-100 border border-blue-100/50 rounded-xl p-5 flex items-center justify-between transition-colors group">
                 <span className="font-semibold text-slate-700 group-hover:text-blue-700">I'm a learner</span>
                 <ChevronRight className="w-5 h-5 text-blue-500 group-hover:translate-x-1 transition-transform" />
               </button>
               
-              <button onClick={() => handleRoleSelection('teacher')} className="w-full bg-[#f8f9fa] hover:bg-[#edf2f7] border border-blue-100/50 rounded-xl p-5 flex items-center justify-between transition-colors group">
+              <button onClick={() => handleRoleSelection('teacher')} className="w-full bg-gray-50 hover:bg-slate-100 border border-blue-100/50 rounded-xl p-5 flex items-center justify-between transition-colors group">
                 <span className="font-semibold text-slate-700 group-hover:text-blue-700">I'm a teacher</span>
                 <ChevronRight className="w-5 h-5 text-blue-500 group-hover:translate-x-1 transition-transform" />
               </button>
               
-              <button onClick={() => handleRoleSelection('institution')} className="w-full bg-[#f8f9fa] hover:bg-[#edf2f7] border border-blue-100/50 rounded-xl p-5 flex items-center justify-between transition-colors group">
+              <button onClick={() => handleRoleSelection('institution')} className="w-full bg-gray-50 hover:bg-slate-100 border border-blue-100/50 rounded-xl p-5 flex items-center justify-between transition-colors group">
                 <span className="font-semibold text-slate-700 group-hover:text-blue-700">I'm an institution</span>
                 <ChevronRight className="w-5 h-5 text-blue-500 group-hover:translate-x-1 transition-transform" />
               </button>

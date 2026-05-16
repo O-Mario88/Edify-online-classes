@@ -213,7 +213,7 @@ export const TopicDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
         <div className="animate-pulse w-12 h-12 rounded-full bg-slate-200"></div>
       </div>
     );
@@ -221,7 +221,7 @@ export const TopicDetailPage: React.FC = () => {
 
   if (!subject || !activeTopic) {
     return (
-      <div className="min-h-screen bg-[#FDFBF7] flex items-center justify-center">
+      <div className="min-h-screen bg-paper-50 flex items-center justify-center">
         <EditorialPanel className="text-center py-20 max-w-sm border border-slate-200">
           <BookOpen className="h-12 w-12 text-slate-300 mx-auto mb-4" />
           <EditorialHeader level="h3" className="text-slate-800 mb-2">Topic Not Found</EditorialHeader>
@@ -232,7 +232,7 @@ export const TopicDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] font-sans relative pb-24 text-slate-900">
+    <div className="min-h-screen bg-paper-50 font-sans relative pb-24 text-slate-900">
       
       {/* Structural Header */}
       <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">

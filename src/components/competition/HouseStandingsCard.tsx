@@ -25,12 +25,12 @@ export const HouseStandingsCard: React.FC<HouseStandingsCardProps> = ({ houses, 
   const isWinning = sortedHouses[0].id === userHouseId;
 
   return (
-    <Card className="h-full shadow-[0_4px_24px_rgba(0,0,0,0.2)] border-[#1E293B] bg-white/5 backdrop-blur-md">
+    <Card className="h-full shadow-[0_4px_24px_rgba(0,0,0,0.2)] border-slate-800 bg-white/5 backdrop-blur-md">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2 text-lg text-white">
-               <Flag className="w-5 h-5 text-[#3ABFF8]" />
+               <Flag className="w-5 h-5 text-sky-400" />
                House Competition
             </CardTitle>
             <CardDescription className="mt-1 text-slate-800">{institutionName} Term 2 Cup</CardDescription>
@@ -52,14 +52,14 @@ export const HouseStandingsCard: React.FC<HouseStandingsCardProps> = ({ houses, 
                <div key={house.id} className="relative w-full">
                  <div className="flex justify-between items-end mb-1">
                    <div className="flex items-center gap-2">
-                     <span className={`font-bold text-sm ${isUserHouse ? 'text-[#3ABFF8]' : 'text-slate-300'}`}>
+                     <span className={`font-bold text-sm ${isUserHouse ? 'text-sky-400' : 'text-slate-300'}`}>
                        {index + 1}. {house.name}
                      </span>
-                     {isUserHouse && <span className="text-[10px] bg-[#3ABFF8]/10 text-[#3ABFF8] px-1.5 py-0.5 rounded font-black uppercase border border-[#3ABFF8]/30">Your House</span>}
+                     {isUserHouse && <span className="text-[10px] bg-sky-400/10 text-sky-400 px-1.5 py-0.5 rounded font-black uppercase border border-sky-400/30">Your House</span>}
                    </div>
                    <span className="font-bold text-white text-sm">{house.points.toLocaleString()}</span>
                  </div>
-                 <div className="w-full h-3 bg-[#0B1120] rounded-full overflow-hidden">
+                 <div className="w-full h-3 bg-slate-950 rounded-full overflow-hidden">
                    <div 
                      className="h-full transition-all duration-1000 ease-out rounded-full shadow-inner"
                      style={{ width: `${percentage}%`, backgroundColor: house.color }}

@@ -21,9 +21,9 @@ export const SchoolHealthScore: React.FC<SchoolHealthScoreProps> = ({ metrics })
   const overallScore = Math.round(vals.reduce((a, b) => a + b, 0) / (vals.length || 1));
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-[#36D399] bg-[#36D399]/10 border-[#36D399]/20';
-    if (score >= 75) return 'text-[#3ABFF8] bg-[#3ABFF8]/10 border-[#3ABFF8]/20';
-    if (score >= 60) return 'text-[#FBBD23] bg-[#FBBD23]/10 border-[#FBBD23]/20';
+    if (score >= 90) return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
+    if (score >= 75) return 'text-sky-400 bg-sky-400/10 border-sky-400/20';
+    if (score >= 60) return 'text-amber-400 bg-amber-400/10 border-amber-400/20';
     return 'text-rose-400 bg-rose-500/10 border-rose-500/20';
   };
 
@@ -39,9 +39,9 @@ export const SchoolHealthScore: React.FC<SchoolHealthScoreProps> = ({ metrics })
   };
 
   return (
-    <Card className="shadow-lg border-[#1E293B] bg-white/5 backdrop-blur-md overflow-hidden relative">
+    <Card className="shadow-lg border-slate-800 bg-white/5 backdrop-blur-md overflow-hidden relative">
        <div className={`absolute top-0 right-0 h-full w-1/3 bg-gradient-to-l from-current opacity-[0.03] pointer-events-none ${scoreTheme.split(' ')[0]}`}></div>
-       <CardHeader className="pb-2 border-b border-[#1E293B] bg-transparent">
+       <CardHeader className="pb-2 border-b border-slate-800 bg-transparent">
           <CardTitle className="text-lg flex items-center text-white gap-2">
             <HeartPulse className={`w-5 h-5 ${scoreTheme.split(' ')[0]}`} />
             Maple School Health Index
@@ -65,8 +65,8 @@ export const SchoolHealthScore: React.FC<SchoolHealthScoreProps> = ({ metrics })
                         <span className={`text-[15px] font-bold ${isWarning ? 'text-rose-400' : 'text-white'}`}>{value}%</span>
                         {isWarning && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mb-1.5 animate-pulse" title="Needs Attention"></span>}
                      </div>
-                     <div className="w-full h-1.5 bg-[#0B1120] rounded-full mt-1.5 overflow-hidden">
-                        <div className={`h-full rounded-full ${isWarning ? 'bg-rose-500' : 'bg-[#3ABFF8]'}`} style={{ width: `${value}%` }}></div>
+                     <div className="w-full h-1.5 bg-slate-950 rounded-full mt-1.5 overflow-hidden">
+                        <div className={`h-full rounded-full ${isWarning ? 'bg-rose-500' : 'bg-sky-400'}`} style={{ width: `${value}%` }}></div>
                      </div>
                   </div>
                 );
