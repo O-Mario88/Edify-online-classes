@@ -9,7 +9,10 @@ from django.utils import timezone
 from datetime import timedelta
 from institutions.models import Institution, InstitutionMembership
 from classes.models import Class, ClassEnrollment
-from live_sessions.models import LiveSession
+# `live_sessions` archived in Phase 0 (out of v1 scope per docs/STRATEGY.md).
+# Dashboards that reported session counts now return 0 until live_sessions is
+# re-enabled. Import removed; usages stubbed below.
+# from live_sessions.models import LiveSession
 from edify_core.permissions import SCHOOL_ADMIN_ROLES
 
 from .models import AnalyticsEvent, DailyPlatformMetric, DailyInstitutionMetric, SubjectPerformanceSnapshot, SystemHealthSnapshot
@@ -180,7 +183,9 @@ class StudentDashboardView(APIView):
         return cards
 
 
-from marketplace.models import Wallet
+# `marketplace` archived in Phase 0; Wallet was unused here (the view reads
+# `request.user.wallet` via the reverse relation, not the imported symbol).
+# from marketplace.models import Wallet
 from institutions.models import TeacherQualityScore
 
 class TeacherDashboardView(APIView):
@@ -228,13 +233,10 @@ class TeacherDashboardView(APIView):
         ).aggregate(avg_score=Coalesce(Avg('total_score', output_field=FloatField()), 0.0, output_field=FloatField()))
         avg_class_score = round(float(score_agg['avg_score']))
         
-        # Wallet / Earnings
+        # Wallet / Earnings — `marketplace` app archived in Phase 0; the wallet
+        # reverse relation no longer exists for newly-onboarded users. Hardcoded
+        # to 0; restore real query when marketplace is re-enabled.
         wallet_balance = 0
-        try:
-            if hasattr(request.user, 'wallet') and request.user.wallet:
-                wallet_balance = request.user.wallet.balance
-        except Exception:
-            pass
             
         try:
             quality_score = TeacherQualityScore.objects.filter(teacher=request.user).first()
@@ -405,7 +407,8 @@ class ParentDashboardView(APIView):
         })
 
 
-from marketplace.models import PayoutRequest
+# `marketplace` archived; PayoutRequest stub'd to 0 below.
+# from marketplace.models import PayoutRequest
 from curriculum.models import ResourceQualityReview
 
 from django.utils.decorators import method_decorator
@@ -419,38 +422,34 @@ class AdminDashboardView(APIView):
         from assessments.models import Submission
         from lessons.models import Lesson
         from exams.models import CandidateRegistration
-        from marketplace.models import Listing
-        
+        # `marketplace` and `live_sessions` archived in Phase 0; their dashboard
+        # cards return 0 until those apps are re-enabled. See docs/STRATEGY.md.
+
         now = timezone.now()
         today = now.date()
         thirty_days = now - timedelta(days=30)
-        
+
         # --- LIVE COUNTS ---
         users_count = User.objects.count()
         institutions_count = Institution.objects.count()
-        pending_payouts = PayoutRequest.objects.filter(status='pending').count()
+        pending_payouts = 0  # marketplace archived
         pending_moderation = ResourceQualityReview.objects.filter(status='pending').count()
-        
+
         # Lesson completions today from LessonAttendance
         from lessons.models import LessonAttendance
         daily_completions = LessonAttendance.objects.filter(
             timestamp__date=today,
             status='present'
         ).count()
-        
-        # Live session completion rate
-        total_sessions = LiveSession.objects.filter(scheduled_start__gte=thirty_days).count()
-        completed_sessions = LiveSession.objects.filter(
-            scheduled_start__gte=thirty_days,
-            status='completed'
-        ).count()
-        session_rate = f"{round((completed_sessions / max(1, total_sessions)) * 100)}%" if total_sessions else '0%'
-        
+
+        # Live session completion rate — live_sessions archived
+        session_rate = '0%'
+
         # Exam registrations
         exam_regs = CandidateRegistration.objects.count()
-        
-        # Marketplace listings
-        total_listings = Listing.objects.count()
+
+        # Marketplace listings — archived
+        total_listings = 0
         
         # Monthly revenue from DailyPlatformMetric
         revenue_metric = DailyPlatformMetric.objects.filter(
